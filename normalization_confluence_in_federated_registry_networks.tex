@@ -1702,6 +1702,45 @@ from their components, with morphism repair as additional rewrite rules in the
 same framework.
 \end{remark}
 
+\subsection{Two Regimes for Federated Repair}
+\label{sec:regimes}
+
+The federated results partition constraint-network design into two regimes with
+\emph{independent} routes to convergence (\Cref{cor:acyclicity-monotone}).  When
+repair is \emph{monotone} on ordered shared domains, convergence holds on
+\emph{any} topology---including cyclic meshes---by \Cref{thm:monotone-cycles}.
+When repair may be \emph{non-monotone} (toggles, cancellations, order-reversing
+revocations), the topology must be \emph{acyclic}, with resolution operators
+(\Cref{sec:multisource}) at multi-source targets, and convergence is the one-shot
+constructive normal form (\Cref{cor:resolved-nf}).  In both regimes repair must
+preserve validity (M1/R2).  \Cref{tab:regimes} summarizes the trade; the two
+axes---monotonicity and acyclicity---are orthogonal, and either alone suffices.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lp{3.1cm}p{3.0cm}p{4.2cm}@{}}
+\toprule
+\textbf{Regime} & \textbf{Repair requirement} & \textbf{Topologies} & \textbf{Convergence guarantee} \\
+\midrule
+Monotone &
+Monotone on a lattice order (join \emph{or} meet); validity-preserving &
+Any: cyclic meshes, DAGs, trees &
+Least fixed point $\mathrm{lfp}(\bot)$ under any \emph{fair} asynchronous order (Knaster--Tarski + chaotic iteration) \\[4pt]
+Non-monotone &
+May reverse the order (toggles, negation, cancellations); validity-preserving &
+Acyclic only; multi-source targets need resolution operators &
+Deterministic one-shot constructive normal form; feedback loops structurally excluded \\
+\bottomrule
+\end{tabular}
+\caption{Two regimes for federated repair.  Monotonicity and acyclicity are
+independent conditions for confluence: monotone repair converges on any topology
+(\Cref{thm:monotone-cycles}); non-monotone repair requires acyclicity
+(\Cref{prop:cycle-necessary}).  Validity preservation (M1/R2) is required in
+both.}
+\label{tab:regimes}
+\end{table}
+
 \subsection{Verifying Compensation Commutativity}
 
 CC is easy to state but potentially hard to verify: it quantifies over all

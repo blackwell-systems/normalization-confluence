@@ -102,6 +102,15 @@ For **tree-shaped networks** (directed forests where each non-root has one incom
 
 The tree restriction is then removed. A target with **multiple sources** carries a **resolution operator** - a source-determined, validity-preserving merge of its incoming constraints (priority, conjunction, most-restrictive-wins) - generalizing the authority function. Under these two decidable conditions, convergence holds on **any acyclic network**, with the tree case as the single-source special case. Because the merge encodes domain policy, the guarantee is verified by finite enumeration rather than assumed.
 
+Finally, when shared domains are ordered (lattices) and repair is **monotone**, acyclicity is unnecessary: the repair operator has a least fixed point (Knaster-Tarski) reached order-independently by chaotic iteration, so convergence holds on **any cyclic graph**. This reveals two independent routes to federated confluence:
+
+| Regime | Repair requirement | Permissible topologies | Convergence guarantee |
+|---|---|---|---|
+| **Monotone** | Monotone on a lattice order (join *or* meet); validity-preserving | **Any** — cyclic meshes, DAGs, trees | Least fixed point `lfp(⊥)` under any *fair* asynchronous order |
+| **Non-monotone** | May reverse the order (toggles, negation, cancellations); validity-preserving | **Acyclic only**; multi-source targets need resolution operators | Deterministic one-shot normal form; feedback loops structurally excluded |
+
+Monotonicity and acyclicity are orthogonal — either alone suffices. Validity preservation is required in both. State-based CRDTs are the compensation-free special case of the monotone regime.
+
 ---
 
 ## Companion Tools

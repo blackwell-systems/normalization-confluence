@@ -1164,12 +1164,15 @@ convergence to equivalent compliance states.
 
 \subsection{Extensions}
 
-The single-registry result is the foundation for two extensions we do not
-attempt here.  First, \emph{federated streams} where multiple organizations
-maintain independent registries connected by morphisms.  Second,
-\emph{privacy-preserving validation} where organizations prove registry
-compliance via zero-knowledge proofs.  Both require the single-registry
-convergence result as a building block.
+The single-registry result is the foundation for further extensions.  First,
+\emph{federated streams} where multiple organizations maintain independent
+registries connected by morphisms; this is developed in the companion
+paper~\cite{blackwell2026federated}, which reduces federated convergence to the
+single-registry case via an authority argument and extends it to multi-source
+networks (resolution operators) and to cyclic networks under monotone repair.
+Second, \emph{privacy-preserving validation} where organizations prove registry
+compliance via zero-knowledge proofs, which remains open.  Both build on the
+single-registry convergence result established here.
 
 %========================================
 \section{Verification Calculus for CC}
@@ -1583,6 +1586,12 @@ T.~Akidau, R.~Bradshaw, C.~Chambers, et~al.,
 L.~Lamport,
 ``Time, clocks, and the ordering of events in a distributed system,''
 \emph{Communications of the ACM}, vol.~21, no.~7, pp.~558--565, 1978.
+
+\bibitem{blackwell2026federated}
+Dayna~Blackwell,
+``Normalization Confluence in Federated Registry Networks,''
+Zenodo, 2026.
+\textsc{doi}: \href{https://doi.org/10.5281/zenodo.18677400}{10.5281/zenodo.18677400}.
 
 \end{thebibliography}
 
