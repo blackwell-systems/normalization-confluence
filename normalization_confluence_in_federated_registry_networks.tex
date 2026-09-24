@@ -192,7 +192,7 @@ from operation algebra to compensation design.
 \subsection{Contributions}
 
 The single-registry results (items 1--6) are from~\cite{blackwell2026nc},
-restated here for self-containment.  The federated extension (items 7--9) is new.
+restated here for self-containment.  The federated extension (items 7--10) is new.
 
 \begin{enumerate}[leftmargin=*,nosep]
 \item \textbf{Normalization confluence regime} (\Cref{sec:model}): A
@@ -238,6 +238,12 @@ restated here for self-containment.  The federated extension (items 7--9) is new
   Knaster--Tarski theorem, with order-independence identified as chaotic
   iteration.  CRDTs are the compensation-free special case, and acyclicity is
   revealed as a concession required only for non-monotone repair.
+\item \textbf{Compositionality} (\Cref{sec:compositionality}): A convex,
+  internally convergent sub-federation collapses to a single \emph{effective
+  registry} (\Cref{thm:collapse}); the outer network converges iff the collapsed
+  one does.  This gives modular and hierarchical verification---and black-box
+  reuse of verified subsystems---generalizing product composition from
+  independent registries to arbitrary sub-diagrams (limits compose).
 \end{enumerate}
 
 %========================================
@@ -1614,6 +1620,99 @@ convergence \emph{with} business invariants, which operation commutativity alone
 does not provide.
 \end{remark}
 
+\subsection{Compositionality: Sub-Federations as Effective Registries}
+\label{sec:compositionality}
+
+Product composition (\Cref{thm:product}) collapses \emph{independent} registries
+into one.  The same holds for a \emph{connected} sub-federation: an internally
+convergent sub-network can be replaced by a single \emph{effective registry},
+so federations verify modularly and hierarchically.  Registries and morphisms
+form a category in which the federated registry is the limit of the constraint
+diagram; this subsection is the statement that such limits compose.
+
+\begin{definition}[Sub-Federation, Boundary, Convexity]
+\label{def:subfed}
+Given $\mathcal{N} = (\{R_i\}_{i \in \mathcal{I}}, \{\phi_{ij}\})$ and
+$\mathcal{J} \subseteq \mathcal{I}$, the \emph{sub-federation} on $\mathcal{J}$
+has components $\{R_i\}_{i \in \mathcal{J}}$ and \emph{internal} morphisms
+$E_{\mathcal{J}} = \{(i,j) \in E : i, j \in \mathcal{J}\}$.  Its boundary
+consists of \emph{import} edges (from $\mathcal{I}\setminus\mathcal{J}$ into
+$\mathcal{J}$) and \emph{export} edges (from $\mathcal{J}$ out).  $\mathcal{J}$
+is \emph{convex} if no directed path between two members of $\mathcal{J}$ passes
+through a vertex outside $\mathcal{J}$.
+\end{definition}
+
+\begin{definition}[Effective Registry]
+\label{def:effreg}
+The \emph{effective registry} $R_{\mathcal{J}}$ is the federated registry
+(\Cref{def:fed-registry}) of the sub-federation: state space
+$\prod_{i \in \mathcal{J}} \Sigma_{R_i}$, invariants the internal local and
+morphism invariants, and compensation the sub-federated normalizer
+$\rho_{\Fed}^{\mathcal{J}}$.  Its shared component is the union of the import
+ports (the shared components of members targeted by import edges); export edges
+read its normalized state.
+\end{definition}
+
+\begin{theorem}[Compositional Collapse]
+\label{thm:collapse}
+Let $\mathcal{J}$ be convex with an internally convergent sub-federation (its
+morphisms satisfy M1/R2 and its components satisfy WFC and CC; acyclic, or
+cyclic with monotone repair).  Then:
+\begin{enumerate}[leftmargin=*,nosep,label=(\alph*)]
+\item $R_{\mathcal{J}}$ satisfies WFC and CC.
+\item Each boundary morphism, reinterpreted as a morphism to or from
+  $R_{\mathcal{J}}$, satisfies M1 iff it does in $\mathcal{N}$.
+\item Let $\mathcal{N}'$ replace the sub-federation by $R_{\mathcal{J}}$.  Then
+  $\mathcal{N}'$ is a well-formed network, acyclic if $\mathcal{N}$ is, and
+  $\mathcal{N}$ converges iff $\mathcal{N}'$ does; their normal forms agree under
+  $\Sigma_{R_{\mathcal{J}}} = \prod_{i \in \mathcal{J}} \Sigma_{R_i}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{(a)}~WFC: $\rho_{\Fed}^{\mathcal{J}}$ drives the sub-federated measure to a
+federally valid state (\Cref{lem:fed-termination}, \Cref{lem:resolved-termination}),
+so it is a well-founded compensation for $R_{\mathcal{J}}$.  CC: internal
+convergence (\Cref{thm:fed-convergence}, \Cref{thm:resolved-convergence}, or
+\Cref{thm:monotone-cycles}) makes the sub-federated normal form a deterministic
+function of the events targeting $\mathcal{J}$ and the import-port values; CC1
+(order independence of internal events) and CC2 (absorption of internal
+compensation) are precisely that confluence read through $R_{\mathcal{J}}$.
+
+\emph{(b)}~An import edge $(i,j)$ with $j \in \mathcal{J}$ overwrites the shared
+component of $R_{\mathcal{J}}$ that coincides with $\pi_j^{\mathrm{sh}}$; its M1
+obligation---overwriting with a valid source image preserves target
+validity---is unchanged, since sub-federated re-normalization preserves federal
+validity by~(a).  An export edge reads $R_{\mathcal{J}}$'s normalized state, a
+source-determined projection.
+
+\emph{(c)}~Convexity ensures contracting $\mathcal{J}$ to a single vertex creates
+no exterior path between two members, so $\mathcal{N}'$ is acyclic whenever
+$\mathcal{N}$ is.  With (a)--(b), $\mathcal{N}'$ meets the hypotheses of the
+federated convergence theorem.  Because $\mathcal{J}$ is convex, a topological
+order of $\mathcal{N}$ visits it as a contiguous block, so $\rho_{\Fed}$ on
+$\mathcal{N}$ factors as ``normalize the sub-federation, then propagate across
+the boundary''---which is exactly $\rho_{\Fed}$ on $\mathcal{N}'$ with
+$R_{\mathcal{J}}$'s compensation inlined.  Hence the normal forms coincide. \qed
+\end{proof}
+
+\begin{corollary}[Modular and Hierarchical Verification]
+\label{cor:modular}
+A federation verifies compositionally: verify each convex sub-federation once,
+replace it by its effective registry, and verify the network of effective
+registries.  The construction nests---giving hierarchical verification---and a
+verified sub-federation is reusable as a black-box component with a fixed port
+interface.  \Cref{thm:product} is the special case $E_{\mathcal{J}} = \varnothing$
+with empty boundary (independent registries).
+\end{corollary}
+
+\begin{remark}[Convexity and the monotone regime]
+Convexity is needed only to keep the collapsed network acyclic.  In the monotone
+regime (\Cref{thm:monotone-cycles}) a boundary-induced cycle is harmless: if the
+sub-federation's repair is monotone then so is $\rho_{\Fed}^{\mathcal{J}}$, and
+\Cref{thm:monotone-cycles} applies to $\mathcal{N}'$ regardless of convexity.
+\end{remark}
+
 \subsection{Example: Manufacturer--Supplier Federation}
 
 \textbf{Manufacturer $R_M$}: $\Sigma_M = \{\texttt{draft}, \texttt{active},
@@ -2164,6 +2263,10 @@ repair is monotone, even \emph{cyclic} networks converge---by the
 Knaster--Tarski fixed-point theorem---which reveals acyclicity as a requirement
 only for non-monotone repair, exhibits order-independent convergence as chaotic
 iteration, and places state-based CRDTs as the compensation-free special case.
+Federated convergence is moreover \emph{compositional}: a convex, internally
+convergent sub-federation collapses to a single effective registry, so large
+networks verify modularly and hierarchically and verified subsystems compose as
+black-box components.
 
 To make CC practically verifiable, we developed a verification calculus that
 reduces the global CC obligation to local checks.  Invariant footprints
