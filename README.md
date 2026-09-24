@@ -18,6 +18,11 @@ This research identifies a third regime: **normalization confluence**, where ope
 
 This repository contains theoretical foundations, proofs, and companion verification tools.
 
+New here? Two short guides orient you:
+- [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
+- [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
+- [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command).
+
 ---
 
 ## Publications
