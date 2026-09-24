@@ -399,3 +399,47 @@ Section AstConverge.
     apply run_good_perm; [exact Hperm | exact Hev | split; assumption].
   Qed.
 End AstConverge.
+
+(* ===== the compensation-free fragment: CRDTs =====
+
+   A machine is compensation-free when no in-domain valuation ever needs repair:
+   every valuation in the box already satisfies every invariant, so normalization
+   is the identity and no compensation ever fires. This is exactly the fragment
+   CRDT.v characterizes as the CRDTs (operations preserve every invariant, so there
+   is nothing to compensate). The predicate is decidable and extracted, so the CRDT
+   classification is CERTIFIED from the rules, not asserted by the producer. It is
+   the AST analogue of gsm's "max repair depth = 0". *)
+Definition compensationFree (m : machine) : bool :=
+  forallb (allValid m) (box (doms m)).
+
+Lemma compensationFree_valid :
+  forall m, compensationFree m = true ->
+  forall v, In v (box (doms m)) -> allValid m v = true.
+Proof.
+  intros m Hcf v Hv. unfold compensationFree in Hcf.
+  rewrite forallb_forall in Hcf. apply Hcf. exact Hv.
+Qed.
+
+Lemma normalize_valid_id :
+  forall m fuel s, allValid m s = true -> normalize m fuel s = s.
+Proof.
+  intros m fuel s Hval.
+  destruct fuel as [| f]; simpl; [reflexivity | rewrite Hval; reflexivity].
+Qed.
+
+(* Under compensation-freeness, an event-step never repairs: it is exactly the
+   guarded effect, with no normalization interposed. This is the defining behavior
+   of a CRDT operation (mutate directly; there is nothing to compensate), so a
+   machine the checker calls compensation-free provably belongs to the CRDT
+   fragment. *)
+Theorem compensationFree_step_no_repair :
+  forall m, compensationFree m = true ->
+  forall e v, In v (box (doms m)) ->
+    stepAst m e v = (if evalP (mins m) v (fst e) then applyT m (snd e) v else v).
+Proof.
+  intros m Hcf e v Hv. unfold stepAst.
+  destruct (evalP (mins m) v (fst e)); [| reflexivity].
+  apply normalize_valid_id.
+  apply compensationFree_valid; [exact Hcf |].
+  apply box_iff. apply applyT_pres. apply box_iff. exact Hv.
+Qed.

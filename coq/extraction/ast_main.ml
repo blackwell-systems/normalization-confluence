@@ -138,6 +138,9 @@ let () =
     with Failure msg -> (prerr_endline ("parse error: " ^ msg); exit 2)
   in
   let nv = List.length m.doms and ni = List.length m.invs and ne = List.length m.evs in
+  (* Machine-readable classification line, parsed by consumers to cross-check a producer's CRDT-fragment claim. Certified
+     by the extracted, axiom-free compensationFree, not asserted. *)
+  Printf.printf "compensation_free=%b\n" (compensationFree m);
   if check m then
     (Printf.printf
        "OK: %d vars, %d invariants, %d events; machine verified convergent from its RULES (events preserve validity and commute on all valid states)\n"

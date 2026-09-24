@@ -15,7 +15,10 @@ machine pass here.
   repair) and confirms every event preserves validity and every pair commutes on every valid
   valuation. So it does not trust gsm to have enumerated or normalized anything: it re-derives
   convergence from the declarations themselves. Proven axiom-free via `check_sound_converges`,
-  `check_sound_commute`.
+  `check_sound_commute`. It also prints a `compensation_free=<bool>` line: the machine-checked
+  CRDT-fragment classification (no in-domain valuation ever needs repair, the AST analogue of
+  "max repair depth = 0"), proven axiom-free via `compensationFree_step_no_repair`, so a consumer
+  can certify the CRDT claim from the rules rather than trust the producer.
 
 These are the **differential-testing oracles** for gsm: gsm builds and verifies a machine in Go,
 then emits either its tables (`Machine.WriteConvergenceTables`) or its rules
