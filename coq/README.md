@@ -63,6 +63,27 @@ Together with the axiom-free `Print Assumptions` on the abstract theorem, this i
 that the mechanization is strong: correct definitions (standard rewriting theory), satisfiable
 hypotheses (a real model), a discriminating conclusion, and no hidden assumptions.
 
+## Implementation soundness (`Gsm.v`)
+
+The theorem is conditional on WFC and CC. `Gsm.v` mechanizes the soundness of the two arguments
+the reference implementation (`gsm`) uses to *certify* those conditions at build time, so the
+result attaches to how gsm actually establishes its hypotheses, not just to an illustrative
+model:
+
+- **CC by footprint disjointness** (`disjoint_events_commute`): over a valuation state model
+  mirroring gsm's bitpacked `State` (a write touches only its variable's field),
+  `write_comm` proves disjoint-variable writes commute (Leibniz, no funext), from which two
+  events with disjoint footprints commute compositionally. This is gsm's `PairsDisjoint`
+  certification path (the one that avoids brute-force enumeration).
+- **WFC by a well-founded potential** (`repair_terminates`): a repair that strictly decreases a
+  natural-number potential whenever the state is invalid is strongly normalizing. This is the
+  fact behind gsm's cycle-detection WFC check.
+
+Concrete witnesses (`inc0_inc1_commute`, `ex_repair_terminates`) discharge both with no
+hypotheses; `Print Assumptions` on all four results is "Closed under the global context". The
+brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
+not mechanized; the disjointness path is the substantive one.
+
 ## Build
 
 ```
