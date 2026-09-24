@@ -909,10 +909,14 @@ axiom-free.  The monotone-cycles result (\Cref{thm:monotone-cycles}) is mechaniz
 in its constructive finite-lattice core: Kleene iteration of a monotone operator
 from~$\bot$ is an ascending chain bounded by every fixed point, and once it
 stabilizes the stable value is the (unique) least fixed point~$\bar{s}^{\star}$,
-again axiom-free with a concrete witness.  Scripts are in the \texttt{coq/}
-directory of the artifact.  Not yet mechanized: the full chaotic-iteration
-statement (that every fair \emph{asynchronous} component-wise schedule, not only
-the synchronous iteration, reaches~$\bar{s}^{\star}$).
+again axiom-free with a concrete witness.  The chaotic-iteration convergence---that
+every fair \emph{asynchronous} component-wise schedule from~$\bot$, not only the
+synchronous iteration, reaches~$\bar{s}^{\star}$---is mechanized as well: reframing
+a chaotic schedule as a productive-update rewrite relation, below~$\bar{s}^{\star}$
+a monotone update strictly increases a rank, so the relation is strongly
+normalizing and its unique normal form is~$\bar{s}^{\star}$; hence any productive
+schedule reaches the same fixed point (order-independence), again axiom-free with a
+concrete witness.  Scripts are in the \texttt{coq/} directory of the artifact.
 \end{remark}
 
 \begin{theorem}[Stream Convergence]

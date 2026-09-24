@@ -101,9 +101,30 @@ stabilizes for a finite lattice"), axiom-free:
 A concrete finite lattice (`bool`) with a monotone operator witnesses non-vacuity, with the
 least fixed point computed (`bool_lfp_true`, `bool_lfp_value`). Deliberately avoids the
 impredicative arbitrary-meet form of Knaster-Tarski, which would require excluded middle or
-propositional extensionality, so the development stays axiom-free. Not covered: the full
-chaotic-iteration result (every fair asynchronous component-wise schedule reaches the least
-fixed point, not just the synchronous iteration) - that remains the open piece.
+propositional extensionality, so the development stays axiom-free.
+
+## Chaotic (asynchronous) iteration (`Chaotic.v`)
+
+The other half of the monotone-cycles theorem: not only does the least fixed point exist, but
+every FAIR ASYNCHRONOUS schedule of component updates from bottom converges to it, regardless of
+order. That is the classical convergence of chaotic iteration (Cousot 1977), and it is what
+"converges regardless of application order" means for a distributed system with no global clock.
+`Chaotic.v` mechanizes it constructively, axiom-free, by reframing a chaotic schedule as a
+PRODUCTIVE-update rewrite relation (a step that changes the state):
+
+- `chaotic_terminates`: below the least fixed point a monotone update only moves up, so
+  productive steps strictly increase a rank and are finite (the relation is strongly normalizing).
+- `normal_is_lfp`: a state with no productive step is a fixed point of the whole operator, hence
+  the least fixed point.
+- `chaotic_reaches_lfp` / `chaotic_from_bot`: from bottom, any sequence of productive updates
+  reaches the least fixed point.
+- `chaotic_limit_unique`: every reachable normal form is the least fixed point, i.e. the
+  destination is schedule-independent. This is the order-independence itself.
+
+A concrete two-value instance (`bool_chaotic_reaches_lfp`) discharges every hypothesis and shows
+the iteration from `false` reaches the fixed point `true`, axiom-free. The productive-step
+reframing is what makes "every fair schedule" tractable without modeling infinite schedules: any
+maximal run of productive updates terminates at the same unique fixed point.
 
 ## Implementation soundness (`Gsm.v`)
 
