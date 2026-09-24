@@ -58,16 +58,21 @@ gsm emits only the valid states, remapped to `0..V-1`.
 **Machine rules** (`astchecker`): S-expressions, one form per top-level line.
 
 ```
-(doms 6 6 2)                          ; domain size of each variable (raw 0..domain-1 space)
-(inv (le (var 0) (lit 3))             ; invariant: a predicate ...
-     (do (set 0 (lit 3))))            ;   ... and its repair transform
-(ev  (do (set 0 (add (var 0) (lit 1)))))
+(doms 5 5 2)                          ; domain size of each variable
+(mins 2 0 0)                          ; logical minimum of each variable (optional; default 0s)
+(inv (le (var 0) (lit 5))             ; invariant: a predicate ...
+     (do (set 0 (lit 5))))            ;   ... and its repair transform
+(ev     (do (set 1 (add (var 1) (lit 1)))))          ; unguarded event
+(evwhen (lt (var 0) (lit 6))                          ; guarded event (no-op when guard is false)
+        (do (set 0 (add (var 0) (lit 1)))))
 ```
 
 with `expr ::= (var i) | (lit n) | (add e e) | (sub e e)`,
-`pred ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (not p)`, and
-`xform ::= (do (set i e)...)`. `Registry.WriteMachineAST` emits exactly this for the fragment it
-covers (min=0 variables; comparison/and/not predicates; Set/Add/Sub transforms; unguarded events).
+`pred ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)`, and
+`xform ::= (do (set i e)...)`. A variable's values live in `min .. min+domain-1`; the state stores
+the raw `0..domain-1` offset. `Registry.WriteMachineAST` emits exactly this for the fragment it
+covers (any nonnegative min; comparison/and/or/not predicates; Set/Add/Sub transforms; events with
+an optional guard) and refuses anything outside it.
 
 ## Scope
 

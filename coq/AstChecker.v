@@ -35,16 +35,25 @@ Inductive pred :=
 | PLt (a b : expr)
 | PEq (a b : expr)
 | PAnd (ps : list pred)
+| POr (ps : list pred)
 | PNot (p : pred).
 
 Definition assign : Type := (nat * expr)%type. (* variable index := expr *)
 Definition transform : Type := list assign.
 
-(* A machine: variable domains, invariants (predicate + repair), events (effect). *)
+(* An event carries a guard (a precondition) and an effect. An unguarded event uses
+   a guard that is always true (PAnd []). A guarded event is a no-op when its guard
+   is false, matching gsm's DeclEventGuarded. *)
+Definition gevent : Type := (pred * transform)%type.
+
+(* A machine: per-variable domain size and logical minimum (values live in
+   min .. min+domain-1; the state stores the raw 0..domain-1 offset), invariants
+   (predicate + repair), and guarded events. *)
 Record machine := {
   doms : list nat;                     (* doms[i] = domain size of variable i *)
+  mins : list nat;                     (* mins[i] = logical minimum of variable i *)
   invs : list (pred * transform);
-  evs  : list transform
+  evs  : list gevent
 }.
 
 (* ===== valuation state + evaluation (matches gsm readVal/writeVal, raw space) ===== *)
@@ -63,39 +72,42 @@ Fixpoint wr (i v : nat) (s : valn) {struct s} : valn :=
   | x :: t => match i with 0 => v :: t | S i' => x :: wr i' v t end
   end.
 
-Fixpoint evalE (s : valn) (e : expr) : nat :=
+(* A variable reads in LOGICAL space: min[i] + the raw stored offset. *)
+Fixpoint evalE (mins : list nat) (s : valn) (e : expr) : nat :=
   match e with
-  | EVar i => rd i s
+  | EVar i => nth i mins 0 + rd i s
   | ELit n => n
-  | EAdd a b => evalE s a + evalE s b
-  | ESub a b => evalE s a - evalE s b   (* nat subtraction (truncates at 0) *)
+  | EAdd a b => evalE mins s a + evalE mins s b
+  | ESub a b => evalE mins s a - evalE mins s b   (* nat subtraction (truncates at 0) *)
   end.
 
-Fixpoint evalP (s : valn) (p : pred) : bool :=
+Fixpoint evalP (mins : list nat) (s : valn) (p : pred) : bool :=
   match p with
-  | PLe a b => Nat.leb (evalE s a) (evalE s b)
-  | PLt a b => Nat.ltb (evalE s a) (evalE s b)
-  | PEq a b => Nat.eqb (evalE s a) (evalE s b)
-  | PAnd ps => forallb (evalP s) ps
-  | PNot p => negb (evalP s p)
+  | PLe a b => Nat.leb (evalE mins s a) (evalE mins s b)
+  | PLt a b => Nat.ltb (evalE mins s a) (evalE mins s b)
+  | PEq a b => Nat.eqb (evalE mins s a) (evalE mins s b)
+  | PAnd ps => forallb (evalP mins s) ps
+  | POr ps => existsb (evalP mins s) ps
+  | PNot p => negb (evalP mins s p)
   end.
 
-(* Writing clamps into the variable's domain 0..doms[i]-1, like gsm's SetInt. *)
+(* Writing takes a LOGICAL value, stores the raw offset value-min, clamped into
+   0..doms[i]-1 (so the state stays in range), like gsm's SetInt. *)
 Definition setClamped (m : machine) (i v : nat) (s : valn) : valn :=
-  wr i (Nat.min v (nth i (doms m) 1 - 1)) s.
+  wr i (Nat.min (v - nth i (mins m) 0) (nth i (doms m) 1 - 1)) s.
 
 Fixpoint applyT (m : machine) (t : transform) (s : valn) : valn :=
   match t with
   | [] => s
-  | (i, e) :: rest => applyT m rest (setClamped m i (evalE s e) s)
+  | (i, e) :: rest => applyT m rest (setClamped m i (evalE (mins m) s e) s)
   end.
 
 Definition allValid (m : machine) (s : valn) : bool :=
-  forallb (fun inv => evalP s (fst inv)) (invs m).
+  forallb (fun inv => evalP (mins m) s (fst inv)) (invs m).
 
 (* One repair step: fire the first violated invariant's repair. *)
 Definition repair1 (m : machine) (s : valn) : valn :=
-  match find (fun inv => negb (evalP s (fst inv))) (invs m) with
+  match find (fun inv => negb (evalP (mins m) s (fst inv))) (invs m) with
   | Some inv => applyT m (snd inv) s
   | None => s
   end.
@@ -109,9 +121,12 @@ Fixpoint normalize (m : machine) (fuel : nat) (s : valn) : valn :=
 
 Definition fuelOf (m : machine) : nat := fold_left Nat.mul (doms m) 1.
 
-(* The step function of event e: apply its effect, then normalize. *)
-Definition stepAst (m : machine) (e : transform) (s : valn) : valn :=
-  normalize m (fuelOf m) (applyT m e s).
+(* The step function of a guarded event: if the guard holds, apply the effect then
+   normalize; otherwise the event is a no-op. *)
+Definition stepAst (m : machine) (ge : gevent) (s : valn) : valn :=
+  if evalP (mins m) s (fst ge)
+  then normalize m (fuelOf m) (applyT m (snd ge) s)
+  else s.
 
 Fixpoint valeqb (a b : valn) : bool :=
   match a, b with
@@ -296,7 +311,7 @@ Lemma repair1_pres : forall m s,
   inRange (doms m) s -> inRange (doms m) (repair1 m s).
 Proof.
   intros m s Hin. unfold repair1.
-  destruct (find (fun inv => negb (evalP s (fst inv))) (invs m)) as [inv | ].
+  destruct (find (fun inv => negb (evalP (mins m) s (fst inv))) (invs m)) as [inv | ].
   - apply applyT_pres. exact Hin.
   - exact Hin.
 Qed.
@@ -312,7 +327,10 @@ Qed.
 Lemma stepAst_pres : forall m e s,
   inRange (doms m) s -> inRange (doms m) (stepAst m e s).
 Proof.
-  intros m e s Hin. unfold stepAst. apply normalize_pres. apply applyT_pres. exact Hin.
+  intros m e s Hin. unfold stepAst.
+  destruct (evalP (mins m) s (fst e)).
+  - apply normalize_pres. apply applyT_pres. exact Hin.
+  - exact Hin.
 Qed.
 
 Lemma stepAst_in_box : forall m e v,
@@ -336,7 +354,7 @@ Section AstConverge.
   Qed.
 
   (* Apply a sequence of events left to right (the AST analogue of Checker.run). *)
-  Definition runAst (es : list transform) (v : valn) : valn :=
+  Definition runAst (es : list gevent) (v : valn) : valn :=
     fold_left (fun s e => stepAst m e s) es v.
 
   Lemma runAst_cons : forall e es v, runAst (e :: es) v = runAst es (stepAst m e v).

@@ -6,18 +6,19 @@
    Machine file format (S-expressions, whitespace-insensitive):
 
      (doms 4 4 2)                          ; domain size of each variable
+     (mins 0 0 0)                          ; logical minimum of each variable (optional; default 0s)
      (inv (le (var 0) (lit 3))             ; invariant: predicate ...
           (do (set 0 (lit 3))))            ;   ... and its repair transform
-     (ev  (do (set 0 (add (var 0) (lit 1)))))
-     (ev  (do (set 1 (add (var 1) (lit 1)))))
-     (ev  (do (set 2 (lit 1))))
+     (ev   (do (set 0 (add (var 0) (lit 1)))))        ; unguarded event
+     (evwhen (lt (var 1) (lit 3))          ; guarded event: fires only when the guard holds
+             (do (set 1 (add (var 1) (lit 1)))))
 
    expr  ::= (var i) | (lit n) | (add e e) | (sub e e)
-   pred  ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (not p)
+   pred  ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)
    xform ::= (do (set i e)...)
 
-   Variable values live in raw 0..domain-1 space (min=0), matching gsm's exporter.
-   Exit 0 = verified convergent, 1 = not, 2 = usage/parse error. *)
+   A variable's values live in min .. min+domain-1; the state stores the raw
+   0..domain-1 offset. Exit 0 = verified convergent, 1 = not, 2 = usage/parse error. *)
 
 open Checker_core
 
@@ -82,6 +83,7 @@ let rec build_pred = function
   | List [Atom "lt"; a; b] -> PLt (build_expr a, build_expr b)
   | List [Atom "eq"; a; b] -> PEq (build_expr a, build_expr b)
   | List (Atom "and" :: ps) -> PAnd (List.map build_pred ps)
+  | List (Atom "or" :: ps) -> POr (List.map build_pred ps)
   | List [Atom "not"; p] -> PNot (build_pred p)
   | _ -> failwith "malformed pred"
 
@@ -93,16 +95,28 @@ let build_transform = function
   | List (Atom "do" :: assigns) -> List.map build_assign assigns
   | _ -> failwith "malformed transform (expected (do ...))"
 
+(* An unguarded event has an always-true guard (PAnd [] evaluates to forallb over
+   the empty list = true). *)
+let always_true : pred = PAnd []
+
+let build_ints = function
+  | ds -> List.map (function Atom a -> int_of a | _ -> failwith "expected integer") ds
+
 let build_machine (forms : sexp list) : machine =
-  let doms = ref [] and invs = ref [] and evs = ref [] in
+  let doms = ref [] and mins = ref None and invs = ref [] and evs = ref [] in
   List.iter (fun form ->
     match form with
-    | List (Atom "doms" :: ds) ->
-      doms := List.map (function Atom a -> int_of a | _ -> failwith "bad dom") ds
+    | List (Atom "doms" :: ds) -> doms := build_ints ds
+    | List (Atom "mins" :: ms) -> mins := Some (build_ints ms)
     | List [Atom "inv"; p; t] -> invs := (build_pred p, build_transform t) :: !invs
-    | List [Atom "ev"; t] -> evs := build_transform t :: !evs
-    | _ -> failwith "unknown top-level form (expected doms/inv/ev)") forms;
-  { doms = !doms; invs = List.rev !invs; evs = List.rev !evs }
+    | List [Atom "ev"; t] -> evs := (always_true, build_transform t) :: !evs
+    | List [Atom "evwhen"; g; t] -> evs := (build_pred g, build_transform t) :: !evs
+    | _ -> failwith "unknown top-level form (expected doms/mins/inv/ev/evwhen)") forms;
+  let mins = match !mins with
+    | Some ms -> ms
+    | None -> List.map (fun _ -> 0) !doms   (* default: every variable min = 0 *)
+  in
+  { doms = !doms; mins; invs = List.rev !invs; evs = List.rev !evs }
 
 (* ---- main ---- *)
 
