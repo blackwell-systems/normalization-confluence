@@ -24,7 +24,7 @@
    Rocq 9.3. *)
 
 Require Import NC.Newman.
-From Stdlib Require Import List Arith.Wf_nat Wellfounded.Inverse_Image Lia.
+From Coq Require Import List Arith.Wf_nat Wellfounded.Inverse_Image Lia.
 Import ListNotations.
 
 (* ============================================================

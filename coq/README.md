@@ -1,8 +1,29 @@
 # Mechanized confluence proof (Coq / Rocq)
 
+[![verify](https://github.com/blackwell-systems/normalization-confluence/actions/workflows/verify.yml/badge.svg)](https://github.com/blackwell-systems/normalization-confluence/actions/workflows/verify.yml)
+
 A machine-checked proof of the paper's Convergence Theorem: under the paper's stated conditions,
 the governance rewrite system is confluent and every configuration has a unique normal form.
-Checked by `coqc` (Rocq 9.3; any Coq/Rocq >= 8.18 should work). No `Admitted`, no added axioms.
+CI compiles it on Coq 8.18 and 8.20 (also builds on Rocq 9.3) and gates on it being **axiom-free**:
+every key theorem is "Closed under the global context", no `Admitted`, no added axioms. The badge
+is green only when that gate passes.
+
+## Verify it yourself
+
+With Coq/Rocq installed (`coqc` on PATH):
+
+```
+cd coq && bash verify.sh      # compiles everything, then prints the axiom-free gate result
+```
+
+Or with nothing but Docker (no local Coq), one command reproduces exactly what CI does:
+
+```
+docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
+  bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
+```
+
+Expected tail: `PASS: all 7 theorems are Closed under the global context (no axioms, no admits)`.
 
 ## What is proven
 

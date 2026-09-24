@@ -13,7 +13,7 @@
 
 Require Import NC.Newman.
 Require Import NC.Governance.
-From Stdlib Require Import List Lia Bool.
+From Coq Require Import List Lia Bool.
 Import ListNotations.
 
 (* =====================================================================

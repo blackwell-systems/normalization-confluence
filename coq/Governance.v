@@ -17,10 +17,10 @@
      coqc -Q . NC Newman.v && coqc -Q . NC Governance.v *)
 
 Require Import NC.Newman.
-From Stdlib Require Import List.
-From Stdlib Require Import Arith.Wf_nat.
-From Stdlib Require Import Wellfounded.Inverse_Image.
-From Stdlib Require Import Lia.
+From Coq Require Import List.
+From Coq Require Import Arith.Wf_nat.
+From Coq Require Import Wellfounded.Inverse_Image.
+From Coq Require Import Lia.
 Import ListNotations.
 
 Section Governance.

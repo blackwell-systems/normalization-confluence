@@ -1,0 +1,30 @@
+name: verify
+
+# Compiles the mechanized confluence proof and gates on it being axiom-free
+# (every key theorem "Closed under the global context"). A green check means a
+# stranger can trust the proof without running anything themselves.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  coq:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        coq_version: [ '8.18', '8.20' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: ${{ matrix.coq_version }}
+          custom_script: |
+            startGroup "Compile + axiom-free gate"
+              sudo chown -R coq:coq .
+              cd coq
+              bash verify.sh
+            endGroup

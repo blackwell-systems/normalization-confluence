@@ -22,7 +22,7 @@
    just the synchronous Phi-iteration - is the remaining piece and is not
    mechanized here. *)
 
-From Stdlib Require Import Bool.
+From Coq Require Import Bool.
 
 Section Fixpoints.
   Context {L : Type}.
