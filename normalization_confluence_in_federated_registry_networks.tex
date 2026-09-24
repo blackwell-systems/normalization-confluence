@@ -192,7 +192,7 @@ from operation algebra to compensation design.
 \subsection{Contributions}
 
 The single-registry results (items 1--6) are from~\cite{blackwell2026nc},
-restated here for self-containment.  The federated extension (items 7--8) is new.
+restated here for self-containment.  The federated extension (items 7--9) is new.
 
 \begin{enumerate}[leftmargin=*,nosep]
 \item \textbf{Normalization confluence regime} (\Cref{sec:model}): A
@@ -232,6 +232,12 @@ restated here for self-containment.  The federated extension (items 7--8) is new
   acyclic network (\Cref{thm:resolved-convergence}), with the tree theorem as
   the single-source special case.  Both conditions are decidable by finite
   enumeration, so a resolved network is certified exactly as WFC and CC are.
+\item \textbf{Monotone cycles} (\Cref{sec:monotone}): When shared domains are
+  ordered lattices and repair is monotone, acyclicity is unnecessary---federated
+  convergence holds on \emph{any} network (\Cref{thm:monotone-cycles}) by the
+  Knaster--Tarski theorem, with order-independence identified as chaotic
+  iteration.  CRDTs are the compensation-free special case, and acyclicity is
+  revealed as a concession required only for non-monotone repair.
 \end{enumerate}
 
 %========================================
@@ -1516,6 +1522,98 @@ order in which local compensation and resolution repair interleave, defeating
 single-round termination.
 \end{remark}
 
+\subsection{Monotone Cycles}
+\label{sec:monotone}
+
+Acyclicity (\Cref{def:network,def:resolved-network}) is required because the
+necessity counterexamples turn on \emph{non-monotone} repair: the cyclic
+counterexample (\Cref{prop:cycle-necessary}) uses the negation morphism
+$\phi(x) = 1 - x$, and the M1 counterexample (\Cref{prop:m1-necessary}) an
+antitone flip.  We show that when repair is \emph{monotone} on an ordered shared
+domain, acyclicity is unnecessary: convergence follows from the
+Knaster--Tarski fixed-point theorem, and order-independence is exactly the
+classical convergence of \emph{chaotic iteration}.
+
+\begin{definition}[Ordered Shared Domains]
+\label{def:lattice-shared}
+A network has \emph{ordered shared domains} if each shared space $S_j$ carries a
+partial order $\sqsubseteq_j$ making $(S_j, \sqsubseteq_j)$ a complete lattice
+(least element $\bot_j$; all joins exist).  With the component local normal forms
+fixed (order-independent by component CC), define the \emph{federated repair
+operator} $\Phi : \prod_j S_j \to \prod_j S_j$ by
+\[
+  \Phi(\bar{s})_j =
+  \begin{cases}
+    s_j^{\mathrm{ev}}
+      & \text{$j$ a source (no incoming): its event-determined shared value,}\\[2pt]
+    \phi_{ij}\big(\sigma_i[\mathrm{sh}\mapsto s_i]\big)
+      & \text{$j$ single-source from $i$,}\\[2pt]
+    R_j\big((\sigma_i[\mathrm{sh}\mapsto s_i])_{i \in S(j)}\big)
+      & \text{$j$ multi-source.}
+  \end{cases}
+\]
+The morphisms and resolvers are \emph{monotone} when $\Phi$ is monotone:
+$\bar{s} \sqsubseteq \bar{s}' \Rightarrow \Phi(\bar{s}) \sqsubseteq \Phi(\bar{s}')$
+(componentwise).  Source entries are constant maps, hence monotone; the
+condition constrains only the morphism images and resolvers.
+\end{definition}
+
+\begin{theorem}[Monotone Convergence Despite Cycles]
+\label{thm:monotone-cycles}
+Let $\mathcal{N}$ be a morphism network with ordered shared domains
+(\Cref{def:lattice-shared}), \emph{possibly cyclic}, whose morphisms and
+resolvers are monotone and validity-preserving (M1 / R2), and whose components
+satisfy WFC and CC.  Then $\Phi$ has a least fixed point
+$\bar{s}^{\star} = \bigsqcup_{k \geq 0} \Phi^k(\bot)$, and every fair
+asynchronous (any-order) iteration of the component updates from $\bot$ converges
+to $\bar{s}^{\star}$.  Consequently all processors consuming the same federated
+events converge to the same federally valid state, with no acyclicity
+requirement.
+\end{theorem}
+
+\begin{proof}
+$\Phi$ is a monotone self-map of the complete lattice $\prod_j S_j$ (a product of
+complete lattices), so by Knaster--Tarski~\cite{tarski1955} it has a least fixed
+point, obtained by Kleene iteration as
+$\bar{s}^{\star} = \bigsqcup_k \Phi^k(\bot)$---the ascending chain
+$\bot \sqsubseteq \Phi(\bot) \sqsubseteq \cdots$ stabilizes (for a finite lattice
+in at most its height times $|\mathcal{I}|$ steps).  Order-independence is the
+convergence of chaotic iteration: for a monotone operator on a complete lattice,
+any fair schedule of component updates started from $\bot$ reaches the same least
+fixed point~\cite{cousot1977}.  Validity is preserved along the iteration by
+M1/R2 exactly as in \Cref{lem:resolved-termination}, so $\bar{s}^{\star}$ is
+federally valid.  With the local components fixed by component CC, the full
+federated normal form is determined; hence the system is confluent. \qed
+\end{proof}
+
+\begin{corollary}[Acyclicity is a concession to non-monotonicity]
+\label{cor:acyclicity-monotone}
+Acyclicity is needed only to tame non-monotone repair.  The cyclic divergence of
+\Cref{prop:cycle-necessary} uses the antitone negation $\phi(x) = 1-x$; under
+monotonicity that operator is excluded and \Cref{thm:monotone-cycles} applies.
+Acyclic structure and monotonicity are thus two independent routes to federated
+confluence---the former for arbitrary (possibly non-monotone) repair, the latter
+for arbitrary (possibly cyclic) topology.
+\end{corollary}
+
+\begin{remark}[Order-independence \emph{is} chaotic iteration]
+\Cref{thm:monotone-cycles} exposes the central property of normalization
+confluence in another guise: convergence ``regardless of application order'' is
+precisely the order-independent convergence of chaotic iteration in dataflow
+analysis and abstract interpretation~\cite{cousot1977}.  The monotone regime
+inherits that machinery---worklist scheduling, and widening/narrowing for tall or
+infinite lattices---for computing and accelerating the federated normal form.
+\end{remark}
+
+\begin{remark}[CRDTs are compensation-free monotone federations]
+A join-semilattice whose merge is its join is monotone and trivially
+validity-preserving, so a state-based CRDT~\cite{shapiro2011crdt} is the special
+case of \Cref{thm:monotone-cycles} in which repair never has to restore an
+invariant.  Normalization confluence adds compensation on top: monotone
+convergence \emph{with} business invariants, which operation commutativity alone
+does not provide.
+\end{remark}
+
 \subsection{Example: Manufacturer--Supplier Federation}
 
 \textbf{Manufacturer $R_M$}: $\Sigma_M = \{\texttt{draft}, \texttt{active},
@@ -2022,7 +2120,11 @@ merge---and convergence extends to any acyclic network, with single-source
 authority as the special case.  Because the merge encodes domain policy, its two
 conditions are stated as decidable hypotheses (checkable by finite enumeration)
 rather than assumed, mirroring how the single-source case rests on morphism
-validity preservation.
+validity preservation.  Finally, when the shared domains are ordered lattices and
+repair is monotone, even \emph{cyclic} networks converge---by the
+Knaster--Tarski fixed-point theorem---which reveals acyclicity as a requirement
+only for non-monotone repair, exhibits order-independent convergence as chaotic
+iteration, and places state-based CRDTs as the compensation-free special case.
 
 To make CC practically verifiable, we developed a verification calculus that
 reduces the global CC obligation to local checks.  Invariant footprints
@@ -2117,6 +2219,16 @@ T.~Akidau, R.~Bradshaw, C.~Chambers, et~al.,
 L.~Lamport,
 ``Time, clocks, and the ordering of events in a distributed system,''
 \emph{Communications of the ACM}, vol.~21, no.~7, pp.~558--565, 1978.
+
+\bibitem{tarski1955}
+A.~Tarski,
+``A lattice-theoretical fixpoint theorem and its applications,''
+\emph{Pacific Journal of Mathematics}, vol.~5, no.~2, pp.~285--309, 1955.
+
+\bibitem{cousot1977}
+P.~Cousot and R.~Cousot,
+``Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints,''
+\emph{Proc.\ 4th ACM SIGACT-SIGPLAN Symp.\ on Principles of Programming Languages (POPL)}, pp.~238--252, 1977.
 
 \end{thebibliography}
 
