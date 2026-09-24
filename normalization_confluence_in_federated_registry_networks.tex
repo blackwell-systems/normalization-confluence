@@ -71,7 +71,14 @@ additional axioms.
 We prove both structural conditions necessary by counterexample: without
 acyclicity, contradictory cyclic morphisms cause compensation to cycle;
 without validity preservation, morphism repair and local compensation
-oscillate.  For self-containment, we restate the single-registry model and
+oscillate.  We then remove the tree restriction altogether: admitting any
+acyclic network in which a multi-source target carries a \emph{resolution
+operator}---a source-determined, validity-preserving merge of its incoming
+constraints---we recover the same convergence guarantee, with single-source
+authority as the special case.  Because the merge encodes domain policy rather
+than mathematics, the guarantee is conditioned on two decidable properties of
+the operator, checkable by finite enumeration.  For self-containment, we restate
+the single-registry model and
 convergence results of~\cite{blackwell2026nc} alongside a verification
 calculus that reduces the global CC obligation to local, per-event-pair checks
 via invariant footprints and decomposable repair.
@@ -178,7 +185,7 @@ from operation algebra to compensation design.
 \subsection{Contributions}
 
 The single-registry results (items 1--6) are from~\cite{blackwell2026nc},
-restated here for self-containment.  The federated extension (item~7) is new.
+restated here for self-containment.  The federated extension (items 7--8) is new.
 
 \begin{enumerate}[leftmargin=*,nosep]
 \item \textbf{Normalization confluence regime} (\Cref{sec:model}): A
@@ -211,6 +218,13 @@ restated here for self-containment.  The federated extension (item~7) is new.
   Federated WFC and CC are derived from network structure via an authority
   argument; only morphism validity preservation is needed.  Necessity of
   both acyclicity and validity preservation is shown by counterexample.
+\item \textbf{Multi-source resolution} (\Cref{sec:multisource}): Removal of the
+  tree restriction.  A target with several incoming morphisms carries a
+  \emph{resolution operator} generalizing the authority function; under source
+  determinacy and validity preservation (R1--R2), convergence holds on any
+  acyclic network (\Cref{thm:resolved-convergence}), with the tree theorem as
+  the single-source special case.  Both conditions are decidable by finite
+  enumeration, so a resolved network is certified exactly as WFC and CC are.
 \end{enumerate}
 
 %========================================
@@ -1341,6 +1355,7 @@ compensation. \qed
 \end{proof}
 
 \begin{remark}[The Multi-Source Boundary]
+\label{rem:multisource}
 The tree-shaped restriction excludes networks where a registry has multiple
 incoming morphisms from independent sources.  When two morphisms
 $\phi_{ij}$ and $\phi_{kj}$ both target registry~$j$, a federally valid
@@ -1349,7 +1364,149 @@ state requires $\phi_{ij}(\sigma_i) = \phi_{kj}(\sigma_k) =
 compatible projections.  The authority argument breaks: no single source
 determines the target.  Resolving this requires additional machinery
 (composition consistency along common ancestors, target agreement predicates,
-or conflict resolution operators) and is the natural next problem.
+or conflict resolution operators).  We develop the last of these---conflict
+resolution operators---in \Cref{sec:multisource}, recovering convergence on any
+acyclic network.
+\end{remark}
+
+\subsection{Multi-Source Resolution}
+\label{sec:multisource}
+
+\Cref{rem:multisource} identified the obstruction to networks in which a
+registry has several incoming morphisms: no single source determines the
+target's shared component.  We remove the tree restriction---admitting any
+acyclic network---by replacing the per-edge authority function at a multi-source
+target with a single \emph{resolution operator}.  The authority argument then
+generalizes: a target's shared component becomes a deterministic function not of
+one source but of all of them.
+
+\begin{definition}[Resolution Operator]
+\label{def:resolver}
+Let $j$ be a registry with source set $S(j) = \{i : (i,j) \in E\}$.  A
+\emph{resolution operator} for~$j$ is a map
+\[
+  R_j : \textstyle\prod_{i \in S(j)} \Sigma_{R_i} \longrightarrow S_j
+\]
+from the source states to $j$'s shared component, satisfying:
+\begin{enumerate}[leftmargin=*,nosep,label=(R\arabic*)]
+\item \textbf{Source determinacy}: $R_j$ is a function of the source states
+  alone; it does not read $\pi_j^{\mathrm{loc}}(\sigma_j)$.
+\item \textbf{Validity preservation}: for all $(\sigma_i)_{i \in S(j)}$ with
+  each $V_{R_i}(\sigma_i) = \top$ and all $\sigma_j$ with
+  $V_{R_j}(\sigma_j) = \top$,
+  \[
+    V_{R_j}\!\left(\sigma_j[\mathrm{sh} \mapsto
+      R_j((\sigma_i)_{i \in S(j)})]\right) = \top .
+  \]
+\end{enumerate}
+When $|S(j)| = 1$, taking $R_j(\sigma_i) = \phi_{ij}(\sigma_i)$ recovers the
+authority morphism and (R2) is exactly M1.  A resolution operator thus strictly
+generalizes the single-source morphism image: it expresses merges---priority,
+conjunction, most-restrictive-wins---that no single authority can.
+\end{definition}
+
+\begin{definition}[Resolved Network]
+\label{def:resolved-network}
+A \emph{resolved network} is an acyclic morphism network in which every target
+with $|S(j)| > 1$ carries a resolution operator $R_j$; single-source targets
+retain their authority morphism.  The federated registry is as in
+\Cref{def:fed-registry}, with the morphism invariants for a multi-source target
+replaced by the \emph{resolution invariant}
+\[
+  \mu_j(\bar{\sigma}) = \top \iff
+  \pi_j^{\mathrm{sh}}(\sigma_j) = R_j((\sigma_i)_{i \in S(j)}) .
+\]
+\end{definition}
+
+The normalization operator $\rho_\Fed$ carries over from \Cref{def:fed-comp}
+unchanged, with Phase~2 setting each multi-source target's shared component in a
+single step: for target~$j$ in topological order, if
+$\pi_j^{\mathrm{sh}}(\sigma_j) \neq R_j((\sigma_i)_{i \in S(j)})$, set
+$\sigma_j \mapsto \sigma_j[\mathrm{sh} \mapsto R_j((\sigma_i)_{i \in S(j)})]$.
+Acyclicity guarantees a topological ordering in which every source
+$i \in S(j)$ precedes~$j$.
+
+\begin{lemma}[Single-Round Termination, Resolved]
+\label{lem:resolved-termination}
+On a resolved network, a single application of $\rho_\Fed$ produces a federally
+valid state.
+\end{lemma}
+
+\begin{proof}
+Identical to \Cref{lem:fed-termination}, with the single-source repair
+$\phi_{ij}(\sigma_i)$ replaced by $R_j((\sigma_i)_{i \in S(j)})$ and M1 by (R2).
+Phase~1 establishes local validity; Phase~2 sets each target's shared component
+exactly once---its resolution operator consumes all incoming edges in one
+evaluation, and sources are finalized first by acyclicity.  By (R2),
+overwriting a locally valid target's shared component with the resolved value of
+locally valid sources preserves target validity, so Phase~2 never reintroduces
+invalidity. \qed
+\end{proof}
+
+\begin{theorem}[Federated Convergence with Resolution]
+\label{thm:resolved-convergence}
+Let $\mathcal{N}$ be an acyclic resolved network in which every single-source
+morphism satisfies M1, every resolution operator satisfies (R1)--(R2), and every
+component registry satisfies WFC and CC.  Then any two processors consuming the
+same federated events converge to the same federally valid state.
+\end{theorem}
+
+\begin{proof}
+The three-component decomposition of \Cref{lem:authority} generalizes.
+\emph{(a)}~Source registries (in-degree zero) are untouched by resolution repair
+and equal their single-registry normal forms.  \emph{(b)}~In a federally valid
+state, a target~$j$ satisfies
+$\pi_j^{\mathrm{sh}}(\sigma_j) = R_j((\sigma_i)_{i \in S(j)})$
+(or $\phi_{ij}(\sigma_i)$ when $|S(j)|=1$)---a deterministic function of its
+sources' normal forms.  \emph{(c)}~Its local component is untouched by
+resolution (by (R1) the operator writes only the shared component) and converges
+by component CC.
+
+By induction on the topological order, each component's normal form is a
+deterministic function of the per-component event multisets.  \emph{CC2}: for a
+federally invalid $\bar{\sigma}$ and event~$e$, source normal forms are fixed by
+component CC2 or unaffected; each shared component is a deterministic function
+(via $R_j$ or $\phi$) of source normal forms, which agree across the two paths;
+local components converge by component CC2.  \emph{CC1}: independent events
+targeting distinct registries affect disjoint per-component multisets, and each
+shared component is recomputed from source normal forms, so order is immaterial;
+independent events on a common registry commute by component CC1.  Hence the
+federated system satisfies CC.  \Cref{lem:resolved-termination} gives WFC with
+the trivial measure $\Phi_\Fed \in \{0,1\}$, so \Cref{thm:convergence} yields a
+unique normal form. \qed
+\end{proof}
+
+\begin{corollary}[Constructive Resolved Normal Form]
+\label{cor:resolved-nf}
+\Cref{cor:fed-nf} extends: compute each source's single-registry normal form,
+then, in topological order, set each target's shared component by evaluating its
+resolution operator (or authority morphism) on its finalized sources, and let
+each target converge its local component by component CC.  As in the tree case,
+the product state space is never materialized.
+\end{corollary}
+
+\begin{remark}[Verified, not assumed]
+Unlike the authority morphism, a resolution operator encodes domain policy:
+there is no canonical merge.  The theorem is therefore conditioned on
+(R1)--(R2), exactly as the single-source case is conditioned on M1.  Both
+conditions are decidable---the source and target state spaces are finite, so
+(R1) and (R2) are checked by enumerating
+$\prod_{i \in S(j)} \Sigma_{R_i} \times \Sigma_{R_j}$ per multi-source
+target---so a build-time verifier certifies a resolved network exactly as it
+certifies WFC and CC for a single registry.  \Cref{thm:fed-convergence} is the
+special case in which every target has a single source whose resolution operator
+is the morphism image.
+\end{remark}
+
+\begin{remark}[Necessity of the resolution conditions]
+Acyclicity remains necessary (\Cref{prop:cycle-necessary} is unchanged;
+resolution operators do not tame cycles).  (R2) is necessary for the reason M1
+is (\Cref{prop:m1-necessary}): a resolver mapping a valid source combination to
+a shared component that violates $V_{R_j}$ induces oscillation between resolution
+repair and local compensation.  (R1) is necessary for well-definedness: were
+$R_j$ to read the local component, the shared normal form would depend on the
+order in which local compensation and resolution repair interleave, defeating
+single-round termination.
 \end{remark}
 
 \subsection{Example: Manufacturer--Supplier Federation}
