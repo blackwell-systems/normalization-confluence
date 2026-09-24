@@ -147,6 +147,22 @@ hypotheses; `Print Assumptions` on all four results is "Closed under the global 
 brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
 not mechanized; the disjointness path is the substantive one.
 
+## Verified checker: a differential oracle for gsm (`Checker.v`, `extraction/`)
+
+`Checker.v` proves that a governed machine converges (applying the same events in any order
+reaches the same state) exactly when its per-event step functions **commute** and stay in range,
+and packages that as a boolean `check_commuting` / `closed` proven sound (`check_commuting_sound`,
+`checked_converges`), axiom-free. The mathematical core is `run_perm_invariant`: commuting steps
+make `fold` over any permutation of an event list give the same result.
+
+`extraction/` extracts this checker to a runnable OCaml binary. gsm emits a built machine's step
+tables (`Machine.WriteConvergenceTables`), and the extracted, machine-checked checker
+independently re-certifies that they converge. This is **differential testing** of gsm's Go
+verification against a verified oracle: a bug in gsm's hand-written checker cannot make a
+non-convergent machine pass the extracted one. `make demo` in `extraction/` shows it accepting a
+commuting machine and rejecting a non-commuting one; gsm's `TestConvergenceTables_WriteAndVerify`
+runs it on gsm's real output when `GSM_CONVERGENCE_CHECKER` points at the binary.
+
 ## Build
 
 ```

@@ -1,0 +1,13 @@
+checker_core.ml
+checker_core.mli
+*.cmi
+*.cmx
+*.cmo
+*.o
+checker
+*.tables
+*.vo
+*.vok
+*.vos
+*.glob
+.*.aux

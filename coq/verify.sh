@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -21,6 +21,7 @@ Print Assumptions kleene_lfp.
 Print Assumptions lfp_unique.
 Print Assumptions chaotic_reaches_lfp.
 Print Assumptions chaotic_limit_unique.
+Print Assumptions checked_converges.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -31,8 +32,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 9 ]; then
-  echo "FAIL: expected 9 axiom-free results, got $N"
+if [ "$N" -lt 10 ]; then
+  echo "FAIL: expected 10 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
