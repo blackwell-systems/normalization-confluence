@@ -18,10 +18,11 @@ This research identifies a third regime: **normalization confluence**, where ope
 
 This repository contains theoretical foundations, proofs, and companion verification tools.
 
-New here? Two short guides orient you:
+New here? A few pointers orient you:
 - [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
+- [SUBSUMPTION.md](SUBSUMPTION.md): the machine-checked proof that CRDTs are exactly the compensation-free fragment of normalization confluence, and that the inclusion is strict.
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
-- [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of two verified differential oracles for gsm: a checker over emitted step tables and a checker over the rules themselves. See [coq/extraction/](coq/extraction).
+- [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of verified differential oracles for gsm: a checker over emitted step tables and a checker over the rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification. See [coq/extraction/](coq/extraction).
 
 ---
 
@@ -165,6 +166,8 @@ Repository: [github.com/blackwell-systems/nccheck](https://github.com/blackwell-
 | **Normalization Confluence** | Compensated results commute (operations need not) | Convergence through repair | Non-commutative, invariant-violating operations |
 
 Normalization confluence occupies the gap between CRDTs (requires commutativity) and I-confluence (requires invariant preservation). It permits operations that satisfy neither, provided compensation commutes.
+
+These regimes are **nested, not merely adjacent**. CRDTs are the *compensation-free* corner: operations designed so repair is never needed. Drop that restriction, keep the convergence guarantee, and you have normalization confluence, so every CRDT is a governed machine whose max repair depth is zero, and the inclusion is **strict** (governed machines exist that no CRDT can express). This is not informal: it is machine-checked, axiom-free, in [`coq/CRDT.v`](coq/CRDT.v) (`cmrdt_SEC`, `cvrdt_SEC`, and the witnesses `witness_not_cmrdt` / `witness_leaves_valid_space`), and stated in full in [SUBSUMPTION.md](SUBSUMPTION.md). So "a third regime alongside CRDTs" is the entry framing; the sharper claim the proofs support is that normalization confluence is the general regime and CRDTs are its degenerate, compensation-free fragment.
 
 ---
 
