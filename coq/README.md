@@ -42,6 +42,27 @@ no gaps and no hidden assumptions. It does not (and the paper does not) prove th
 registry satisfies WFC/CC; that is a per-registry obligation, discharged in the paper's
 worked examples and, for the reference implementation, exercised by `gsm`'s `confluence_test.go`.
 
+## Defensibility (`Defensibility.v`)
+
+A mechanized proof that merely compiles can still be weak in ways `coqc` does not catch. This
+file rules out the two that matter:
+
+- **Non-vacuity.** If the hypotheses (WFC, CC1, CC2, rho* reachability, enabledness) were jointly
+  unsatisfiable, the theorem would be about nothing. `Defensibility.v` exhibits a concrete
+  registry (debt counter: `apply = S`, `rho = pred`, valid at zero, `rho*` repairs to zero) that
+  discharges *every* hypothesis and yields `example_confluent : confluent step_` and
+  `example_unique_nf` with no hypotheses and no axioms. `Print Assumptions example_confluent`
+  is "Closed under the global context". `instance_has_a_real_peak` shows the instance genuinely
+  branches (two applies + a compensation from one configuration), so this is closing real
+  nondeterminism, not a degenerate system.
+- **Discrimination.** If `confluent` were provable for every relation, proving it would say
+  nothing. `not_confluent_tri` proves a concrete three-element relation is *not* confluent, so
+  the predicate is falsifiable.
+
+Together with the axiom-free `Print Assumptions` on the abstract theorem, this is the argument
+that the mechanization is strong: correct definitions (standard rewriting theory), satisfiable
+hypotheses (a real model), a discriminating conclusion, and no hidden assumptions.
+
 ## Build
 
 ```

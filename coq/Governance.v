@@ -71,9 +71,9 @@ Section Governance.
   (* WFC (Axiom "WFC"): compensation strictly decreases the potential. *)
   Hypothesis wfc : forall sigma, ~ valid sigma -> Phi (rho sigma) < Phi sigma.
 
-  (* rho* specification (Def. "Iterated Compensation"): it reaches a valid
-     state, and (sigma,B) reduces to (rho* sigma, B) by compensation steps. *)
-  Hypothesis rho_star_valid : forall sigma, valid (rho_star sigma).
+  (* rho* specification (Def. "Iterated Compensation"): (sigma,B) reduces to
+     (rho* sigma, B) by compensation steps. (rho* also reaches a valid state,
+     but confluence does not depend on that, so it is not assumed here.) *)
   Hypothesis rho_star_reach : forall sigma B, star step (sigma, B) (rho_star sigma, B).
 
   (* CC1 (order independence) and CC2 (compensation absorption), Axiom "CC". *)
