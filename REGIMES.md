@@ -97,3 +97,18 @@ flowchart TD
 | Compositional collapse | `Federation.Embed` | (paper) |
 
 See the papers for the full statements and proofs, and `coq/README.md` for what is machine-checked.
+
+## Two verified oracles re-certify the single-registry verdict
+
+The single-registry row is not only proven in the abstract; a built gsm machine's convergence is
+re-certified by two independent checkers extracted from the axiom-free Coq development, so a bug in
+gsm's hand-written Go verification cannot pass a non-convergent machine.
+
+| Oracle | Certifies | Source | Trusts gsm's tables? |
+|---|---|---|---|
+| **Table oracle** (`checker`) | the emitted step tables commute and stay in range | `coq/Checker.v` | yes (checks what gsm emitted) |
+| **Rules oracle** (`astchecker`) | the rules themselves converge, by re-evaluating the combinator AST | `coq/AstChecker.v` | no (recomputes from declarations) |
+
+Both are extracted OCaml binaries (`coq/extraction/`); gsm's differential tests run them on real
+machines. The rules oracle is the stronger check: it re-derives convergence straight from the
+declared invariants and events, trusting neither gsm's enumeration nor its normalization.

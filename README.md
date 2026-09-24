@@ -21,7 +21,7 @@ This repository contains theoretical foundations, proofs, and companion verifica
 New here? Two short guides orient you:
 - [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
-- [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command).
+- [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of two verified differential oracles for gsm: a checker over emitted step tables and a checker over the rules themselves. See [coq/extraction/](coq/extraction).
 
 ---
 
@@ -130,6 +130,7 @@ Monotonicity and acyclicity are orthogonal — either alone suffices. Validity p
 - O(1) runtime event application through precomputed lookup tables
 - Fluent builder API for defining state machines in Go code
 - Portable JSON export for multi-language runtime support
+- Differential testing against two verified oracles extracted from [coq/](coq): one re-certifies the emitted step tables, the other recomputes convergence straight from the rules, so a bug in gsm's own verification cannot pass a non-convergent machine
 
 ```go
 machine, report, err := builder.Build()

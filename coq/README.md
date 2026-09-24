@@ -23,7 +23,11 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 7 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 12 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twelve headline results (the single-registry confluence
+and unique-normal-form theorems, the defensibility instance, the two gsm certification-soundness
+results, the two federated results, the two chaotic-iteration results, and the two verified-checker
+soundness results) and fails if any of them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -147,25 +151,70 @@ hypotheses; `Print Assumptions` on all four results is "Closed under the global 
 brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
 not mechanized; the disjointness path is the substantive one.
 
-## Verified checker: a differential oracle for gsm (`Checker.v`, `extraction/`)
+## Verified checkers: two differential oracles for gsm (`Checker.v`, `AstChecker.v`, `extraction/`)
+
+Two independent, machine-checked checkers re-certify a gsm machine's convergence, each extracted
+to a runnable OCaml binary in `extraction/`. Both are proven axiom-free, so a bug in gsm's
+hand-written Go verification cannot make a non-convergent machine pass either one. See
+`extraction/README.md` for build, demo, and file formats.
+
+### Table oracle (`Checker.v`)
 
 `Checker.v` proves that a governed machine converges (applying the same events in any order
 reaches the same state) exactly when its per-event step functions **commute** and stay in range,
 and packages that as a boolean `check_commuting` / `closed` proven sound (`check_commuting_sound`,
 `checked_converges`), axiom-free. The mathematical core is `run_perm_invariant`: commuting steps
-make `fold` over any permutation of an event list give the same result.
+make `fold` over any permutation of an event list give the same result. It is extracted to the
+`checker` binary. gsm emits a built machine's step tables (`Machine.WriteConvergenceTables`) and
+the extracted checker independently re-certifies that they converge. gsm's
+`TestConvergenceTables_WriteAndVerify` runs it on gsm's real output when `GSM_CONVERGENCE_CHECKER`
+points at the binary.
 
-`extraction/` extracts this checker to a runnable OCaml binary. gsm emits a built machine's step
-tables (`Machine.WriteConvergenceTables`), and the extracted, machine-checked checker
-independently re-certifies that they converge. This is **differential testing** of gsm's Go
-verification against a verified oracle: a bug in gsm's hand-written checker cannot make a
-non-convergent machine pass the extracted one. `make demo` in `extraction/` shows it accepting a
-commuting machine and rejecting a non-commuting one; gsm's `TestConvergenceTables_WriteAndVerify`
-runs it on gsm's real output when `GSM_CONVERGENCE_CHECKER` points at the binary.
+### Rules oracle (`AstChecker.v`)
+
+`AstChecker.v` goes one level deeper: instead of checking gsm's output tables, it checks the
+**rules** themselves. It models gsm's combinator vocabulary as data (a small grammar of
+expressions, predicates, and transforms, and a `machine` record of domains, minimums, invariants,
+and guarded events), recomputes each event's step function by **evaluating that AST** (apply the
+event, then normalize by iterated repair), and proves:
+
+- `check_sound_commute`: if the boolean `check` passes, the AST-derived step functions commute on
+  every valid valuation, axiom-free.
+- `check_sound_converges`: from that plus validity preservation, applying the same events in any
+  order from a valid valuation yields the same valuation (order-independent convergence),
+  axiom-free. The argument mirrors `run_perm_invariant` but carries a validity side-condition,
+  since commutation is guaranteed only on valid states.
+
+It is extracted to the `astchecker` binary. gsm serializes a machine's rules
+(`Registry.WriteMachineAST`) and the extracted checker re-derives convergence from the
+declarations, trusting neither gsm's enumeration nor its normalization. gsm's `TestMachineAST`
+tests run it when `GSM_AST_CHECKER` points at the binary. The modeled fragment covers comparison
+predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, per-variable nonzero minimums, and
+guarded events; the serializer refuses anything outside it, so a passing cross-check always
+compares like semantics.
+
+### What this does and does not require of you: no continuous porting to Coq
+
+A natural worry is that this design forces you to keep porting your rules into Coq. It does not.
+The only thing mirrored in Coq is the **grammar** (the small, fixed combinator vocabulary), and
+it is written once here and once in gsm. Your individual machines are **data** in that grammar:
+they are never ported, re-expressed, or re-proven in Coq. You author rules in Go, serialize them,
+and the already-proven checker consumes them, so a thousand machines cost zero additional Coq
+work. You touch this development again only when you add a brand-new grammar **primitive** (a new
+expression, predicate, or transform form), which is a rare, deliberate event and the only time the
+two mirrors can drift. That drift is caught automatically: the differential test fails the moment
+gsm's evaluator and this Coq evaluator disagree on any machine. This is the standard "trusted core
+mirrored in a proof assistant" pattern (the way CompCert mirrors C semantics in Coq): the mirror
+is small, changes rarely, and is guarded by a test rather than by hand.
 
 ## Build
 
 ```
-make          # compiles Newman.vo and Governance.vo
+make          # compiles every module (Newman, Governance, Defensibility, Gsm, Federation,
+              # Chaotic, Checker, AstChecker)
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
+
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all twelve
+headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
+`make demo`, `make astdemo`).

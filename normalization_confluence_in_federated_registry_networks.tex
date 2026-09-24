@@ -916,7 +916,15 @@ a chaotic schedule as a productive-update rewrite relation, below~$\bar{s}^{\sta
 a monotone update strictly increases a rank, so the relation is strongly
 normalizing and its unique normal form is~$\bar{s}^{\star}$; hence any productive
 schedule reaches the same fixed point (order-independence), again axiom-free with a
-concrete witness.  Scripts are in the \texttt{coq/} directory of the artifact.
+concrete witness.  The single-registry development is furthermore paired with two
+runnable checkers extracted from it, each proven axiom-free: one certifies that a
+compiled machine's emitted step tables commute and stay in range, and one
+recomputes convergence directly from the machine's rules by evaluating their
+expression trees (trusting neither the implementation's enumeration nor its
+normalization).  Extracted from the proof rather than reimplemented by hand, they
+act as independent differential oracles for the reference implementation: a defect
+in its hand-written verification cannot make a non-convergent machine pass either
+checker.  Scripts are in the \texttt{coq/} directory of the artifact.
 \end{remark}
 
 \begin{theorem}[Stream Convergence]
