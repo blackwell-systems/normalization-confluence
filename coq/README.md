@@ -34,7 +34,7 @@ conditions, taken as Coq hypotheses (each annotated in `Governance.v`):
 | `cc2` | Axiom CC2 (compensation absorption) |
 | `enabled_after_remove`, `enabled_after_comp` | the enabledness-persistence facts used in the Local Confluence proof (Case 1 and Case 2) |
 
-Honest scope: the registry operators (`apply`, `rho`, `valid`, `Phi`, `enabled`) are abstract,
+Scope: the registry operators (`apply`, `rho`, `valid`, `Phi`, `enabled`) are abstract,
 **exactly at the paper's level of abstraction**: the paper likewise treats them abstractly and
 states WFC/CC as conditions a registry must satisfy. So this development mechanizes *the paper's
 theorem*: given any registry meeting WFC and CC, confluence and unique normal forms follow, with
