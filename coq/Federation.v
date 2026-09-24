@@ -17,10 +17,9 @@
    so the development stays axiom-free. Checked with Rocq 9.3.
 
    Scope: this covers existence and Kleene-reachability of the least fixed point
-   (the federated normal form, s-star) and its uniqueness. The full chaotic-iteration
+   (the federated normal form, s-star) and its uniqueness. The chaotic-iteration
    result - that every fair ASYNCHRONOUS component-wise schedule reaches s-star, not
-   just the synchronous Phi-iteration - is the remaining piece and is not
-   mechanized here. *)
+   just the synchronous Phi-iteration - is mechanized in Chaotic.v. *)
 
 From Coq Require Import Bool.
 
