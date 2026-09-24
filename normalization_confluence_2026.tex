@@ -840,8 +840,13 @@ admitted lemmas.  The development takes the paper's named conditions (WFC, CC)
 as hypotheses---exactly the abstraction level used here---and a concrete
 registry (state-determined compensation) discharges all of them with genuine
 nondeterminism, establishing that the hypotheses are jointly satisfiable and
-the theorem is not vacuous.  The proof scripts are available in the
-\texttt{coq/} directory of the accompanying artifact.
+the theorem is not vacuous.  The soundness of the reference implementation's own
+certification strategy is mechanized as well: that footprint disjointness
+implies order-independent commutation (the compositional CC path, avoiding
+enumeration) and that a repair strictly decreasing a potential is strongly
+normalizing (WFC), each with a concrete witness and again axiom-free.  The proof
+scripts are available in the \texttt{coq/} directory of the accompanying
+artifact.
 \end{remark}
 
 \begin{theorem}[Stream Convergence]

@@ -901,9 +901,12 @@ normal forms.  For both the abstract theorem and a concrete instantiation,
 \texttt{Print Assumptions} reports ``Closed under the global context'': no
 axioms, no admitted lemmas.  A concrete state-determined-compensation registry
 discharges WFC and CC with genuine nondeterminism, so the hypotheses are jointly
-satisfiable and the theorem is not vacuous.  Scripts are in the \texttt{coq/}
-directory of the artifact.  The federation results in this paper are not yet
-mechanized.
+satisfiable and the theorem is not vacuous.  The soundness of the reference
+implementation's certification strategy is mechanized as well---footprint
+disjointness implies order-independent commutation (the compositional CC path),
+and a repair strictly decreasing a potential is strongly normalizing (WFC)---each
+axiom-free.  Scripts are in the \texttt{coq/} directory of the artifact.  The
+federation results in this paper are not yet mechanized.
 \end{remark}
 
 \begin{theorem}[Stream Convergence]
