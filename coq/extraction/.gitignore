@@ -5,7 +5,9 @@ checker_core.mli
 *.cmo
 *.o
 checker
+astchecker
 *.tables
+*.machine
 *.vo
 *.vok
 *.vos

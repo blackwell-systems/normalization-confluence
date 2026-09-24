@@ -1,8 +1,15 @@
-(* Extract the verified checker to OCaml. nat is mapped to OCaml int for speed;
-   the boolean checker and its closedness test are the extracted entry points. *)
+(* Extract the verified checkers to OCaml. nat is mapped to OCaml int for speed.
+   Two entry points, both machine-checked axiom-free:
+     - check_commuting / closed (Checker.v): certify a machine's output STEP TABLES
+       converge (the table oracle).
+     - check (AstChecker.v): certify a combinator machine straight from its RULES
+       (the AST oracle) -- it recomputes each event's step function by evaluating
+       the expression trees, so it does not trust gsm to have produced correct
+       tables at all. *)
 From Coq Require Import Extraction.
 From Coq Require Import ExtrOcamlBasic.
 From Coq Require Import ExtrOcamlNatInt.
 Require Import NC.Checker.
+Require Import NC.AstChecker.
 
-Extraction "extraction/checker_core.ml" check_commuting closed.
+Extraction "extraction/checker_core.ml" check_commuting closed check.
