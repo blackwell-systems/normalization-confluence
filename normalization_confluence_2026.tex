@@ -1167,6 +1167,49 @@ or not).  Remediation procedures that restore compliance by addressing each
 violated regulation independently satisfy CC.  Our theorem guarantees
 convergence to equivalent compliance states.
 
+\subsection{Infinite Domains}
+\label{sec:infinite}
+
+Nothing in the convergence result requires $\Sigma_R$ to be finite.  Termination
+(\Cref{lem:termination}) rests on the well-founded measure $\mu = (|B|, \Phi)$:
+the buffer $B$ is finite because the received event set is, and $\Phi$ maps into
+a well-founded order---neither depends on $|\Sigma_R| < \infty$.  Local
+confluence (\Cref{lem:local-confluence}) requires CC to \emph{hold}, not to be
+enumerable.  Convergence is therefore domain-independent.
+
+\begin{corollary}[Domain-Independent Convergence]
+\label{cor:infinite}
+\Cref{thm:convergence} holds for any semantic state space, finite or infinite,
+provided WFC (with a well-founded compensation measure) and CC hold.
+\end{corollary}
+
+The necessity example of \Cref{sec:necessity} already witnesses this: the
+registry $R_\infty$ ($\Sigma = \mathbb{Z}$, $\Phi(\sigma) = |\sigma|$,
+compensation stepping toward $0$) satisfies WFC and CC and converges---every
+event set reaches a unique valid normal form---yet $\Sigma$ is infinite.  What it
+lacks is UBC: compensation depth grows without bound.
+
+Finiteness therefore underwrites three \emph{secondary} properties, not
+soundness: (i)~UBC and the uniform per-event cost (\Cref{thm:complexity});
+(ii)~verification by exhaustive enumeration; and (iii)~the precomputed
+normal-form and step tables behind $O(1)$ runtime application.  A registry whose
+logic is captured by $k$ boolean predicates already has a finite semantic
+quotient---$|\Sigma_R| \le 2^k$ (\Cref{rem:scope})---so ``infinite'' here means
+genuinely \emph{unbounded numeric} semantic state, as in $R_\infty$.
+
+On such a domain enumeration is unavailable, but CC can still be discharged.
+The verification calculus (\Cref{sec:calculus})---footprint disjointness and
+decomposable repair---establishes CC by \emph{algebraic} conditions that never
+quantify over an enumerated state space; symbolic decision procedures apply
+where those do not.  When the valid states form a complete lattice and
+compensation is monotone, the normal form is a fixed point computed by Kleene
+iteration: finitely under the ascending chain condition, and under
+\emph{widening}~\cite{cousot1977} otherwise, at the cost of a sound
+over-approximation.  Exactness may be lost without ACC, but existence and
+uniqueness of the normal form are guaranteed by \Cref{cor:infinite} regardless.
+The federated generalization of the monotone case
+appears in~\cite{blackwell2026federated}.
+
 \subsection{Extensions}
 
 The single-registry result is the foundation for further extensions.  First,
@@ -1597,6 +1640,11 @@ Dayna~Blackwell,
 ``Normalization Confluence in Federated Registry Networks,''
 Zenodo, 2026.
 \textsc{doi}: \href{https://doi.org/10.5281/zenodo.18677400}{10.5281/zenodo.18677400}.
+
+\bibitem{cousot1977}
+P.~Cousot and R.~Cousot,
+``Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints,''
+\emph{Proc.\ 4th ACM SIGACT-SIGPLAN Symp.\ on Principles of Programming Languages (POPL)}, pp.~238--252, 1977.
 
 \end{thebibliography}
 

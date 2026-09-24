@@ -1620,6 +1620,22 @@ convergence \emph{with} business invariants, which operation commutativity alone
 does not provide.
 \end{remark}
 
+\begin{remark}[Infinite lattices and widening]
+\label{rem:infinite-lattice}
+\Cref{thm:monotone-cycles} assumes only a \emph{complete} lattice, which may be
+infinite.  Knaster--Tarski still yields the least fixed point $\bar{s}^{\star}$;
+what changes is its computation.  Kleene iteration reaches $\bar{s}^{\star}$ in
+finitely many steps under the ascending chain condition (in particular, for any
+finite lattice).  Without ACC---an unbounded counter or resource in
+$\mathbb{N} \cup \{\top\}$, whose ascending chains never stabilize---iteration
+need not terminate; a \emph{widening} operator (abstract
+interpretation~\cite{cousot1977}) forces termination by extrapolating the
+ascending chain to a sound post-fixed-point, trading exactness for
+computability.  The convergence guarantee is unaffected: the federated normal
+form exists and is unique regardless; only its exact computation requires ACC or
+a widening.
+\end{remark}
+
 \subsection{Compositionality: Sub-Federations as Effective Registries}
 \label{sec:compositionality}
 
