@@ -157,6 +157,11 @@ mappings encoding cross-organizational constraints---form a single federated
 registry whose convergence reduces to the single-registry case.  For
 tree-shaped morphism networks, this reduction requires surprisingly little
 beyond the component conditions: only validity preservation of the morphisms.
+We then lift the tree restriction to any acyclic network by equipping
+multi-source targets with \emph{resolution operators}---source-determined,
+validity-preserving merges that generalize the single-source authority
+function---so convergence holds across arbitrary directed-acyclic constraint
+graphs.
 
 \paragraph{Relationship to prior work.}
 This paper extends~\cite{blackwell2026nc}, which establishes the
@@ -165,8 +170,10 @@ single-registry governance rewrite system, the core convergence result
 and a verification calculus for CC based on invariant footprints and
 decomposable repair.  The present paper adds the federated extension
 (\Cref{sec:federation}): registry morphisms with partial authority, the
-federated construction, the authority argument, and the federated convergence
-theorem with necessity counterexamples.  For self-containment, we restate the
+federated construction, the authority argument, the federated convergence
+theorem with necessity counterexamples, and its generalization to multi-source
+acyclic networks via resolution operators (\Cref{sec:multisource}).  For
+self-containment, we restate the
 single-registry model and include all proofs needed to support the federated
 result; readers familiar with~\cite{blackwell2026nc} may proceed directly to
 \Cref{sec:federation}.
@@ -1656,7 +1663,12 @@ connected by morphisms to supplier capability registries forms a tree-shaped
 network.  Each organization maintains its own compensation operators; the
 morphisms encode specification conformance.  \Cref{thm:fed-convergence}
 guarantees that all participants converge to consistent states across
-organizational boundaries.
+organizational boundaries.  When a supplier answers to \emph{several}
+authorities at once---say a manufacturer's specifications \emph{and} a
+regulator's rules---the network is no longer a tree; a resolution operator
+(\Cref{sec:multisource}) combines the constraints (for instance, most-
+restrictive-wins), and \Cref{thm:resolved-convergence} extends the same
+guarantee to this acyclic multi-source setting.
 
 \subsection{Extensions}
 
@@ -2003,7 +2015,14 @@ are derived from the network's acyclicity and the components' existing
 convergence properties, not assumed as additional axioms.  The core mechanism
 is the authority argument: in a directed morphism, the source's unique normal
 form deterministically determines the target's shared component, eliminating
-the nondeterminism that would otherwise require additional conditions.
+the nondeterminism that would otherwise require additional conditions.  When a
+target answers to several sources at once, a \emph{resolution operator}
+generalizes the authority function---a source-determined, validity-preserving
+merge---and convergence extends to any acyclic network, with single-source
+authority as the special case.  Because the merge encodes domain policy, its two
+conditions are stated as decidable hypotheses (checkable by finite enumeration)
+rather than assumed, mirroring how the single-source case rests on morphism
+validity preservation.
 
 To make CC practically verifiable, we developed a verification calculus that
 reduces the global CC obligation to local checks.  Invariant footprints
