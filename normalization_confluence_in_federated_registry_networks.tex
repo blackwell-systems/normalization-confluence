@@ -244,6 +244,11 @@ restated here for self-containment.  The federated extension (items 7--10) is ne
   one does.  This gives modular and hierarchical verification---and black-box
   reuse of verified subsystems---generalizing product composition from
   independent registries to arbitrary sub-diagrams (limits compose).
+\item \textbf{Machine-checked base theorem} (\Cref{sec:mechanization}): The
+  single-registry Convergence Theorem this work builds on is mechanized in
+  Coq/Rocq---Newman's Lemma and the three critical-pair cases---axiom-free
+  (\texttt{Print Assumptions} reports ``Closed under the global context''), with
+  a concrete registry witnessing that WFC and CC are jointly satisfiable.
 \end{enumerate}
 
 %========================================
@@ -884,6 +889,22 @@ By \Cref{lem:termination}, $\mathcal{G}$ is terminating.  By
 Lemma~\cite{newman1942}, $\mathcal{G}$ is globally confluent.  A terminating,
 confluent rewrite system has unique normal forms.
 \end{proof}
+
+\begin{remark}[Machine-checked]
+\label{sec:mechanization}
+The single-registry base results above (\cite{blackwell2026nc}) are mechanized
+in Coq/Rocq (checked with Rocq~9.3): Newman's Lemma is proved from scratch, and
+the Governance Rewrite System's termination (via the lexicographic measure
+$(|B|, \Phi(\sigma))$) and local confluence (the three critical-pair cases,
+closed by CC1, CC2, and determinism of~$\rho_R$) yield confluence and unique
+normal forms.  For both the abstract theorem and a concrete instantiation,
+\texttt{Print Assumptions} reports ``Closed under the global context'': no
+axioms, no admitted lemmas.  A concrete state-determined-compensation registry
+discharges WFC and CC with genuine nondeterminism, so the hypotheses are jointly
+satisfiable and the theorem is not vacuous.  Scripts are in the \texttt{coq/}
+directory of the artifact.  The federation results in this paper are not yet
+mechanized.
+\end{remark}
 
 \begin{theorem}[Stream Convergence]
 \label{thm:convergence}

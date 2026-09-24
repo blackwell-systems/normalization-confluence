@@ -184,6 +184,12 @@ from operation algebra to compensation design.
   conditions---invariant footprints and decomposable repair---that reduce the
   global CC obligation to local, per-event-pair checks.  Product composition
   theorems enable modular verification of multi-registry systems.
+\item \textbf{Machine-checked proof} (\Cref{sec:mechanization}): A Coq/Rocq
+  mechanization of the Convergence Theorem---Newman's Lemma and the three
+  critical-pair cases---that is axiom-free (\texttt{Print Assumptions} reports
+  ``Closed under the global context'') and accompanied by a concrete registry
+  witnessing that WFC and CC are jointly satisfiable, so the theorem is not
+  vacuous.
 \end{enumerate}
 
 %========================================
@@ -818,6 +824,25 @@ By \Cref{lem:termination}, $\mathcal{G}$ is terminating.  By
 Lemma~\cite{newman1942}, $\mathcal{G}$ is globally confluent.  A terminating,
 confluent rewrite system has unique normal forms.
 \end{proof}
+
+\begin{remark}[Machine-checked]
+\label{sec:mechanization}
+This result is mechanized in Coq/Rocq (checked with Rocq~9.3).  Newman's Lemma
+is proved from scratch (no external libraries) as
+\emph{strongly normalizing $+$ locally confluent $\implies$ confluent}, and
+the Governance Rewrite System is formalized with its two rules; the
+lexicographic measure $(|B|, \Phi(\sigma))$ discharges termination and the
+three critical-pair cases (closed by CC1, CC2, and determinism of~$\rho_R$)
+discharge local confluence, yielding confluence and unique normal forms.  For
+both the abstract theorem and a concrete instantiation, \texttt{Print
+Assumptions} reports ``Closed under the global context'': no axioms and no
+admitted lemmas.  The development takes the paper's named conditions (WFC, CC)
+as hypotheses---exactly the abstraction level used here---and a concrete
+registry (state-determined compensation) discharges all of them with genuine
+nondeterminism, establishing that the hypotheses are jointly satisfiable and
+the theorem is not vacuous.  The proof scripts are available in the
+\texttt{coq/} directory of the accompanying artifact.
+\end{remark}
 
 \begin{theorem}[Stream Convergence]
 \label{thm:convergence}
