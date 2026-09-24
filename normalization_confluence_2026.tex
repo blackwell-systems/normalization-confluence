@@ -1126,7 +1126,12 @@ calculus:
   ``reset to safe default'' pattern.
 \item \textbf{Lattice-structured compensation.}\;  If the valid states form a
   join-semilattice and compensation computes the join with the nearest valid
-  state, both conditions hold by the commutativity of the join operation.
+  state, both conditions hold by the commutativity of the join operation.  This
+  lattice structure lifts to the federated setting: the companion
+  paper~\cite{blackwell2026federated} shows that when repair is \emph{monotone}
+  on an ordered shared domain, federated convergence holds even on
+  \emph{cyclic} networks (by the Knaster--Tarski fixed-point theorem), with
+  state-based CRDTs as the compensation-free special case.
 \item \textbf{Decomposable repair.}\;  If compensation decomposes into
   commuting per-invariant repairs, CC can be verified via the footprint
   calculus of \Cref{sec:calculus}.  The order fulfillment example
