@@ -31,6 +31,12 @@ live, and it is the space normalization confluence occupies. CRDTs are recovered
 case where compensation is never needed (a join-semilattice merge is monotone and validity is
 trivial), so this is a strict generalization, not a competitor.
 
+This recovery is now machine-checked, not just asserted: `coq/CRDT.v` proves (axiom-free) that an
+op-based CRDT's strong eventual consistency is an instance of the same order-independence lemma the
+governance proof uses, that a state-based CRDT is the semilattice special case, and that the
+inclusion is strict via a convergent governed machine that is provably neither CRDT. See
+[SUBSUMPTION.md](SUBSUMPTION.md) for the precise statement and its scope.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite

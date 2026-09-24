@@ -1,5 +1,5 @@
 # Build the mechanized confluence proof. Requires coqc (Rocq/Coq >= 8.18; tested on Rocq 9.3).
-all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo AstChecker.vo
+all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo AstChecker.vo CRDT.vo
 
 Newman.vo: Newman.v
 	coqc -Q . NC Newman.v
@@ -24,6 +24,9 @@ Checker.vo: Checker.v
 
 AstChecker.vo: AstChecker.v Checker.vo
 	coqc -Q . NC AstChecker.v
+
+CRDT.vo: CRDT.v Checker.vo
+	coqc -Q . NC CRDT.v
 
 # Print the assumption base of the main results (expect: "Closed under the global context").
 check: all

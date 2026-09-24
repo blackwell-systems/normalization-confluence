@@ -23,11 +23,12 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 12 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twelve headline results (the single-registry confluence
+Expected tail: `PASS: all 18 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all eighteen headline results (the single-registry confluence
 and unique-normal-form theorems, the defensibility instance, the two gsm certification-soundness
-results, the two federated results, the two chaotic-iteration results, and the two verified-checker
-soundness results) and fails if any of them depends on an axiom or an admitted lemma.
+results, the two federated results, the two chaotic-iteration results, the two verified-checker
+soundness results, and the six CRDT-subsumption results) and fails if any of them depends on an
+axiom or an admitted lemma.
 
 ## What is proven
 
@@ -207,14 +208,41 @@ gsm's evaluator and this Coq evaluator disagree on any machine. This is the stan
 mirrored in a proof assistant" pattern (the way CompCert mirrors C semantics in Coq): the mirror
 is small, changes rarely, and is guarded by a test rather than by hand.
 
+## CRDTs as a special case (`CRDT.v`)
+
+`CRDT.v` machine-checks that conflict-free replicated data types are the compensation-free
+fragment of this theory: a CRDT buys convergence by restricting to operations that can never
+violate an invariant, so no repair is ever needed, and normalization confluence keeps convergence
+after dropping that restriction. Four results, all axiom-free:
+
+- `cmrdt_SEC`: an op-based CRDT's strong eventual consistency (replicas that delivered the same
+  operations in any order agree) is a one-line instance of `run_perm_invariant`. Its commuting-
+  operations requirement is exactly the order-independence hypothesis that lemma already assumes.
+- `cmrdt_governed_SEC`: the embedding is faithful. A CmRDT is a governed machine with the trivial
+  invariant (every state valid) and identity compensation; then WFC is trivial, the governed step
+  equals the raw operation, and convergence follows again.
+- `cvrdt_SEC` / `cvrdt_absorbs_duplicates`: a state-based CRDT is the semilattice special case. A
+  commutative, associative, idempotent join makes merge order-independent (the same lemma) and
+  absorbs duplicate delivery (the extra property a CvRDT bundles in for at-least-once delivery,
+  which normalization confluence does not require in general).
+- Strict inclusion (`witness_converges`, `witness_not_cmrdt`, `witness_leaves_valid_space`): a
+  concrete governed machine that converges yet is neither CRDT. Its raw operations do not commute
+  (so it is no CmRDT), and an event drives a valid state to an invalid one (so its operations are
+  not the structure-preserving endomaps of a CvRDT). It converges only because compensation repairs
+  the violation.
+
+The claim is scoped to the convergence principle, not to CRDT engineering as a whole: version
+vectors, causal delivery, and garbage collection are operational concerns this result does not
+subsume. See `../SUBSUMPTION.md` for the full statement and caveats.
+
 ## Build
 
 ```
 make          # compiles every module (Newman, Governance, Defensibility, Gsm, Federation,
-              # Chaotic, Checker, AstChecker)
+              # Chaotic, Checker, AstChecker, CRDT)
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all twelve
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all eighteen
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`).
