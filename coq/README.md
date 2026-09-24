@@ -63,6 +63,27 @@ Together with the axiom-free `Print Assumptions` on the abstract theorem, this i
 that the mechanization is strong: correct definitions (standard rewriting theory), satisfiable
 hypotheses (a real model), a discriminating conclusion, and no hidden assumptions.
 
+## Federated convergence (`Federation.v`)
+
+The federated paper's deepest result (Thm. "Monotone Convergence Despite Cycles") says a
+monotone federated repair operator on a product of complete lattices has a least fixed point
+reached by Kleene iteration from bottom, on any topology including cycles. `Federation.v`
+mechanizes the constructive, finite-lattice core the paper relies on ("the ascending chain
+stabilizes for a finite lattice"), axiom-free:
+
+- `iter_ascending` / `iter_below_fixed`: Kleene iteration from bottom is an ascending chain
+  bounded by every fixed point.
+- `kleene_lfp`: once the iteration stabilizes, the stable value **is** the least fixed point
+  (the federated normal form) - existence and Kleene-reachability.
+- `lfp_unique`: the least fixed point is unique, i.e. the limit is order-independent.
+
+A concrete finite lattice (`bool`) with a monotone operator witnesses non-vacuity, with the
+least fixed point computed (`bool_lfp_true`, `bool_lfp_value`). Deliberately avoids the
+impredicative arbitrary-meet form of Knaster-Tarski, which would require excluded middle or
+propositional extensionality, so the development stays axiom-free. Not covered: the full
+chaotic-iteration result (every fair asynchronous component-wise schedule reaches the least
+fixed point, not just the synchronous iteration) - that remains the open piece.
+
 ## Implementation soundness (`Gsm.v`)
 
 The theorem is conditional on WFC and CC. `Gsm.v` mechanizes the soundness of the two arguments

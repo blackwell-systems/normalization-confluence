@@ -905,8 +905,14 @@ satisfiable and the theorem is not vacuous.  The soundness of the reference
 implementation's certification strategy is mechanized as well---footprint
 disjointness implies order-independent commutation (the compositional CC path),
 and a repair strictly decreasing a potential is strongly normalizing (WFC)---each
-axiom-free.  Scripts are in the \texttt{coq/} directory of the artifact.  The
-federation results in this paper are not yet mechanized.
+axiom-free.  The monotone-cycles result (\Cref{thm:monotone-cycles}) is mechanized
+in its constructive finite-lattice core: Kleene iteration of a monotone operator
+from~$\bot$ is an ascending chain bounded by every fixed point, and once it
+stabilizes the stable value is the (unique) least fixed point~$\bar{s}^{\star}$,
+again axiom-free with a concrete witness.  Scripts are in the \texttt{coq/}
+directory of the artifact.  Not yet mechanized: the full chaotic-iteration
+statement (that every fair \emph{asynchronous} component-wise schedule, not only
+the synchronous iteration, reaches~$\bar{s}^{\star}$).
 \end{remark}
 
 \begin{theorem}[Stream Convergence]
