@@ -37,6 +37,50 @@ governance proof uses, that a state-based CRDT is the semilattice special case, 
 inclusion is strict via a convergent governed machine that is provably neither CRDT. See
 [SUBSUMPTION.md](SUBSUMPTION.md) for the precise statement and its scope.
 
+## Precisely: CALM, I-confluence, and where compensation adds reach
+
+The two landmark characterizations of coordination-freedom are CALM and I-confluence. Normalization
+confluence relates to each precisely, and the relationship is cleanest stated through its own
+lattice: the compensation-free fragment at the floor (see [SUBSUMPTION.md](SUBSUMPTION.md)) and the
+CC-satisfiability frontier at the ceiling.
+
+**CALM (Hellerstein's conjecture; Ameloot, Neven, Van den Bussche).** *A program has a
+coordination-free, eventually-consistent implementation if and only if it is monotone* (adding an
+input never retracts an output). The mechanism behind the "if" is that a monotone map on a lattice
+has a least fixed point reached order-independently. NC's monotone regime
+(`Federation.AllowMonotoneCycles`) is exactly that mechanism: a monotone repair/morphism operator
+on an ordered shared domain whose least fixed point is the federated normal form, reached by any
+fair schedule (Knaster-Tarski plus chaotic iteration). So NC's monotone regime *is* the CALM
+monotone case, carrying business invariants on top. Two scoping notes: CALM is an iff for a
+relational/Datalog computational model, whereas NC's monotone regime is a sufficient mechanism on
+lattice-valued state; and CALM says nothing about compensation, which is where NC goes past it.
+
+**I-confluence (Bailis et al.).** *A set of operations is safely coordination-free under invariant
+I if and only if it is I-confluent*: the operations preserve I and merges of I-valid states stay
+I-valid. This is a necessary-and-sufficient characterization for the case where operations never
+drive the state invalid. In NC's terms an I-confluent operation set is a machine that is
+**compensation-free with a nontrivial invariant**: repair never fires because the invariant is
+never violated (max repair depth 0). That puts I-confluence, alongside CRDTs, on NC's floor: CRDTs
+are the compensation-free fragment reached by commutativity, I-confluence the compensation-free
+fragment reached by invariant preservation, and both are the same "repair never needed" corner that
+`compensationFree` decides (machine-checked).
+
+**Where compensation adds reach.** NC's own contribution is the region *above* that floor:
+operations that DO violate the invariant, made convergent by a repair that terminates (WFC) and
+commutes (CC). Neither prior characterization reaches it. CALM-monotonicity cannot (the canonical
+divergence counterexample, antitone negation, is exactly non-monotone), and I-confluence excludes
+invariant-violating operations by definition. NC reaches it by two routes that match its topology
+results: monotone repair converges on any graph (the CALM overlap), and non-monotone but compensable
+repair converges on acyclic networks with resolvers. The price of leaving the characterized floor is
+that WFC + CC is a *sufficient* mechanism, not an iff: its boundary is CC-satisfiability, decided
+constructively by `Registry.Synthesize` (the impossibility witness), rather than a closed-form
+logical property like monotonicity or I-confluence.
+
+**One-line placement.** Coordination-free convergence is achievable by monotonicity (CALM), by
+invariant preservation (I-confluence), or by compensable repair (this work). The first two are the
+compensation-free floor that NC recovers; NC's contribution is the compensating region above it, up
+to the frontier where no repair converges and only coordination remains.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite
@@ -48,9 +92,9 @@ inclusion is strict via a convergent governed machine that is provably neither C
   dataflow analysis (Cousot). The federated repair operator is a monotone map on a lattice; its
   least fixed point is the federated normal form, reached by any fair schedule. So the cyclic
   federation case inherits worklist scheduling and widening from that literature.
-- **CALM / monotonicity.** The monotone-cycles result is the invariant-carrying cousin of CALM:
-  monotone repair converges coordination-free on any topology, and adds business invariants on
-  top of what monotone logic alone provides.
+- **CALM / monotonicity.** The monotone-cycles result is the invariant-carrying cousin of CALM
+  (monotone repair converges coordination-free on any topology); the precise relationship, and how
+  it differs from I-confluence, is spelled out in the section above.
 - **The saga pattern.** Compensation is folklore in sagas and long-running transactions, used to
   undo partial work. Normalization confluence gives that folklore a *convergence theory*: exactly
   when compensations make concurrent orderings agree on the same valid state, rather than merely
