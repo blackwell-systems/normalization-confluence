@@ -343,8 +343,11 @@ names the cycle and exhibits the orbit or the missing fixed point).
 are established here and coincide with gsm's verified regimes; the identification of R1/R2 with the
 gluing axiom validates the existing federation design. The obstruction for cycles is the loop
 composite's failure to have a reachable fixed point, computable over the shared subspace and
-genuinely Cech `H^1` in the invertible case; turning it into a Build-time diagnostic (report the
-obstructing cycle and its composite) is a concrete, low-risk next feature.
+genuinely Cech `H^1` in the invertible case; the practical loop-composite diagnostic is implemented
+in gsm as `Federation.DiagnoseCycle` (it names the offending cycle and reports whether the loop
+repair settles or orbits from a representative seed). What remains open is the cohomology-proper
+classification, computing the `H^1` class itself in the invertible case and its non-abelian
+analogue in general, rather than the reachable-fixed-point test.
 
 ## 11. Further directions (stubs)
 
@@ -362,7 +365,8 @@ obstructing cycle and its composite) is a concrete, low-risk next feature.
    replay in one lemma.
 3. **Sheaf structure (§10)**: worked (first pass). Certificates form a sheaf on the
    single-writer-or-monotone site, and gsm's R1/R2 resolvers already realize the gluing, so the
-   existing federation design is validated rather than extended. The open, high-value piece is the
-   cohomological obstruction diagnostic for non-monotone cycles.
+   existing federation design is validated rather than extended. The practical loop-composite
+   obstruction diagnostic for cycles is implemented in gsm (`Federation.DiagnoseCycle`); the
+   cohomology-proper `H^1` classification is what remains open.
 4. **Squier / higher-dimensional rewriting (§11)**: reframes confluence as coherence; strong for the
    single-registry paper's credibility.
