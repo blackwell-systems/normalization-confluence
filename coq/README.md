@@ -235,6 +235,40 @@ The claim is scoped to the convergence principle, not to CRDT engineering as a w
 vectors, causal delivery, and garbage collection are operational concerns this result does not
 subsume. See `../SUBSUMPTION.md` for the full statement and caveats.
 
+## Roadmap: mechanizing the categorical layer (companion paper)
+
+Planned, not yet proven. The companion paper (categorical structure of federated convergence) rests
+on a small structural core that is elementary in `Set` and finite posets, so it should mechanize by
+leaning on the modules above rather than pulling in heavy category-theory libraries. Targets, in
+priority order:
+
+1. **Lemma 0 (a registry is an equalizer).** `Fix(rho_R) = im(rho_R) = eq(id, rho_R)`. Follows from
+   idempotence of the normalizer, already the substance of `Governance.v`'s unique-normal-form
+   result; the equalizer statement is a definitional repackaging. Cheapest, do first.
+2. **Proposition 1 (the consistent set is a finite limit).** The federated consistent set `L_F` is
+   the equalizer of the two shared-projection maps. Combinatorial over finite products, no new
+   axioms.
+3. **Theorem 1 (federation retraction, acyclic).** `rho_F` is idempotent with image `L_F` and is
+   order-independent across topological orders. Leans on the acyclic single-round-termination
+   argument and the existing idempotence facts; the order-independence half is close in spirit to
+   `Chaotic.v`'s schedule-independence result.
+4. **Theorem 2 (compositionality).** The flat federation and the staged (sub-federation-collapsed)
+   federation have the same normalizer. The payoff result; follows once Theorem 1 is in place.
+
+Kept at paper level (out of scope for the first mechanization pass):
+
+- The cohomological completion (`H^0`/`H^1`, the completion theorem) is proven at paper level in the
+  invertible/torsor fragment only; the general case reduces to the loop-composite fixed-point
+  condition, which is a dynamical statement rather than group cohomology.
+- The operational core of that story is already implemented: the loop-composite fixed-point / orbit
+  test is `gsm`'s `Federation.DiagnoseCycle`. A later target is mechanizing that test (finite-space
+  fixed-point reachability), for which `Federation.v` and `Chaotic.v` already supply most of the
+  machinery.
+
+Status: these are targets for the companion submission, tracked here so the axiom-free gate above
+(currently 18 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+module and passes the gate.
+
 ## Build
 
 ```
