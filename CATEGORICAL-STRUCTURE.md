@@ -349,6 +349,66 @@ repair settles or orbits from a representative seed). What remains open is the c
 classification, computing the `H^1` class itself in the invertible case and its non-abelian
 analogue in general, rather than the reachable-fixed-point test.
 
+### 10.1 The completion: `H^0`, `H^1`, and the two routes to convergence
+
+Assemble the sheaf on the nerve `N` of the cover by subsystems: a vertex per subsystem, an edge per
+non-empty overlap, a triangle per triple overlap. Write the shared fiber on an overlap as `S` (a
+finite set) and, in the invertible fragment, the identification across edge `(i,j)` as a bijection
+`g_ij` in a group `G ≤ Sym(S)`, with the cocycle condition `g_ik = g_jk · g_ij` on triangles.
+
+**`H^0` is the convergent states.** A global section assigns each subsystem `i` a shared value `s_i`
+with `g_ij · s_i = s_j` on every overlap: exactly a consistent global normal form. So `H^0(N, F)` is
+the consistent set `L` of section 2, the federation's convergent states, and "converges
+compositionally" is "`H^0` is non-empty."
+
+**`H^1` is the obstruction (invertible fragment).** The 0-cochains are gauges (`h_i ∈ G` per vertex,
+a relabeling of subsystem `i`'s shared normal form); the coboundary is `(dh)_ij = h_j · h_i^{-1}`;
+the 1-cocycles `Z^1` are the transition families satisfying the triangle condition; `H^1` is `Z^1`
+modulo the gauge equivalence `g'_ij = h_j · g_ij · h_i^{-1}`, with the trivial class the coboundaries.
+
+**Theorem (completion, invertible fragment).** When the shared fiber is a `G`-torsor, a global
+section exists iff the transition cocycle `{g_ij}` is trivial in `H^1` (a coboundary).
+*Proof.* Fix a base `c ∈ S`; freeness and transitivity make `g ↦ g · c` a bijection `G → S`, so each
+`s_i = h_i · c` for a unique `h_i ∈ G`. (Coboundary implies section) if `g_ij = h_j · h_i^{-1}`, set
+`s_i = h_i · c`; then `g_ij · s_i = h_j · h_i^{-1} · h_i · c = h_j · c = s_j`, a global section.
+(Section implies coboundary) a section `{s_i}` with `g_ij · s_i = s_j` gives `g_ij · h_i = h_j`, so
+`g_ij = h_j · h_i^{-1} = (dh)_ij`. ∎
+
+**`H^1` is holonomy, and its generators are a cycle basis.** Fix a spanning tree of `N` and gauge the
+tree transitions to the identity; the cocycle is then determined by its values on the non-tree edges,
+one per independent cycle, and each value is the holonomy around that cycle, the loop composite `g`
+the diagnostic computes. So `H^1` (as a pointed set) is the holonomies of a cycle basis modulo
+simultaneous conjugation, its rank is the first Betti number of the nerve (the number of independent
+cycles), and it is trivial iff every loop composite is the identity. That is exactly the diagnostic's
+condition, and the cycle basis is the minimal obstruction basis: fixing the holonomy on each
+generator makes `H^0` non-empty.
+
+**Two routes to `H^0` non-empty, which is gsm's dichotomy.** The obstruction vanishes in two
+independent ways:
+
+- *Trivial holonomy.* An acyclic nerve has no independent cycles (Betti number 0, `H^1` trivial), and
+  more generally trivial loop composites give a coboundary. This is the acyclic / tree route.
+- *Monotone fibers.* When `S` carries a lattice order and the transitions are monotone (not
+  invertible, so outside the torsor picture), Knaster-Tarski gives a least fixed point of the loop
+  composite, so `H^0` is non-empty regardless of holonomy. This is the monotone route.
+
+These are exactly gsm's "two independent routes to confluence" (acyclic structure and monotonicity),
+now identified categorically: the first kills the cohomological obstruction, the second sidesteps it
+via order.
+
+**General (non-invertible) case.** When transitions are non-invertible the fiber is not a torsor and
+the transitions are not group elements, so classical Cech `H^1` does not apply. There the obstruction
+is `H^0` directly (section 2): a global section exists iff the loop composite has a reachable fixed
+point (section 10), a monoid/dynamical condition rather than group cohomology. The invertible
+fragment is where the completion is a clean cohomological iff; the general case reduces to the
+fixed-point condition already established.
+
+**What the completion delivers.** `H^0 =` the convergent states; `H^1 =` the holonomy obstruction,
+with an explicit cycle-basis of generators (the minimal set of loops to fix) and a Betti-number rank;
+the vanishing of `H^1` and the monotone least-fixed-point are the two categorical routes to
+convergence, recovering gsm's stated dichotomy as one picture. Proven here for the invertible/torsor
+fragment; open beyond it is the non-abelian obstruction and mechanization.
+
 ## 11. Further directions (stubs)
 
 - **Higher-dimensional rewriting (Squier's theorem, polygraphs).** WFC + CC is convergent rewriting;
