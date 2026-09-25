@@ -251,19 +251,94 @@ analytic weight is the convergence facts, elementary here once the objects are s
 mechanized: a Coq rendering would need a category-theory library and is low priority next to the
 existing convergence development it would reuse.
 
-## 10. Further directions (stubs)
+## 10. Sheaf structure of compositional verification
+
+**The presheaf.** Over a system's variable set, take a region to be a variable subset `U`, the
+subsystem on `U` to be the rules whose footprint lies in `U`, and the section `F(U)` to be that
+subsystem's normalizer `ρ_U` with its convergence verdict. Restriction `F(U) → F(U')` for `U' ⊆ U`
+restricts the normalizer. The sheaf question: do local certificates that agree on overlaps glue to a
+global one, checkable from the overlap alone?
+
+**Gluing is not naive (counterexample).** Two subsystems `A`, `B` sharing a variable `s` can each be
+confluent yet glue to a non-confluent union. Let `s ∈ {0,1,2}`; `A` has invariant `s ≠ 1` with
+repair `s := 0`; `B` has invariant `s ≠ 1` with repair `s := 2`. Each is confluent, and both have
+valid set `{0,2}`, so they agree on which values of `s` are valid. But in the union, from `s = 1` the
+result is `0` (A first) or `2` (B first): order-dependent, non-confluent. Agreement on valid values
+is not enough.
+
+**The precise gluing condition.** The obstruction is that `A` and `B` disagree as normalizers on the
+shared state (`A: 1↦0`, `B: 1↦2`). So the correct "agree on the overlap" is: the two certificates'
+restrictions to the shared variables are **equal as normalizers** (same normal-form map on shared
+states). Then the shared variable has one unambiguous normal form, the union is confluent, and the
+sections glue, the global normalizer running each private part plus the agreed map on the overlap.
+This is checkable on the overlap alone (compare the two normalizers over the shared subspace), never
+the joint product. So convergence certificates form a **sheaf** on the site whose overlaps satisfy
+this agreement.
+
+**Two regimes force agreement, and they are gsm's regimes.**
+
+- *Single-writer overlap*: only one subsystem writes `s` (the other reads it). The writer's
+  normalizer is the only one on `s`, so agreement is automatic. This is the authority / M1
+  discipline.
+- *Monotone overlap*: both write `s`, but monotonically. The combined repair is a monotone operator
+  with a unique least fixed point (Knaster-Tarski), so the normalizers agree on the glued result.
+  This is the `AllowMonotoneCycles` regime.
+
+**The federation already realizes this.** In a federation, distinct components do not literally share
+a variable; a shared writable variable is a *multi-source target*, and the resolver merges its
+sources. The resolver's hypotheses are exactly the sheaf gluing condition: R1 (source-determinacy)
+makes the merged normal form single-valued (confluence on the overlap), and R2 (validity
+preservation) makes it land in the agreed valid set. So **R1 + R2 is the "agree as normalizers on
+the overlap" axiom, and gsm's resolver verification is the sheaf gluing check.** The design is
+validated, not extended by a new primitive: the machinery that composes overlapping subsystems
+soundly is already present.
+
+**Cycles and the obstruction.** For two subsystems the condition is a single equality (or
+monotone-compatibility) check, so nothing subtle survives. The interesting case is a cycle of three
+or more subsystems, `A` overlapping `B`, `B` overlapping `C`, `C` overlapping `A`, where each
+pairwise overlap agrees yet no global section exists. This is the classic local-consistency,
+global-impossibility phenomenon, measured by the first Cech cohomology `H^1` of the presheaf over
+the nerve of the overlap cover.
+
+Concretely: cover the system by the three subsystems; the overlaps are the edges of a triangle; a
+global section is a choice of normal form on the shared variables consistent on every edge and
+around the loop. Pairwise agreement makes each edge consistent (the cocycle condition on edges), but
+consistency around the triangle is an extra constraint (the coboundary): the composite of the three
+pairwise identifications on the shared variables must return to the identity. When it does not, there
+is a non-trivial `H^1` class, a cocycle that cannot be trivialized, and that class is a computable
+witness that three individually-convergent, pairwise-compatible subsystems cannot jointly converge,
+localized to the cycle that carries it.
+
+This lines up exactly with gsm's cycle story. An acyclic overlap graph has no loop, so `H^1` is
+trivial and gluing always succeeds (the tree / DAG theorems). A monotone cycle collapses the
+obstruction: the least fixed point is the unique global section, so the cohomology vanishes in the
+monotone regime (Monotone Convergence Despite Cycles). A non-monotone cycle is precisely where a
+non-trivial `H^1` can appear: the negation counterexample is the minimal such cocycle, a loop of
+shared constraints with no consistent global normal form. So the cohomology is not decoration; it is
+the invariant separating the convergent regimes (acyclic, monotone) from the divergent one
+(non-monotone cycles), and its non-vanishing is the obstruction gsm rejects.
+
+**The concrete payoff.** Two things follow. First, the sheaf result explains why R1/R2 and the
+monotone-cycle condition are the right hypotheses: they are the gluing axiom and the vanishing of the
+obstruction, not separately motivated checks. Second, it points at one genuinely new capability, an
+**obstruction diagnostic**: when a cyclic federation fails to converge, computing the `H^1` witness
+identifies the specific cycle of morphisms and shared constraints that blocks composition, rather
+than reporting a generic rejection. For federating N independently-governed policies, that answers
+"can these compose" and, when they cannot, "where is the conflict." Developing it needs the Cech
+`H^1` worked over a concrete three-subsystem cycle to confirm the witness is computable and legible.
+
+**Status.** The two-subsystem gluing condition, its counterexample, and the two sufficient regimes
+are established here and coincide with gsm's verified regimes; the identification of R1/R2 with the
+gluing axiom validates the existing federation design. The cohomological obstruction for cycles is
+stated and localized to the non-monotone case; developing it into a computable diagnostic is open.
+
+## 11. Further directions (stubs)
 
 - **Higher-dimensional rewriting (Squier's theorem, polygraphs).** WFC + CC is convergent rewriting;
   Squier's theorem upgrades "unique normal forms" to a coherent presentation (all reduction paths
   equal up to higher cells) and connects convergence to homological finiteness of the monoid. This
   is the rigorous form of "the order of steps cannot change the result." Paper depth, low
   engineering payoff.
-- **Sheaf reading of footprint-local verification (`BuildCompositional`).** Verifying each
-  footprint-connected component over its own subspace and composing verdicts is a local-to-global
-  gluing. If local convergence certificates that agree on overlaps glue uniquely to a global
-  certificate, "subsystem ↦ its certificate" is a sheaf on a site of footprints, and compositional
-  verification is a gluing theorem. A conjecture with real risk (the overlaps may not glue);
-  confirming or refuting it is the investigation.
 
 ## Ranking of payoff-over-risk
 
@@ -271,6 +346,9 @@ existing convergence development it would reuse.
    2) for the whole accepted class, with the merge-universality boundary made precise.
 2. **Free-monoid / commutative-quotient bridge (§8)**: proven; connects convergence to event-sourced
    replay in one lemma.
-3. **Squier / higher-dimensional rewriting (§10)**: reframes confluence as coherence; strong for the
+3. **Sheaf structure (§10)**: worked (first pass). Certificates form a sheaf on the
+   single-writer-or-monotone site, and gsm's R1/R2 resolvers already realize the gluing, so the
+   existing federation design is validated rather than extended. The open, high-value piece is the
+   cohomological obstruction diagnostic for non-monotone cycles.
+4. **Squier / higher-dimensional rewriting (§11)**: reframes confluence as coherence; strong for the
    single-registry paper's credibility.
-4. **Sheaf reading (§10)**: highest novelty, genuine research risk; scope before committing.
