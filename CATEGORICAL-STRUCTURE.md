@@ -307,13 +307,13 @@ way around, so the shared value must be a fixed point of `g = m_CA ∘ m_BC ∘ 
 subspace. **A global convergent section exists iff `g` has a fixed point reachable by iteration**,
 and the witness for its absence is `g` itself.
 
-This is a Cech `H^1` class in the honest sense exactly when the identifications are invertible: then
+This is a Cech `H^1` class in the strict sense exactly when the identifications are invertible: then
 `g` is the holonomy around the loop, `H^1` has coefficients in the automorphism group of the shared
 fiber, and a non-identity `g` is a non-trivial class. Minimal example: shared values in `{0,1}`, two
 edges the identity and one negation, so `g =` flip, which has no fixed point (it orbits `0↦1↦0`), so
 no consistent global assignment exists and the witness points at the negation edge. When the
 morphisms are non-invertible (a repair that collapses values), `g` is a monoid element, not a group
-element, so the honest statement is the fixed-point condition, not group cohomology: `g` may still
+element, so the correct statement is the fixed-point condition, not group cohomology: `g` may still
 have a fixed point (`g(0)=1, g(1)=1, g(2)=1` fixes `1`, so it glues) or none (`g(0)=1, g(1)=0,
 g(2)=0` orbits with no fixed point, so it does not). Either way the witness is `g`, computed by
 composing the cycle's morphisms over the shared subspace, bounded by that subspace rather than the
