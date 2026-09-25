@@ -1229,6 +1229,12 @@ $V_A(\sigma_A) = \top \Rightarrow
 V_B^{\mathrm{sh}}(\phi(\sigma_A)) = \top$.
 The shared/local decomposition models partial authority: a manufacturer
 constrains product specifications (shared) but not supplier pricing (local).
+
+M1 is a nonvacuous constraint: its antecedent requires both a valid source
+and a valid target state, and WFC (\Cref{ax:wfc}) guarantees every component
+registry has a nonempty valid set, since iterated compensation reaches a valid
+state from any state. A registry whose invariants admit no valid state is
+therefore excluded at the component level, not silently satisfying M1 here.
 \end{remark}
 
 \begin{definition}[Tree-Shaped Morphism Network]
@@ -1464,6 +1470,8 @@ When $|S(j)| = 1$, taking $R_j(\sigma_i) = \phi_{ij}(\sigma_i)$ recovers the
 authority morphism and (R2) is exactly M1.  A resolution operator thus strictly
 generalizes the single-source morphism image: it expresses merges---priority,
 conjunction, most-restrictive-wins---that no single authority can.
+As with M1, (R2) is nonvacuous: WFC (\Cref{ax:wfc}) on each source and on~$j$
+makes both antecedents satisfiable.
 \end{definition}
 
 \begin{definition}[Resolved Network]
