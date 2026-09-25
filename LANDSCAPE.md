@@ -81,6 +81,48 @@ invariant preservation (I-confluence), or by compensable repair (this work). The
 compensation-free floor that NC recovers; NC's contribution is the compensating region above it, up
 to the frontier where no repair converges and only coordination remains.
 
+## Related systems: coordination-free invariant enforcement
+
+CALM and I-confluence are the theory. A line of *systems* work attacked the same wall CRDTs hit in
+practice (you cannot enforce uniqueness, a balance floor, or referential integrity with
+commutativity alone) by adding invariants to eventually-consistent replication. Normalization
+confluence is the verified relative of this lineage, and each system maps onto a piece of its
+structure.
+
+- **RedBlue consistency** (Li et al., OSDI 2012). Label each operation *blue* (commutes, runs
+  coordination-free) or *red* (needs a global order). This is the floor/ceiling distinction drawn
+  by hand: blue is the compensation-free, commutable region; red is above the CC-satisfiability
+  frontier. gsm turns the labeling into a decision, `compensationFree` certifies the blue region
+  and `Synthesize`'s impossibility witness certifies the red, both machine-checked. Where RedBlue
+  asks the programmer to classify, gsm classifies and proves.
+
+- **Explicit consistency / Indigo** (Balegas et al., EuroSys 2015) and **escrow transactions**
+  (O'Neil, 1986). Keep an invariant coordination-free by handing each replica a local *reservation*
+  (a budget it may spend without asking). This is a different mechanism from compensation:
+  reservation is pessimistic (prevent the violation up front), compensation is optimistic (allow
+  it, repair after). They are complementary, not competing, and reservation-style invariants are a
+  candidate repair strategy for gsm where a lossy after-the-fact repair is unacceptable.
+
+- **ECROs** (De Porre et al., EuroSys 2021) and **Hamsaz** (Houshmand & Lesani, POPL 2019). Given a
+  sequential data type and its invariants, use an SMT solver to find which operation pairs conflict
+  and synthesize the coordination or restriction needed. This is the close cousin of
+  `Registry.Synthesize`, which searches for a convergent compensation or proves none exists. The
+  lesson gsm takes is concrete: these systems show an SMT backend makes the search practical at
+  scale, exactly the extension gsm flags as future work (its current search is backtracking with
+  forward-checking, decidable but worst-case exponential).
+
+- **Katara** (Laddad et al., PLDI 2022). Synthesizes a CRDT from a sequential specification with
+  verified lifting. Adjacent to gsm's synthesis but on the compensation-free floor: Katara produces
+  a commuting design, gsm produces a compensating one (or reports impossibility).
+
+**The through-line.** This lineage established that invariants can be enforced coordination-free,
+using solvers and, in Hamsaz and Katara, machine-checked soundness for specific steps.
+Normalization confluence's distinction is not that capability but the shape of its guarantee: an
+axiom-free, end-to-end mechanized convergence theorem, a build-time exhaustive certification of a
+concrete machine, and an extracted oracle that re-checks the implementation independently of the Go
+that produced it. The claim to stake against this neighborhood is provenance of trust, not novelty
+of function.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite
