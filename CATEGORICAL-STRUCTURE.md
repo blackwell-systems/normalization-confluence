@@ -300,14 +300,24 @@ pairwise overlap agrees yet no global section exists. This is the classic local-
 global-impossibility phenomenon, measured by the first Cech cohomology `H^1` of the presheaf over
 the nerve of the overlap cover.
 
-Concretely: cover the system by the three subsystems; the overlaps are the edges of a triangle; a
-global section is a choice of normal form on the shared variables consistent on every edge and
-around the loop. Pairwise agreement makes each edge consistent (the cocycle condition on edges), but
-consistency around the triangle is an extra constraint (the coboundary): the composite of the three
-pairwise identifications on the shared variables must return to the identity. When it does not, there
-is a non-trivial `H^1` class, a cocycle that cannot be trivialized, and that class is a computable
-witness that three individually-convergent, pairwise-compatible subsystems cannot jointly converge,
-localized to the cycle that carries it.
+Worked concretely, the obstruction is the **loop composite**. Take a triangle where `A` and `B`
+share `x`, `B` and `C` share `y`, `C` and `A` share `z`, the cycle's morphisms fixing each next
+shared component from the previous normal form. A global section is a shared assignment fixed all the
+way around, so the shared value must be a fixed point of `g = m_CA ∘ m_BC ∘ m_AB` on the shared
+subspace. **A global convergent section exists iff `g` has a fixed point reachable by iteration**,
+and the witness for its absence is `g` itself.
+
+This is a Cech `H^1` class in the honest sense exactly when the identifications are invertible: then
+`g` is the holonomy around the loop, `H^1` has coefficients in the automorphism group of the shared
+fiber, and a non-identity `g` is a non-trivial class. Minimal example: shared values in `{0,1}`, two
+edges the identity and one negation, so `g =` flip, which has no fixed point (it orbits `0↦1↦0`), so
+no consistent global assignment exists and the witness points at the negation edge. When the
+morphisms are non-invertible (a repair that collapses values), `g` is a monoid element, not a group
+element, so the honest statement is the fixed-point condition, not group cohomology: `g` may still
+have a fixed point (`g(0)=1, g(1)=1, g(2)=1` fixes `1`, so it glues) or none (`g(0)=1, g(1)=0,
+g(2)=0` orbits with no fixed point, so it does not). Either way the witness is `g`, computed by
+composing the cycle's morphisms over the shared subspace, bounded by that subspace rather than the
+product.
 
 This lines up exactly with gsm's cycle story. An acyclic overlap graph has no loop, so `H^1` is
 trivial and gluing always succeeds (the tree / DAG theorems). A monotone cycle collapses the
@@ -324,13 +334,17 @@ obstruction, not separately motivated checks. Second, it points at one genuinely
 **obstruction diagnostic**: when a cyclic federation fails to converge, computing the `H^1` witness
 identifies the specific cycle of morphisms and shared constraints that blocks composition, rather
 than reporting a generic rejection. For federating N independently-governed policies, that answers
-"can these compose" and, when they cannot, "where is the conflict." Developing it needs the Cech
-`H^1` worked over a concrete three-subsystem cycle to confirm the witness is computable and legible.
+"can these compose" and, when they cannot, "where is the conflict." Worked over a three-subsystem
+cycle (above), the witness is the loop composite `g` on the shared subspace: computable (compose the
+cycle's morphisms, test for a reachable fixed point, bounded by the shared subspace) and legible (it
+names the cycle and exhibits the orbit or the missing fixed point).
 
 **Status.** The two-subsystem gluing condition, its counterexample, and the two sufficient regimes
 are established here and coincide with gsm's verified regimes; the identification of R1/R2 with the
-gluing axiom validates the existing federation design. The cohomological obstruction for cycles is
-stated and localized to the non-monotone case; developing it into a computable diagnostic is open.
+gluing axiom validates the existing federation design. The obstruction for cycles is the loop
+composite's failure to have a reachable fixed point, computable over the shared subspace and
+genuinely Cech `H^1` in the invertible case; turning it into a Build-time diagnostic (report the
+obstructing cycle and its composite) is a concrete, low-risk next feature.
 
 ## 11. Further directions (stubs)
 
