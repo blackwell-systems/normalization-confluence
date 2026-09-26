@@ -1492,21 +1492,21 @@ one source but of all of them.
 Let $j$ be a registry with source set $S(j) = \{i : (i,j) \in E\}$.  A
 \emph{resolution operator} for~$j$ is a map
 \[
-  R_j : \textstyle\prod_{i \in S(j)} \Sigma_{R_i} \longrightarrow S_j
+  \Gamma_j : \textstyle\prod_{i \in S(j)} \Sigma_{R_i} \longrightarrow S_j
 \]
 from the source states to $j$'s shared component, satisfying:
 \begin{enumerate}[leftmargin=*,nosep,label=(R\arabic*)]
-\item \textbf{Source determinacy}: $R_j$ is a function of the source states
+\item \textbf{Source determinacy}: $\Gamma_j$ is a function of the source states
   alone; it does not read $\pi_j^{\mathrm{loc}}(\sigma_j)$.
 \item \textbf{Validity preservation}: for all $(\sigma_i)_{i \in S(j)}$ with
   each $V_{R_i}(\sigma_i) = \top$ and all $\sigma_j$ with
   $V_{R_j}(\sigma_j) = \top$,
   \[
     V_{R_j}\!\left(\sigma_j[\mathrm{sh} \mapsto
-      R_j((\sigma_i)_{i \in S(j)})]\right) = \top .
+      \Gamma_j((\sigma_i)_{i \in S(j)})]\right) = \top .
   \]
 \end{enumerate}
-When $|S(j)| = 1$, taking $R_j(\sigma_i) = \phi_{ij}(\sigma_i)$ recovers the
+When $|S(j)| = 1$, taking $\Gamma_j(\sigma_i) = \phi_{ij}(\sigma_i)$ recovers the
 authority morphism and (R2) is exactly M1.  A resolution operator thus strictly
 generalizes the single-source morphism image: it expresses merges---priority,
 conjunction, most-restrictive-wins---that no single authority can.
@@ -1517,21 +1517,21 @@ makes both antecedents satisfiable.
 \begin{definition}[Resolved Network]
 \label{def:resolved-network}
 A \emph{resolved network} is an acyclic morphism network in which every target
-with $|S(j)| > 1$ carries a resolution operator $R_j$; single-source targets
+with $|S(j)| > 1$ carries a resolution operator $\Gamma_j$; single-source targets
 retain their authority morphism.  The federated registry is as in
 \Cref{def:fed-registry}, with the morphism invariants for a multi-source target
 replaced by the \emph{resolution invariant}
 \[
   \mu_j(\bar{\sigma}) = \top \iff
-  \pi_j^{\mathrm{sh}}(\sigma_j) = R_j((\sigma_i)_{i \in S(j)}) .
+  \pi_j^{\mathrm{sh}}(\sigma_j) = \Gamma_j((\sigma_i)_{i \in S(j)}) .
 \]
 \end{definition}
 
 The normalization operator $\rho_\Fed$ carries over from \Cref{def:fed-comp}
 unchanged, with Phase~2 setting each multi-source target's shared component in a
 single step: for target~$j$ in topological order, if
-$\pi_j^{\mathrm{sh}}(\sigma_j) \neq R_j((\sigma_i)_{i \in S(j)})$, set
-$\sigma_j \mapsto \sigma_j[\mathrm{sh} \mapsto R_j((\sigma_i)_{i \in S(j)})]$.
+$\pi_j^{\mathrm{sh}}(\sigma_j) \neq \Gamma_j((\sigma_i)_{i \in S(j)})$, set
+$\sigma_j \mapsto \sigma_j[\mathrm{sh} \mapsto \Gamma_j((\sigma_i)_{i \in S(j)})]$.
 Acyclicity guarantees a topological ordering in which every source
 $i \in S(j)$ precedes~$j$.
 
@@ -1543,7 +1543,7 @@ valid state.
 
 \begin{proof}
 Identical to \Cref{lem:fed-termination}, with the single-source repair
-$\phi_{ij}(\sigma_i)$ replaced by $R_j((\sigma_i)_{i \in S(j)})$ and M1 by (R2).
+$\phi_{ij}(\sigma_i)$ replaced by $\Gamma_j((\sigma_i)_{i \in S(j)})$ and M1 by (R2).
 Phase~1 establishes local validity; Phase~2 sets each target's shared component
 exactly once---its resolution operator consumes all incoming edges in one
 evaluation, and sources are finalized first by acyclicity.  By (R2),
@@ -1565,7 +1565,7 @@ The three-component decomposition of \Cref{lem:authority} generalizes.
 \emph{(a)}~Source registries (in-degree zero) are untouched by resolution repair
 and equal their single-registry normal forms.  \emph{(b)}~In a federally valid
 state, a target~$j$ satisfies
-$\pi_j^{\mathrm{sh}}(\sigma_j) = R_j((\sigma_i)_{i \in S(j)})$
+$\pi_j^{\mathrm{sh}}(\sigma_j) = \Gamma_j((\sigma_i)_{i \in S(j)})$
 (or $\phi_{ij}(\sigma_i)$ when $|S(j)|=1$)---a deterministic function of its
 sources' normal forms.  \emph{(c)}~Its local component is untouched by
 resolution (by (R1) the operator writes only the shared component) and converges
@@ -1575,7 +1575,7 @@ By induction on the topological order, each component's normal form is a
 deterministic function of the per-component event multisets.  \emph{CC2}: for a
 federally invalid $\bar{\sigma}$ and event~$e$, source normal forms are fixed by
 component CC2 or unaffected; each shared component is a deterministic function
-(via $R_j$ or $\phi$) of source normal forms, which agree across the two paths;
+(via $\Gamma_j$ or $\phi$) of source normal forms, which agree across the two paths;
 local components converge by component CC2.  \emph{CC1}: independent events
 targeting distinct registries affect disjoint per-component multisets, and each
 shared component is recomputed from source normal forms, so order is immaterial;
@@ -1613,7 +1613,7 @@ resolution operators do not tame cycles).  (R2) is necessary for the reason M1
 is (\Cref{prop:m1-necessary}): a resolver mapping a valid source combination to
 a shared component that violates $V_{R_j}$ induces oscillation between resolution
 repair and local compensation.  (R1) is necessary for well-definedness: were
-$R_j$ to read the local component, the shared normal form would depend on the
+$\Gamma_j$ to read the local component, the shared normal form would depend on the
 order in which local compensation and resolution repair interleave, defeating
 single-round termination.
 \end{remark}
@@ -1644,7 +1644,7 @@ operator} $\Phi : \prod_j S_j \to \prod_j S_j$ by
       & \text{$j$ a source (no incoming): its event-determined shared value,}\\[2pt]
     \phi_{ij}\big(\sigma_i[\mathrm{sh}\mapsto s_i]\big)
       & \text{$j$ single-source from $i$,}\\[2pt]
-    R_j\big((\sigma_i[\mathrm{sh}\mapsto s_i])_{i \in S(j)}\big)
+    \Gamma_j\big((\sigma_i[\mathrm{sh}\mapsto s_i])_{i \in S(j)}\big)
       & \text{$j$ multi-source.}
   \end{cases}
 \]

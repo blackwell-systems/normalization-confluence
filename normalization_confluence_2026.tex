@@ -66,7 +66,7 @@ respectively.  Under both, Newman's Lemma guarantees unique normal forms: any
 two processors consuming the same events agree on a valid state, regardless
 of the order in which they apply those events.  A third condition---%
 \emph{uniformly bounded compensation} (UBC)---yields constant per-event
-overhead and $O(\log n)$ total cost matching conventional stream processing.
+overhead and $O(n \log n)$ total cost matching conventional stream processing.
 We show UBC is tight: without it, compensation depth grows without limit.
 We show CC is necessary: without it, different orders can reach different
 valid states.
