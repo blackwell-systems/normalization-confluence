@@ -483,25 +483,38 @@ constraint graph admits a section (its holonomy representation is trivial). Prov
   backward direction (the residual holonomies are all `e`). So restricted to non-tree-edge
   coordination, the minimum for `T` is exactly `#{i : g_i ≠ e}`, which is `≤ b`.
 
-**Where abelian and non-abelian diverge.** The true minimum is over all spanning trees (and allows
-coordinating tree edges too, which reroutes the fundamental cycles). Changing the tree conjugates and
-multiplies the generators' holonomies. In the ABELIAN case this leaves `#{g_i ≠ e}` invariant: it
-equals the rank of the image of `ρ` in the abelianization, a basis-independent number, recovering the
-Betti-type count of 10.2. In the NON-ABELIAN case the count is basis-dependent, because relations in
-`G` let products of non-trivial holonomies be trivial (a compound loop can have holonomy `e` even when
-its constituent loops do not), so a cleverly chosen tree, or coordinating a shared edge that lies on
-several fundamental cycles, can trivialize the representation with FEWER coordinated edges than any
-cycle basis. Concretely: a shared 3-status enum with `A→B` a 3-cycle and `B→C` a transposition
-composes in `S_3`; around compound loops these do not commute, and coordinating the two loops
-separately over-counts what is needed to kill the image `ρ(π_1) ≤ S_3`.
+**The minimum is a hitting set.** Coordinating an edge deletes its constraint, so a global section
+exists after coordinating a set `F` iff every cycle of the residual graph `N \ F` has trivial
+holonomy. Equivalently `F` must MEET every cycle whose holonomy is non-trivial. So the minimal
+coordination is the **minimum edge set hitting all non-trivial-holonomy cycles**. The diagnostic
+(section 10) identifies exactly that family: each non-trivial cycle is a loop whose composite has no
+reachable fixed point. This is the correct general characterization; the fixed-tree count above is
+one hitting set (hit each non-trivial fundamental cycle at its own non-tree edge), hence an upper
+bound, not necessarily the minimum, since a shared edge can hit several cycles at once.
 
-**The open optimization.** The minimum is the fewest edges whose deletion trivializes the holonomy
-representation, equivalently the fewest generators (over all bases) whose coordination normally
-generates the obstruction in the image subgroup `ρ(π_1) ≤ G`. This is a non-abelian, group-relative
-feedback-set problem; it is expected to be hard in general, and its exact characterization (and any
-polynomial special cases) is open. What is settled: the section criterion (any `G`, mechanized for
-the bouquet), the `≤ b` sufficiency, and the abelian invariance of the count. What is open: the
-non-abelian minimum and its complexity.
+**Tractable regimes (polynomial).**
+
+- *Edge-disjoint obstruction (any `G`).* If the non-trivial cycles are pairwise edge-disjoint, one
+  deleted edge per cycle is both forced and sufficient, so the minimum is exactly the number of
+  obstructing cycles, for abelian or non-abelian `G` alike. This is the independent-loop case
+  mechanized as `simultaneous_section_iff`, and it gives an algorithm: run the diagnostic on a cycle
+  basis and coordinate the orbiting cycles. It covers the common topology where subsystems'
+  shared-variable cycles do not overlap.
+- *Abelian image (polynomial).* When the holonomies commute, `ρ` factors through the cycle space as a
+  linear map to an abelian group, the non-trivial cycles are the complement of its kernel, and the
+  minimum hitting set is a matroid rank: the rank of the image of `ρ`, computable by elimination over
+  the cycle space. This is basis-independent and recovers the Betti-type count of 10.2.
+
+**The hard case, stated carefully.** When the holonomies do not commute AND obstructing cycles share
+edges, the family of non-trivial cycles is no longer the kernel of a linear map (whether a compound
+cycle is trivial depends on non-commutative products in `G`), so the matroid argument fails and the
+minimum is a hitting set over a non-linearly-structured cycle family, a combinatorial optimization
+expected to be hard. Two things are genuinely open and I do not assert either: whether the non-abelian
+minimum can be strictly below the abelian rank of the same graph (a separating instance, e.g. a
+shared-edge configuration in `S_3`, would settle it), and the complexity of the minimum-hitting-set
+problem (NP-hardness, and any approximation with a bound relative to `b`). What IS settled: the
+section criterion for any `G` (mechanized for the independent case), the hitting-set characterization,
+and the two polynomial regimes above.
 
 ## 11. Further directions (stubs)
 

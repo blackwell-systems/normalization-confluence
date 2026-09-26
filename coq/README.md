@@ -325,9 +325,11 @@ result rests on.
 - **Multi-loop / non-abelian.** `simultaneous_section_iff`: for a bouquet of loops sharing one value,
   a simultaneous section exists iff every loop's holonomy is trivial. The proof uses no commutativity,
   so it holds for a non-abelian `G`. This is the necessary-and-sufficient content behind the
-  minimal-coordination reading (coordinate exactly the non-trivial loops). The minimum over a whole
-  nerve, where shared edges and conjugation can drop the count below the cycle-basis size, is the
-  open non-abelian optimization posed in `CATEGORICAL-STRUCTURE.md` section 10.3.
+  minimal-coordination reading (coordinate exactly the non-trivial loops), and it settles the
+  edge-disjoint regime: the minimum is the number of obstructing cycles, for any `G`. The general
+  minimum over a whole nerve is the minimum edge set hitting all non-trivial-holonomy cycles: a
+  matroid rank (polynomial) in the abelian case, and a hitting-set problem expected to be hard when
+  non-commuting holonomies share edges. See `CATEGORICAL-STRUCTURE.md` section 10.3.
 
 Paper-level (not mechanized): the assembly of the per-cycle holonomy into the nerve's `H^1` as a
 quotient, the cycle-basis generation, and the Betti-number rank.
