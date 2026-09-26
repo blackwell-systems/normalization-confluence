@@ -154,6 +154,26 @@ concrete machine, and an extracted oracle that re-checks the implementation inde
 that produced it. The claim to stake against this neighborhood is provenance of trust, not novelty
 of function.
 
+**Foundational method, and the honest instantiation.** Two older bodies of work are the method-roots,
+and naming them keeps the novelty claim precise. *Rewriting logic* (Meseguer; the Church-Rosser and
+coherence theory of Duran and Meseguer, with Maude's Church-Rosser and Coherence Checker) is the
+general framework in which a concurrent system is a rewrite theory and correctness is confluence plus
+coherence, tool-checked. NC's governance rewrite system (event application plus invariant repair) is
+an instance of that framework; convergence-by-confluence is not a new method here but that
+established program specialized to the coordination-free-replication-with-compensation problem, which
+rewriting logic did not itself target. NC's contribution over the framework is the specialization:
+the WFC and CC conditions, the placement of CRDTs and I-confluence as its compensation-free floor,
+and the federated cohomological obstruction. *Self-stabilization* (Dijkstra, 1974) is the root of
+convergence to a legitimate state by local repair, and CRDTs were first presented at a
+self-stabilization venue (SSS 2011). NC's repair to a valid normal form is in that spirit, but the
+guarantees differ: self-stabilization converges from an arbitrary (faulted) state under a scheduler,
+a recovery property over executions, whereas NC's guarantee is order-independence of a fixed event
+set's application, a confluence property over orderings. So the precise placement is that NC inherits
+its confluence method from rewriting logic and its repair intuition from self-stabilization, and its
+own contribution is the synthesis: that method applied to coordination-free replicated convergence
+with non-commutative compensation, subsuming CRDTs and I-confluence, mechanized end to end, and
+extended to the federated cohomological obstruction.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite
