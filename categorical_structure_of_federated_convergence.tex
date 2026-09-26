@@ -67,10 +67,11 @@ and $\Ho$ vanishes, while a monotone cycle collapses the obstruction to a least 
 obstruction is computable as a loop composite over the shared subspace, implemented in the reference
 engine as a cycle diagnostic that names an obstructing cycle and exhibits its orbit. Finally we show
 that when the obstruction is nonzero, coordinating a cycle basis of the morphism network suffices to
-converge, and in the information-preserving (invertible) fragment this coordinated core is minimal:
-a first-Betti-number many loops, localizing the global coordination verdict of CALM and invariant
-confluence into a minimal, mixed-consistency partition. The structural core (the limit, the
-retraction, and compositionality) is mechanized axiom-free in Coq/Rocq.
+converge, localizing the global coordination verdict of CALM and invariant confluence into a
+mixed-consistency partition. The exact minimum coordination is the group feedback edge set number of
+the labeled nerve: NP-hard even in the abelian case, but fixed-parameter tractable in the size of the
+coordinated core and polynomial on planar or edge-disjoint nerves. The structural core (the limit,
+the retraction, and compositionality) is mechanized axiom-free in Coq/Rocq.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
@@ -114,9 +115,9 @@ minimal-coordination answers the practical question wants.
 \paragraph{Scope, stated up front.}
 The cleanest form of the cohomological classification holds in the \emph{invertible} fragment, where
 each morphism transports its shared value by a bijection (a lossless relabeling: a copy, a
-permutation, a bijective unit or schema map). There the transitions are group elements, $\Ho$ is
-genuine \v{C}ech cohomology, and the minimal coordinated core is a cycle basis of exactly the first
-Betti number. When morphisms collapse information (a clamp, a reset, a most-restrictive-wins merge,
+permutation, a bijective unit or schema map). There the transitions are group elements and $\Ho$ is
+genuine \v{C}ech cohomology; a cycle basis is a sufficient coordinated core, though computing the
+minimum one is NP-hard even here (\Cref{sec:minimal}). When morphisms collapse information (a clamp, a reset, a most-restrictive-wins merge,
 the shape most compensation takes), the transitions are monoid elements rather than group elements,
 classical $\Ho$ does not apply, and the correct statement is the operational one: a global convergent
 state exists iff the loop composite of each cycle has a reachable fixed point. We therefore lead with
@@ -154,11 +155,15 @@ is clean.''
 \item \textbf{Minimal coordination (Section~\ref{sec:minimal}).} When the obstruction is nonzero,
   coordinating a cycle basis of the morphism network trivializes it, yielding a convergent
   implementation that is strongly consistent only on those loops and coordination-free everywhere
-  else; in the invertible fragment this core is minimal, of size the first Betti number. This refines
-  the global coordination verdict of CALM~\cite{hellerstein2010declarative,ameloot2013relational} and
-  invariant confluence~\cite{bailis2014coordination} into a localized, minimal, mixed-consistency
-  partition, and it upgrades the engine's blunt rejection of a nonconvergent cycle into an
-  actionable ``coordinate these loops.''
+  else. This refines the global coordination verdict of
+  CALM~\cite{hellerstein2010declarative,ameloot2013relational} and invariant
+  confluence~\cite{bailis2014coordination} into a localized, mixed-consistency partition, and it
+  upgrades the engine's blunt rejection of a nonconvergent cycle into an actionable ``coordinate
+  these loops.'' We identify the exact minimum with the group feedback edge set number of the
+  labeled nerve, resolving its complexity: NP-hard even in the abelian case (it contains edge
+  bipartization), fixed-parameter tractable in the size of the coordinated core, and polynomial on
+  planar or edge-disjoint nerves; and we show the minimum is never below the abelian count and can be
+  strictly above it, so abelianized sizing is unsound.
 \item \textbf{Mechanization.} The structural core (Contributions~1 and~2: the limit, the retraction
   for arbitrary acyclic federations, and compositionality) is mechanized axiom-free in Coq/Rocq,
   extending the machine-checked development of the base results.
@@ -550,7 +555,7 @@ answers two questions the bare convergence verdict does not: can these compose, 
 cannot, where is the conflict. The answer is legible (it names the offending cycle and exhibits
 either its orbit or its missing fixed point) and cheap (it composes the cycle's morphisms and tests
 for a reachable fixed point over the shared subspace). Combined with \Cref{prop:minimal}, it is also
-constructive: the cycles it flags are exactly the ones a minimal coordinated core must cover.
+constructive: the cycles it flags are exactly the ones any coordinated core must cover.
 
 %========================================
 \section{Minimal Coordination}
@@ -562,60 +567,70 @@ question. A coordination-free, strongly-eventually-consistent implementation exi
 consistent global normal form exists, that is, when $\Hz$ is non-empty, and the obstruction to it is
 the $\Ho$ class of \Cref{sec:completion}. This is the CALM boundary (monotone implies
 coordination-free) and invariant confluence, now not merely decided but \emph{classified}: the
-completion says precisely which configurations obstruct. The classification buys more than a
-yes-or-no, because $\Ho$ is generated by the holonomies of a cycle basis of the nerve
-(first-Betti-number many loops), and those loops are the minimal set that must be coordinated.
+completion says precisely which configurations obstruct, so it turns coordination into a graph
+problem on the labeled nerve.
 
-\begin{proposition}[Minimal coordination]
+\begin{proposition}[Coordinating a cycle basis suffices]
 \label{prop:minimal}
 In the invertible fragment, a federation admits a coordination-free, strongly-eventually-consistent
 convergent implementation iff $\Ho = 0$. When $\Ho \neq 0$, imposing a coordination boundary (a total
 order, or a single writer) on the shared variable along a cycle basis trivializes the obstruction,
 yielding a convergent implementation that is strongly consistent only on those loops and
-coordination-free everywhere else. A cycle basis (first-Betti-number many loops) suffices, and it is
-minimal when $\Ho$ is free.
+coordination-free everywhere else.
 \end{proposition}
 \begin{proof}[Proof sketch]
-Coordinating a loop forces its shared variable to a single agreed value, which is the single-writer
-overlap of \Cref{sec:sheaf}, so that loop's transition becomes a coboundary and its holonomy
-generator dies. Killing a generating set of $\Ho$ leaves the trivial class, so $\Hz$ becomes
-non-empty by \Cref{thm:completion}, while off the coordinated loops the transitions are unchanged and
-stay coordination-free. Minimality is the minimal-generating-set count of $\Ho$.
+Coordinating a loop forces its shared variable to a single agreed value, the single-writer overlap of
+\Cref{sec:sheaf}, so that loop's transition becomes a coboundary and its holonomy generator dies.
+Coordinating a cycle basis kills every generator, leaving the trivial class, so $\Hz$ becomes
+non-empty by \Cref{thm:completion}; off the coordinated loops the transitions are unchanged and stay
+coordination-free.
 \end{proof}
 
-So a federation decomposes into a coordination-free majority (eventual consistency) and a minimal
-coordinated core (strong consistency), the core being a cycle basis of the obstruction rather than
-the whole network. For a distributed deployment this reads: put consensus only on the obstructing
-cycles, run everything else coordination-free, and pay the availability cost of coordination on a
-minimal set. It refines the global coordination verdict of CALM~\cite{hellerstein2010declarative,
-ameloot2013relational} and invariant confluence~\cite{bailis2014coordination} into a localized,
-minimal, mixed-consistency partition.
+So a federation decomposes into a coordination-free majority (eventual consistency) and a coordinated
+core (strong consistency). For a distributed deployment this reads: put consensus only on the
+obstructing cycles, run everything else coordination-free. It refines the global coordination verdict
+of CALM~\cite{hellerstein2010declarative, ameloot2013relational} and invariant
+confluence~\cite{bailis2014coordination} from a single yes-or-no into a localized, mixed-consistency
+partition.
 
-\paragraph{Which federations inhabit the sharp fragment.} A morphism is invertible on the shared
-fiber exactly when it transports the shared value by a bijection: a lossless relabeling (a copy, a
-permutation, a bijective unit or schema map). It is non-invertible when it collapses information (a
-clamp, a reset, a most-restrictive-wins merge), which includes every multi-source resolver. This
-splits the cases:
-\begin{itemize}[leftmargin=*]
-\item Acyclic federations (the common case): no cycles, $\Ho$ trivial, nothing to coordinate.
-\item Monotone cycles (collapsing but ordered): converge by the least fixed point, nothing to
-  coordinate.
-\item Invertible cycles with non-trivial holonomy: cannot converge coordination-free, and
-  \Cref{prop:minimal} gives the minimal coordinated core.
-\end{itemize}
-The sharp minimality thus applies to the invertible-cyclic case: mutual-mirroring or ring-relabeling
-federations whose loop composite is a non-trivial permutation. This is a genuine class (federated
-identity or status rings), though not the dominant one, and we state it as such rather than claim
-universality. In the general non-invertible case the decomposition still holds (coordinating a cycle
-basis suffices, by the fixed-point form of \Cref{thm:obstruction}), but the minimal count is no
-longer a cohomological rank.
+\paragraph{The minimum coordination, and its complexity.} A cycle basis suffices but is not minimal,
+since one coordinated edge can break several obstructing cycles at once. The exact minimum is the
+\emph{group feedback edge set} number of the labeled nerve: delete the fewest shared variables so
+every residual cycle is balanced. This resolves its complexity. It is NP-hard even in the abelian
+case, since for $G = \mathbb{Z}/2$ it is edge bipartization, the complement of Max Cut. Under the
+Unique Games Conjecture it has no constant-factor approximation ($O(\sqrt{\log n})$, the Min-Uncut
+bound, is the best known). But it is fixed-parameter tractable in the size of the coordinated core,
+which is the operative regime since one wants that core small, and polynomial on planar nerves
+(planar Max Cut) and on edge-disjoint obstructions (one hit per cycle, any $G$). A correct,
+polynomial, size-$\le b$ coordination is always available: coordinate the orbiting fundamental cycles
+of any spanning tree.
+
+\paragraph{Non-commutativity raises the floor; it never lowers it.} The minimum is never below what
+the abelianized holonomy suggests, and can be strictly above. A section after coordinating $F$ needs
+$\pi_1(N \setminus F) \subseteq \ker \rho \subseteq \ker(\mathrm{ab} \circ \rho)$, so every feasible
+$F$ is feasible for the abelianized problem and $\min_G \ge \min_{G^{\mathrm{ab}}}$. The inequality is
+strict: on the theta graph with holonomies $(0\,1\,2)$ and $(0\,1)$ in $S_3$, the true minimum is
+$2$, while the sign-abelianized count is $1$ because the $3$-cycle is even and invisible to the sign.
+The consequence is a soundness warning: sizing coordination by any abelianized invariant
+under-provisions, wrongly declaring coordination-free some cyclic federations that in fact need to
+coordinate an even-permutation relabeling loop. The finite crux of this separation is machine-checked.
+
+\paragraph{Which federations inhabit the cohomological fragment.} A morphism is invertible on the
+shared fiber exactly when it transports the shared value by a bijection (a lossless relabeling: a
+copy, a permutation, a bijective unit or schema map), and non-invertible when it collapses
+information (a clamp, a reset, a most-restrictive-wins merge, which includes every multi-source
+resolver). The clean cohomological classification is the invertible case; acyclic federations have
+nothing to coordinate, monotone cycles converge by the least fixed point, and only invertible cycles
+with non-trivial holonomy require the coordinated core. In the general non-invertible case the
+decomposition still holds (a cycle basis suffices, by the fixed-point form of \Cref{thm:obstruction}),
+with the same group-feedback-set minimum.
 
 \paragraph{From rejection to repair.} The base engine rejects a non-monotone cyclic federation: it
 cannot converge coordination-free, and the build fails. \Cref{prop:minimal} upgrades that blunt
 verdict into an actionable one: rather than reject, accept the federation with a coordination
 boundary on a cycle basis, which the diagnostic of \Cref{sec:diagnostic} identifies. This turns
 ``these policies do not compose'' into ``these policies compose if you coordinate exactly these
-loops,'' the minimal set.
+loops.''
 
 \paragraph{Boundary.} This locates where coordination is needed for convergence, assuming the
 delivery layer gives each replica the same event set (normalization confluence is the convergence
@@ -638,10 +653,12 @@ sidesteps it by order.
 
 Practically, the same invariant is computable and actionable. Its witness is a cycle's loop composite
 over the shared subspace, implemented as a diagnostic that names an obstructing cycle and exhibits its
-orbit; and when the obstruction is non-zero, coordinating a cycle basis suffices to converge, minimal
-in the information-preserving fragment. This localizes the global coordination verdict of CALM and
-invariant confluence into a minimal, mixed-consistency partition, and it turns a rejection into a
-constructive ``coordinate exactly these loops.''
+orbit; and when the obstruction is non-zero, coordinating a cycle basis suffices to converge. This
+localizes the global coordination verdict of CALM and invariant confluence into a mixed-consistency
+partition, and it turns a rejection into a constructive ``coordinate exactly these loops.'' The exact
+minimum coordination is the group feedback edge set number, NP-hard even in the abelian case but
+fixed-parameter tractable in the core size and polynomial on planar or edge-disjoint nerves, and it
+is never below the abelian count.
 
 The structural core, the limit, the retraction for arbitrary acyclic federations, and
 compositionality, is mechanized axiom-free. What is deliberately left at the paper level is scoped

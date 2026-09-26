@@ -327,9 +327,9 @@ result rests on.
   so it holds for a non-abelian `G`. This is the necessary-and-sufficient content behind the
   minimal-coordination reading (coordinate exactly the non-trivial loops), and it settles the
   edge-disjoint regime: the minimum is the number of obstructing cycles, for any `G`. The general
-  minimum over a whole nerve is the minimum edge set hitting all non-trivial-holonomy cycles: a
-  matroid rank (polynomial) in the abelian case, and a hitting-set problem expected to be hard when
-  non-commuting holonomies share edges. See `CATEGORICAL-STRUCTURE.md` section 10.3.
+  minimum is the group feedback edge set number of the labeled nerve: NP-hard even in the abelian
+  case (it is edge bipartization / Max Cut), fixed-parameter tractable in the coordinated-core size,
+  and polynomial on planar or edge-disjoint nerves. See `CATEGORICAL-STRUCTURE.md` section 10.3.
 - **The `S_3` separating instance (`S3Sep`).** Machine-checks the finite crux that the non-abelian
   minimum can be strictly ABOVE the abelian count (so never below): on the theta graph with generator
   holonomies `a = (0 1 2)` and `b = (0 1)` in `S_3`, every single-edge deletion leaves a non-trivial
