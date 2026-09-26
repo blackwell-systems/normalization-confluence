@@ -516,6 +516,16 @@ problem (NP-hardness, and any approximation with a bound relative to `b`). What 
 section criterion for any `G` (mechanized for the independent case), the hitting-set characterization,
 and the two polynomial regimes above.
 
+**A practical algorithm now, optimal in the tractable regimes.** The open part is only the last bit
+of optimality; a correct, polynomial coordination is already available. Pick any spanning tree, run
+the diagnostic on each fundamental cycle, and coordinate the ones that orbit. This always yields a
+valid coordination (the residual holonomies are trivial, so a section exists), it is polynomial, and
+its size is at most `b`. It is exactly minimal when the obstructing cycles are edge-disjoint or the
+holonomies commute; only in the non-abelian shared-edge case can a smaller hitting set exist, and
+finding it is the open optimization. So the accept-with-coordination capability is deployable today
+with this algorithm, delivering a minimal core in the common regimes and a bounded, correct one
+otherwise; tightening the last case is a refinement, not a prerequisite.
+
 ## 11. Further directions (stubs)
 
 - **Higher-dimensional rewriting (Squier's theorem, polygraphs).** WFC + CC is convergent rewriting;
