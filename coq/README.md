@@ -23,15 +23,16 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 26 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twenty-six headline results (the single-registry
+Expected tail: `PASS: all 28 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twenty-eight headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
-verified-checker soundness results, the six CRDT-subsumption results, and the seven categorical-core
+verified-checker soundness results, the six CRDT-subsumption results, and the nine categorical-core
 results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
 clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
-federated operator's retraction and image characterization, and the order-independence commutation
-core) and fails if any of them depends on an axiom or an admitted lemma.
+federated operator's retraction and image characterization, the order-independence commutation core,
+and the general acyclic fold operator's retraction and image characterization) and fails if any of
+them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -281,6 +282,15 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
   writes). The full result, that all topological orders agree, additionally uses the classical
   connectivity of linear extensions under adjacent transpositions, which is not mechanized here, so
   order-independence over general DAGs remains paper-level.
+- **Theorem 1 for a general acyclic federation.** `GeneralFederatedFold` models `rho_F` as a
+  left-to-right fold over a topological order (state is a positional list; `stepAt` reads the
+  finalized prefix and returns a position's finalized value), defines the consistent set `L_F`
+  intrinsically (every position fixed by its step given its prefix), and proves Lemma A
+  (`rhoFold_sound`, needing `stepAt` idempotent given a fixed prefix) and Lemma B
+  (`rhoFold_complete`, needing only the definition). It therefore instantiates the Corollary:
+  `rhoFold_retraction` and `rhoFold_image_iff_consistent` give that `rho_F` is the idempotent
+  retraction onto `L_F` for every acyclic federation, not just the two-registry instance. The
+  supporting `app_split_snoc` (splitting a snoc) is axiom-free.
 
 `Print Assumptions` on the categorical-core headline results is "Closed under the global context";
 they are in the axiom-free gate above.
@@ -296,17 +306,17 @@ rather than pulling in heavy category-theory libraries. Progress, in priority or
 2. **Proposition 1 (the consistent set is a finite limit).** DONE (`Categorical.v`):
    `consistent_iff_equalizer`. The federated consistent set is the equalizer of the shared-component
    and resolver-value maps, axiom-free (product over targets modeled as a list).
-3. **Theorem 1 (federation retraction, acyclic).** Operator half DONE (`Categorical.v`): the general
-   Corollary (`RetractionOntoConsistent`: sound + complete give the idempotent retraction onto `L`)
-   and a concrete federated operator discharging Lemma A / Lemma B (`FederatedOperator`:
-   `rhoF_retraction`, `rhoF_image_iff_L2`). Order-independence: the commutation core is DONE
-   (`updates_commute`); the full "all topological orders agree" additionally needs the classical
-   linear-extension connectivity result, still to mechanize (or cite). The concrete operator here is
-   a root plus one morphism target; a general acyclic-DAG `rhoF` as a fold over a topological order
-   is the next construction.
-4. **Theorem 2 (compositionality).** Planned. The flat federation and the staged
-   (sub-federation-collapsed) federation have the same normalizer. The payoff result; follows once a
-   general-DAG `rho_F` is in place.
+3. **Theorem 1 (federation retraction, acyclic).** DONE (`Categorical.v`) for the operator content:
+   the general Corollary (`RetractionOntoConsistent`), a concrete two-registry operator
+   (`FederatedOperator`), and the general acyclic fold `rho_F` over a topological order
+   (`GeneralFederatedFold`: `rhoFold_retraction`, `rhoFold_image_iff_consistent`) discharging Lemma A
+   and Lemma B, so `rho_F` is the idempotent retraction onto `L_F` for every acyclic federation.
+   Remaining: full order-independence (the commutation core `updates_commute` is done; "all
+   topological orders agree" needs the classical linear-extension connectivity, to mechanize or
+   cite).
+4. **Theorem 2 (compositionality).** Next. The flat federation and the staged
+   (sub-federation-collapsed) federation have the same normalizer, expressible now on top of the
+   `GeneralFederatedFold` operator. The payoff result.
 
 Kept at paper level (out of scope for the first mechanization pass):
 

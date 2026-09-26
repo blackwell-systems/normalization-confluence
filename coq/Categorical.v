@@ -246,3 +246,117 @@ Definition updR {A B : Type} (fb : B -> B) (p : A * B) : A * B := (fst p, fb (sn
 Lemma updates_commute {A B : Type} (fa : A -> A) (fb : B -> B) (p : A * B) :
   updL fa (updR fb p) = updR fb (updL fa p).
 Proof. destruct p as [a b]. reflexivity. Qed.
+
+(* --------------------------------------------------------------------------- *)
+(* Theorem 1 for a GENERAL acyclic federation: rho_F as a left-to-right fold     *)
+(* over a topological order. The federated state is a positional list (position  *)
+(* i is registry i, with sources before targets). Processing position i replaces *)
+(* its value with stepAt applied to the already-finalized prefix and the current *)
+(* value; stepAt models "read finalized sources, overwrite shared component,      *)
+(* apply local normalizer". rho_F is the idempotent retraction onto the           *)
+(* consistent set L_F: every position is already fixed by its step given its      *)
+(* prefix. Soundness (Lemma A) needs stepAt idempotent given a fixed prefix (the  *)
+(* local M1 + idempotence content); completeness (Lemma B) needs only the         *)
+(* definition of L_F. This upgrades the two-registry instance above to every      *)
+(* acyclic federation. *)
+
+(* Splitting a snoc: l ++ [y] = p ++ z :: sfx puts the split either inside l or at
+   the appended element y. A structural fact, axiom-free, needed for soundness. *)
+Lemma app_split_snoc {A : Type} :
+  forall (l : list A) (y : A) (p : list A) (z : A) (sfx : list A),
+    l ++ (y :: nil) = p ++ z :: sfx ->
+    (exists sfx', l = p ++ z :: sfx' /\ sfx = sfx' ++ (y :: nil)) \/
+    (p = l /\ z = y /\ sfx = nil).
+Proof.
+  intros l y p. revert l. induction p as [|b p' IHp]; intros l z sfx H; simpl in H.
+  - destruct l as [|a l']; simpl in H.
+    + injection H as Hz Hs. right. split; [reflexivity | split; [symmetry; exact Hz | symmetry; exact Hs]].
+    + injection H as Ha Hrest. left. exists l'. split.
+      * rewrite Ha. reflexivity.
+      * symmetry; exact Hrest.
+  - destruct l as [|a l']; simpl in H.
+    + injection H as Hb Hnil. exfalso. exact (app_cons_not_nil p' sfx z Hnil).
+    + injection H as Hab Hrest. specialize (IHp l' z sfx Hrest).
+      destruct IHp as [[sfx' [Hl' Hsfx]] | [Hp' [Hz Hsfx]]].
+      * left. exists sfx'. split; [rewrite Hab, Hl'; reflexivity | exact Hsfx].
+      * right. split; [rewrite Hab, Hp'; reflexivity | split; [exact Hz | exact Hsfx]].
+Qed.
+
+Section GeneralFederatedFold.
+  Context {V : Type}.
+  Variable stepAt : list V -> V -> V.   (* finalized prefix -> current value -> finalized value *)
+
+  Fixpoint rhoF_from (done todo : list V) : list V :=
+    match todo with
+    | nil => done
+    | x :: rest => rhoF_from (done ++ (stepAt done x :: nil)) rest
+    end.
+
+  Definition rhoFold (s : list V) : list V := rhoF_from nil s.
+
+  (* L_F: every position is a fixed point of its step given its prefix. *)
+  Definition ConsistentList (l : list V) : Prop :=
+    forall p x sfx, l = p ++ x :: sfx -> stepAt p x = x.
+
+  (* Lemma B (completeness): a consistent state is fixed. Uses only the definition. *)
+  Lemma rhoFold_complete_gen :
+    forall todo done, ConsistentList (done ++ todo) -> rhoF_from done todo = done ++ todo.
+  Proof.
+    induction todo as [|x rest IH]; intros done H; simpl.
+    - rewrite app_nil_r. reflexivity.
+    - assert (Hx : stepAt done x = x) by (apply (H done x rest); reflexivity).
+      rewrite Hx.
+      assert (Hcons : ConsistentList ((done ++ x :: nil) ++ rest)).
+      { rewrite <- app_assoc. simpl. exact H. }
+      rewrite (IH (done ++ x :: nil) Hcons).
+      rewrite <- app_assoc. reflexivity.
+  Qed.
+
+  Lemma rhoFold_complete : forall s, ConsistentList s -> rhoFold s = s.
+  Proof.
+    intros s H. unfold rhoFold. apply (rhoFold_complete_gen s nil). simpl. exact H.
+  Qed.
+
+  Hypothesis stepAt_idem : forall p x, stepAt p (stepAt p x) = stepAt p x.
+
+  (* Extending a consistent finalized prefix by one processed element stays consistent. *)
+  Lemma consistent_snoc :
+    forall done x, ConsistentList done -> ConsistentList (done ++ (stepAt done x :: nil)).
+  Proof.
+    intros done x Hdone p z sfx Hsplit.
+    apply app_split_snoc in Hsplit.
+    destruct Hsplit as [[sfx' [Hdone_eq Hsfx]] | [Hp [Hz Hsfx]]].
+    - apply (Hdone p z sfx'). exact Hdone_eq.
+    - rewrite Hp, Hz. apply stepAt_idem.
+  Qed.
+
+  Lemma rhoF_from_consistent :
+    forall todo done, ConsistentList done -> ConsistentList (rhoF_from done todo).
+  Proof.
+    induction todo as [|x rest IH]; intros done Hdone; simpl.
+    - exact Hdone.
+    - apply IH. apply consistent_snoc. exact Hdone.
+  Qed.
+
+  (* Lemma A (soundness): rho_F lands in the consistent set. *)
+  Lemma rhoFold_sound : forall s, ConsistentList (rhoFold s).
+  Proof.
+    intro s. unfold rhoFold. apply rhoF_from_consistent.
+    intros p x sfx H. destruct p; simpl in H; discriminate H.
+  Qed.
+
+  (* Theorem 1 for the general acyclic operator: rho_F is the idempotent retraction
+     onto its consistent set, with image and fixed set both L_F. *)
+  Theorem rhoFold_retraction : forall s, rhoFold (rhoFold s) = rhoFold s.
+  Proof. exact (rhoL_idempotent rhoFold ConsistentList rhoFold_sound rhoFold_complete). Qed.
+
+  Theorem rhoFold_image_iff_consistent :
+    forall x, (exists y, rhoFold y = x) <-> ConsistentList x.
+  Proof. exact (rhoL_image_iff_L rhoFold ConsistentList rhoFold_sound rhoFold_complete). Qed.
+End GeneralFederatedFold.
+
+(* Non-vacuity: a concrete fold (each position reset to 0, a genuinely collapsing step) computes,
+   and its consistent set is the all-zero states. *)
+Example ex_rhoFold_zeros :
+  rhoFold (fun (_ : list nat) (_ : nat) => 0) (1 :: 2 :: nil) = 0 :: 0 :: nil.
+Proof. reflexivity. Qed.
