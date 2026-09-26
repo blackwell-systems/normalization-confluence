@@ -1,0 +1,355 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+% Paragraph spacing
+\setlength{\parskip}{0.6\baselineskip plus 2pt minus 1pt}
+\setlength{\parindent}{0pt}
+
+\usepackage{mathtools,amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{cleveref}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\defeq}{\vcentcolon=}
+\newcommand{\Fed}{\mathrm{Fed}}
+\newcommand{\Hz}{H^0}
+\newcommand{\Ho}{H^1}
+\newcommand{\Res}{\mathrm{Res}}
+
+\title{The Categorical Structure of Federated Convergence:\\
+Limits, Sheaves, and Minimal Coordination}
+
+\author{
+Dayna Blackwell\\
+\small\href{mailto:dayna@blackwell-systems.com}{dayna@blackwell-systems.com}\\
+\small Licensed under CC-BY-4.0.}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\setlength{\parskip}{0.6\baselineskip plus 2pt minus 1pt}
+Normalization confluence gives coordination-free convergence within a single registry, and its
+federated extension gives convergence across a network of registries connected by morphisms, under
+two decidable regimes: acyclic networks, and monotone repair on cycles~\cite{blackwell2026nc,
+blackwell2026federated}. Those regimes are stated as separate sufficient conditions. This paper
+gives the structure underneath them and, with it, an answer to a sharper question: when must a
+federation coordinate at all, and how little coordination suffices?
+
+We show that a federation's convergent states are a limit and its federated normalizer is the
+retraction onto that limit, so compositionality (a verified sub-federation collapses to an effective
+registry) is a corollary of one structural fact rather than a per-topology argument. We then show
+that convergence certificates form a sheaf whose gluing condition is exactly the source-determinacy
+and validity-preservation hypotheses the federation already certifies, so the obstruction to a global
+convergent state is cohomological: $\Hz$ is the convergent states and $\Ho$ is the holonomy of the
+morphism cycles. The two convergence regimes are then one picture: an acyclic network has no cycles
+and $\Ho$ vanishes, while a monotone cycle collapses the obstruction to a least fixed point. The
+obstruction is computable as a loop composite over the shared subspace, implemented in the reference
+engine as a cycle diagnostic that names an obstructing cycle and exhibits its orbit. Finally we show
+that when the obstruction is nonzero, coordinating a cycle basis of the morphism network suffices to
+converge, and in the information-preserving (invertible) fragment this coordinated core is minimal:
+a first-Betti-number many loops, localizing the global coordination verdict of CALM and invariant
+confluence into a minimal, mixed-consistency partition. The structural core (the limit, the
+retraction, and compositionality) is mechanized axiom-free in Coq/Rocq.
+\end{abstract}
+
+\medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
+Cohomology, Coordination Avoidance, CALM, Category Theory, Limits, Holonomy, Minimal Coordination,
+Mechanized Proof
+
+\clearpage
+
+%========================================
+\section{Introduction}
+\label{sec:intro}
+
+Normalization confluence certifies that a single registry converges: under well-founded compensation
+and compensation commutativity, every processor that consumes the same events reaches the same valid
+state regardless of order~\cite{blackwell2026nc}. Its federated extension certifies that a network of
+such registries, connected by directed morphisms that carry one registry's authority over another's
+shared state, converges as a whole, in two regimes: any acyclic network whose morphisms preserve
+validity, and any network (cyclic included) whose repair is monotone~\cite{blackwell2026federated}.
+Both regimes are established by finite enumeration and are what the reference engine checks at build
+time.
+
+Those two regimes are presented as independent sufficient conditions, proved by separate arguments.
+That leaves a structural question unanswered and a practical one unasked. The structural question:
+is there one reason both regimes work, rather than two? The practical question: when a federation
+falls into neither regime, the engine rejects it, but rejection is a blunt verdict. A designer wants
+to know not merely that the network cannot converge coordination-free, but \emph{where} the conflict
+is and \emph{how little} coordination would repair it. This paper answers both, and the answers turn
+out to be the same object viewed twice.
+
+\paragraph{The local-to-global view.}
+A federation poses a local-to-global problem. Each registry is convergent on its own; each morphism,
+in isolation, is a clean rule for propagating authority. The question is whether, once every morphism
+constraint holds at once, there is a single global assignment the whole network agrees on, and
+whether it is reached regardless of event order. This is the shape of a limit, and of a sheaf gluing
+problem, and the obstruction to it is the shape of a cohomology class. Making that precise is what
+unifies the regimes: an acyclic network has no cycles to obstruct gluing, and a monotone cycle has an
+order that forces gluing even when a cycle is present. The same $\Ho$ that measures the obstruction
+also, when it is nonzero, pinpoints the cycles responsible, which is exactly the diagnostic and the
+minimal-coordination answers the practical question wants.
+
+\paragraph{Scope, stated up front.}
+The cleanest form of the cohomological classification holds in the \emph{invertible} fragment, where
+each morphism transports its shared value by a bijection (a lossless relabeling: a copy, a
+permutation, a bijective unit or schema map). There the transitions are group elements, $\Ho$ is
+genuine \v{C}ech cohomology, and the minimal coordinated core is a cycle basis of exactly the first
+Betti number. When morphisms collapse information (a clamp, a reset, a most-restrictive-wins merge,
+the shape most compensation takes), the transitions are monoid elements rather than group elements,
+classical $\Ho$ does not apply, and the correct statement is the operational one: a global convergent
+state exists iff the loop composite of each cycle has a reachable fixed point. We therefore lead with
+the general, operational results (the limit, the retraction, compositionality, and the loop-composite
+diagnostic), which hold for arbitrary morphisms and are what the engine implements, and present the
+cohomology as the sharp closed form on the invertible fragment. We state which real federations
+inhabit that fragment (Section~\ref{sec:minimal}) rather than leaving it as ``the case where the math
+is clean.''
+
+\paragraph{Contributions.}
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Federation as a limit, and compositionality for free
+  (Sections~\ref{sec:limit}--\ref{sec:compose}).} A registry's valid set is the equalizer of its
+  idempotent normalizer, a federation's convergent set is the equalizer of its shared-projection and
+  resolver maps, and the federated normalizer is the idempotent retraction onto that limit. Because
+  the normal forms are a limit, a convergent sub-federation collapses to an effective registry and
+  the combined normalizer factors through it; compositionality is a corollary of one structural fact,
+  not a per-topology theorem.
+\item \textbf{Convergence certificates form a sheaf, and $R1/R2$ is its gluing axiom
+  (Section~\ref{sec:sheaf}).} Local convergence certificates glue to a global one exactly when the
+  subsystems agree as normalizers on their overlap. The two regimes that force agreement,
+  single-writer authority and monotone overlap, are the federation's source-determinacy ($R1$) and
+  validity-preservation ($R2$) hypotheses. The existing federation design is validated as the sheaf
+  gluing check, not extended by a new mechanism.
+\item \textbf{The obstruction is cohomological, and it unifies the two regimes
+  (Section~\ref{sec:completion}).} $\Hz$ is the convergent states; $\Ho$ (in the invertible fragment)
+  is the holonomy of the morphism cycles, generated by a cycle basis. $\Ho$ vanishes in exactly two
+  ways, and they are the two convergence regimes: an acyclic network (no cycles) and a monotone cycle
+  (a least fixed point). The dichotomy the base work states as two conditions is one invariant.
+\item \textbf{A computable obstruction diagnostic (Section~\ref{sec:diagnostic}).} For a general
+  (possibly non-invertible) cycle, a global convergent state exists iff the cycle's loop composite has
+  a reachable fixed point, and the witness for its absence is the loop composite itself, computable
+  over the shared subspace rather than the product. This is implemented in the reference engine as a
+  cycle diagnostic that names the offending cycle and reports whether its repair settles or orbits.
+\item \textbf{Minimal coordination (Section~\ref{sec:minimal}).} When the obstruction is nonzero,
+  coordinating a cycle basis of the morphism network trivializes it, yielding a convergent
+  implementation that is strongly consistent only on those loops and coordination-free everywhere
+  else; in the invertible fragment this core is minimal, of size the first Betti number. This refines
+  the global coordination verdict of CALM~\cite{hellerstein2010declarative,ameloot2013relational} and
+  invariant confluence~\cite{bailis2014coordination} into a localized, minimal, mixed-consistency
+  partition, and it upgrades the engine's blunt rejection of a nonconvergent cycle into an
+  actionable ``coordinate these loops.''
+\item \textbf{Mechanization.} The structural core (Contributions~1 and~2: the limit, the retraction
+  for arbitrary acyclic federations, and compositionality) is mechanized axiom-free in Coq/Rocq,
+  extending the machine-checked development of the base results.
+\end{enumerate}
+
+%========================================
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Sheaf cohomology for distributed systems: the same tool, a different object.}
+The use of sheaf cohomology to measure a local-to-global obstruction is not new, and we do not claim
+it. Cellular-sheaf cohomology characterizes solvability of distributed decision \emph{tasks}, where
+terminating solutions are the global sections and the cohomology encodes the obstruction to a
+solution~\cite{riess2025sheaftasks}, in the combinatorial-topology lineage of distributed
+computing~\cite{herlihy2013topology}; the same presheaf-and-obstruction template measures quantum
+contextuality~\cite{abramsky2011sheaf}. Our object is different. Those works concern which one-shot
+decision task a set of processes can solve under a failure or adversary model. We concern the
+convergence of a \emph{federated normalization}: a network of registries, each with invariants and
+compensation, whose morphisms must agree on shared state so that all processors reach the same valid
+global normal form regardless of event order. Our presheaf is over the overlaps of a normalizer
+structure, its sections are convergence certificates, $\Hz$ is the convergent states, and $\Ho$ is
+the holonomy of the morphism cycles. To our knowledge no prior sheaf-cohomology work targets the
+eventual-consistency or replicated-convergence obstruction, and none yields a coordination-minimality
+result.
+
+\paragraph{Coordination avoidance: a global verdict we localize.}
+The CALM theorem states that a problem has a coordination-free, consistent implementation iff it is
+monotone~\cite{hellerstein2010declarative, ameloot2013relational}, and invariant
+confluence~\cite{bailis2014coordination} gives a related global avoidability criterion; recent work
+sharpens the monotonicity boundary at the semantic level~\cite{completecalm2026,
+coordfree2025}. These answer \emph{whether} coordination can be avoided, as a global property of the
+whole problem. Our minimal-coordination result answers \emph{where} and \emph{how little}: it locates
+the irreducible coordination in a cycle basis of the morphism network and shows the rest can remain
+coordination-free, a localized mixed-consistency partition rather than a single yes-or-no. In the
+information-preserving fragment the core is provably minimal. We are not aware of prior work that
+localizes the coordination requirement to a cycle basis or bounds it by a Betti number.
+
+\paragraph{Convergent replicated data and its algebra.}
+Conflict-free replicated data types achieve convergence by restricting to operations that never need
+repair; a state-based CRDT is the join-semilattice special case~\cite{shapiro2011crdt}, and the
+monotone regime here coincides with it (this correspondence is machine-checked in the base
+development). The well-founded-compensation regime is strictly broader, since it admits operations
+that violate invariants and are repaired. Category-theoretic accounts of CRDT convergence exist at
+the level of the merge algebra; they do not give a cohomological obstruction or a
+coordination-minimality theorem. The lattice-theoretic and chaotic-iteration machinery behind the
+monotone regime is classical~\cite{tarski1955, cousot1977}, as is the confluence core~\cite{newman1942}.
+
+%========================================
+\section{Background}
+\label{sec:background}
+
+We restate only what later sections use: the single-registry model (well-founded compensation and
+compensation commutativity, giving unique normal forms via Newman's Lemma) and the federated model
+(registry morphisms, the authority argument, and the single-source $M1$ and multi-source $R1/R2$
+conditions). Full statements and proofs are in the base papers~\cite{blackwell2026nc,
+blackwell2026federated}. [To be written: a self-contained half-page recap.]
+
+%========================================
+\section{Normal Forms Are a Limit}
+\label{sec:limit}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S1--\S3. Lemma~0 (a registry's valid set is the
+equalizer of its idempotent normalizer), Proposition~1 (the federated convergent set is the equalizer
+of the shared-projection and resolver maps, a finite limit), and Theorem~1 (the federated normalizer
+is the idempotent retraction onto that limit, order-independent). The retraction, the general acyclic
+operator, and the limit characterization are mechanized in \texttt{coq/Categorical.v}.]
+
+%========================================
+\section{Compositionality for Free}
+\label{sec:compose}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S5. Theorem~2 (a verified sub-federation collapses to
+an effective registry; the flat and staged normalizers agree), and the assume-guarantee form with
+input and output ports. The fold-append form of Theorem~2 is mechanized in \texttt{coq/Categorical.v}.]
+
+%========================================
+\section{Convergence Certificates Form a Sheaf}
+\label{sec:sheaf}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S10. The presheaf of certificates, the non-naive gluing
+counterexample, the precise gluing condition (agree as normalizers on the overlap), and the
+identification of $R1 + R2$ with the gluing axiom.]
+
+%========================================
+\section{The Cohomological Completion}
+\label{sec:completion}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S10.1. $\Hz$ as the convergent states; $\Ho$ as the
+holonomy in the invertible fragment; the completion theorem; the cycle-basis generators; the two
+routes to $\Ho = 0$ recovering the acyclic and monotone regimes; and the reduction of the general
+non-invertible case to the loop-composite fixed-point condition.]
+
+%========================================
+\section{The Obstruction Diagnostic}
+\label{sec:diagnostic}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S10. The loop composite as the computable witness,
+bounded by the shared subspace; the settle-versus-orbit dichotomy; and the reference implementation
+(\texttt{Federation.DiagnoseCycle}), with worked settle and orbit examples.]
+
+%========================================
+\section{Minimal Coordination}
+\label{sec:minimal}
+
+[To be written from CATEGORICAL-STRUCTURE.md \S10.2, incorporating the inhabitation analysis. The
+minimal-coordination proposition; the coordination-free-majority plus coordinated-core decomposition;
+the characterization of the invertible (lossless-relabeling) fragment and which real federations
+inhabit it; the accept-with-coordination capability; and the positioning against CALM and invariant
+confluence.]
+
+%========================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+[To be written.]
+
+%========================================
+\begin{thebibliography}{99}
+
+\bibitem{blackwell2026nc}
+Dayna~Blackwell,
+``Normalization Confluence for Registry-Governed Stream Processing,''
+Zenodo, 2026.
+\textsc{doi}: \href{https://doi.org/10.5281/zenodo.18671870}{10.5281/zenodo.18671870}.
+
+\bibitem{blackwell2026federated}
+Dayna~Blackwell,
+``Normalization Confluence in Federated Registry Networks,''
+Zenodo, 2026.
+\textsc{doi}: \href{https://doi.org/10.5281/zenodo.18677400}{10.5281/zenodo.18677400}.
+
+\bibitem{newman1942}
+M.~H.~A. Newman,
+``On theories with a combinatorial definition of `equivalence',''
+\emph{Annals of Mathematics}, vol.~43, no.~2, pp.~223--243, 1942.
+
+\bibitem{shapiro2011crdt}
+M.~Shapiro, N.~Pregui\c{c}a, C.~Baquero, and M.~Zawirski,
+``A comprehensive study of convergent and commutative replicated data types,''
+\emph{INRIA Research Report RR-7506}, 2011.
+
+\bibitem{hellerstein2010declarative}
+J.~M.~Hellerstein,
+``The declarative imperative: experiences and conjectures in distributed logic,''
+\emph{SIGMOD Record}, vol.~39, no.~1, pp.~5--19, 2010.
+
+\bibitem{ameloot2013relational}
+T.~J.~Ameloot, F.~Neven, and J.~Van~den~Bussche,
+``Relational transducers for declarative networking,''
+\emph{Journal of the ACM}, vol.~60, no.~2, pp.~1--38, 2013.
+
+\bibitem{bailis2014coordination}
+P.~Bailis, A.~Fekete, M.~J.~Franklin, A.~Ghodsi, J.~M.~Hellerstein, and I.~Stoica,
+``Coordination avoidance in database systems,''
+\emph{Proc.\ VLDB Endowment}, vol.~8, no.~3, pp.~185--196, 2014.
+
+\bibitem{abramsky2011sheaf}
+S.~Abramsky and A.~Brandenburger,
+``The sheaf-theoretic structure of non-locality and contextuality,''
+\emph{New Journal of Physics}, vol.~13, 113036, 2011.
+
+\bibitem{riess2025sheaftasks}
+Authors of arXiv:2503.02556,
+``A Sheaf-Theoretic Characterization of Tasks in Distributed Systems,''
+arXiv:2503.02556, 2025.
+
+\bibitem{herlihy2013topology}
+M.~Herlihy, D.~Kozlov, and S.~Rajsbaum,
+\emph{Distributed Computing Through Combinatorial Topology},
+Morgan Kaufmann, 2013.
+
+\bibitem{completecalm2026}
+Authors of arXiv:2602.09435,
+``Complete CALM: A Coordination Criterion for Specifications,''
+arXiv:2602.09435, 2026.
+
+\bibitem{coordfree2025}
+Authors of arXiv:2504.01141,
+``A Preliminary Model of Coordination-free Consistency,''
+arXiv:2504.01141, 2025.
+
+\bibitem{tarski1955}
+A.~Tarski,
+``A lattice-theoretical fixpoint theorem and its applications,''
+\emph{Pacific Journal of Mathematics}, vol.~5, no.~2, pp.~285--309, 1955.
+
+\bibitem{cousot1977}
+P.~Cousot and R.~Cousot,
+``Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints,''
+\emph{Proc.\ 4th ACM SIGACT-SIGPLAN Symp.\ on Principles of Programming Languages (POPL)}, pp.~238--252, 1977.
+
+\end{thebibliography}
+
+\end{document}
