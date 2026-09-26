@@ -166,9 +166,17 @@ The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theo
   `J ++ K` equals finalizing `J` then continuing with `K` (an upstream sub-federation collapses to
   its finalized block).
 
+Cohomological layer, single-cycle essence mechanized axiom-free (`Cohomology.v`, gate at 33):
+- The gluing counterexample (agreement on valid values is not enough).
+- The completion theorem's single-cycle essence: in the invertible fragment a section exists iff the
+  holonomy is trivial (`fixed_point_iff_trivial_holonomy`), with the negation-orbits and
+  identity-settles witnesses.
+
 Deliberately paper-level (not mechanized):
-- The cohomological completion (`H^0`/`H^1`) in the invertible fragment; the general case reduces to
-  the loop-composite fixed-point condition, implemented in gsm as `DiagnoseCycle`.
+- The assembly of the per-cycle holonomies into the nerve's `H^1` as a quotient, with cycle-basis
+  generators and Betti-number rank; the cohomology-proper class computation and the non-abelian
+  analogue. The general non-invertible case reduces to the loop-composite fixed-point condition,
+  implemented in gsm as `DiagnoseCycle`.
 - Full order-independence: the commutation core is mechanized; the linear-extension connectivity that
   lifts it to all topological orders is cited as classical.
 

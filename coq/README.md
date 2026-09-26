@@ -23,16 +23,19 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 29 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twenty-nine headline results (the single-registry
+Expected tail: `PASS: all 33 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all thirty-three headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results, the six CRDT-subsumption results, and the ten categorical-core
 results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
 clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
 federated operator's retraction and image characterization, the order-independence commutation core,
-the general acyclic fold operator's retraction and image characterization, and the compositionality
-fold-append theorem) and fails if any of them depends on an axiom or an admitted lemma.
+the general acyclic fold operator's retraction and image characterization, the compositionality
+fold-append theorem, and the four cohomological-layer results: the gluing counterexample, the
+completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
+identity-settles and negation-orbits witnesses) and fails if any of them depends on an axiom or an
+admitted lemma.
 
 ## What is proven
 
@@ -299,6 +302,29 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
 
 `Print Assumptions` on the categorical-core headline results is "Closed under the global context";
 they are in the axiom-free gate above.
+
+## Cohomological layer (`Cohomology.v`)
+
+The operational core of the companion's cohomological layer (paper Sections 5-6), mechanized
+axiom-free. The full nerve / cocycle assembly (`H^1` as a quotient, cycle-basis generation) stays
+paper-level; what is mechanized is the per-cycle content the diagnostic computes and the cycle-basis
+result rests on.
+
+- **Gluing is not naive (Section 5).** `gluing_order_dependent`: two confluent normalizers on
+  `{0,1,2}` with the same valid set `{0,2}` but different maps on the shared state
+  (`disagree_as_normalizers`) glue to an order-dependent union, so agreement on valid values is not
+  enough. `rA_idem`, `rB_idem`, and `agree_on_valid` supply the setup.
+- **Completion theorem, single-cycle essence (Section 6).** `fixed_point_iff_trivial_holonomy`: in
+  the invertible fragment each edge acts as a group translation, the loop composite is translation
+  by the holonomy, and it has a fixed point (a global section closes) iff the holonomy is the
+  identity. So a section exists iff `H^1` vanishes on that cycle. `loop_composite` and `has_section`
+  frame the general model.
+- **The minimal obstruction.** `identity_holonomy_has_section` (trivial holonomy settles) and
+  `flip_no_section` (the negation on `{0,1}`, as `Z/2` under xor, has no fixed point, so the loop
+  orbits) instantiate it, the negation being the minimal nonzero obstruction.
+
+Paper-level (not mechanized): the assembly of the per-cycle holonomy into the nerve's `H^1` as a
+quotient, the cycle-basis generation, and the Betti-number rank.
 
 ## Roadmap: mechanizing the categorical layer (companion paper)
 

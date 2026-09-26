@@ -420,8 +420,8 @@ agreed valid set. Hence the federation's resolver verification \emph{is} the she
 
 The existing federation design is thus validated by the sheaf structure rather than extended by a new
 primitive: the machinery that composes overlapping subsystems soundly is already present as $R1/R2$.
-The results of this section are established at the paper level (in $\mathbf{Set}$); they are not part
-of the mechanized core.
+The gluing counterexample (\Cref{ex:glue}) is mechanized axiom-free (module \texttt{Cohomology.v});
+\Cref{prop:gluing} and the sheaf assembly over the full cover are at the paper level.
 
 %========================================
 \section{The Cohomological Completion}
@@ -504,9 +504,13 @@ is exactly what the engine rejects.
 torsor fragment. When transitions are non-invertible (a repair that collapses values) the fiber is
 not a torsor and the transitions are monoid elements, so classical $\Ho$ does not apply; there the
 obstruction is $\Hz$ directly, via the reachable-fixed-point condition of \Cref{thm:obstruction}, a
-dynamical rather than cohomological statement. The results of this section are at the paper level; the
-operational fixed-point test is implemented (\Cref{sec:diagnostic}), and the cohomology-proper
-classification (computing the $\Ho$ class itself, and its non-abelian analogue) is left open.
+dynamical rather than cohomological statement. The single-cycle essence of \Cref{thm:completion} (a
+section exists iff the holonomy is trivial, in the invertible fragment), together with the gluing
+counterexample and the negation obstruction, is mechanized axiom-free (\texttt{Cohomology.v}); the
+assembly of the per-cycle holonomies into the nerve's $\Ho$ as a quotient, with cycle-basis
+generators and Betti-number rank, is at the paper level, as is the cohomology-proper classification
+(computing the $\Ho$ class itself and its non-abelian analogue). The operational fixed-point test is
+implemented (\Cref{sec:diagnostic}).
 
 %========================================
 \section{The Obstruction Diagnostic}
