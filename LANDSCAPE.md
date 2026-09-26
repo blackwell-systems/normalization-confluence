@@ -154,7 +154,7 @@ concrete machine, and an extracted oracle that re-checks the implementation inde
 that produced it. The claim to stake against this neighborhood is provenance of trust, not novelty
 of function.
 
-**Foundational method, and the honest instantiation.** Two older bodies of work are the method-roots,
+**Foundational method, and the precise instantiation.** Two older bodies of work are the method-roots,
 and naming them keeps the novelty claim precise. *Rewriting logic* (Meseguer; the Church-Rosser and
 coherence theory of Duran and Meseguer, with Maude's Church-Rosser and Coherence Checker) is the
 general framework in which a concurrent system is a rewrite theory and correctness is confluence plus
