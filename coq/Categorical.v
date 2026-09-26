@@ -90,3 +90,81 @@ Definition clamp3_retracts_into : forall n, Fixed clamp3 (clamp3 n) :=
 
 Definition clamp3_image_iff_fixed : forall x, InImage clamp3 x <-> Fixed clamp3 x :=
   image_iff_fixed clamp3 clamp3_idem.
+
+(* --------------------------------------------------------------------------- *)
+(* Proposition 1: the federated consistent set is an equalizer, hence a finite  *)
+(* limit in Set. Mechanized at the paper's abstraction level: the targets are a *)
+(* finite list, and a target's current shared component and its resolver value  *)
+(* are abstract maps sh, res : St -> T -> Sh. The consistent set L_F is the set  *)
+(* of federated states where every target's shared component equals its         *)
+(* resolver value; the two parallel maps sharedOf, resolvedOf send a state to    *)
+(* the tuple (modeled as a list over the targets) of shared components and of    *)
+(* resolver values. L_F = eq(sharedOf, resolvedOf). Modeling the product over    *)
+(* targets as a list keeps the equalizer characterization axiom-free, with no    *)
+(* functional extensionality. *)
+
+From Coq Require Import Lists.List.
+Import ListNotations.
+
+(* Pointwise agreement over a finite index list is exactly equality of the two
+   list-valued maps: the equalizer of a product is the conjunction of the
+   component equalizers. Both directions are structural, axiom-free. *)
+Lemma pointwise_to_map {A B : Type} (f h : A -> B) (l : list A) :
+  (forall x, In x l -> f x = h x) -> map f l = map h l.
+Proof.
+  induction l as [|a l IH]; simpl; intro H.
+  - reflexivity.
+  - f_equal.
+    + apply H. left. reflexivity.
+    + apply IH. intros x Hx. apply H. right. exact Hx.
+Qed.
+
+Lemma map_to_pointwise {A B : Type} (f h : A -> B) (l : list A) :
+  map f l = map h l -> forall x, In x l -> f x = h x.
+Proof.
+  induction l as [|a l IH]; simpl; intro Heq.
+  - intros x [].
+  - injection Heq as Hhd Htl. intros x Hin.
+    destruct Hin as [Hx|Hx].
+    + rewrite <- Hx. exact Hhd.
+    + apply IH; [exact Htl | exact Hx].
+Qed.
+
+Section FederatedEqualizer.
+  Context {St T Sh : Type}.
+  Variable targets : list T.       (* the federation's targets (finite) *)
+  Variable sh  : St -> T -> Sh.    (* a target's current shared component *)
+  Variable res : St -> T -> Sh.    (* the resolver value from that target's sources *)
+
+  (* The two parallel maps into the product over targets (modeled as a list). *)
+  Definition sharedOf   (s : St) : list Sh := map (sh s) targets.
+  Definition resolvedOf (s : St) : list Sh := map (res s) targets.
+
+  (* L_F: every target's shared component already equals its resolver value. *)
+  Definition Consistent (s : St) : Prop :=
+    forall B, In B targets -> sh s B = res s B.
+
+  (* The equalizer of the two maps. *)
+  Definition Equalizer (s : St) : Prop := sharedOf s = resolvedOf s.
+
+  (* Proposition 1: the consistent set is exactly the equalizer, so the federated
+     normal forms are a finite limit in Set (an equalizer of a product, each factor
+     itself the equalizer of Lemma 0). *)
+  Theorem consistent_iff_equalizer : forall s, Consistent s <-> Equalizer s.
+  Proof.
+    intro s. unfold Consistent, Equalizer, sharedOf, resolvedOf. split.
+    - apply pointwise_to_map.
+    - apply map_to_pointwise.
+  Qed.
+End FederatedEqualizer.
+
+(* Non-vacuity: a two-target instance where consistency is a genuine constraint
+   (the state must be 0), so Proposition 1 is not about an empty or trivial
+   equalizer. *)
+Example ex_consistent_zero :
+  Consistent (true :: false :: nil) (fun (s : nat) (_ : bool) => s) (fun _ _ => 0) 0.
+Proof. intros B _. reflexivity. Qed.
+
+Example ex_inconsistent_one :
+  ~ Consistent (true :: false :: nil) (fun (s : nat) (_ : bool) => s) (fun _ _ => 0) 1.
+Proof. intro H. specialize (H true (or_introl eq_refl)). discriminate H. Qed.

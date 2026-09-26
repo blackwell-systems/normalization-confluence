@@ -34,6 +34,7 @@ Print Assumptions witness_leaves_valid_space.
 Print Assumptions image_iff_fixed.
 Print Assumptions retract_into_fixed.
 Print Assumptions clamp3_retracts_into.
+Print Assumptions consistent_iff_equalizer.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -44,8 +45,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 22 ]; then
-  echo "FAIL: expected 22 axiom-free results, got $N"
+if [ "$N" -lt 23 ]; then
+  echo "FAIL: expected 23 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

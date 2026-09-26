@@ -23,13 +23,14 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 22 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twenty-two headline results (the single-registry confluence
-and unique-normal-form theorems, the defensibility instance, the two gsm certification-soundness
-results, the two federated results, the two chaotic-iteration results, the verified-checker
-soundness results, the six CRDT-subsumption results, and the three categorical-core results:
-image-equals-fixed-points, the idempotent retraction onto the fixed-point set, and its clamp-to-cap
-non-vacuity instance) and fails if any of them depends on an axiom or an admitted lemma.
+Expected tail: `PASS: all 23 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twenty-three headline results (the single-registry
+confluence and unique-normal-form theorems, the defensibility instance, the two gsm
+certification-soundness results, the two federated results, the two chaotic-iteration results, the
+verified-checker soundness results, the six CRDT-subsumption results, and the four categorical-core
+results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
+clamp-to-cap non-vacuity instance, and the consistent-set-is-an-equalizer proposition) and fails if
+any of them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -253,10 +254,17 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
   full uniqueness into the subset type needs proof irrelevance of the membership predicate, which
   holds when the state type has decidable equality (gsm's finite states), so it is noted rather than
   assumed.
-- **Non-vacuity.** `clamp3` (clamp to a cap at 3, a genuinely collapsing normalizer of the shape a
-  real compensation has) discharges idempotence with no hypotheses (`clamp3_idem`), its fixed set is
-  exactly `{n | n <= 3}` (`clamp3_fixed_iff`), and the retraction results instantiate at it
-  (`clamp3_retracts_into`, `clamp3_image_iff_fixed`). So the section is about something, not a
+- **Proposition 1 (the consistent set is a finite limit).** `consistent_iff_equalizer`: the
+  federated consistent set (every target's shared component equals its resolver value) is exactly
+  the equalizer of the two parallel maps that send a state to the tuple of shared components and the
+  tuple of resolver values over the targets. The product over targets is modeled as a list, so the
+  equalizer characterization is axiom-free (no functional extensionality). Non-vacuity:
+  `ex_consistent_zero` / `ex_inconsistent_one` exhibit a two-target instance where consistency is a
+  genuine constraint.
+- **Non-vacuity (retraction).** `clamp3` (clamp to a cap at 3, a genuinely collapsing normalizer of
+  the shape a real compensation has) discharges idempotence with no hypotheses (`clamp3_idem`), its
+  fixed set is exactly `{n | n <= 3}` (`clamp3_fixed_iff`), and the retraction results instantiate at
+  it (`clamp3_retracts_into`, `clamp3_image_iff_fixed`). So the section is about something, not a
   vacuous hypothesis.
 
 `Print Assumptions` on `image_iff_fixed`, `retract_into_fixed`, and `clamp3_retracts_into` is
@@ -270,9 +278,9 @@ rather than pulling in heavy category-theory libraries. Progress, in priority or
 
 1. **Lemma 0 (a registry is an equalizer).** DONE (`Categorical.v`): `image_iff_fixed`,
    `fixed_is_equalizer`. `Fix(rho) = im(rho) = eq(id, rho)`, axiom-free.
-2. **Proposition 1 (the consistent set is a finite limit).** Planned. The federated consistent set
-   `L_F` is the equalizer of the two shared-projection maps. Combinatorial over finite products, no
-   new axioms. Next.
+2. **Proposition 1 (the consistent set is a finite limit).** DONE (`Categorical.v`):
+   `consistent_iff_equalizer`. The federated consistent set is the equalizer of the shared-component
+   and resolver-value maps, axiom-free (product over targets modeled as a list).
 3. **Theorem 1 (federation retraction, acyclic).** Retraction skeleton DONE (`Categorical.v`):
    `retract_into_fixed`, `retract_fixes_fixed` establish that the idempotent normalizer is a
    retraction onto its fixed-point set. Still to do: instantiate this at the concrete federated
