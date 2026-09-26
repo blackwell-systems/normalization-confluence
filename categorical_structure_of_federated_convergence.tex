@@ -211,6 +211,17 @@ the level of the merge algebra; they do not give a cohomological obstruction or 
 coordination-minimality theorem. The lattice-theoretic and chaotic-iteration machinery behind the
 monotone regime is classical~\cite{tarski1955, cousot1977}, as is the confluence core~\cite{newman1942}.
 
+\paragraph{Invariant repair and mechanized convergence.}
+The base development sits in the invariant-repair lineage: Indigo~\cite{balegas2015indigo} and
+IPA~\cite{balegas2019ipa} also restore invariants over weakly consistent replicas, by reservation and
+invariant-confluence-preserving analysis rather than by confluence of a compensating rewrite system.
+Its method roots are Meseguer's rewriting logic and coherence~\cite{meseguer1992, duran2012coherence}
+and self-stabilization~\cite{dijkstra1974}. On the mechanization side, Gomes et
+al.~\cite{gomes2017verifying} machine-check strong eventual consistency for CRDTs in Isabelle/HOL; the
+base convergence theorem over which we build the categorical structure is likewise machine-checked and
+axiom-free, for the broader compensation regime. None of these give a cohomological obstruction or a
+coordination-minimality theorem, which is the object of this paper.
+
 %========================================
 \section{Background}
 \label{sec:background}
@@ -742,6 +753,36 @@ A.~Tarski,
 P.~Cousot and R.~Cousot,
 ``Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints,''
 \emph{Proc.\ 4th ACM SIGACT-SIGPLAN Symp.\ on Principles of Programming Languages (POPL)}, pp.~238--252, 1977.
+
+\bibitem{balegas2015indigo}
+V.~Balegas, S.~Duarte, C.~Ferreira, R.~Rodrigues, N.~Pregui\c{c}a, M.~Najafzadeh, and M.~Shapiro,
+``Putting consistency back into eventual consistency,''
+\emph{Proc.\ 10th European Conf.\ on Computer Systems (EuroSys)}, 2015.
+
+\bibitem{balegas2019ipa}
+V.~Balegas, S.~Duarte, C.~Ferreira, R.~Rodrigues, and N.~Pregui\c{c}a,
+``IPA: Invariant-preserving applications for weakly consistent replicated databases,''
+\emph{Proc.\ VLDB Endowment}, vol.~12, no.~4, 2018.
+
+\bibitem{meseguer1992}
+J.~Meseguer,
+``Conditional rewriting logic as a unified model of concurrency,''
+\emph{Theoretical Computer Science}, vol.~96, no.~1, pp.~73--155, 1992.
+
+\bibitem{duran2012coherence}
+F.~Dur\'an and J.~Meseguer,
+``On the Church-Rosser and coherence properties of conditional order-sorted rewrite theories,''
+\emph{Journal of Logic and Algebraic Programming}, vol.~81, no.~7--8, pp.~816--850, 2012.
+
+\bibitem{dijkstra1974}
+E.~W.~Dijkstra,
+``Self-stabilizing systems in spite of distributed control,''
+\emph{Communications of the ACM}, vol.~17, no.~11, pp.~643--644, 1974.
+
+\bibitem{gomes2017verifying}
+V.~B.~F.~Gomes, M.~Kleppmann, D.~P.~Mulligan, and A.~R.~Beresford,
+``Verifying strong eventual consistency in distributed systems,''
+\emph{Proc.\ ACM on Programming Languages}, vol.~1, no.~OOPSLA, art.~109, 2017.
 
 \end{thebibliography}
 

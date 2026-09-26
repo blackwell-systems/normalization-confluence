@@ -279,6 +279,21 @@ compensation restores convergence under bounded depth and commutativity.
 Together, invariant confluence and our result partition the design space
 (\Cref{sec:design-space}).
 
+\paragraph{Invariant-Repair Systems.}
+Indigo~\cite{balegas2015indigo} and IPA~\cite{balegas2019ipa} also restore
+application invariants over weakly consistent replicas, and Indigo in particular
+targets the cross-object constraints that arise across service boundaries.  They
+do so by a different route: static analysis of invariant-violating operation
+pairs, to which they attach application-specific conflict-resolution rules or
+reservation (escrow) protocols so that every reachable state stays
+invariant-preserving, in the invariant-confluence tradition.  We do not
+preselect operations to be invariant-preserving.  We admit operations that
+genuinely violate invariants and prove, via Newman's Lemma under compensation
+commutativity, that repair reconciles all orderings to the same valid normal
+form; the federated extension carries this across registry morphisms.  The
+distinction is one of method: reservation and invariant confluence versus
+confluence of a compensating rewrite system.
+
 \paragraph{Abstract Rewrite Systems.}
 Newman's Lemma~\cite{newman1942} states that a terminating abstract rewrite
 system is confluent if and only if it is locally confluent.  The lemma has been
@@ -288,6 +303,23 @@ calculus.  Our contribution is its application to a rewrite system with
 buffer of enabled events.  Local confluence is nontrivial because different
 application orders produce different intermediate states; our compensation
 commutativity axiom is the condition that closes the resulting critical pairs.
+
+\paragraph{Rewriting Logic and Coherence.}
+Meseguer's rewriting logic~\cite{meseguer1992} models concurrent systems as
+rewrite theories, and coherence checking (the Church-Rosser and coherence
+properties of rewrite theories modulo equations~\cite{duran2012coherence},
+supported by tools such as Maude) is the closest methodological ancestor of our
+build-time convergence check.  We instantiate this lineage for one specific
+rewrite system: events interleaved with invariant compensation, where
+compensation commutativity plays the role of the coherence condition that closes
+critical pairs.
+
+\paragraph{Self-Stabilization.}
+Self-stabilizing systems~\cite{dijkstra1974} converge to a legitimate state from
+an arbitrary starting configuration.  Normalization confluence shares the
+converge-to-valid premise but strengthens the conclusion to agreement: not
+merely that each replica reaches some valid state, but that all replicas, across
+a federation, reach the \emph{same} valid state under reordering.
 
 \paragraph{Eventual Consistency.}
 Classical eventual consistency~\cite{vogels2009eventually} guarantees that
@@ -313,6 +345,14 @@ operations, it repairs arbitrary invariant violations in the current state.
 The convergence guarantee we prove---that different interleaving orders of
 application and compensation reach the same valid state---has no analogue in
 the saga literature.
+
+\paragraph{Mechanized Convergence Proofs.}
+Gomes et al.~\cite{gomes2017verifying} give a machine-checked proof of strong
+eventual consistency for CRDTs in Isabelle/HOL, network model included.  Their
+result covers the commutative case; the mechanization this work builds on
+(\Cref{sec:mechanization}) covers convergence under non-commutative,
+invariant-violating operations reconciled by compensation.  Both rest on an
+assumption-free, machine-checked convergence theorem rather than a paper proof.
 
 %========================================
 \section{Registry-Governed Stream Model}
@@ -2437,6 +2477,36 @@ A.~Tarski,
 P.~Cousot and R.~Cousot,
 ``Abstract interpretation: a unified lattice model for static analysis of programs by construction or approximation of fixpoints,''
 \emph{Proc.\ 4th ACM SIGACT-SIGPLAN Symp.\ on Principles of Programming Languages (POPL)}, pp.~238--252, 1977.
+
+\bibitem{balegas2015indigo}
+V.~Balegas, S.~Duarte, C.~Ferreira, R.~Rodrigues, N.~Pregui\c{c}a, M.~Najafzadeh, and M.~Shapiro,
+``Putting consistency back into eventual consistency,''
+\emph{Proc.\ 10th European Conf.\ on Computer Systems (EuroSys)}, 2015.
+
+\bibitem{balegas2019ipa}
+V.~Balegas, S.~Duarte, C.~Ferreira, R.~Rodrigues, and N.~Pregui\c{c}a,
+``IPA: Invariant-preserving applications for weakly consistent replicated databases,''
+\emph{Proc.\ VLDB Endowment}, vol.~12, no.~4, 2018.
+
+\bibitem{meseguer1992}
+J.~Meseguer,
+``Conditional rewriting logic as a unified model of concurrency,''
+\emph{Theoretical Computer Science}, vol.~96, no.~1, pp.~73--155, 1992.
+
+\bibitem{duran2012coherence}
+F.~Dur\'an and J.~Meseguer,
+``On the Church-Rosser and coherence properties of conditional order-sorted rewrite theories,''
+\emph{Journal of Logic and Algebraic Programming}, vol.~81, no.~7--8, pp.~816--850, 2012.
+
+\bibitem{dijkstra1974}
+E.~W.~Dijkstra,
+``Self-stabilizing systems in spite of distributed control,''
+\emph{Communications of the ACM}, vol.~17, no.~11, pp.~643--644, 1974.
+
+\bibitem{gomes2017verifying}
+V.~B.~F.~Gomes, M.~Kleppmann, D.~P.~Mulligan, and A.~R.~Beresford,
+``Verifying strong eventual consistency in distributed systems,''
+\emph{Proc.\ ACM on Programming Languages}, vol.~1, no.~OOPSLA, art.~109, 2017.
 
 \end{thebibliography}
 
