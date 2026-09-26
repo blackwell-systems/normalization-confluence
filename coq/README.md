@@ -23,14 +23,15 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 23 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twenty-three headline results (the single-registry
+Expected tail: `PASS: all 26 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twenty-six headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
-verified-checker soundness results, the six CRDT-subsumption results, and the four categorical-core
+verified-checker soundness results, the six CRDT-subsumption results, and the seven categorical-core
 results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
-clamp-to-cap non-vacuity instance, and the consistent-set-is-an-equalizer proposition) and fails if
-any of them depends on an axiom or an admitted lemma.
+clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
+federated operator's retraction and image characterization, and the order-independence commutation
+core) and fails if any of them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -267,8 +268,22 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
   it (`clamp3_retracts_into`, `clamp3_image_iff_fixed`). So the section is about something, not a
   vacuous hypothesis.
 
-`Print Assumptions` on `image_iff_fixed`, `retract_into_fixed`, and `clamp3_retracts_into` is
-"Closed under the global context"; all three are in the axiom-free gate above.
+- **Theorem 1 (retraction), operator half.** `RetractionOntoConsistent` proves the note's Corollary
+  in general: any operator that is sound (its image lands in a consistent set `L`, Lemma A) and
+  complete (it fixes `L`, Lemma B) is the idempotent retraction onto `L`, with image and fixed-point
+  set both `L` (`rhoL_idempotent`, `rhoL_image_iff_L`, `rhoL_L_iff_fixed`). `FederatedOperator` then
+  discharges Lemma A and Lemma B for a concrete federated operator `rhoF` (a root with local
+  normalizer, plus a morphism target whose shared component is fixed from the root's normal form),
+  so `rhoF` is the idempotent retraction onto its consistent set (`rhoF_retraction`,
+  `rhoF_image_iff_L2`).
+- **Order-independence, commutation core.** `updates_commute`: updates to two independent registry
+  components commute (the local step of Lemma C, incomparable registries having disjoint reads and
+  writes). The full result, that all topological orders agree, additionally uses the classical
+  connectivity of linear extensions under adjacent transpositions, which is not mechanized here, so
+  order-independence over general DAGs remains paper-level.
+
+`Print Assumptions` on the categorical-core headline results is "Closed under the global context";
+they are in the axiom-free gate above.
 
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
@@ -281,14 +296,17 @@ rather than pulling in heavy category-theory libraries. Progress, in priority or
 2. **Proposition 1 (the consistent set is a finite limit).** DONE (`Categorical.v`):
    `consistent_iff_equalizer`. The federated consistent set is the equalizer of the shared-component
    and resolver-value maps, axiom-free (product over targets modeled as a list).
-3. **Theorem 1 (federation retraction, acyclic).** Retraction skeleton DONE (`Categorical.v`):
-   `retract_into_fixed`, `retract_fixes_fixed` establish that the idempotent normalizer is a
-   retraction onto its fixed-point set. Still to do: instantiate this at the concrete federated
-   operator `rho_F` and mechanize order-independence across topological orders (close in spirit to
-   `Chaotic.v`'s schedule-independence result).
+3. **Theorem 1 (federation retraction, acyclic).** Operator half DONE (`Categorical.v`): the general
+   Corollary (`RetractionOntoConsistent`: sound + complete give the idempotent retraction onto `L`)
+   and a concrete federated operator discharging Lemma A / Lemma B (`FederatedOperator`:
+   `rhoF_retraction`, `rhoF_image_iff_L2`). Order-independence: the commutation core is DONE
+   (`updates_commute`); the full "all topological orders agree" additionally needs the classical
+   linear-extension connectivity result, still to mechanize (or cite). The concrete operator here is
+   a root plus one morphism target; a general acyclic-DAG `rhoF` as a fold over a topological order
+   is the next construction.
 4. **Theorem 2 (compositionality).** Planned. The flat federation and the staged
-   (sub-federation-collapsed) federation have the same normalizer. The payoff result; follows once
-   Theorem 1 is instantiated at `rho_F`.
+   (sub-federation-collapsed) federation have the same normalizer. The payoff result; follows once a
+   general-DAG `rho_F` is in place.
 
 Kept at paper level (out of scope for the first mechanization pass):
 

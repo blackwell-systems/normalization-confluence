@@ -168,3 +168,81 @@ Proof. intros B _. reflexivity. Qed.
 Example ex_inconsistent_one :
   ~ Consistent (true :: false :: nil) (fun (s : nat) (_ : bool) => s) (fun _ _ => 0) 1.
 Proof. intro H. specialize (H true (or_introl eq_refl)). discriminate H. Qed.
+
+(* --------------------------------------------------------------------------- *)
+(* Theorem 1 (federation retraction), the operator half. The Corollary of the   *)
+(* note: any operator that is SOUND (its image lands in a consistent set L) and  *)
+(* COMPLETE (it fixes L) is the idempotent retraction onto L, with image and     *)
+(* fixed-point set both equal to L. The federated normalizer rho_F is an         *)
+(* instance once Lemma A (soundness) and Lemma B (completeness) are discharged   *)
+(* for it, which is done concretely below. *)
+
+Section RetractionOntoConsistent.
+  Context {A : Type} (rho : A -> A) (L : A -> Prop).
+  Hypothesis sound    : forall s, L (rho s).           (* Lemma A: im rho subset L *)
+  Hypothesis complete : forall s, L s -> rho s = s.    (* Lemma B: L subset Fix rho *)
+
+  Theorem rhoL_idempotent : forall s, rho (rho s) = rho s.
+  Proof. intro s. apply complete. apply sound. Qed.
+
+  Theorem rhoL_image_iff_L : forall x, (exists y, rho y = x) <-> L x.
+  Proof.
+    intro x. split.
+    - intros [y Hy]. rewrite <- Hy. apply sound.
+    - intro Hx. exists x. apply complete. exact Hx.
+  Qed.
+
+  Theorem rhoL_L_iff_fixed : forall x, L x <-> rho x = x.
+  Proof.
+    intro x. split.
+    - apply complete.
+    - intro H. rewrite <- H. apply sound.
+  Qed.
+End RetractionOntoConsistent.
+
+(* A concrete federated operator: a root A with local normalizer normA and a target B whose shared
+   component is fixed by a morphism phi from A's normal form. M1 is modeled by taking the morphism
+   image to be B-normal, so B's local normalizer is the identity on it (no separate normB needed).
+   rho_F normalizes A, then sets B to phi of A's normal form. It discharges Lemma A and Lemma B and
+   so instantiates the retraction Corollary: rho_F is the idempotent retraction onto its consistent
+   set L2. *)
+Section FederatedOperator.
+  Context {V : Type}.
+  Variable normA : V -> V.
+  Hypothesis normA_idem : forall a, normA (normA a) = normA a.
+  Variable phi : V -> V.
+
+  Definition rhoF (p : V * V) : V * V :=
+    let a' := normA (fst p) in (a', phi a').
+
+  Definition L2 (p : V * V) : Prop :=
+    normA (fst p) = fst p /\ snd p = phi (fst p).
+
+  Lemma rhoF_sound : forall p, L2 (rhoF p).
+  Proof. intro p. unfold L2, rhoF. simpl. split; [apply normA_idem | reflexivity]. Qed.
+
+  Lemma rhoF_complete : forall p, L2 p -> rhoF p = p.
+  Proof.
+    intros [a b] H. unfold L2 in H. simpl in H. destruct H as [Ha Hb].
+    unfold rhoF. simpl. rewrite Ha. rewrite <- Hb. reflexivity.
+  Qed.
+
+  Theorem rhoF_retraction : forall p, rhoF (rhoF p) = rhoF p.
+  Proof. exact (rhoL_idempotent rhoF L2 rhoF_sound rhoF_complete). Qed.
+
+  Theorem rhoF_image_iff_L2 : forall p, (exists q, rhoF q = p) <-> L2 p.
+  Proof. exact (rhoL_image_iff_L rhoF L2 rhoF_sound rhoF_complete). Qed.
+End FederatedOperator.
+
+(* Order-independence, commutation core (the local step of Lemma C): updates to two independent
+   registry components commute. Two incomparable registries have disjoint reads and writes, so
+   processing them in either order gives the same result. The full result, that ALL topological
+   orders agree, additionally uses the classical fact that linear extensions of a finite poset are
+   connected by adjacent transpositions of incomparable elements; that connectivity is not
+   mechanized here, so order-independence over general DAGs remains paper-level. *)
+Definition updL {A B : Type} (fa : A -> A) (p : A * B) : A * B := (fa (fst p), snd p).
+Definition updR {A B : Type} (fb : B -> B) (p : A * B) : A * B := (fst p, fb (snd p)).
+
+Lemma updates_commute {A B : Type} (fa : A -> A) (fb : B -> B) (p : A * B) :
+  updL fa (updR fb p) = updR fb (updL fa p).
+Proof. destruct p as [a b]. reflexivity. Qed.
