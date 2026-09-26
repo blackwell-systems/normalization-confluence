@@ -104,3 +104,34 @@ Section FlipObstruction.
     discriminate H.
   Qed.
 End FlipObstruction.
+
+(* --------------------------------------------------------------------------- *)
+(* Toward the non-abelian case. The single-cycle criterion above uses no        *)
+(* commutativity, so it holds for a non-abelian G. Its multi-loop form is the    *)
+(* section criterion for a bouquet of loops (all sharing one shared value): a    *)
+(* simultaneous global section exists iff EVERY loop's holonomy is trivial. This  *)
+(* is the necessary-and-sufficient content behind the minimal-coordination        *)
+(* reading: to make a section exist you must coordinate (drop the constraint of)  *)
+(* exactly the loops with non-trivial holonomy. It holds for arbitrary G. What is  *)
+(* open, and non-abelian, is the minimum over the whole nerve (spanning-tree      *)
+(* choice, shared edges, conjugation), where the count can drop below the         *)
+(* cycle-basis size; see CATEGORICAL-STRUCTURE.md, section 10.3. *)
+Section SimultaneousSection.
+  Context {G : Type}.
+  Variables (op : G -> G -> G) (e : G) (inv : G -> G).
+  Hypothesis assoc : forall a b c, op a (op b c) = op (op a b) c.
+  Hypothesis id_l  : forall a, op e a = a.
+  Hypothesis id_r  : forall a, op a e = a.
+  Hypothesis inv_r : forall a, op a (inv a) = e.
+
+  Theorem simultaneous_section_iff : forall gs : list G,
+    (exists s, Forall (fun g => op g s = s) gs) <-> Forall (fun g => g = e) gs.
+  Proof.
+    intro gs. split.
+    - intros [s Hs]. apply Forall_forall. intros g Hg.
+      apply (proj1 (fixed_point_iff_trivial_holonomy op e inv assoc id_l id_r inv_r g)).
+      exists s. rewrite Forall_forall in Hs. apply Hs; exact Hg.
+    - intro H. rewrite Forall_forall in H. exists e. apply Forall_forall. intros g Hg.
+      rewrite (H g Hg). apply id_l.
+  Qed.
+End SimultaneousSection.

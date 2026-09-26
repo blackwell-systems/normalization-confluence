@@ -450,6 +450,59 @@ in the invertible fragment; the general non-invertible case reduces to the loop-
 fixed-point condition of section 10, where coordinating a loop still means forcing its shared
 variable to an agreed value, but the minimal-basis count is not a cohomological rank.
 
+### 10.3 Non-abelian minimal coordination (posed, with partial results)
+
+The clean minimality of 10.2 is the abelian shadow of a non-abelian problem. This section poses the
+general problem precisely and records what is provable now versus what is open.
+
+**Setup.** The nerve `N` is a finite connected graph (a vertex per subsystem, an edge per overlap;
+per component in general). Gauge a spanning tree `T` to the identity. The overlap identifications are
+then a **holonomy representation** `ρ : π_1(N) → G`, where `G ≤ Sym(S)` is the shared fiber's
+symmetry group, generally NON-abelian for `|S| ≥ 3`. `π_1(N)` is free of rank `b = |E| − |V| + 1`
+(the first Betti number), with one generator per non-tree edge; `ρ` sends each generator to that
+edge's loop composite (holonomy). "Coordinate an edge" means impose single-writer on its shared
+variable, which drops that edge's holonomy constraint (equivalently, deletes the edge from the
+constraint graph, since the coordinated value is fixed by consensus, not by the morphism).
+
+**Section criterion.** After gauging `T` to the identity, a global section assigns every vertex the
+same base value, so the constraint of each non-tree edge `i` is exactly `g_i = e` (its holonomy is
+trivial). Hence:
+
+- **A global section exists iff `ρ` is trivial**, i.e. every non-tree-edge holonomy is `e`. This is
+  mechanized for the independent-loop (bouquet) case as `simultaneous_section_iff` in
+  `coq/Cohomology.v`, axiom-free and with no use of commutativity, so it holds for non-abelian `G`.
+
+**The minimal-coordination problem.** Minimize the number of edges to coordinate so the residual
+constraint graph admits a section (its holonomy representation is trivial). Provable bounds:
+
+- *Sufficiency (any `G`).* Coordinating a cycle basis (`b` non-tree edges) leaves a tree, which has
+  no loops, so a section exists. Thus the minimum is `≤ b`.
+- *Fixed-tree refinement (any `G`).* For a fixed spanning tree `T`, coordinating exactly the non-tree
+  edges with non-trivial holonomy is necessary and sufficient: necessity is the forward direction of
+  the section criterion (an uncoordinated edge with `g_i ≠ e` blocks any section), sufficiency is the
+  backward direction (the residual holonomies are all `e`). So restricted to non-tree-edge
+  coordination, the minimum for `T` is exactly `#{i : g_i ≠ e}`, which is `≤ b`.
+
+**Where abelian and non-abelian diverge.** The true minimum is over all spanning trees (and allows
+coordinating tree edges too, which reroutes the fundamental cycles). Changing the tree conjugates and
+multiplies the generators' holonomies. In the ABELIAN case this leaves `#{g_i ≠ e}` invariant: it
+equals the rank of the image of `ρ` in the abelianization, a basis-independent number, recovering the
+Betti-type count of 10.2. In the NON-ABELIAN case the count is basis-dependent, because relations in
+`G` let products of non-trivial holonomies be trivial (a compound loop can have holonomy `e` even when
+its constituent loops do not), so a cleverly chosen tree, or coordinating a shared edge that lies on
+several fundamental cycles, can trivialize the representation with FEWER coordinated edges than any
+cycle basis. Concretely: a shared 3-status enum with `A→B` a 3-cycle and `B→C` a transposition
+composes in `S_3`; around compound loops these do not commute, and coordinating the two loops
+separately over-counts what is needed to kill the image `ρ(π_1) ≤ S_3`.
+
+**The open optimization.** The minimum is the fewest edges whose deletion trivializes the holonomy
+representation, equivalently the fewest generators (over all bases) whose coordination normally
+generates the obstruction in the image subgroup `ρ(π_1) ≤ G`. This is a non-abelian, group-relative
+feedback-set problem; it is expected to be hard in general, and its exact characterization (and any
+polynomial special cases) is open. What is settled: the section criterion (any `G`, mechanized for
+the bouquet), the `≤ b` sufficiency, and the abelian invariance of the count. What is open: the
+non-abelian minimum and its complexity.
+
 ## 11. Further directions (stubs)
 
 - **Higher-dimensional rewriting (Squier's theorem, polygraphs).** WFC + CC is convergent rewriting;

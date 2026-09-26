@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 33 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all thirty-three headline results (the single-registry
+Expected tail: `PASS: all 34 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all thirty-four headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results, the six CRDT-subsumption results, and the ten categorical-core
@@ -322,6 +322,12 @@ result rests on.
 - **The minimal obstruction.** `identity_holonomy_has_section` (trivial holonomy settles) and
   `flip_no_section` (the negation on `{0,1}`, as `Z/2` under xor, has no fixed point, so the loop
   orbits) instantiate it, the negation being the minimal nonzero obstruction.
+- **Multi-loop / non-abelian.** `simultaneous_section_iff`: for a bouquet of loops sharing one value,
+  a simultaneous section exists iff every loop's holonomy is trivial. The proof uses no commutativity,
+  so it holds for a non-abelian `G`. This is the necessary-and-sufficient content behind the
+  minimal-coordination reading (coordinate exactly the non-trivial loops). The minimum over a whole
+  nerve, where shared edges and conjugation can drop the count below the cycle-basis size, is the
+  open non-abelian optimization posed in `CATEGORICAL-STRUCTURE.md` section 10.3.
 
 Paper-level (not mechanized): the assembly of the per-cycle holonomy into the nerve's `H^1` as a
 quotient, the cycle-basis generation, and the Betti-number rank.
