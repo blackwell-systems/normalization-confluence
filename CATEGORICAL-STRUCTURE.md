@@ -505,26 +505,44 @@ bound, not necessarily the minimum, since a shared edge can hit several cycles a
   minimum hitting set is a matroid rank: the rank of the image of `ρ`, computable by elimination over
   the cycle space. This is basis-independent and recovers the Betti-type count of 10.2.
 
-**The hard case, stated carefully.** When the holonomies do not commute AND obstructing cycles share
-edges, the family of non-trivial cycles is no longer the kernel of a linear map (whether a compound
-cycle is trivial depends on non-commutative products in `G`), so the matroid argument fails and the
-minimum is a hitting set over a non-linearly-structured cycle family, a combinatorial optimization
-expected to be hard. Two things are genuinely open and I do not assert either: whether the non-abelian
-minimum can be strictly below the abelian rank of the same graph (a separating instance, e.g. a
-shared-edge configuration in `S_3`, would settle it), and the complexity of the minimum-hitting-set
-problem (NP-hardness, and any approximation with a bound relative to `b`). What IS settled: the
-section criterion for any `G` (mechanized for the independent case), the hitting-set characterization,
-and the two polynomial regimes above.
+**Resolved: the non-abelian minimum is never below the abelian count, and can be strictly above.**
+The direction question settles cleanly, against the naive intuition that non-commutativity buys
+savings. A global section after deleting `F` requires `π_1(N\F) ⊆ ker ρ`. Since a holonomy that is
+trivial in `G` is trivial in the abelianization, `ker ρ ⊆ ker(\mathrm{ab} ∘ ρ)`, so every `F`
+feasible for the `G`-problem is feasible for the abelianized one, and the minimum only grows:
 
-**A practical algorithm now, optimal in the tractable regimes.** The open part is only the last bit
-of optimality; a correct, polynomial coordination is already available. Pick any spanning tree, run
-the diagnostic on each fundamental cycle, and coordinate the ones that orbit. This always yields a
-valid coordination (the residual holonomies are trivial, so a section exists), it is polynomial, and
-its size is at most `b`. It is exactly minimal when the obstructing cycles are edge-disjoint or the
-holonomies commute; only in the non-abelian shared-edge case can a smaller hitting set exist, and
-finding it is the open optimization. So the accept-with-coordination capability is deployable today
-with this algorithm, delivering a minimal core in the common regimes and a bounded, correct one
-otherwise; tightening the last case is a refinement, not a prerequisite.
+> **`min_G ≥ min_{G^{ab}}`.** The abelian count is a LOWER bound on the true coordination, never an
+> over-count. Non-commutativity adds obstruction (commutator-valued cycles the abelianization cannot
+> see); it never removes it.
+
+*A separating instance (`S_3`), so the inequality is strict.* Take the theta graph: two vertices,
+three parallel edges `e_1, e_2, e_3`, first Betti number `2`. Gauge `e_1` to the identity and set the
+two generator holonomies to `a = (0\,1\,2)` and `b = (0\,1)` in `S_3`. Every single-edge deletion
+leaves a residual cycle with holonomy in `{a, b, a^{-1}b}`, all `≠ e`, so no section survives one
+deletion; deleting `e_2` and `e_3` leaves a tree. Hence the true minimum is `2`. But `S_3^{ab} = Z/2`
+via the sign, and `a = (0\,1\,2)` is even, so its abelian image is `0`: the abelianized holonomies are
+`(0, 1)`, rank `1`, and deleting `e_3` alone makes the residual abelian-trivial, so `min_{G^{ab}} = 1`.
+Thus `1 = min_{G^{ab}} < min_G = 2`. The gap is exactly the 3-cycle loop, a genuine convergence
+obstruction that the parity invariant declares fine.
+
+*Consequence (a soundness warning).* Sizing coordination by any abelianized holonomy (the sign, or
+any homomorphism to an abelian group) is UNSOUND: it under-provisions, declaring coordination-free
+some cyclic federations that cannot in fact converge without coordinating an even-permutation
+(commutator-subgroup) relabeling loop. The full non-abelian hitting set is required for correctness;
+the abelian regime above is a genuine special case (commuting holonomies), not an approximation to
+lean on in general.
+
+**A deployable algorithm now (correct, polynomial, `≤ b`).** Pick any spanning tree, run the
+diagnostic on each fundamental cycle, and coordinate the ones that orbit. This always yields a valid
+coordination (every residual fundamental cycle is trivial, so a section exists), it is polynomial,
+and its size is at most `b`. It is exactly minimal in the edge-disjoint regime (each obstructing cycle
+needs its own hit). It is NOT in general optimal: in the abelian dependent case the matroid rank can
+be below the fundamental-cycle count (coordinate a maximal independent set instead, still
+polynomial), and in the non-abelian shared-edge case the exact minimum is the open hitting-set
+problem. So the accept-with-coordination capability is deployable today with a correct, bounded core;
+what stays open is only its optimality tightening, whose complexity (NP-hardness, approximation
+relative to `b`) is the remaining question. This `S_3` computation is established here at the paper
+level; mechanizing the finite verification is a bounded follow-up.
 
 ## 11. Further directions (stubs)
 

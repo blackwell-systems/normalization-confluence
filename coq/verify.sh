@@ -46,6 +46,10 @@ Print Assumptions fixed_point_iff_trivial_holonomy.
 Print Assumptions flip_no_section.
 Print Assumptions identity_holonomy_has_section.
 Print Assumptions simultaneous_section_iff.
+Print Assumptions S3Sep.a_inv.
+Print Assumptions S3Sep.del_e1_nontrivial.
+Print Assumptions S3Sep.a_even.
+Print Assumptions S3Sep.b_odd.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -56,8 +60,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 34 ]; then
-  echo "FAIL: expected 34 axiom-free results, got $N"
+if [ "$N" -lt 38 ]; then
+  echo "FAIL: expected 38 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

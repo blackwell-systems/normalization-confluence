@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 34 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all thirty-four headline results (the single-registry
+Expected tail: `PASS: all 38 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all thirty-eight headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results, the six CRDT-subsumption results, and the ten categorical-core
@@ -330,6 +330,12 @@ result rests on.
   minimum over a whole nerve is the minimum edge set hitting all non-trivial-holonomy cycles: a
   matroid rank (polynomial) in the abelian case, and a hitting-set problem expected to be hard when
   non-commuting holonomies share edges. See `CATEGORICAL-STRUCTURE.md` section 10.3.
+- **The `S_3` separating instance (`S3Sep`).** Machine-checks the finite crux that the non-abelian
+  minimum can be strictly ABOVE the abelian count (so never below): on the theta graph with generator
+  holonomies `a = (0 1 2)` and `b = (0 1)` in `S_3`, every single-edge deletion leaves a non-trivial
+  residual (`del_e1/e2/e3_nontrivial`, so `min_G = 2`), while `a` is even (`a_even`, invisible to the
+  sign / abelian invariant, so `min_{G^ab} = 1`). `a_inv` confirms `a` is a genuine relabeling. The
+  graph-level hitting-set wrapping is paper-level; these are its checked crux facts.
 
 Paper-level (not mechanized): the assembly of the per-cycle holonomy into the nerve's `H^1` as a
 quotient, the cycle-basis generation, and the Betti-number rank.

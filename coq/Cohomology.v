@@ -135,3 +135,46 @@ Section SimultaneousSection.
       rewrite (H g Hg). apply id_l.
   Qed.
 End SimultaneousSection.
+
+(* --------------------------------------------------------------------------- *)
+(* The S_3 separating instance (CATEGORICAL-STRUCTURE.md section 10.3): the       *)
+(* non-abelian minimum can be STRICTLY ABOVE the abelian count, so it is never    *)
+(* below. The theta graph (two vertices, three parallel edges e1,e2,e3) with      *)
+(* generator holonomies a = (0 1 2) and b = (0 1) in S_3. Permutations are        *)
+(* image-triples, so the finite crux needs no group scaffolding, only            *)
+(* computation. The graph-level hitting-set wrapping (min_G = 2, min_{G^ab} = 1)  *)
+(* is paper-level; the crux facts it rests on are machine-checked here. *)
+Module S3Sep.
+  Definition perm := (nat * nat * nat)%type.
+  Definition ap (p : perm) (i : nat) : nat :=
+    let '(x, y, z) := p in match i with 0 => x | 1 => y | 2 => z | _ => i end.
+  Definition comp (p q : perm) : perm := (ap p (ap q 0), ap p (ap q 1), ap p (ap q 2)).
+  Definition idp : perm := (0, 1, 2).
+  Definition a : perm := (1, 2, 0).      (* the 3-cycle 0 -> 1 -> 2 -> 0 *)
+  Definition b : perm := (1, 0, 2).      (* the transposition (0 1) *)
+  Definition inv_a : perm := (2, 0, 1).  (* a^{-1} *)
+
+  (* a is invertible with inverse inv_a (so it is a genuine relabeling, an S_3 element). *)
+  Lemma a_inv : comp a inv_a = idp /\ comp inv_a a = idp.
+  Proof. split; reflexivity. Qed.
+
+  (* min_G >= 2: every single-edge deletion of the theta graph leaves a residual cycle whose
+     holonomy is non-trivial (a, b, or a^{-1} b), so no section survives one deletion. *)
+  Lemma del_e3_nontrivial : a <> idp.             Proof. cbv; discriminate. Qed.
+  Lemma del_e2_nontrivial : b <> idp.             Proof. cbv; discriminate. Qed.
+  Lemma del_e1_nontrivial : comp inv_a b <> idp.  Proof. cbv; discriminate. Qed.
+  (* Deleting e2 and e3 leaves the tree {e1}, with no cycle, so a section exists: min_G = 2. *)
+
+  (* min_{G^ab} = 1: the abelian invariant (sign) is blind to a. a is even, so its abelian image is
+     0; b is odd. Hence the abelianized holonomies (0, 1) have rank 1, and coordinating e3 alone
+     makes the residual abelian-trivial. So 1 = min_{G^ab} < min_G = 2. *)
+  Definition even_perm (p : perm) : bool :=
+    match p with
+    | (0, 1, 2) => true
+    | (1, 2, 0) => true
+    | (2, 0, 1) => true
+    | _ => false
+    end.
+  Lemma a_even : even_perm a = true.   Proof. reflexivity. Qed.
+  Lemma b_odd  : even_perm b = false.  Proof. reflexivity. Qed.
+End S3Sep.
