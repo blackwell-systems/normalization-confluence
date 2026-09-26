@@ -107,12 +107,23 @@ contribution, since it states precisely when the sharp classification applies.
   well-founded-compensation regime is strictly broader.
 
 ## Mechanization status (coq/, axiom-free gate)
-- DONE (`Categorical.v`): Lemma 0 (image = fixed = equalizer), Theorem 1 retraction skeleton, Prop 1
-  (consistent set = equalizer, a finite limit), with non-vacuity witnesses. In the axiom-free gate.
-- IN PROGRESS: Theorem 1 at the concrete federated operator `rho_F` (soundness + completeness, so it
-  instantiates the abstract retraction) and order-independence; Theorem 2 (compositionality).
-- Paper-level only: the cohomological completion (invertible fragment); the general case reduces to
-  the loop-composite fixed-point condition, which is implemented as `DiagnoseCycle`.
+The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theorems):
+- Lemma 0: image = fixed-point set = equalizer of (id, rho).
+- Proposition 1: the consistent set is the equalizer of the shared-component and resolver-value maps
+  (a finite limit), product over targets modeled as a list, no functional extensionality.
+- Theorem 1 (retraction): the general Corollary (sound + complete give the idempotent retraction
+  onto a consistent set L), a concrete two-registry operator, and the GENERAL acyclic `rho_F` as a
+  topological-order fold discharging Lemma A / Lemma B, so `rho_F` is the idempotent retraction onto
+  `L_F` for every acyclic federation.
+- Theorem 2 (compositionality): the fold-append law, flat normalization over a topological cut
+  `J ++ K` equals finalizing `J` then continuing with `K` (an upstream sub-federation collapses to
+  its finalized block).
+
+Deliberately paper-level (not mechanized):
+- The cohomological completion (`H^0`/`H^1`) in the invertible fragment; the general case reduces to
+  the loop-composite fixed-point condition, implemented in gsm as `DiagnoseCycle`.
+- Full order-independence: the commutation core is mechanized; the linear-extension connectivity that
+  lifts it to all topological orders is cited as classical.
 
 ## Open gates before drafting prose
 - Confirm venue target (LMCS or a theory-leaning systems venue; ACT if the categorical framing

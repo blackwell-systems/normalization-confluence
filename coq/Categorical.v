@@ -360,3 +360,40 @@ End GeneralFederatedFold.
 Example ex_rhoFold_zeros :
   rhoFold (fun (_ : list nat) (_ : nat) => 0) (1 :: 2 :: nil) = 0 :: 0 :: nil.
 Proof. reflexivity. Qed.
+
+(* --------------------------------------------------------------------------- *)
+(* Theorem 2 (compositionality), operator level. The flat normalization of a     *)
+(* federation split along a topological cut J ++ K equals the staged one:         *)
+(* finalize the upstream block J, then continue with K on top of that finalized   *)
+(* block. So an upstream sub-federation collapses to its finalized block and the   *)
+(* combined normalizer factors as (normalize J) then (normalize K). This is the    *)
+(* fold-append law for rho_F, axiom-free. *)
+
+Section Compositionality.
+  Context {V : Type}.
+  Variable stepAt : list V -> V -> V.
+
+  Lemma rhoF_from_app :
+    forall js ks done,
+      rhoF_from stepAt done (js ++ ks) =
+      rhoF_from stepAt (rhoF_from stepAt done js) ks.
+  Proof.
+    induction js as [|x js' IH]; intros ks done; simpl.
+    - reflexivity.
+    - apply IH.
+  Qed.
+
+  (* Theorem 2: normalizing the whole federation equals normalizing the upstream
+     block J, then federating K on top of the collapsed (finalized) J. *)
+  Theorem rhoFold_compositional :
+    forall js ks,
+      rhoFold stepAt (js ++ ks) = rhoF_from stepAt (rhoFold stepAt js) ks.
+  Proof. intros js ks. unfold rhoFold. apply rhoF_from_app. Qed.
+End Compositionality.
+
+(* Non-vacuity: the flat and staged computations agree and both compute. *)
+Example ex_compositional_zeros :
+  rhoFold (fun (_ : list nat) (_ : nat) => 0) ((1 :: 2 :: nil) ++ (3 :: nil)) =
+  rhoF_from (fun (_ : list nat) (_ : nat) => 0)
+            (rhoFold (fun (_ : list nat) (_ : nat) => 0) (1 :: 2 :: nil)) (3 :: nil).
+Proof. reflexivity. Qed.

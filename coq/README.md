@@ -23,16 +23,16 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 28 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all twenty-eight headline results (the single-registry
+Expected tail: `PASS: all 29 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twenty-nine headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
-verified-checker soundness results, the six CRDT-subsumption results, and the nine categorical-core
+verified-checker soundness results, the six CRDT-subsumption results, and the ten categorical-core
 results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
 clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
 federated operator's retraction and image characterization, the order-independence commutation core,
-and the general acyclic fold operator's retraction and image characterization) and fails if any of
-them depends on an axiom or an admitted lemma.
+the general acyclic fold operator's retraction and image characterization, and the compositionality
+fold-append theorem) and fails if any of them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -291,6 +291,11 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
   `rhoFold_retraction` and `rhoFold_image_iff_consistent` give that `rho_F` is the idempotent
   retraction onto `L_F` for every acyclic federation, not just the two-registry instance. The
   supporting `app_split_snoc` (splitting a snoc) is axiom-free.
+- **Theorem 2 (compositionality).** `rhoFold_compositional` (via the fold-append law
+  `rhoF_from_app`): the flat normalization of a federation split along a topological cut `J ++ K`
+  equals the staged one, finalize the upstream block `J`, then continue with `K` on top of the
+  collapsed (finalized) `J`. So an upstream sub-federation collapses to its finalized block and the
+  combined normalizer factors as (normalize `J`) then (normalize `K`). Axiom-free.
 
 `Print Assumptions` on the categorical-core headline results is "Closed under the global context";
 they are in the axiom-free gate above.
@@ -314,9 +319,16 @@ rather than pulling in heavy category-theory libraries. Progress, in priority or
    Remaining: full order-independence (the commutation core `updates_commute` is done; "all
    topological orders agree" needs the classical linear-extension connectivity, to mechanize or
    cite).
-4. **Theorem 2 (compositionality).** Next. The flat federation and the staged
-   (sub-federation-collapsed) federation have the same normalizer, expressible now on top of the
-   `GeneralFederatedFold` operator. The payoff result.
+4. **Theorem 2 (compositionality).** DONE (`Categorical.v`): `rhoFold_compositional` (via
+   `rhoF_from_app`). The flat normalization over a topological cut `J ++ K` equals finalizing `J`
+   then continuing with `K`, so an upstream sub-federation collapses to its finalized block.
+
+With Lemma 0, Proposition 1, Theorem 1 (retraction, general acyclic fold), and Theorem 2
+(compositionality) mechanized axiom-free, the structural core of the companion is complete. What
+remains is deliberately paper-level: the cohomological completion (`H^0`/`H^1`) in the invertible
+fragment, with the loop-composite fixed-point diagnostic implemented in gsm as
+`Federation.DiagnoseCycle`; and full order-independence (the commutation core is mechanized; the
+linear-extension connectivity is cited as classical).
 
 Kept at paper level (out of scope for the first mechanization pass):
 
