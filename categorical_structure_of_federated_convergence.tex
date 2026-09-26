@@ -348,18 +348,143 @@ mechanized core.
 \section{Convergence Certificates Form a Sheaf}
 \label{sec:sheaf}
 
-[To be written from CATEGORICAL-STRUCTURE.md \S10. The presheaf of certificates, the non-naive gluing
-counterexample, the precise gluing condition (agree as normalizers on the overlap), and the
-identification of $R1 + R2$ with the gluing axiom.]
+The limit of \Cref{sec:limit} is a global object assembled from local ones, the shape of a sheaf.
+Making that precise both explains why the federation's hypotheses are the right ones and sets up the
+obstruction of \Cref{sec:completion}.
+
+\paragraph{The presheaf.} Over a system's variables, take a region to be a variable subset $U$, the
+subsystem on $U$ to be the rules whose footprint lies in $U$, and the section $F(U)$ to be that
+subsystem's normalizer $\rho_U$ together with its convergence verdict. Restriction $F(U) \to F(U')$
+for $U' \subseteq U$ restricts the normalizer. The sheaf question is whether local certificates that
+agree on overlaps glue to a global one, checkable from the overlap alone.
+
+\paragraph{Gluing is not naive.} Agreement on which shared values are \emph{valid} is not enough.
+
+\begin{example}
+\label{ex:glue}
+Let $s \in \{0,1,2\}$. Subsystem $A$ has invariant $s \neq 1$ with repair $s := 0$; subsystem $B$ has
+invariant $s \neq 1$ with repair $s := 2$. Each is confluent, and both have valid set $\{0, 2\}$, so
+they agree on which values are valid. But in the union, from $s = 1$ the result is $0$ (running $A$
+first) or $2$ (running $B$ first): order-dependent, non-confluent.
+\end{example}
+
+\paragraph{The precise gluing condition.} The obstruction in \Cref{ex:glue} is that $A$ and $B$
+disagree as \emph{normalizers} on the shared state ($A : 1 \mapsto 0$, $B : 1 \mapsto 2$). So the
+correct sense of ``agree on the overlap'' is that the two certificates restrict to the \emph{same
+normal-form map} on the shared variables. Then the shared variable has one unambiguous normal form,
+the union is confluent, and the sections glue: the global normalizer runs each private part plus the
+agreed map on the overlap. This is checkable on the overlap alone, never on the joint product.
+Convergence certificates therefore form a sheaf on the site whose overlaps satisfy this agreement.
+
+\paragraph{Two regimes force agreement, and they are the federation's.} The overlap agreement holds
+in two ways:
+\begin{itemize}[leftmargin=*]
+\item \emph{Single-writer overlap}: only one subsystem writes the shared variable, the other reads
+  it. The writer's normalizer is the only one on the overlap, so agreement is automatic. This is the
+  authority / $M1$ discipline.
+\item \emph{Monotone overlap}: both write, but monotonically. The combined repair is a monotone
+  operator with a unique least fixed point (Knaster-Tarski~\cite{tarski1955}), so the normalizers
+  agree on the glued result. This is the monotone-cycles regime.
+\end{itemize}
+
+\begin{proposition}[$R1 + R2$ is the gluing axiom]
+\label{prop:gluing}
+In a federation, distinct components do not literally share a writable variable; a shared writable
+variable is a multi-source target whose resolver merges its sources. The resolver hypotheses are
+exactly the sheaf gluing condition: source-determinacy ($R1$) makes the merged normal form
+single-valued (confluence on the overlap), and validity-preservation ($R2$) makes it land in the
+agreed valid set. Hence the federation's resolver verification \emph{is} the sheaf gluing check.
+\end{proposition}
+
+The existing federation design is thus validated by the sheaf structure rather than extended by a new
+primitive: the machinery that composes overlapping subsystems soundly is already present as $R1/R2$.
+The results of this section are established at the paper level (in $\mathbf{Set}$); they are not part
+of the mechanized core.
 
 %========================================
 \section{The Cohomological Completion}
 \label{sec:completion}
 
-[To be written from CATEGORICAL-STRUCTURE.md \S10.1. $\Hz$ as the convergent states; $\Ho$ as the
-holonomy in the invertible fragment; the completion theorem; the cycle-basis generators; the two
-routes to $\Ho = 0$ recovering the acyclic and monotone regimes; and the reduction of the general
-non-invertible case to the loop-composite fixed-point condition.]
+For two subsystems the gluing condition of \Cref{sec:sheaf} is a single equality check, so nothing
+subtle survives. The interesting case is a cycle of three or more subsystems whose pairwise overlaps
+each agree yet admit no global section: the classic local-consistency, global-impossibility
+phenomenon, measured by the first \v{C}ech cohomology of the presheaf over the nerve of the overlap
+cover.
+
+\paragraph{The loop composite.} Take a triangle in which $A$ and $B$ share $x$, $B$ and $C$ share
+$y$, $C$ and $A$ share $z$, the cycle's morphisms fixing each next shared component from the previous
+normal form. A global section is a shared assignment fixed all the way around, so the shared value
+must be a fixed point of the loop composite $g = m_{CA} \circ m_{BC} \circ m_{AB}$ on the shared
+subspace.
+
+\begin{theorem}[Obstruction, general case]
+\label{thm:obstruction}
+A global convergent section around a cycle exists iff the cycle's loop composite $g$ has a reachable
+fixed point, and the witness for its absence is $g$ itself, computable over the shared subspace
+rather than the product.
+\end{theorem}
+
+The minimal obstruction has shared values in $\{0,1\}$, two edges the identity and one the negation,
+so $g$ is the flip, which has no fixed point (it orbits $0 \mapsto 1 \mapsto 0$): no consistent global
+assignment exists, and the witness points at the negation edge.
+
+\paragraph{The completion, invertible fragment.} Assemble the sheaf on the nerve $N$ of the cover: a
+vertex per subsystem, an edge per non-empty overlap, a triangle per triple overlap. Write the shared
+fiber on an overlap as a finite set $S$; in the \emph{invertible} fragment (each morphism transports
+its shared value by a bijection) the identification across edge $(i,j)$ is a bijection $g_{ij}$ in a
+group $G \leq \mathrm{Sym}(S)$, with the cocycle condition $g_{ik} = g_{jk} \cdot g_{ij}$ on
+triangles.
+
+$\Hz$ is the convergent states: a global section assigns each subsystem $i$ a shared value $s_i$ with
+$g_{ij} \cdot s_i = s_j$ on every overlap, which is exactly a consistent global normal form, so
+$\Hz(N, F)$ is the consistent set $L_F$ of \Cref{prop:one}, and ``converges compositionally'' is
+``$\Hz$ is non-empty.'' $\Ho$ is the obstruction: the $0$-cochains are gauges ($h_i \in G$ per
+vertex, a relabeling of subsystem $i$'s shared normal form), the coboundary is
+$(dh)_{ij} = h_j \cdot h_i^{-1}$, the $1$-cocycles are the transition families satisfying the triangle
+condition, and $\Ho$ is the $1$-cocycles modulo gauge.
+
+\begin{theorem}[Completion, invertible fragment]
+\label{thm:completion}
+When the shared fiber is a $G$-torsor, a global section exists iff the transition cocycle
+$\{g_{ij}\}$ is trivial in $\Ho$ (a coboundary).
+\end{theorem}
+\begin{proof}
+Fix a base $c \in S$; freeness and transitivity make $g \mapsto g \cdot c$ a bijection $G \to S$, so
+each $s_i = h_i \cdot c$ for a unique $h_i \in G$. If $g_{ij} = h_j \cdot h_i^{-1}$, set
+$s_i = h_i \cdot c$; then $g_{ij} \cdot s_i = h_j \cdot h_i^{-1} \cdot h_i \cdot c = h_j \cdot c = s_j$,
+a global section. Conversely a section $\{s_i\}$ with $g_{ij} \cdot s_i = s_j$ gives
+$g_{ij} \cdot h_i = h_j$, so $g_{ij} = h_j \cdot h_i^{-1} = (dh)_{ij}$.
+\end{proof}
+
+\paragraph{$\Ho$ is holonomy, and its generators are a cycle basis.} Fix a spanning tree of $N$ and
+gauge the tree transitions to the identity; the cocycle is then determined by its values on the
+non-tree edges, one per independent cycle, and each value is the holonomy around that cycle, the loop
+composite $g$ of \Cref{thm:obstruction}. So $\Ho$, as a pointed set, is the holonomies of a cycle
+basis modulo simultaneous conjugation, its rank is the first Betti number of the nerve, and it is
+trivial iff every loop composite is the identity. The cycle basis is the minimal obstruction basis:
+fixing the holonomy on each generator makes $\Hz$ non-empty (\Cref{sec:minimal}).
+
+\paragraph{The two regimes are one picture.} The obstruction vanishes in exactly two ways, and they
+are the two convergence regimes of the base work:
+\begin{itemize}[leftmargin=*]
+\item \emph{Trivial holonomy.} An acyclic nerve has no independent cycles (first Betti number $0$,
+  $\Ho$ trivial); more generally trivial loop composites give a coboundary. This is the acyclic /
+  tree route.
+\item \emph{Monotone fibers.} When $S$ carries a lattice order and the transitions are monotone (not
+  invertible, so outside the torsor picture), Knaster-Tarski gives a least fixed point of the loop
+  composite, so $\Hz$ is non-empty regardless of holonomy. This is the monotone route.
+\end{itemize}
+The first kills the cohomological obstruction; the second sidesteps it via order. The dichotomy the
+base papers state as two separate sufficient conditions is thus one invariant, and its non-vanishing
+is exactly what the engine rejects.
+
+\paragraph{Scope.} The clean cohomological ``iff'' of \Cref{thm:completion} is the invertible /
+torsor fragment. When transitions are non-invertible (a repair that collapses values) the fiber is
+not a torsor and the transitions are monoid elements, so classical $\Ho$ does not apply; there the
+obstruction is $\Hz$ directly, via the reachable-fixed-point condition of \Cref{thm:obstruction}, a
+dynamical rather than cohomological statement. The results of this section are at the paper level; the
+operational fixed-point test is implemented (\Cref{sec:diagnostic}), and the cohomology-proper
+classification (computing the $\Ho$ class itself, and its non-abelian analogue) is left open.
 
 %========================================
 \section{The Obstruction Diagnostic}
