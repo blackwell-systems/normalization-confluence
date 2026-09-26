@@ -220,19 +220,129 @@ blackwell2026federated}. [To be written: a self-contained half-page recap.]
 \section{Normal Forms Are a Limit}
 \label{sec:limit}
 
-[To be written from CATEGORICAL-STRUCTURE.md \S1--\S3. Lemma~0 (a registry's valid set is the
-equalizer of its idempotent normalizer), Proposition~1 (the federated convergent set is the equalizer
-of the shared-projection and resolver maps, a finite limit), and Theorem~1 (the federated normalizer
-is the idempotent retraction onto that limit, order-independent). The retraction, the general acyclic
-operator, and the limit characterization are mechanized in \texttt{coq/Categorical.v}.]
+We work at the semantic level. A registry $R$ has a finite state space $D_R$ and a \emph{normalizer}
+$\rho_R : D_R \to D_R$, the iterated-compensation map, which is total (termination, from well-founded
+compensation) and idempotent ($\rho_R \circ \rho_R = \rho_R$: a normal form is a fixed point, from
+confluence plus termination). Write $\Phi_R \defeq \mathrm{im}(\rho_R)$ for the valid set, the normal
+forms.
+
+Everything in this section is elementary in $\mathbf{Set}$, and the load-bearing facts are mechanized
+axiom-free in Coq/Rocq (module \texttt{Categorical.v}); we state them and sketch the arguments,
+naming the mechanized lemmas.
+
+\subsection{A single registry is an equalizer}
+
+\begin{lemma}[Lemma 0]
+\label{lem:zero}
+For an idempotent normalizer $\rho_R$, the valid set, the fixed-point set, and the equalizer of the
+identity and $\rho_R$ coincide:
+\[ \Phi_R = \mathrm{im}(\rho_R) = \mathrm{Fix}(\rho_R) = \mathrm{eq}(\mathrm{id}_{D_R}, \rho_R), \]
+a limit in $\mathbf{Set}$.
+\end{lemma}
+\begin{proof}
+Idempotence gives $\mathrm{im}(\rho_R) = \mathrm{Fix}(\rho_R)$: if $s = \rho_R(x)$ then
+$\rho_R(s) = \rho_R(\rho_R(x)) = \rho_R(x) = s$, and conversely a fixed point is its own image. And
+$\mathrm{Fix}(\rho_R) = \{s : \mathrm{id}(s) = \rho_R(s)\}$ is by definition the equalizer of
+$\mathrm{id}$ and $\rho_R$, a limit. Mechanized as \texttt{image\_iff\_fixed} and
+\texttt{fixed\_is\_equalizer}.
+\end{proof}
+
+Read as a retraction onto $\Phi_R$ (it fixes $\Phi_R$ and lands in it), $\rho_R$ is an idempotent
+monad on $\mathbf{Set}$ whose algebras are the normal forms, and a closure operator on the ordered
+domains of the cyclic regime. We need only the equalizer.
+
+\subsection{A federation is a finite limit}
+
+Fix a federation: registries $R_1, \dots, R_n$, and for each target $B$ with source set
+$\mathrm{src}(B)$, shared variables $\mathrm{sh}(B)$ and a resolver $\Res_B$ merging its sources'
+normal forms into $B$'s shared component (for a single source this is the morphism's map). The base
+papers certify by finite enumeration that each $\Res_B$ reads only its sources ($R1$) and preserves
+target validity ($R2$; for a single source, $M1$). Let $g$ send a tuple of component normal forms to
+the tuple of the targets' current shared components, and $h$ send it to the tuple of resolver values.
+The \emph{consistent set} is
+\[ L_F \defeq \Big\{ (s_1, \dots, s_n) \in \textstyle\prod_i \Phi_{R_i} :
+   \text{for every target } B,\ s_B \restriction \mathrm{sh}(B)
+   = \Res_B\big((s_{A})_{A \in \mathrm{src}(B)}\big) \Big\}. \]
+
+\begin{proposition}[Proposition 1]
+\label{prop:one}
+$L_F = \mathrm{eq}(g, h)$. Since each $\Phi_{R_i}$ is a limit (\Cref{lem:zero}) and $L_F$ is an
+equalizer of a product of these, $L_F$ is a finite limit in $\mathbf{Set}$.
+\end{proposition}
+\begin{proof}
+A tuple lies in $L_F$ iff every target's shared component equals its resolver value, that is, iff $g$
+and $h$ agree on it componentwise, that is, iff $g = h$ there. Componentwise agreement over the finite
+target set is equality of the two tuple-valued maps, so $L_F$ is their equalizer. Mechanized as
+\texttt{consistent\_iff\_equalizer}, with the product over targets modeled as a list so the
+characterization needs no functional extensionality.
+\end{proof}
+
+\subsection{The federated normalizer is the retraction onto the limit}
+
+Fix a topological order (sources before targets). The federated normalizer $\rho_F$ processes
+registries in that order: for each, overwrite its shared component with the resolver applied to the
+already-finalized sources, then apply the local normalizer. We model this as a left-to-right fold
+over the ordered components, writing $\mathrm{step}$ for the per-position operation (read finalized
+prefix, overwrite shared, normalize). The one hypothesis it needs is that $\mathrm{step}$ is
+idempotent given a fixed finalized prefix, which is exactly $M1/R2$ (the local normalizer fixes the
+overwritten shared component) together with local idempotence.
+
+\begin{theorem}[Theorem 1: federation retraction, acyclic]
+\label{thm:one}
+$\rho_F$ is an idempotent retraction onto $L_F$: $\mathrm{im}(\rho_F) = \mathrm{Fix}(\rho_F) = L_F$.
+Equivalently, the federated normal forms are exactly the finite limit of \Cref{prop:one} and $\rho_F$
+is the retraction onto it. Moreover $\rho_F$ is independent of the chosen topological order.
+\end{theorem}
+\begin{proof}[Proof sketch]
+Two facts suffice and yield the retraction by a general argument: any operator that is sound and
+complete for a set $L$ is the idempotent retraction onto $L$, with image and fixed set $L$
+(mechanized as \texttt{RetractionOntoConsistent}). \emph{Soundness} (Lemma A): $\rho_F(s) \in L_F$,
+because each finalized position is $\mathrm{step}$ of its finalized prefix, which
+$\mathrm{step}$-idempotence leaves fixed (\texttt{rhoFold\_sound}). \emph{Completeness} (Lemma B): a
+consistent state is already fixed, since each position's step is a no-op on it; this uses only the
+definition of $L_F$, not $M1/R2$ (\texttt{rhoFold\_complete}). Hence $\rho_F$ is the idempotent
+retraction onto $L_F$ (\texttt{rhoFold\_retraction}, \texttt{rhoFold\_image\_iff\_consistent}), for
+arbitrary acyclic federations, not a fixed small instance.
+
+Order-independence reduces to the commutation of two incomparable registries: their reads and writes
+are disjoint, so processing them in either order gives the same result (\texttt{updates\_commute}).
+Lifting this to all topological orders uses the classical fact that the linear extensions of a finite
+poset are connected by adjacent transpositions of incomparable elements, which we take as given
+rather than mechanize.
+\end{proof}
 
 %========================================
 \section{Compositionality for Free}
 \label{sec:compose}
 
-[To be written from CATEGORICAL-STRUCTURE.md \S5. Theorem~2 (a verified sub-federation collapses to
-an effective registry; the flat and staged normalizers agree), and the assume-guarantee form with
-input and output ports. The fold-append form of Theorem~2 is mechanized in \texttt{coq/Categorical.v}.]
+Because the federated normal forms are a limit and $\rho_F$ is the retraction onto it, a convergent
+sub-federation behaves as a single effective registry inside a larger one. Split a federation along a
+topological cut into an upstream block $J$ (closed under sources: every source of a $J$-registry is
+itself in $J$) and the rest $K$. The \emph{flat} normalizer runs $\rho_F$ over all of $J \cup K$ in
+one order; the \emph{staged} normalizer runs the sub-federation's normalizer $\rho_J$ to completion,
+then runs $K$ over the finalized $J$-block.
+
+\begin{theorem}[Theorem 2: compositionality]
+\label{thm:two}
+The flat and staged normalizers agree: normalizing $J \cup K$ in one pass equals normalizing $J$,
+then normalizing $K$ over the finalized result. Consequently a verified sub-federation collapses to
+an effective registry (its valid set $L_J$), and the combined normalizer factors through it.
+\end{theorem}
+\begin{proof}[Proof sketch]
+At the operator level this is the fold-append law: folding $J$ and then continuing with $K$ from the
+accumulated result equals folding the concatenation, because the accumulator after $J$ is exactly
+$\rho_J$'s output and each $K$-step reads only its own finalized sources. Mechanized as
+\texttt{rhoFold\_compositional}, via \texttt{rhoF\_from\_app}, axiom-free.
+\end{proof}
+
+This is what lets verification scale: a subsystem is checked once, in isolation, and reused as a
+black box, with only the seam (the morphisms crossing the cut into $K$) re-checked. The
+assume-guarantee refinement makes the black box parametric. A sub-federation may declare \emph{input
+ports}: shared variables that no internal morphism writes, which an outer morphism may drive once the
+subsystem is embedded. A seam morphism into a port is verified against $M1/R2$ while the subsystem's
+interior is trusted from its certificate, and a write to any non-port (sealed) variable is rejected.
+We treat the port refinement at the paper level here; the operator-level collapse above is the
+mechanized core.
 
 %========================================
 \section{Convergence Certificates Form a Sheaf}
