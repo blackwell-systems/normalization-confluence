@@ -55,6 +55,26 @@ monotone case, carrying business invariants on top. Two scoping notes: CALM is a
 relational/Datalog computational model, whereas NC's monotone regime is a sufficient mechanism on
 lattice-valued state; and CALM says nothing about compensation, which is where NC goes past it.
 
+*Dissolving the apparent paradox (since CALM is an iff).* How can NC converge non-monotone,
+invariant-violating operations coordination-free when CALM says coordination-free implies monotone?
+Because the two "coordination-free" predicates guard different guarantees, so no iff is violated.
+CALM's monotonicity is necessary and sufficient for computing a correct output INCREMENTALLY under
+partial, obliviously-distributed input: for a non-monotone query a node cannot finalize an output
+without knowing whether more input is still coming, and detecting that needs coordination. NC makes
+no incremental-output claim. Its model is the CRDT model: every replica eventually receives the same
+event set, and NC guarantees strong eventual consistency of STATE, all replicas reach the same valid
+normal form for that set, order-independently (CC), with validity restored by compensation. NC
+tolerates transient invalidity (states between an offending event and its repair) and requires full
+eventual delivery; it never emits a finalized partial output. So CALM's obstruction, finalizing a
+non-monotone output under partial input, does not arise in NC's model. NC is therefore not
+coordination-free "in CALM's sense on a broader class"; it lives on a different axis (state
+convergence, the CRDT axis) and offers a guarantee that is weaker in timing (eventual, full-delivery,
+transiently invalid) in exchange for admitting the non-monotone compensable operations monotonicity
+excludes. The two coincide exactly at the monotone regime, where NC's least-fixed-point mechanism is
+literally CALM's. So the precise placement is orthogonality, not subsumption: NC completes the
+CRDT/state-convergence axis (compensation-free CRDTs at the floor, compensable convergence above);
+CALM classifies the query-computation axis; they meet at monotone-merge CRDTs.
+
 **I-confluence (Bailis et al.).** *A set of operations is safely coordination-free under invariant
 I if and only if it is I-confluent*: the operations preserve I and merges of I-valid states stay
 I-valid. This is a necessary-and-sufficient characterization for the case where operations never
@@ -170,4 +190,8 @@ converges, or (via synthesis) searches for one, or reports that none exists. It 
 consensus where you genuinely need a single total order (uniqueness, linearizable reads of a
 counter). And the guarantee is convergence to a unique valid normal form, not that the normal
 form is the one a human would have preferred: a converged repair can still be a bad repair, so
-inspect it. See [REGIMES.md](REGIMES.md) for exactly which conditions your system must meet.
+inspect it. It does not give CALM-style incremental correctness under partial input: NC assumes every
+replica eventually sees the same event set and converges then, tolerating transient invalidity
+between an event and its repair. If you must act on a non-monotone output before all events have
+arrived, that is exactly the coordination CALM characterizes, and NC does not remove it. See
+[REGIMES.md](REGIMES.md) for exactly which conditions your system must meet.
