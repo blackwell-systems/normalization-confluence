@@ -94,17 +94,64 @@ contribution, since it states precisely when the sharp classification applies.
 - Leave out of this paper: the free-monoid / event-sourcing bridge (belongs with the single-registry
   paper) and Squier / higher-dimensional rewriting (a different paper).
 
-## Related-work positioning (review-critical)
-- Abramsky-Brandenburger sheaf contextuality: closest prior art (local consistency, global
-  impossibility via Cech cohomology). Distinguish: our presheaf is over subsystem overlaps of a
-  normalizer structure; the obstruction is to a global convergent normal form; it is tied to an
-  operational diagnostic and a coordination decomposition, not measurement contexts.
-- Herlihy-Shavit-Rajsbaum combinatorial topology of distributed computing: topology for task
-  solvability / wait-freedom, a different question. Cite to preempt conflation.
-- CALM (Hellerstein-Ameloot) and I-confluence (Bailis): the minimal-coordination result refines
-  these, localizing a global verdict to a cycle basis.
-- CRDTs / join-semilattices: the monotone route is the CRDT case (machine-checked in `CRDT.v`); the
-  well-founded-compensation regime is strictly broader.
+## Related-work positioning (review-critical, literature-checked September 2026)
+
+Verdict of the check: the novelty holds, and it is sharper than "we apply cohomology to
+convergence." The sheaf-cohomology-as-obstruction TEMPLATE is not new and must not be claimed as
+such; what is new is the OBJECT (federated normalization convergence), the OPERATIONAL diagnostic,
+and the MINIMALITY-of-coordination result. Position accordingly and cite the closest work up front.
+
+Closest prior art and the precise delineation:
+
+- Sheaf cohomology for distributed systems, SAME tool, DIFFERENT object. "A Sheaf-Theoretic
+  Characterization of Tasks in Distributed Systems" (arXiv:2503.02556, 2025) uses cellular-sheaf
+  cohomology so that terminating solutions are the global sections and the cohomology encodes
+  obstructions, but for decision-TASK solvability (the Herlihy-Shavit-Rajsbaum lineage: consensus,
+  k-set agreement, under failures and message adversaries), not convergence of a replicated /
+  federated normalization. Abramsky-Brandenburger sheaf contextuality is the same template for
+  quantum non-locality. NC's object is different: the presheaf is over subsystem overlaps of a
+  NORMALIZER structure (WFC/CC + M1/R1/R2); H^0 is the convergent states, H^1 is the holonomy
+  obstruction to a global consistent NORMAL FORM. No sheaf-cohomology work targets the
+  eventual-consistency / CRDT convergence obstruction. Cite 2503.02556 and Abramsky-Brandenburger
+  prominently and state the object difference in the first related-work paragraph.
+- Herlihy-Shavit-Rajsbaum combinatorial topology: task solvability / wait-freedom via simplicial
+  complexes, the lineage 2503.02556 sits in. Different question from convergence; cite to preempt
+  conflation.
+- CALM and its recent refinements give a GLOBAL verdict; NC LOCALIZES it. CALM (Hellerstein-Ameloot,
+  monotone iff coordination-free), "Complete CALM: A Coordination Criterion for Specifications"
+  (arXiv:2602.09435, 2026, monotone at the semantic level), and "A Preliminary Model of
+  Coordination-free Consistency" (arXiv:2504.01141, 2025) all answer WHETHER coordination is
+  avoidable, as a global yes/no. NC's minimal-coordination result refines this into WHERE and HOW
+  LITTLE: a minimal coordinated core equal to a cycle basis of H^1 (first-Betti-number many loops), a
+  localized mixed-consistency partition. The literature check found no prior work localizing
+  coordination to a cycle basis / Betti number for convergence; this is the novel edge.
+- I-confluence (Bailis, coordination avoidance) and mixed-consistency programming models (e.g.
+  Gallifrey's branch/merge): I-confluence is a global avoidability criterion; mixed-consistency
+  models are developer-specified mechanisms, not a topological minimality theorem. NC gives the
+  minimality result they lack.
+- CRDTs / join-semilattices and category-theoretic CRDT work (commutative co-semigroups / quantales):
+  the monotone route is the CRDT case (machine-checked in `CRDT.v`); the well-founded-compensation
+  regime is strictly broader. These are algebraic foundations, not a cohomological obstruction or a
+  coordination-minimality result.
+
+Novel contributions, defended against the above:
+1. Sheaf / cohomological obstruction for federated NORMALIZATION convergence (a new object for a
+   known tool), with H^0 = convergent states and H^1 = holonomy.
+2. The loop-composite fixed-point DIAGNOSTIC: general (monoid transitions, not just the invertible
+   fragment) and IMPLEMENTED as `Federation.DiagnoseCycle`. An operational capability the prior
+   sheaf-obstruction work does not have.
+3. Minimal-coordination decomposition via a cycle basis (localizes CALM / I-confluence). No prior
+   hit at this intersection.
+4. Axiom-free MECHANIZATION of the limit / retraction / compositionality core (`Categorical.v`),
+   rare among category-theory-flavored submissions and absent from all the above.
+
+Residual risk: do not overclaim the cohomology template. Lead with object + diagnostic + minimality,
+cite 2503.02556 / Abramsky-Brandenburger / Complete CALM early, and a final fresh arXiv sweep right
+before submission is still prudent (the field is active: three of the closest works are 2025-2026).
+
+Sources checked: arXiv:2503.02556, arXiv:2602.09435, arXiv:2504.01141, arXiv:2411.16355, plus the
+canonical CALM (CACM 2020), I-confluence (Bailis 2014), CRDTs (Shapiro 2011), and
+Herlihy-Shavit-Rajsbaum.
 
 ## Mechanization status (coq/, axiom-free gate)
 The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theorems):
