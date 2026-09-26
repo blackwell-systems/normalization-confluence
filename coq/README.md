@@ -23,12 +23,13 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 18 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all eighteen headline results (the single-registry confluence
+Expected tail: `PASS: all 22 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all twenty-two headline results (the single-registry confluence
 and unique-normal-form theorems, the defensibility instance, the two gsm certification-soundness
-results, the two federated results, the two chaotic-iteration results, the two verified-checker
-soundness results, and the six CRDT-subsumption results) and fails if any of them depends on an
-axiom or an admitted lemma.
+results, the two federated results, the two chaotic-iteration results, the verified-checker
+soundness results, the six CRDT-subsumption results, and the three categorical-core results:
+image-equals-fixed-points, the idempotent retraction onto the fixed-point set, and its clamp-to-cap
+non-vacuity instance) and fails if any of them depends on an axiom or an admitted lemma.
 
 ## What is proven
 
@@ -235,25 +236,51 @@ The claim is scoped to the convergence principle, not to CRDT engineering as a w
 vectors, causal delivery, and garbage collection are operational concerns this result does not
 subsume. See `../SUBSUMPTION.md` for the full statement and caveats.
 
+## Categorical core (`Categorical.v`)
+
+The first structural results of the companion paper's federation-as-limit account, mechanized at the
+paper's level of abstraction: the normalizer is an abstract idempotent endomap, exactly as
+`Governance.v` treats the registry operators. All axiom-free.
+
+- **Lemma 0 (a registry is an equalizer).** `image_iff_fixed`: for an idempotent `rho`, the image
+  and the fixed-point set coincide (`(exists y, rho y = x) <-> rho x = x`), the forward direction
+  being idempotence itself. `fixed_is_equalizer`: the fixed-point set is the equalizer of `id` and
+  `rho` (its carrier is `{x | id x = rho x}`), a limit in `Set`.
+- **Theorem 1 (retraction, abstract skeleton).** `retract_into_fixed` and `retract_fixes_fixed`:
+  `rho` lands in the fixed set and fixes it, so it splits the inclusion of the fixed set into the
+  state space, i.e. it is a retraction onto that set (the limit `L`). The equalizer universal
+  property is given in its axiom-free fragment (`mediator_lands_in_fixed`, `mediator_values_unique`);
+  full uniqueness into the subset type needs proof irrelevance of the membership predicate, which
+  holds when the state type has decidable equality (gsm's finite states), so it is noted rather than
+  assumed.
+- **Non-vacuity.** `clamp3` (clamp to a cap at 3, a genuinely collapsing normalizer of the shape a
+  real compensation has) discharges idempotence with no hypotheses (`clamp3_idem`), its fixed set is
+  exactly `{n | n <= 3}` (`clamp3_fixed_iff`), and the retraction results instantiate at it
+  (`clamp3_retracts_into`, `clamp3_image_iff_fixed`). So the section is about something, not a
+  vacuous hypothesis.
+
+`Print Assumptions` on `image_iff_fixed`, `retract_into_fixed`, and `clamp3_retracts_into` is
+"Closed under the global context"; all three are in the axiom-free gate above.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
-Planned, not yet proven. The companion paper (categorical structure of federated convergence) rests
-on a small structural core that is elementary in `Set` and finite posets, so it should mechanize by
-leaning on the modules above rather than pulling in heavy category-theory libraries. Targets, in
-priority order:
+The companion paper (categorical structure of federated convergence) rests on a small structural
+core that is elementary in `Set` and finite posets, so it mechanizes by leaning on the modules above
+rather than pulling in heavy category-theory libraries. Progress, in priority order:
 
-1. **Lemma 0 (a registry is an equalizer).** `Fix(rho_R) = im(rho_R) = eq(id, rho_R)`. Follows from
-   idempotence of the normalizer, already the substance of `Governance.v`'s unique-normal-form
-   result; the equalizer statement is a definitional repackaging. Cheapest, do first.
-2. **Proposition 1 (the consistent set is a finite limit).** The federated consistent set `L_F` is
-   the equalizer of the two shared-projection maps. Combinatorial over finite products, no new
-   axioms.
-3. **Theorem 1 (federation retraction, acyclic).** `rho_F` is idempotent with image `L_F` and is
-   order-independent across topological orders. Leans on the acyclic single-round-termination
-   argument and the existing idempotence facts; the order-independence half is close in spirit to
-   `Chaotic.v`'s schedule-independence result.
-4. **Theorem 2 (compositionality).** The flat federation and the staged (sub-federation-collapsed)
-   federation have the same normalizer. The payoff result; follows once Theorem 1 is in place.
+1. **Lemma 0 (a registry is an equalizer).** DONE (`Categorical.v`): `image_iff_fixed`,
+   `fixed_is_equalizer`. `Fix(rho) = im(rho) = eq(id, rho)`, axiom-free.
+2. **Proposition 1 (the consistent set is a finite limit).** Planned. The federated consistent set
+   `L_F` is the equalizer of the two shared-projection maps. Combinatorial over finite products, no
+   new axioms. Next.
+3. **Theorem 1 (federation retraction, acyclic).** Retraction skeleton DONE (`Categorical.v`):
+   `retract_into_fixed`, `retract_fixes_fixed` establish that the idempotent normalizer is a
+   retraction onto its fixed-point set. Still to do: instantiate this at the concrete federated
+   operator `rho_F` and mechanize order-independence across topological orders (close in spirit to
+   `Chaotic.v`'s schedule-independence result).
+4. **Theorem 2 (compositionality).** Planned. The flat federation and the staged
+   (sub-federation-collapsed) federation have the same normalizer. The payoff result; follows once
+   Theorem 1 is instantiated at `rho_F`.
 
 Kept at paper level (out of scope for the first mechanization pass):
 
