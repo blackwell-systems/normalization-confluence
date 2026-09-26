@@ -116,12 +116,23 @@ structure.
   and `Synthesize`'s impossibility witness certifies the red, both machine-checked. Where RedBlue
   asks the programmer to classify, gsm classifies and proves.
 
-- **Explicit consistency / Indigo** (Balegas et al., EuroSys 2015) and **escrow transactions**
-  (O'Neil, 1986). Keep an invariant coordination-free by handing each replica a local *reservation*
-  (a budget it may spend without asking). This is a different mechanism from compensation:
-  reservation is pessimistic (prevent the violation up front), compensation is optimistic (allow
-  it, repair after). They are complementary, not competing, and reservation-style invariants are a
-  candidate repair strategy for gsm where a lossy after-the-fact repair is unacceptable.
+- **Explicit consistency: Indigo and IPA** (Balegas et al., EuroSys 2015; VLDB 2019) and **escrow
+  transactions** (O'Neil, 1986). This is the closest prior art, and it must be positioned precisely
+  rather than waved off. Indigo already includes invariant *repair*, an operation runs unrestricted
+  and a repair restores the invariant afterward, alongside reservation/escrow as the pessimistic
+  alternative. So the distinction is not "reservation versus compensation" (Indigo offers both); it
+  is the convergence argument. Indigo and IPA ground correctness in operation *commutativity* plus
+  invariant preservation: they require, or transform operations to be, commutative and invariant-
+  valid, so convergence is the CRDT / I-confluence route. Normalization confluence instead admits
+  genuinely *non-commutative*, invariant-*violating* operations and proves convergence by Newman's
+  lemma on the *compensated* rewrite system, compensation commutativity (CC) is local confluence, not
+  operation commutativity. That is the technical delta, together with the axiom-free mechanization,
+  the synthesis of a convergent repair with an impossibility witness, and the federated cohomological
+  obstruction, none of which appear in that line. (A prior-art sweep confirms it: Indigo, IPA, and the
+  machine-checked CRDT strong-eventual-consistency framework of Gomes, Kleppmann, Mulligan and
+  Beresford, 2017, contain no use of Newman's lemma or a rewriting-confluence convergence argument.)
+  Reservation-style enforcement remains a candidate avoidance strategy for gsm where a lossy
+  after-the-fact repair is unacceptable.
 
 - **ECROs** (De Porre et al., EuroSys 2021) and **Hamsaz** (Houshmand & Lesani, POPL 2019). Given a
   sequential data type and its invariants, use an SMT solver to find which operation pairs conflict
