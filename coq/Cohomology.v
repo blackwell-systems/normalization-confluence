@@ -1,7 +1,7 @@
 (* Cohomology.v: the operational core of the companion's cohomological layer (Sections 5-6),
-   mechanized axiom-free. The full nerve / cocycle assembly (H^1 as a quotient, cycle-basis
-   generation) stays paper-level; what is mechanized here is the per-cycle content the diagnostic
-   computes and the cycle-basis result rests on:
+   mechanized axiom-free. This file holds the per-cycle content the diagnostic computes; the
+   completion on an arbitrary graph and the cycle-basis generation are in CohomologyGraph.v, and
+   H^1 as a quotient with its Betti rank stays paper-level. Mechanized here:
 
    - Section 5's gluing counterexample: two confluent subsystems with the SAME valid set but
      different normalizers on the shared state glue to an order-dependent (non-confluent) union, so

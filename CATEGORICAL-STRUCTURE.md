@@ -1,6 +1,11 @@
 # Categorical structure
 
-Status: **proven at paper level in `Set` / finite posets; not yet mechanized.** The convergence
+Status: **proven at paper level in `Set` / finite posets, and largely mechanized axiom-free:** the
+limit, the retraction for arbitrary acyclic federations, and compositionality (`coq/Categorical.v`);
+the completion on an arbitrary graph, the cycle-basis criterion, and the `S_3` separation
+(`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`). Still paper-level: `H^1` as a
+quotient with its Betti rank, full order-independence over general DAGs, and the cited complexity
+results. The convergence
 facts this builds on (Newman, WFC/CC, federation M1, resolver R1/R2, monotone convergence,
 compositional collapse) are the papers' results and are in part in the Coq development. What this
 note adds is a categorical account of the federation layer that turns compositionality from a
