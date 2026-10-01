@@ -559,9 +559,11 @@ coordination capability is still deployable, in a tiered way that matches the re
 
 So the open item is now resolved rather than vague: the minimum is the group feedback edge set number,
 NP-hard even in the abelian case, Unique-Games-hard to approximate within a constant, FPT in the core
-size, and polynomial on planar or edge-disjoint nerves. The `S_3` separation and the deployment tiers
-are established here at the paper level; the finite `S_3` crux is machine-checked (`coq/Cohomology.v`,
-`S3Sep`).
+size, and polynomial on planar or edge-disjoint nerves. The `S_3` separation is machine-checked end to
+end: the finite crux in `coq/Cohomology.v` (`S3Sep`) and the graph-level counts `min_G = 2`,
+`min_{G^ab} = 1`, the strict gap, and the functoriality `G`-section implies abelian section in
+`coq/CohomologyMin.v`. The deployment tiers and the general complexity results remain at the paper
+level.
 
 ## 11. Further directions (stubs)
 

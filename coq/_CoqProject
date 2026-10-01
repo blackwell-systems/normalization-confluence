@@ -10,3 +10,4 @@ AstChecker.v
 CRDT.v
 Categorical.v
 Cohomology.v
+CohomologyMin.v

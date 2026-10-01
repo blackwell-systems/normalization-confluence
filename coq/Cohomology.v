@@ -142,8 +142,9 @@ End SimultaneousSection.
 (* below. The theta graph (two vertices, three parallel edges e1,e2,e3) with      *)
 (* generator holonomies a = (0 1 2) and b = (0 1) in S_3. Permutations are        *)
 (* image-triples, so the finite crux needs no group scaffolding, only            *)
-(* computation. The graph-level hitting-set wrapping (min_G = 2, min_{G^ab} = 1)  *)
-(* is paper-level; the crux facts it rests on are machine-checked here. *)
+(* computation. The crux facts are machine-checked here; the graph-level         *)
+(* wrapping (min_G = 2, min_{G^ab} = 1, and the strict separation) is mechanized   *)
+(* in CohomologyMin.v. *)
 Module S3Sep.
   Definition perm := (nat * nat * nat)%type.
   Definition ap (p : perm) (i : nat) : nat :=

@@ -334,8 +334,17 @@ result rests on.
   minimum can be strictly ABOVE the abelian count (so never below): on the theta graph with generator
   holonomies `a = (0 1 2)` and `b = (0 1)` in `S_3`, every single-edge deletion leaves a non-trivial
   residual (`del_e1/e2/e3_nontrivial`, so `min_G = 2`), while `a` is even (`a_even`, invisible to the
-  sign / abelian invariant, so `min_{G^ab} = 1`). `a_inv` confirms `a` is a genuine relabeling. The
-  graph-level hitting-set wrapping is paper-level; these are its checked crux facts.
+  sign / abelian invariant, so `min_{G^ab} = 1`). `a_inv` confirms `a` is a genuine relabeling.
+- **The graph-level minimum counts (`CohomologyMin.v`).** Closes the wrapping around those crux facts,
+  stated directly in terms of global sections over the `S_3` torsor (each section decider is proven
+  equivalent to the section Prop, so the theorems are about sections, not about a checker).
+  `min_G_lower` / `min_G_attained`: every coordination leaving a section deletes at least two edges,
+  and keeping only the spanning edge leaves one, so `min_G = 2`. `min_ab_lower` / `min_ab_attained`:
+  the abelianized problem needs one deletion and deleting `e3` suffices, so `min_{G^ab} = 1`.
+  `sign_hom` proves the sign map is a homomorphism (the true abelianization), and
+  `section_G_implies_ab` proves every `S_3` section induces an abelian one, the
+  "never below the abelian count" direction. `theta_separation` packages the strict gap
+  `1 = min_{G^ab} < min_G = 2`.
 
 Paper-level (not mechanized): the assembly of the per-cycle holonomy into the nerve's `H^1` as a
 quotient, the cycle-basis generation, and the Betti-number rank.
