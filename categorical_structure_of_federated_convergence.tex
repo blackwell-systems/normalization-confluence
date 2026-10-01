@@ -71,7 +71,8 @@ converge, localizing the global coordination verdict of CALM and invariant confl
 mixed-consistency partition. The exact minimum coordination is the group feedback edge set number of
 the labeled nerve: NP-hard even in the abelian case, but fixed-parameter tractable in the size of the
 coordinated core and polynomial on planar or edge-disjoint nerves. The structural core (the limit,
-the retraction, and compositionality) is mechanized axiom-free in Coq/Rocq.
+the retraction, and compositionality), the completion on arbitrary graphs with its cycle-basis
+criterion, and the $S_3$ separation are mechanized axiom-free in Coq/Rocq.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
@@ -166,7 +167,10 @@ is clean.''
   strictly above it, so abelianized sizing is unsound.
 \item \textbf{Mechanization.} The structural core (Contributions~1 and~2: the limit, the retraction
   for arbitrary acyclic federations, and compositionality) is mechanized axiom-free in Coq/Rocq,
-  extending the machine-checked development of the base results.
+  extending the machine-checked development of the base results. So is the cohomological layer
+  through the cycle basis: the completion theorem on an arbitrary group-labeled graph, the
+  cycle-basis criterion, the sufficiency of coordinating a spanning tree's complement, and the $S_3$
+  separation including the graph-level counts $\min_G = 2 > 1 = \min_{G^{\mathrm{ab}}}$.
 \end{enumerate}
 
 %========================================
@@ -493,6 +497,8 @@ $s_i = h_i \cdot c$; then $g_{ij} \cdot s_i = h_j \cdot h_i^{-1} \cdot h_i \cdot
 a global section. Conversely a section $\{s_i\}$ with $g_{ij} \cdot s_i = s_j$ gives
 $g_{ij} \cdot h_i = h_j$, so $g_{ij} = h_j \cdot h_i^{-1} = (dh)_{ij}$.
 \end{proof}
+\noindent Mechanized for an arbitrary finite graph and group, with the torsor identified with $G$ by
+the base point, as \texttt{section\_iff\_coboundary} (module \texttt{CohomologyGraph.v}).
 
 \paragraph{$\Ho$ is holonomy, and its generators are a cycle basis.} Fix a spanning tree of $N$ and
 gauge the tree transitions to the identity; the cocycle is then determined by its values on the
@@ -500,7 +506,11 @@ non-tree edges, one per independent cycle, and each value is the holonomy around
 composite $g$ of \Cref{thm:obstruction}. So $\Ho$, as a pointed set, is the holonomies of a cycle
 basis modulo simultaneous conjugation, its rank is the first Betti number of the nerve, and it is
 trivial iff every loop composite is the identity. The cycle basis is the minimal obstruction basis:
-fixing the holonomy on each generator makes $\Hz$ non-empty (\Cref{sec:minimal}).
+fixing the holonomy on each generator makes $\Hz$ non-empty (\Cref{sec:minimal}). The generation
+statement is mechanized: for a spanning tree plus the remaining edges, a global section exists iff
+every fundamental cycle has trivial holonomy (\texttt{cycle\_basis\_criterion}, with
+\texttt{sat\_iff\_trivial\_holonomy}), using that sections of a tree are unique up to one constant
+(\texttt{tree\_unique}).
 
 \paragraph{The two regimes are one picture.} The obstruction vanishes in exactly two ways, and they
 are the two convergence regimes of the base work:
@@ -520,12 +530,12 @@ is exactly what the engine rejects.
 torsor fragment. When transitions are non-invertible (a repair that collapses values) the fiber is
 not a torsor and the transitions are monoid elements, so classical $\Ho$ does not apply; there the
 obstruction is $\Hz$ directly, via the reachable-fixed-point condition of \Cref{thm:obstruction}, a
-dynamical rather than cohomological statement. The single-cycle essence of \Cref{thm:completion} (a
-section exists iff the holonomy is trivial, in the invertible fragment), together with the gluing
-counterexample and the negation obstruction, is mechanized axiom-free (\texttt{Cohomology.v}); the
-assembly of the per-cycle holonomies into the nerve's $\Ho$ as a quotient, with cycle-basis
-generators and Betti-number rank, is at the paper level, as is the cohomology-proper classification
-(computing the $\Ho$ class itself and its non-abelian analogue). The operational fixed-point test is
+dynamical rather than cohomological statement. Mechanized axiom-free: the single-cycle essence of
+\Cref{thm:completion}, the gluing counterexample, and the negation obstruction (\texttt{Cohomology.v});
+and \Cref{thm:completion} itself on an arbitrary graph together with the cycle-basis criterion
+(\texttt{CohomologyGraph.v}). At the paper level: $\Ho$ as a quotient of cocycles by gauge and
+simultaneous conjugation, its Betti-number rank, and the cohomology-proper classification (computing
+the $\Ho$ class itself and its non-abelian analogue). The operational fixed-point test is
 implemented (\Cref{sec:diagnostic}).
 
 %========================================
@@ -596,6 +606,10 @@ Coordinating a cycle basis kills every generator, leaving the trivial class, so 
 non-empty by \Cref{thm:completion}; off the coordinated loops the transitions are unchanged and stay
 coordination-free.
 \end{proof}
+\noindent Mechanized: a spanning tree always carries a section, so coordinating every non-tree edge
+suffices (\texttt{tree\_has\_section}); and relative to a fixed spanning tree, the edges that must be
+coordinated are exactly the unbalanced fundamental edges (\texttt{keep\_balanced\_suffices},
+\texttt{unbalanced\_blocks}), with a $\mathbb{Z}/2$ triangle discharging every hypothesis.
 
 So a federation decomposes into a coordination-free majority (eventual consistency) and a coordinated
 core (strong consistency). For a distributed deployment this reads: put consensus only on the
@@ -624,7 +638,11 @@ strict: on the theta graph with holonomies $(0\,1\,2)$ and $(0\,1)$ in $S_3$, th
 $2$, while the sign-abelianized count is $1$ because the $3$-cycle is even and invisible to the sign.
 The consequence is a soundness warning: sizing coordination by any abelianized invariant
 under-provisions, wrongly declaring coordination-free some cyclic federations that in fact need to
-coordinate an even-permutation relabeling loop. The finite crux of this separation is machine-checked.
+coordinate an even-permutation relabeling loop. This separation is machine-checked end to end: the
+crux permutation facts (\texttt{Cohomology.v}) and, stated over global sections of the $S_3$ torsor,
+the counts $\min_G = 2$ and $\min_{G^{\mathrm{ab}}} = 1$, the fact that sign is the abelianization
+homomorphism, and the functoriality that every $S_3$ section induces an abelian one
+(\texttt{CohomologyMin.v}, \texttt{theta\_separation}).
 
 \paragraph{Which federations inhabit the cohomological fragment.} A morphism is invertible on the
 shared fiber exactly when it transports the shared value by a bijection (a lossless relabeling: a
@@ -672,12 +690,15 @@ fixed-parameter tractable in the core size and polynomial on planar or edge-disj
 is never below the abelian count.
 
 The structural core, the limit, the retraction for arbitrary acyclic federations, and
-compositionality, is mechanized axiom-free. What is deliberately left at the paper level is scoped
-plainly: the clean cohomological classification is the invertible (lossless-relabeling) fragment, the
-general case reducing to the loop-composite fixed-point condition that the diagnostic already
-computes; and full order-independence rests on the classical connectivity of a poset's linear
-extensions. The open problems are the cohomology-proper $\Ho$ classification and its non-abelian
-analogue, and mechanizing the cohomological layer to the standard the structural core already meets.
+compositionality, is mechanized axiom-free, and so is the cohomological layer through the cycle
+basis: the completion on an arbitrary graph, the cycle-basis criterion, the sufficiency of
+coordinating a spanning tree's complement, and the $S_3$ separation. What is deliberately left at the
+paper level is scoped plainly: the clean cohomological classification is the invertible
+(lossless-relabeling) fragment, the general case reducing to the loop-composite fixed-point condition
+that the diagnostic already computes; $\Ho$ as a quotient with its Betti rank is not mechanized; full
+order-independence rests on the classical connectivity of a poset's linear extensions; and the
+complexity of the minimum is cited from the group feedback set literature. The open problems are the
+cohomology-proper $\Ho$ classification and its non-abelian analogue.
 
 %========================================
 \begin{thebibliography}{99}
