@@ -11,6 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Coq 8.x line (coqorg/coq images).
   coq:
     runs-on: ubuntu-latest
     strategy:
@@ -25,6 +26,27 @@ jobs:
           custom_script: |
             startGroup "Compile + axiom-free gate"
               sudo chown -R coq:coq .
+              cd coq
+              bash verify.sh
+            endGroup
+
+  # Rocq 9.x line (rocq/rocq-prover images; Rocq >= 9.0 is not a coqorg/coq tag,
+  # so it is selected via custom_image). chown uses the container's own user,
+  # which differs from the Coq 8.x images.
+  rocq:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ 'rocq/rocq-prover:9.3' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coq-community/docker-coq-action@v1
+        with:
+          custom_image: ${{ matrix.image }}
+          custom_script: |
+            startGroup "Compile + axiom-free gate"
+              sudo chown -R "$(whoami)" .
               cd coq
               bash verify.sh
             endGroup
