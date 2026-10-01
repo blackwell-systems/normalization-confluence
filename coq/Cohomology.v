@@ -1,7 +1,7 @@
 (* Cohomology.v: the operational core of the companion's cohomological layer (Sections 5-6),
    mechanized axiom-free. This file holds the per-cycle content the diagnostic computes; the
-   completion on an arbitrary graph and the cycle-basis generation are in CohomologyGraph.v, and
-   H^1 as a quotient with its Betti rank stays paper-level. Mechanized here:
+   completion on an arbitrary graph, the cycle-basis generation, and H^1 as a quotient with its
+   rank are in CohomologyGraph.v. Mechanized here:
 
    - Section 5's gluing counterexample: two confluent subsystems with the SAME valid set but
      different normalizers on the shared state glue to an order-dependent (non-confluent) union, so

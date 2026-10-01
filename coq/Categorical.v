@@ -237,9 +237,9 @@ End FederatedOperator.
 (* Order-independence, commutation core (the local step of Lemma C): updates to two independent
    registry components commute. Two incomparable registries have disjoint reads and writes, so
    processing them in either order gives the same result. The full result, that ALL topological
-   orders agree, additionally uses the classical fact that linear extensions of a finite poset are
-   connected by adjacent transpositions of incomparable elements; that connectivity is not
-   mechanized here, so order-independence over general DAGs remains paper-level. *)
+   orders agree, is mechanized in FederationOrder.v (order_independent) for arbitrary acyclic
+   federations, by bubbling registries to the front rather than through the classical
+   connectivity of linear extensions. *)
 Definition updL {A B : Type} (fa : A -> A) (p : A * B) : A * B := (fa (fst p), snd p).
 Definition updR {A B : Type} (fb : B -> B) (p : A * B) : A * B := (fst p, fb (snd p)).
 

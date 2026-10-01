@@ -71,8 +71,9 @@ converge, localizing the global coordination verdict of CALM and invariant confl
 mixed-consistency partition. The exact minimum coordination is the group feedback edge set number of
 the labeled nerve: NP-hard even in the abelian case, but fixed-parameter tractable in the size of the
 coordinated core and polynomial on planar or edge-disjoint nerves. The structural core (the limit,
-the retraction, and compositionality), the completion on arbitrary graphs with its cycle-basis
-criterion, and the $S_3$ separation are mechanized axiom-free in Coq/Rocq.
+the retraction, compositionality, and order-independence) and the cohomological layer (the completion
+on arbitrary graphs, the cycle-basis criterion, $\Ho$ as a quotient with its rank, and the $S_3$
+separation) are mechanized axiom-free in Coq/Rocq.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
@@ -167,10 +168,12 @@ is clean.''
   strictly above it, so abelianized sizing is unsound.
 \item \textbf{Mechanization.} The structural core (Contributions~1 and~2: the limit, the retraction
   for arbitrary acyclic federations, and compositionality) is mechanized axiom-free in Coq/Rocq,
-  extending the machine-checked development of the base results. So is the cohomological layer
-  through the cycle basis: the completion theorem on an arbitrary group-labeled graph, the
-  cycle-basis criterion, the sufficiency of coordinating a spanning tree's complement, and the $S_3$
-  separation including the graph-level counts $\min_G = 2 > 1 = \min_{G^{\mathrm{ab}}}$.
+  extending the machine-checked development of the base results, together with full
+  order-independence over arbitrary acyclic federations. So is the cohomological layer: the
+  completion theorem on an arbitrary group-labeled graph, the cycle-basis criterion, the sufficiency
+  of coordinating a spanning tree's complement, $\Ho$ as tuples of fundamental holonomies modulo
+  simultaneous conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation including the
+  graph-level counts $\min_G = 2 > 1 = \min_{G^{\mathrm{ab}}}$.
 \end{enumerate}
 
 %========================================
@@ -348,9 +351,11 @@ arbitrary acyclic federations, not a fixed small instance.
 
 Order-independence reduces to the commutation of two incomparable registries: their reads and writes
 are disjoint, so processing them in either order gives the same result (\texttt{updates\_commute}).
-Lifting this to all topological orders uses the classical fact that the linear extensions of a finite
-poset are connected by adjacent transpositions of incomparable elements, which we take as given
-rather than mechanize.
+Lifting this to all topological orders classically uses the connectivity of a finite poset's linear
+extensions under adjacent transpositions of incomparable elements. The mechanization avoids that fact:
+it proves order-independence for arbitrary acyclic federations directly, by bubbling the first
+registry of one order to the front of the other, every registry it passes being independent of it
+(\texttt{order\_independent}, module \texttt{FederationOrder.v}).
 \end{proof}
 
 %========================================
@@ -510,7 +515,13 @@ fixing the holonomy on each generator makes $\Hz$ non-empty (\Cref{sec:minimal})
 statement is mechanized: for a spanning tree plus the remaining edges, a global section exists iff
 every fundamental cycle has trivial holonomy (\texttt{cycle\_basis\_criterion}, with
 \texttt{sat\_iff\_trivial\_holonomy}), using that sections of a tree are unique up to one constant
-(\texttt{tree\_unique}).
+(\texttt{tree\_unique}). So is the quotient, on the graph (the nerve's 1-skeleton, where every
+labeling is a cocycle): every labeling gauge-fixes to the identity on a spanning tree, its remaining
+values being the fundamental holonomies (\texttt{gauge\_fix}, \texttt{gauge\_fixed\_holonomy}); two
+tree-fixed labelings are cohomologous iff those values are simultaneously conjugate, for any group
+(\texttt{H1\_classification}); and the number of generators is $|E| - |V| + 1$
+(\texttt{betti\_number}). The nerve's triangles add relations that can lower the rank further; those
+are not modeled.
 
 \paragraph{The two regimes are one picture.} The obstruction vanishes in exactly two ways, and they
 are the two convergence regimes of the base work:
@@ -533,10 +544,9 @@ obstruction is $\Hz$ directly, via the reachable-fixed-point condition of \Cref{
 dynamical rather than cohomological statement. Mechanized axiom-free: the single-cycle essence of
 \Cref{thm:completion}, the gluing counterexample, and the negation obstruction (\texttt{Cohomology.v});
 and \Cref{thm:completion} itself on an arbitrary graph together with the cycle-basis criterion
-(\texttt{CohomologyGraph.v}). At the paper level: $\Ho$ as a quotient of cocycles by gauge and
-simultaneous conjugation, its Betti-number rank, and the cohomology-proper classification (computing
-the $\Ho$ class itself and its non-abelian analogue). The operational fixed-point test is
-implemented (\Cref{sec:diagnostic}).
+(\texttt{CohomologyGraph.v}), along with $\Ho$ of the graph as a quotient and its rank, for any
+group. At the paper level: the rank on the nerve as a 2-complex, where the triangle relations can
+lower it. The operational fixed-point test is implemented (\Cref{sec:diagnostic}).
 
 %========================================
 \section{The Obstruction Diagnostic}
@@ -689,16 +699,17 @@ minimum coordination is the group feedback edge set number, NP-hard even in the 
 fixed-parameter tractable in the core size and polynomial on planar or edge-disjoint nerves, and it
 is never below the abelian count.
 
-The structural core, the limit, the retraction for arbitrary acyclic federations, and
-compositionality, is mechanized axiom-free, and so is the cohomological layer through the cycle
-basis: the completion on an arbitrary graph, the cycle-basis criterion, the sufficiency of
-coordinating a spanning tree's complement, and the $S_3$ separation. What is deliberately left at the
+The structural core, the limit, the retraction for arbitrary acyclic federations, compositionality,
+and full order-independence, is mechanized axiom-free, and so is the cohomological layer: the
+completion on an arbitrary graph, the cycle-basis criterion, the sufficiency of coordinating a
+spanning tree's complement, $\Ho$ of the graph as tuples of fundamental holonomies modulo simultaneous
+conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation. What is deliberately left at the
 paper level is scoped plainly: the clean cohomological classification is the invertible
 (lossless-relabeling) fragment, the general case reducing to the loop-composite fixed-point condition
-that the diagnostic already computes; $\Ho$ as a quotient with its Betti rank is not mechanized; full
-order-independence rests on the classical connectivity of a poset's linear extensions; and the
-complexity of the minimum is cited from the group feedback set literature. The open problems are the
-cohomology-proper $\Ho$ classification and its non-abelian analogue.
+that the diagnostic already computes; the rank on the nerve as a 2-complex is not mechanized; and the
+complexity of the minimum is cited from the group feedback set literature. The open problems are a
+cohomological account of the non-invertible case and the classification on the full 2-dimensional
+nerve.
 
 %========================================
 \begin{thebibliography}{99}
