@@ -1,7 +1,7 @@
 (* Cohomology.v: the operational core of the companion's cohomological layer (Sections 5-6),
-   mechanized axiom-free. The full nerve / cocycle assembly (H^1 as a quotient, cycle-basis
-   generation) stays paper-level; what is mechanized here is the per-cycle content the diagnostic
-   computes and the cycle-basis result rests on:
+   mechanized axiom-free. This file holds the per-cycle content the diagnostic computes; the
+   completion on an arbitrary graph and the cycle-basis generation are in CohomologyGraph.v, and
+   H^1 as a quotient with its Betti rank stays paper-level. Mechanized here:
 
    - Section 5's gluing counterexample: two confluent subsystems with the SAME valid set but
      different normalizers on the shared state glue to an order-dependent (non-confluent) union, so
@@ -142,8 +142,9 @@ End SimultaneousSection.
 (* below. The theta graph (two vertices, three parallel edges e1,e2,e3) with      *)
 (* generator holonomies a = (0 1 2) and b = (0 1) in S_3. Permutations are        *)
 (* image-triples, so the finite crux needs no group scaffolding, only            *)
-(* computation. The graph-level hitting-set wrapping (min_G = 2, min_{G^ab} = 1)  *)
-(* is paper-level; the crux facts it rests on are machine-checked here. *)
+(* computation. The crux facts are machine-checked here; the graph-level         *)
+(* wrapping (min_G = 2, min_{G^ab} = 1, and the strict separation) is mechanized   *)
+(* in CohomologyMin.v. *)
 Module S3Sep.
   Definition perm := (nat * nat * nat)%type.
   Definition ap (p : perm) (i : nat) : nat :=
