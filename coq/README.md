@@ -282,9 +282,16 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
   `rhoF_image_iff_L2`).
 - **Order-independence, commutation core.** `updates_commute`: updates to two independent registry
   components commute (the local step of Lemma C, incomparable registries having disjoint reads and
-  writes). The full result, that all topological orders agree, additionally uses the classical
-  connectivity of linear extensions under adjacent transpositions, which is not mechanized here, so
-  order-independence over general DAGs remains paper-level.
+  writes). The full result, that all topological orders agree, is mechanized in
+  `FederationOrder.v` (below) without assuming the linear-extension connectivity fact.
+- **Order-independence for arbitrary acyclic federations (`FederationOrder.v`).** Registries read the
+  state only through their sources (`f_local`); an order is topological when it is duplicate-free and
+  every in-order source comes earlier. `order_independent`: any two topological orders of the same
+  registries give the same final state, from any initial state. The proof bubbles the first registry
+  of one order to the front of the other (`bubble`, via the adjacent commutation `step_comm`), so the
+  classical connectivity of linear extensions is never assumed. States are compared pointwise (no
+  functional extensionality). A three-registry instance (`ex_orders_agree`) discharges every
+  hypothesis.
 - **Theorem 1 for a general acyclic federation.** `GeneralFederatedFold` models `rho_F` as a
   left-to-right fold over a topological order (state is a positional list; `stepAt` reads the
   finalized prefix and returns a position's finalized value), defines the consistent set `L_F`
@@ -307,8 +314,8 @@ they are in the axiom-free gate above.
 
 The operational core of the companion's cohomological layer (paper Sections 5-6), mechanized
 axiom-free. `Cohomology.v` mechanizes the per-cycle content the diagnostic computes; the general-graph
-completion and the cycle-basis generation are in `CohomologyGraph.v` (below); `H^1` as a quotient and
-its Betti-number rank stay paper-level.
+completion, the cycle-basis generation, and `H^1` as a quotient with its rank are in
+`CohomologyGraph.v` (below).
 
 - **Gluing is not naive (Section 5).** `gluing_order_dependent`: two confluent normalizers on
   `{0,1,2}` with the same valid set `{0,2}` but different maps on the shared state
@@ -358,9 +365,22 @@ its Betti-number rank stay paper-level.
   (`tri_identity_has_section`, `tri_flip_no_section`) discharges every hypothesis and shows the
   criterion firing both ways.
 
-Paper-level (not mechanized): `H^1` as a quotient of cocycles by gauge and its Betti-number rank, and
-the complexity of choosing the spanning tree that minimizes the coordinated set (the group feedback
-edge set results, cited from the literature).
+- **`H^1` as a quotient, and its rank (`CohomologyGraph.v`).** A gauge acts on a labeling by
+  `g -> h(v) g h(u)^-1`; labelings are `cohomologous` when one is a gauge transform of the other.
+  `gauge_fix`: every labeling is cohomologous to one that is the identity on a spanning tree, and
+  `gauge_fixed_holonomy`: the remaining labels are exactly the fundamental-cycle holonomies.
+  `H1_classification`: two tree-fixed labelings are cohomologous iff their non-tree labels are
+  simultaneously conjugate by one group element, for any group, abelian or not. So `H^1` is the
+  tuples of fundamental holonomies modulo simultaneous conjugation. `tree_vertex_count` and
+  `betti_number`: the number of those generators is `|E| - |V| + 1`, the first Betti number.
+  `tri_flip_not_cohomologous_to_identity` discharges every hypothesis on the Z/2 triangle.
+  Scope: this is `H^1` of the graph (the nerve's 1-skeleton, where every labeling is a cocycle). The
+  nerve's triangles (2-cells) impose further relations that can lower the rank; those are not
+  modeled.
+
+Paper-level (not mechanized): the rank on the nerve as a 2-complex (the triangle relations), and the
+complexity of choosing the spanning tree that minimizes the coordinated set (the group feedback edge
+set results, cited from the literature).
 
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
@@ -378,32 +398,31 @@ rather than pulling in heavy category-theory libraries. Progress, in priority or
    (`FederatedOperator`), and the general acyclic fold `rho_F` over a topological order
    (`GeneralFederatedFold`: `rhoFold_retraction`, `rhoFold_image_iff_consistent`) discharging Lemma A
    and Lemma B, so `rho_F` is the idempotent retraction onto `L_F` for every acyclic federation.
-   Remaining: full order-independence (the commutation core `updates_commute` is done; "all
-   topological orders agree" needs the classical linear-extension connectivity, to mechanize or
-   cite).
+   Full order-independence is DONE (`FederationOrder.v`: `order_independent`), proved by bubbling
+   rather than through linear-extension connectivity.
 4. **Theorem 2 (compositionality).** DONE (`Categorical.v`): `rhoFold_compositional` (via
    `rhoF_from_app`). The flat normalization over a topological cut `J ++ K` equals finalizing `J`
    then continuing with `K`, so an upstream sub-federation collapses to its finalized block.
 
 With Lemma 0, Proposition 1, Theorem 1 (retraction, general acyclic fold), and Theorem 2
-(compositionality) mechanized axiom-free, the structural core of the companion is complete. What
-remains is deliberately paper-level: the cohomological completion (`H^0`/`H^1`) in the invertible
-fragment, with the loop-composite fixed-point diagnostic implemented in gsm as
-`Federation.DiagnoseCycle`; and full order-independence (the commutation core is mechanized; the
-linear-extension connectivity is cited as classical).
+(compositionality) mechanized axiom-free, the structural core of the companion is complete. The development
+was then extended past the structural core: full order-independence (`FederationOrder.v`) and the
+cohomological completion through `H^1` as a quotient (`Cohomology.v`, `CohomologyMin.v`,
+`CohomologyGraph.v`). The loop-composite fixed-point diagnostic is implemented in gsm as
+`Federation.DiagnoseCycle`.
 
 Kept at paper level (out of scope for the first mechanization pass):
 
-- The cohomological completion (`H^0`/`H^1`, the completion theorem) is proven at paper level in the
-  invertible/torsor fragment only; the general case reduces to the loop-composite fixed-point
-  condition, which is a dynamical statement rather than group cohomology.
+- The cohomological completion is mechanized in the invertible/torsor fragment (above). The general
+  non-invertible case reduces to the loop-composite fixed-point condition, a dynamical statement
+  rather than group cohomology, and is not mechanized.
 - The operational core of that story is already implemented: the loop-composite fixed-point / orbit
   test is `gsm`'s `Federation.DiagnoseCycle`. A later target is mechanizing that test (finite-space
   fixed-point reachability), for which `Federation.v` and `Chaotic.v` already supply most of the
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 18 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 67 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

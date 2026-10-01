@@ -20,7 +20,8 @@
    results are not vacuous. Choosing the spanning tree that minimizes the coordinated set is the
    group feedback edge set problem, whose complexity is a known result cited at the paper level. *)
 
-From Coq Require Import List Arith Bool.
+From Coq Require Import List Arith Bool Lia.
+From Coq Require Import Sorting.Permutation.
 Import ListNotations.
 
 Section GeneralGraph.
@@ -247,6 +248,241 @@ Section GeneralGraph.
     intros r T X sT x HT HsT Hspan Hx Hnot H.
     apply Hnot. exact (proj1 (cycle_basis_criterion r T X sT HT HsT Hspan) H x Hx).
   Qed.
+
+  (* =====================================================================
+     H^1 as a quotient, and its rank.
+
+     A gauge h (a relabeling of every vertex's fiber) acts on a labeling by
+     g |-> h(v) g h(u)^-1 on each edge u -> v; two labelings are cohomologous when one is the
+     gauge transform of the other. This is the quotient defining H^1 on the graph (its
+     1-skeleton, where every labeling is a cocycle). We prove:
+     - gauge_fix: every labeling is cohomologous to one that is the identity on a spanning tree,
+       and gauge_fixed_holonomy: its remaining labels are exactly the fundamental-cycle
+       holonomies.
+     - H1_classification: two tree-fixed labelings are cohomologous iff their non-tree labels are
+       SIMULTANEOUSLY CONJUGATE, for any group (abelian or not). So H^1 is the tuples of
+       fundamental holonomies modulo simultaneous conjugation.
+     - betti_number: the number of those generators is |E| - |V| + 1, the first Betti number.
+     ===================================================================== *)
+
+  Definition gauge (h : nat -> G) (es : list edge) : list edge :=
+    map (fun x => let '(u, v, g) := x in (u, v, op (h v) (op g (inv (h u))))) es.
+
+  Definition cohomologous (L1 L2 : list edge) : Prop := exists h, L2 = gauge h L1.
+
+  (* Identity labels on a set of edges (e.g. a gauge-fixed spanning tree). *)
+  Definition idlab (es : list edge) : Prop := forall u v g, In (u, v, g) es -> g = e.
+
+  Lemma gauge_app : forall h a b, gauge h (a ++ b) = gauge h a ++ gauge h b.
+  Proof. intros h a b. unfold gauge. apply map_app. Qed.
+
+  Lemma gauge_length : forall h l, length (gauge h l) = length l.
+  Proof. intros h l. induction l as [| x l IH]; simpl; [reflexivity | rewrite IH; reflexivity]. Qed.
+
+  Lemma inv_inv : forall a, inv (inv a) = a.
+  Proof.
+    intro a. transitivity (op (inv (inv a)) (op (inv a) a)).
+    - rewrite inv_l, id_r. reflexivity.
+    - rewrite assoc, inv_l, id_l. reflexivity.
+  Qed.
+
+  Lemma app_split_eq :
+    forall (a b c d : list edge), length a = length c -> a ++ b = c ++ d -> a = c /\ b = d.
+  Proof.
+    induction a as [| x a IH]; intros b c d Hl E; destruct c as [| y c]; simpl in *;
+      try discriminate.
+    - split; [reflexivity | exact E].
+    - injection E as Exy E'. injection Hl as Hl'.
+      destruct (IH b c d Hl' E') as [-> ->]. subst. split; reflexivity.
+  Qed.
+
+  Lemma map_fixed_in :
+    forall (f : edge -> edge) l, map f l = l -> forall x, In x l -> f x = x.
+  Proof.
+    intros f l. induction l as [| y l IH]; simpl; intros E x Hx; [contradiction |].
+    injection E as E1 E2. destruct Hx as [<- | Hx]; [exact E1 | exact (IH E2 x Hx)].
+  Qed.
+
+  Lemma verts_gauge : forall h es, verts (gauge h es) = verts es.
+  Proof.
+    intros h es. induction es as [| [[u v] g] t IH]; [reflexivity |].
+    simpl. rewrite IH. reflexivity.
+  Qed.
+
+  (* Gauge transformations preserve the tree structure (it depends only on the endpoints). *)
+  Lemma tree_gauge : forall r es h, tree r es -> tree r (gauge h es).
+  Proof.
+    intros r es h T. induction T as [| es u v g T IH Hu Hv | es u v g T IH Hv Hu].
+    - apply t_nil.
+    - rewrite gauge_app.
+      change (gauge h [(u, v, g)]) with [(u, v, op (h v) (op g (inv (h u))))].
+      apply t_out; [exact IH | rewrite verts_gauge; exact Hu | rewrite verts_gauge; exact Hv].
+    - rewrite gauge_app.
+      change (gauge h [(u, v, g)]) with [(u, v, op (h v) (op g (inv (h u))))].
+      apply t_in; [exact IH | rewrite verts_gauge; exact Hv | rewrite verts_gauge; exact Hu].
+  Qed.
+
+  (* A gauge that fixes the identity on every tree edge is constant on the tree. *)
+  Lemma tree_const :
+    forall r es, tree r es ->
+    forall h : nat -> G, (forall u v g, In (u, v, g) es -> h u = h v) ->
+    forall w, In w (r :: verts es) -> h w = h r.
+  Proof.
+    intros r es T. induction T as [| es u v g T IH Hu Hv | es u v g T IH Hv Hu];
+      intros h Hh w Hw.
+    - simpl in Hw. destruct Hw as [<- | []]. reflexivity.
+    - assert (Hh' : forall a b c, In (a, b, c) es -> h a = h b)
+        by (intros a b c Hin; apply (Hh a b c); apply in_or_app; left; exact Hin).
+      assert (Huv : h u = h v)
+        by (apply (Hh u v g); apply in_or_app; right; left; reflexivity).
+      destruct (verts_snoc r es u v g w Hw) as [Hold | [-> | ->]].
+      + exact (IH h Hh' w Hold).
+      + exact (IH h Hh' u Hu).
+      + rewrite <- Huv. exact (IH h Hh' u Hu).
+    - assert (Hh' : forall a b c, In (a, b, c) es -> h a = h b)
+        by (intros a b c Hin; apply (Hh a b c); apply in_or_app; left; exact Hin).
+      assert (Huv : h u = h v)
+        by (apply (Hh u v g); apply in_or_app; right; left; reflexivity).
+      destruct (verts_snoc r es u v g w Hw) as [Hold | [-> | ->]].
+      + exact (IH h Hh' w Hold).
+      + rewrite Huv. exact (IH h Hh' v Hv).
+      + exact (IH h Hh' v Hv).
+  Qed.
+
+  (* Gauge fixing: every labeling is cohomologous to one that is the identity on the tree. *)
+  Theorem gauge_fix : forall r T, tree r T -> exists h, idlab (gauge h T).
+  Proof.
+    intros r T HT. destruct (tree_has_section r T HT) as [sT HsT].
+    exists (fun w => inv (sT w)). intros u v g Hin.
+    unfold gauge in Hin. apply in_map_iff in Hin. destruct Hin as [[[u0 v0] g0] [E Hin0]].
+    simpl in E. injection E as Eu Ev Eg. subst.
+    rewrite inv_inv. apply (proj1 (sat_iff_trivial_holonomy sT _ _ _)). exact (HsT _ Hin0).
+  Qed.
+
+  (* After gauge fixing by a tree section, each remaining label is that edge's fundamental-cycle
+     holonomy s(v)^-1 g s(u). *)
+  Theorem gauge_fixed_holonomy :
+    forall sT X,
+      gauge (fun w => inv (sT w)) X
+      = map (fun x => let '(u, v, g) := x in (u, v, op (inv (sT v)) (op g (sT u)))) X.
+  Proof.
+    intros sT X. unfold gauge. apply map_ext_in. intros [[u v] g] _. simpl.
+    rewrite inv_inv. reflexivity.
+  Qed.
+
+  (* H^1 classification: two tree-fixed labelings are cohomologous iff their non-tree labels are
+     simultaneously conjugate by a single group element. *)
+  Theorem H1_classification :
+    forall r idT X1 X2,
+      tree r idT -> idlab idT ->
+      (forall u v g, In (u, v, g) X1 -> In u (r :: verts idT) /\ In v (r :: verts idT)) ->
+      (cohomologous (idT ++ X1) (idT ++ X2) <-> exists c, X2 = gauge (fun _ => c) X1).
+  Proof.
+    intros r idT X1 X2 HT Hid Hspan. split.
+    - intros [h E]. rewrite gauge_app in E.
+      destruct (app_split_eq idT X2 (gauge h idT) (gauge h X1)
+                  (eq_sym (gauge_length h idT)) E) as [Et EX].
+      assert (Hc : forall u v g, In (u, v, g) idT -> h u = h v).
+      { intros u v g Hin. unfold gauge in Et.
+        pose proof (map_fixed_in _ idT (eq_sym Et) (u, v, g) Hin) as Hfix.
+        simpl in Hfix. injection Hfix as Eg.
+        rewrite (Hid u v g Hin) in Eg. rewrite id_l in Eg.
+        symmetry. transitivity (op (op (h v) (inv (h u))) (h u)).
+        - rewrite <- assoc, inv_l, id_r. reflexivity.
+        - rewrite Eg, id_l. reflexivity. }
+      exists (h r). rewrite EX. unfold gauge. apply map_ext_in.
+      intros [[u v] g] Hin. destruct (Hspan u v g Hin) as [Hu Hv]. simpl.
+      rewrite (tree_const r idT HT h Hc u Hu), (tree_const r idT HT h Hc v Hv). reflexivity.
+    - intros [c ->]. exists (fun _ => c). rewrite gauge_app. f_equal.
+      symmetry. transitivity (map (fun x : edge => x) idT); [| apply map_id].
+      unfold gauge. apply map_ext_in. intros [[u v] g] Hin. simpl.
+      rewrite (Hid u v g Hin), id_l, inv_r. reflexivity.
+  Qed.
+
+  (* ----- the rank: the first Betti number ----- *)
+
+  Lemma len_snoc : forall (A : Type) (l : list A) x, length (l ++ [x]) = S (length l).
+  Proof. intros A l x. induction l as [| y l IH]; simpl; [reflexivity | rewrite IH; reflexivity]. Qed.
+
+  Lemma len_app : forall (A : Type) (a b : list A), length (a ++ b) = length a + length b.
+  Proof. intros A a b. induction a as [| y a IH]; simpl; [reflexivity | rewrite IH; reflexivity]. Qed.
+
+  Lemma verts_snoc_intro :
+    forall r es u v g w, In w (r :: verts es) \/ w = u \/ w = v ->
+      In w (r :: verts (es ++ [(u, v, g)])).
+  Proof.
+    intros r es u v g w H. rewrite verts_app. simpl.
+    destruct H as [[H | H] | [-> | ->]].
+    - left. exact H.
+    - right. apply in_or_app. left. exact H.
+    - right. apply in_or_app. right. left. reflexivity.
+    - right. apply in_or_app. right. right. left. reflexivity.
+  Qed.
+
+  (* A tree with n edges has exactly n + 1 distinct vertices. *)
+  Theorem tree_vertex_count :
+    forall r es, tree r es ->
+      exists vs, NoDup vs /\ (forall w, In w vs <-> In w (r :: verts es)) /\
+                 length vs = S (length es).
+  Proof.
+    intros r es T. induction T as [| es u v g T IH Hu Hv | es u v g T IH Hv Hu].
+    - exists [r]. split; [| split].
+      + constructor; [intros [] | constructor].
+      + intro w. simpl. tauto.
+      + reflexivity.
+    - destruct IH as [vs [Hnd [Hin Hlen]]]. exists (vs ++ [v]). split; [| split].
+      + apply (Permutation_NoDup (Permutation_cons_append vs v)).
+        constructor; [intro H; apply Hv; apply Hin; exact H | exact Hnd].
+      + intro w. split; intro H.
+        * apply in_app_or in H. apply verts_snoc_intro.
+          destruct H as [H | [<- | []]]; [left; apply Hin; exact H | right; right; reflexivity].
+        * apply verts_snoc in H. apply in_or_app.
+          destruct H as [H | [-> | ->]];
+            [left; apply Hin; exact H | left; apply Hin; exact Hu | right; left; reflexivity].
+      + rewrite !len_snoc, Hlen. reflexivity.
+    - destruct IH as [vs [Hnd [Hin Hlen]]]. exists (vs ++ [u]). split; [| split].
+      + apply (Permutation_NoDup (Permutation_cons_append vs u)).
+        constructor; [intro H; apply Hu; apply Hin; exact H | exact Hnd].
+      + intro w. split; intro H.
+        * apply in_app_or in H. apply verts_snoc_intro.
+          destruct H as [H | [<- | []]]; [left; apply Hin; exact H | right; left; reflexivity].
+        * apply verts_snoc in H. apply in_or_app.
+          destruct H as [H | [-> | ->]];
+            [left; apply Hin; exact H | right; left; reflexivity | left; apply Hin; exact Hv].
+      + rewrite !len_snoc, Hlen. reflexivity.
+  Qed.
+
+  Lemma in_verts_exists :
+    forall X w, In w (verts X) -> exists u v g, In (u, v, g) X /\ (w = u \/ w = v).
+  Proof.
+    induction X as [| [[a b] h] t IH]; intros w H; simpl in H; [contradiction |].
+    destruct H as [<- | [<- | H]].
+    - exists a, b, h. split; [left; reflexivity | left; reflexivity].
+    - exists a, b, h. split; [left; reflexivity | right; reflexivity].
+    - destruct (IH w H) as [u [v [g [Hin Hw]]]]. exists u, v, g. split; [right; exact Hin | exact Hw].
+  Qed.
+
+  (* The rank of H^1: for a connected graph given as a spanning tree T plus extra edges X, the
+     number of independent fundamental cycles is |X| = |E| - |V| + 1 (stated without truncated
+     subtraction as |X| + |V| = |E| + 1), the first Betti number. *)
+  Theorem betti_number :
+    forall r T X,
+      tree r T ->
+      (forall u v g, In (u, v, g) X -> In u (r :: verts T) /\ In v (r :: verts T)) ->
+      exists vs, NoDup vs /\ (forall w, In w vs <-> In w (r :: verts (T ++ X))) /\
+                 length X + length vs = length (T ++ X) + 1.
+  Proof.
+    intros r T X HT Hspan. destruct (tree_vertex_count r T HT) as [vs [Hnd [Hin Hlen]]].
+    exists vs. split; [exact Hnd | split].
+    - intro w. split; intro H.
+      + apply Hin in H. destruct H as [H | H]; [left; exact H |].
+        right. rewrite verts_app. apply in_or_app. left. exact H.
+      + apply Hin. destruct H as [H | H]; [left; exact H |].
+        rewrite verts_app in H. apply in_app_or in H. destruct H as [H | H]; [right; exact H |].
+        destruct (in_verts_exists X w H) as [u [v [g [Hx [-> | ->]]]]];
+          [exact (proj1 (Hspan u v g Hx)) | exact (proj2 (Hspan u v g Hx))].
+    - rewrite len_app, Hlen. unfold edge in *. lia.
+  Qed.
 End GeneralGraph.
 
 (* ============================================================
@@ -305,4 +541,24 @@ Proof.
            triT_tree triT_section (tri_span true)).
   - left. reflexivity.
   - unfold sat, sT0. simpl. discriminate.
+Qed.
+
+(* Non-vacuity of the H^1 classification: on the same triangle, the spanning tree is already
+   identity-labeled, and closing it with the flip versus the identity gives two labelings in
+   DIFFERENT cohomology classes. Every hypothesis of H1_classification is discharged. *)
+Lemma triT_idlab : idlab false triT.
+Proof.
+  unfold triT. intros u v g H. simpl in H.
+  destruct H as [H | [H | []]]; injection H as Eu Ev Eg; subst; reflexivity.
+Qed.
+
+Example tri_flip_not_cohomologous_to_identity :
+  ~ cohomologous xorb (fun a => a) (triT ++ [(2, 0, true)]) (triT ++ [(2, 0, false)]).
+Proof.
+  intro H.
+  apply (proj1 (H1_classification xorb false (fun a => a) xor_assoc xor_id_l xor_id_r xor_inv_r
+                  xor_inv_l 0 triT [(2, 0, true)] [(2, 0, false)]
+                  triT_tree triT_idlab (tri_span true))) in H.
+  destruct H as [c E]. unfold gauge in E. simpl in E. injection E as Ec.
+  destruct c; discriminate Ec.
 Qed.

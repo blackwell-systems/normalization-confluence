@@ -1,5 +1,5 @@
 # Build the mechanized confluence proof. Requires coqc (Rocq/Coq >= 8.18; tested on Rocq 9.3).
-all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo AstChecker.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo
+all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo AstChecker.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo
 
 Newman.vo: Newman.v
 	coqc -Q . NC Newman.v
@@ -39,6 +39,9 @@ CohomologyMin.vo: CohomologyMin.v Cohomology.vo
 
 CohomologyGraph.vo: CohomologyGraph.v
 	coqc -Q . NC CohomologyGraph.v
+
+FederationOrder.vo: FederationOrder.v
+	coqc -Q . NC FederationOrder.v
 
 # Print the assumption base of the main results (expect: "Closed under the global context").
 check: all
