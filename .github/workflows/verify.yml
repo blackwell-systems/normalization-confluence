@@ -44,9 +44,22 @@ jobs:
       - uses: coq-community/docker-coq-action@v1
         with:
           custom_image: ${{ matrix.image }}
+          # Rocq 9.x images ship the `rocq` CLI and may not put `coqc` on PATH.
+          # Use coqc if present; otherwise shim it to `rocq compile`, which takes
+          # the same flags, so the Makefile and verify.sh run unchanged.
           custom_script: |
             startGroup "Compile + axiom-free gate"
               sudo chown -R "$(whoami)" .
+              eval "$(opam env 2>/dev/null)" || true
+              if ! command -v coqc >/dev/null 2>&1; then
+                ROCQ="$(command -v rocq || find / -name rocq -type f -perm -u+x 2>/dev/null | head -1)"
+                echo "coqc not on PATH; shimming coqc -> $ROCQ compile"
+                mkdir -p "$HOME/.local/bin"
+                printf '#!/bin/sh\nexec %s compile "$@"\n' "$ROCQ" > "$HOME/.local/bin/coqc"
+                chmod +x "$HOME/.local/bin/coqc"
+                export PATH="$HOME/.local/bin:$PATH"
+              fi
+              echo "compiler: $(command -v coqc)"; coqc --version || true
               cd coq
               bash verify.sh
             endGroup
