@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Regression tests for the extracted checkers' front ends and semantics. Each line of
-# cases.tsv names a case file, the checker to run on it, and the exit code it must
-# produce. Run from anywhere after `make` in coq/extraction; exits non-zero on any
+# cases.tsv names the checker, its case file(s) (space-separated, passed in order:
+# astchecker takes a machine and an optional pairs file), and the exit code it
+# must produce. Run from anywhere after `make` in coq/extraction; exits non-zero on any
 # mismatch.
 set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -9,7 +10,8 @@ bin="$here/.."
 pass=0; fail=0
 while IFS=$'\t' read -r want tool file why; do
   case "$want" in ''|'#'*) continue ;; esac
-  out="$("$bin/$tool" "$here/cases/$file" 2>&1)"; got=$?
+  args=(); for f in $file; do args+=("$here/cases/$f"); done
+  out="$("$bin/$tool" "${args[@]}" 2>&1)"; got=$?
   if [ "$got" = "$want" ]; then
     pass=$((pass + 1)); echo "ok   $tool $file (exit $got)"
   else
