@@ -2,9 +2,12 @@ name: goextract
 
 # SPIKE (spike/go-extraction): extract check_fast and checkBuild to MiniML JSON
 # on every supported prover (Coq 8.18, Coq 8.20, and the digest-pinned Rocq 9.3
-# image the oracles use), generate Go from each with gogen, and require the
-# generated Go to be byte-identical to the committed files. Then build and test
-# the Go checkers with Go 1.22 (gsm's floor) and current stable Go.
+# image the oracles use) and generate Go from each with gogen. The pinned image
+# is the reference: its Go must be byte-identical to the committed files. Coq
+# 8.x extracts different standard-library code (binder names, and which copy of
+# Pos.succ/add/compare the directives catch), so its Go differs; it is built and
+# must pass the same regression cases. Everything runs under Go 1.22 (gsm's
+# floor) and current stable Go.
 
 on:
   pull_request:
@@ -64,37 +67,48 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: json
-      - name: Generate from every prover's JSON and compare with the committed Go
+      - name: Generate from every prover's JSON; the pinned image must match the committed Go
         run: |
           go version
           (cd coq/goextract/gogen && go vet . && go build -o gogen .)
-          G=coq/goextract/gogen/gogen
-          status=0
+          G=$PWD/coq/goextract/gogen/gogen
           sha256sum json/*/*.json
+          status=0
           for v in json/*; do
-            $G -o /tmp/fast.go "$v/fast_core.json"
-            $G -o /tmp/ast.go "$v/ast_core.json"
-            for p in "fast.go coq/goextract/gocheck/fastcore_gen.go" "ast.go coq/goextract/gocheck_ast/astcore_gen.go"; do
+            name=$(basename "$v")
+            mkdir -p "gen/$name/fast" "gen/$name/ast"
+            cp coq/goextract/gocheck/main.go coq/goextract/gocheck/go.mod "gen/$name/fast/"
+            cp coq/goextract/gocheck_ast/main.go coq/goextract/gocheck_ast/go.mod "gen/$name/ast/"
+            $G -o "gen/$name/fast/fastcore_gen.go" "$v/fast_core.json"
+            $G -o "gen/$name/ast/astcore_gen.go" "$v/ast_core.json"
+            for p in "fast/fastcore_gen.go coq/goextract/gocheck/fastcore_gen.go" "ast/astcore_gen.go coq/goextract/gocheck_ast/astcore_gen.go"; do
               set -- $p
-              if cmp -s "/tmp/$1" "$2"; then echo "$v: $2 identical"; else echo "$v: $2 DIFFERS"; diff "/tmp/$1" "$2" | head -40; status=1; fi
+              if cmp -s "gen/$name/$1" "$2"; then
+                echo "$name: $2 identical"
+              else
+                echo "$name: $2 differs ($(diff "gen/$name/$1" "$2" | grep -c '^[<>]') lines)"
+                case "$name" in rocq-9.3) diff "gen/$name/$1" "$2" | head -40; status=1 ;; esac
+              fi
             done
+            (cd "gen/$name/fast" && go vet . && go build -o gocheck .)
+            (cd "gen/$name/ast" && go vet . && go build -o gocheck_ast .)
           done
           exit $status
-      - name: Build the Go checkers and run the regression cases
+      - name: Run the regression cases on the Go checkers from every prover
         run: |
-          (cd coq/goextract/gocheck && go vet . && go build -o gocheck .)
-          (cd coq/goextract/gocheck_ast && go vet . && go build -o gocheck_ast .)
           cd coq/extraction/tests
           fail=0
-          while IFS=$'\t' read -r want tool file why; do
-            case "$want" in ''|'#'*) continue ;; esac
-            args=(); for f in $file; do args+=("cases/$f"); done
-            case "$tool" in
-              checker) bin=../../goextract/gocheck/gocheck ;;
-              astchecker) bin=../../goextract/gocheck_ast/gocheck_ast ;;
-              *) continue ;;
-            esac
-            "$bin" "${args[@]}" >/dev/null 2>&1; got=$?
-            if [ "$got" = "$want" ]; then echo "ok   $tool $file"; else echo "FAIL $tool $file: want $want got $got"; fail=1; fi
-          done < cases.tsv
+          for v in ../../../gen/*; do
+            while IFS=$'\t' read -r want tool file why; do
+              case "$want" in ''|'#'*) continue ;; esac
+              args=(); for f in $file; do args+=("cases/$f"); done
+              case "$tool" in
+                checker) bin=$v/fast/gocheck ;;
+                astchecker) bin=$v/ast/gocheck_ast ;;
+                *) continue ;;
+              esac
+              "$bin" "${args[@]}" >/dev/null 2>&1; got=$?
+              if [ "$got" = "$want" ]; then echo "ok   $(basename $v) $tool $file"; else echo "FAIL $(basename $v) $tool $file: want $want got $got"; fail=1; fi
+            done < cases.tsv
+          done
           exit $fail
