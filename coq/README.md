@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 93 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 93 headline results (among them the single-registry
+Expected tail: `PASS: all 96 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 96 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -194,7 +194,21 @@ domain) and `check_tables_converges_all` (every permutation, with no pairs decla
 through an axiom-free binary trie, proven equal to list lookup (`tget_of_list`), in O(log n);
 Rocq's primitive arrays would be O(1) but are specified by axioms.
 
-`TableFast.v` defines `check_fast`, the function the `checker` binary actually runs, and proves it
+`TableFn.v` defines `check_fn`, the same check over two accessor functions instead of lists: `nf s`
+(the normal form of state `s`) and `st e s` (the state event `e` leads to from `s`). It is what the
+`checker` binary runs, over accessors on the arrays it parses, and what a caller that already holds
+its tables (gsm holds them as arrays) passes accessors to, so nothing is copied: at 2^20 states and
+20 events the `checker` binary peaks at about 320 MB (the file and the arrays) where the list entry
+point needed about 1.9 GB. `check_fn_converges` states the guarantee on the accessor functions
+themselves: from a valid state or the zero state, trace-equivalent event sequences reach the same
+state under `st`. So the theorem is about whatever function the accessor computes; the caller must
+pass accessors that are pure and total (the same answer for the same arguments on every call, an
+answer for every argument) and return non-negative values that fit the extraction's `int`.
+`check_tables_fn` proves `check_tables` equal to `check_fn` on its tries' lookups and `check_fast_fn`
+proves `check_fast` equal to `check_fn` on the list accessors, so all three entry points decide the
+same property. Every loop is tail-recursive.
+
+`TableFast.v` defines `check_fast`, the list entry point (extracted for callers that pass lists), and proves it
 equal to `check_tables` (`check_fast_eq`), so `check_tables_converges` holds for it
 (`check_fast_converges`). It computes the same boolean faster. It builds one cell per state: the
 state's normal form and its column of steps `T[0][s] ... T[nE-1][s]` in blocks of 16, read by
@@ -497,7 +511,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 93 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 96 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -508,6 +522,6 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 93
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 96
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`).

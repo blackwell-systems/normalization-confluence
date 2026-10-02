@@ -84,11 +84,15 @@ fi
 # the front end reads them into arrays and checks them with check_fn over array
 # accessors (TableFn.v). Checked on the CI runner (Linux; macOS does not
 # enforce ulimit -v).
+if ! (ulimit -v 786432) 2>/dev/null; then
+  echo "skip checker bits20-all.tables in 768 MiB (this host cannot limit address space)"
+else
 out="$(ulimit -s 8192 && ulimit -v 786432 && "$bin/checker" "$big/bits20-all.tables" 2>&1)"; got=$?
 if [ "$got" = 0 ]; then
   pass=$((pass + 1)); echo "ok   checker bits20-all.tables in 768 MiB (exit 0)"
 else
   fail=$((fail + 1)); echo "FAIL checker bits20-all.tables in 768 MiB: want exit 0, got $got"; echo "$out" | sed 's/^/     /'
+fi
 fi
 rm -rf "$big"
 
