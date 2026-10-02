@@ -211,31 +211,7 @@ func K_Build_wt(a0 int64, a1 int64, a2 *I_w16) *I_wt {
 	return &I_wt{tag: 0, f0_0: a0, f0_1: a1, f0_2: a2}
 }
 
-func F_add(n_in int64, m_in int64) int64 {
-	for {
-		n_1 := n_in
-		_ = n_1
-		m_2 := m_in
-		_ = m_2
-		if n_1 < 0 {
-			panic("gogen: not a nat")
-		}
-		switch {
-		case n_1 == 0:
-			return m_2
-		case n_1 > 0:
-			p_3 := n_1 - 1
-			_ = p_3
-			t_4 := F_add(p_3, m_2)
-			t_5 := natSucc(t_4)
-			return t_5
-		default:
-			panic("gogen: no case matches")
-		}
-	}
-}
-
-func F_add0(x_in int64, y_in int64) int64 {
+func F_add(x_in int64, y_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
@@ -261,7 +237,7 @@ func F_add0(x_in int64, y_in int64) int64 {
 			case y_2 > 1 && y_2%2 == 0:
 				q_7 := y_2 / 2
 				_ = q_7
-				t_8 := F_add0(p_3, q_7)
+				t_8 := F_add(p_3, q_7)
 				t_9 := posXI(t_8)
 				return t_9
 			case y_2 == 1:
@@ -281,13 +257,13 @@ func F_add0(x_in int64, y_in int64) int64 {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
 				_ = q_13
-				t_14 := F_add0(p_12, q_13)
+				t_14 := F_add(p_12, q_13)
 				t_15 := posXI(t_14)
 				return t_15
 			case y_2 > 1 && y_2%2 == 0:
 				q_16 := y_2 / 2
 				_ = q_16
-				t_17 := F_add0(p_12, q_16)
+				t_17 := F_add(p_12, q_16)
 				t_18 := posXO(t_17)
 				return t_18
 			case y_2 == 1:
@@ -375,7 +351,7 @@ func F_add_carry(x_in int64, y_in int64) int64 {
 			case y_2 > 1 && y_2%2 == 0:
 				q_16 := y_2 / 2
 				_ = q_16
-				t_17 := F_add0(p_12, q_16)
+				t_17 := F_add(p_12, q_16)
 				t_18 := posXI(t_17)
 				return t_18
 			case y_2 == 1:
@@ -657,20 +633,10 @@ func F_box(ds_in *I_list[int64]) *I_list[*I_list[int64]] {
 			_ = d_5
 			rest_6 := ds_1.f1_1
 			_ = rest_6
-			t_13 := func(v_7 int64) *I_list[*I_list[int64]] {
-				_ = v_7
-				t_10 := func(x_8 *I_list[int64]) *I_list[int64] {
-					_ = x_8
-					t_9 := &I_list[int64]{tag: 1, f1_0: v_7, f1_1: x_8}
-					return t_9
-				}
-				t_11 := F_box(rest_6)
-				t_12 := F_map[*I_list[int64], *I_list[int64]](t_10, t_11)
-				return t_12
-			}
-			t_14 := F_seq(int64(0), d_5)
-			t_15 := F_flat_map[int64, *I_list[int64]](t_13, t_14)
-			return t_15
+			t_7 := F_box(rest_6)
+			t_8 := &I_list[*I_list[int64]]{tag: 0}
+			t_9 := F_layer(d_5, t_7, t_8)
+			return t_9
 		default:
 			panic("gogen: no case matches")
 		}
@@ -1203,7 +1169,7 @@ func F_evalE(mins_in *I_list[int64], s_in *I_list[int64], e_in *I_expr) int64 {
 			_ = i_4
 			t_5 := F_nth[int64](i_4, mins_1, int64(0))
 			t_6 := F_rd(i_4, s_2)
-			t_7 := F_of_nat(t_6)
+			t_7 := F_natZ(t_6)
 			t_8 := zAdd(t_5, t_7)
 			return t_8
 		case 1:
@@ -1575,7 +1541,7 @@ func F_fuelOf(m_in *I_machine) int64 {
 		_ = m_1
 		t_4 := func(a_2 int64) func(int64) int64 {
 			return func(a_3 int64) int64 {
-				return F_mul(a_2, a_3)
+				return zMul(a_2, a_3)
 			}
 		}
 		var r_5 *I_list[int64]
@@ -1641,7 +1607,7 @@ func F_hi(m_in *I_machine, e_in *I_expr) int64 {
 				panic("gogen: no case matches")
 			}
 			t_9 := F_nth[int64](i_3, r_7, int64(1))
-			t_10 := F_of_nat(t_9)
+			t_10 := F_natZ(t_9)
 			t_11 := zAdd(t_6, t_10)
 			t_12 := zSub(t_11, int64(1))
 			return t_12
@@ -1764,6 +1730,32 @@ func F_iter_op[T1 any](op_in func(T1) func(T1) T1, p_in int64, a_in T1) T1 {
 			continue
 		case p_2 == 1:
 			return a_3
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_layer(k_in int64, ws_in *I_list[*I_list[int64]], acc_in *I_list[*I_list[int64]]) *I_list[*I_list[int64]] {
+	for {
+		k_1 := k_in
+		_ = k_1
+		ws_2 := ws_in
+		_ = ws_2
+		acc_3 := acc_in
+		_ = acc_3
+		if k_1 < 0 {
+			panic("gogen: not a nat")
+		}
+		switch {
+		case k_1 == 0:
+			return acc_3
+		case k_1 > 0:
+			k_p_4 := k_1 - 1
+			_ = k_p_4
+			t_5 := F_prependAll(k_p_4, ws_2, acc_3)
+			k_in, ws_in, acc_in = k_p_4, ws_2, t_5
+			continue
 		default:
 			panic("gogen: no case matches")
 		}
@@ -2104,60 +2096,86 @@ func F_maxAbs() int64 {
 	}
 }
 
-func F_min(n_in int64, m_in int64) int64 {
+func F_mul(x_in int64, y_in int64) int64 {
 	for {
-		n_1 := n_in
-		_ = n_1
-		m_2 := m_in
-		_ = m_2
-		if n_1 < 0 {
-			panic("gogen: not a nat")
+		x_1 := x_in
+		_ = x_1
+		y_2 := y_in
+		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
 		}
 		switch {
-		case n_1 == 0:
-			return int64(0)
-		case n_1 > 0:
-			n_p_3 := n_1 - 1
-			_ = n_p_3
-			if m_2 < 0 {
-				panic("gogen: not a nat")
-			}
-			switch {
-			case m_2 == 0:
-				return int64(0)
-			case m_2 > 0:
-				m_p_4 := m_2 - 1
-				_ = m_p_4
-				t_5 := F_min(n_p_3, m_p_4)
-				t_6 := natSucc(t_5)
-				return t_6
-			default:
-				panic("gogen: no case matches")
-			}
+		case x_1 > 1 && x_1%2 == 1:
+			p_3 := x_1 / 2
+			_ = p_3
+			t_4 := F_mul(p_3, y_2)
+			t_5 := posXO(t_4)
+			t_6 := F_add(y_2, t_5)
+			return t_6
+		case x_1 > 1 && x_1%2 == 0:
+			p_7 := x_1 / 2
+			_ = p_7
+			t_8 := F_mul(p_7, y_2)
+			t_9 := posXO(t_8)
+			return t_9
+		case x_1 == 1:
+			return y_2
 		default:
 			panic("gogen: no case matches")
 		}
 	}
 }
 
-func F_mul(n_in int64, m_in int64) int64 {
+func F_natZ(n_in int64) int64 {
 	for {
 		n_1 := n_in
 		_ = n_1
-		m_2 := m_in
-		_ = m_2
-		if n_1 < 0 {
+		t_2 := F_natZF(n_1, n_1)
+		return t_2
+	}
+}
+
+func F_natZF(f_in int64, n_in int64) int64 {
+	for {
+		f_1 := f_in
+		_ = f_1
+		n_2 := n_in
+		_ = n_2
+		if f_1 < 0 {
 			panic("gogen: not a nat")
 		}
 		switch {
-		case n_1 == 0:
+		case f_1 == 0:
 			return int64(0)
-		case n_1 > 0:
-			p_3 := n_1 - 1
-			_ = p_3
-			t_4 := F_mul(p_3, m_2)
-			t_5 := F_add(m_2, t_4)
-			return t_5
+		case f_1 > 0:
+			f_p_3 := f_1 - 1
+			_ = f_p_3
+			t_4 := eqb(n_2, int64(0))
+			switch {
+			case t_4:
+				return int64(0)
+			case !t_4:
+				t_5 := natDiv2(n_2)
+				t_6 := F_natZF(f_p_3, t_5)
+				t_7 := zMul(int64(2), t_6)
+				var r_8 int64
+				t_9 := natDiv2(n_2)
+				t_10 := zMul(int64(2), t_9)
+				t_11 := eqb(n_2, t_10)
+				switch {
+				case t_11:
+					r_8 = int64(0)
+				case !t_11:
+					r_8 = int64(1)
+				default:
+					panic("gogen: no case matches")
+				}
+				t_12 := zAdd(t_7, r_8)
+				return t_12
+			default:
+				panic("gogen: no case matches")
+			}
 		default:
 			panic("gogen: no case matches")
 		}
@@ -2282,50 +2300,6 @@ func F_of_list16(l_in *I_list[int64]) *I_wt {
 		t_9 := F_nth[*I_w16](int64(0), t_7, t_8)
 		t_10 := &I_wt{tag: 0, f0_0: d_5, f0_1: t_6, f0_2: t_9}
 		return t_10
-	}
-}
-
-func F_of_nat(n_in int64) int64 {
-	for {
-		n_1 := n_in
-		_ = n_1
-		if n_1 < 0 {
-			panic("gogen: not a nat")
-		}
-		switch {
-		case n_1 == 0:
-			return int64(0)
-		case n_1 > 0:
-			n0_2 := n_1 - 1
-			_ = n0_2
-			t_3 := F_of_succ_nat(n0_2)
-			t_4 := t_3
-			return t_4
-		default:
-			panic("gogen: no case matches")
-		}
-	}
-}
-
-func F_of_succ_nat(n_in int64) int64 {
-	for {
-		n_1 := n_in
-		_ = n_1
-		if n_1 < 0 {
-			panic("gogen: not a nat")
-		}
-		switch {
-		case n_1 == 0:
-			return int64(1)
-		case n_1 > 0:
-			x_2 := n_1 - 1
-			_ = x_2
-			t_3 := F_of_succ_nat(x_2)
-			t_4 := F_succ(t_3)
-			return t_4
-		default:
-			panic("gogen: no case matches")
-		}
 	}
 }
 
@@ -2701,6 +2675,32 @@ func F_pred_double0(x_in int64) int64 {
 	}
 }
 
+func F_prependAll(x_in int64, ws_in *I_list[*I_list[int64]], acc_in *I_list[*I_list[int64]]) *I_list[*I_list[int64]] {
+	for {
+		x_1 := x_in
+		_ = x_1
+		ws_2 := ws_in
+		_ = ws_2
+		acc_3 := acc_in
+		_ = acc_3
+		switch ws_2.tag {
+		case 0:
+			return acc_3
+		case 1:
+			w_4 := ws_2.f1_0
+			_ = w_4
+			t_5 := ws_2.f1_1
+			_ = t_5
+			t_6 := &I_list[int64]{tag: 1, f1_0: x_1, f1_1: w_4}
+			t_7 := &I_list[*I_list[int64]]{tag: 1, f1_0: t_6, f1_1: acc_3}
+			x_in, ws_in, acc_in = x_1, t_5, t_7
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_rd(i_in int64, s_in *I_list[int64]) int64 {
 	for {
 		i_1 := i_in
@@ -2963,7 +2963,7 @@ func F_setClamped(m_in *I_machine, i_in int64, v_in int64, s_in *I_list[int64]) 
 		}
 		t_12 := F_nth[int64](i_2, r_10, int64(1))
 		t_13 := natSub(t_12, int64(1))
-		t_14 := F_min(t_9, t_13)
+		t_14 := min64(t_9, t_13)
 		t_15 := F_wr(i_2, t_14, s_4)
 		return t_15
 	}
@@ -3416,7 +3416,7 @@ func F_varBound(m_in *I_machine, i_in int64) int64 {
 			panic("gogen: no case matches")
 		}
 		t_12 := F_nth[int64](i_2, r_10, int64(0))
-		t_13 := F_of_nat(t_12)
+		t_13 := F_natZ(t_12)
 		t_14 := zAdd(t_9, t_13)
 		t_15 := zSub(t_14, int64(1))
 		t_16 := zAbs(t_15)

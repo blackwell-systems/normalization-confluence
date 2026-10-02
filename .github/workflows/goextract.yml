@@ -25,6 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Start from a clean tree (no build output can be reused)
+        run: |
+          git clean -xdfq coq
+          test -z "$(git ls-files -- '*.vo' '*.vos' '*.vok' '*.glob')"
       - name: Extract the JSON and build the OCaml checkers (pinned image)
         run: bash coq/goextract/ci-extract.sh "$ROCQ_IMAGE" --ocaml
       - name: The JSON matches the committed JSON
@@ -89,9 +93,12 @@ jobs:
       - name: Generate from that JSON, build, and run the same tests
         run: |
           git diff --stat -- coq/goextract/*.json coq/goextract/semantics/compute.out || true
-          make -C coq/goextract gen
+          # Another prover's standard library extracts differently, including
+          # which unary recursions appear: accept them all here (the pinned
+          # image's list is exact).
+          make -C coq/goextract gen UNARY=any
           echo "generated Go differs from the pinned image's in $(git diff --numstat -- coq/goextract | awk '{s += $1 + $2} END {print s + 0}') lines"
-          make -C coq/goextract test
+          GOEXTRACT_UNARY=any make -C coq/goextract test
 
   long:
     # The review's random differential sweep of check_fast against a direct

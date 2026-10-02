@@ -1,6 +1,6 @@
 // Command gogen turns Rocq's MiniML JSON extraction into Go.
 //
-// Usage: gogen [-pkg name] [-o out.go] [-allow-unary f,g] extraction.json
+// Usage: gogen [-pkg name] [-o out.go] [-allow-unary f,g] [-allow-unary-file allow-unary.txt] extraction.json
 //
 // It accepts the MiniML fragment the verified checkers extract to, and fails on
 // anything else rather than guess:
@@ -30,7 +30,6 @@ import (
 	"go/format"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 )
@@ -143,6 +142,7 @@ type Global struct {
 	Value *Node
 	Arity int
 	Prim  bool
+	Group int // the decl:fixgroup it belongs to (1, 2, ...), 0 for a decl:term
 }
 
 type Gen struct {
@@ -238,6 +238,7 @@ func (g *Gen) load(root *Node) {
 		fail("the extraction needs Obj.magic or a dummy (need_magic=%v, need_dummy=%v): not typable in Go", root.NeedMagic, root.NeedDummy)
 	}
 	seenMapped := map[string]bool{}
+	groups := 0
 	for _, d := range root.Decls {
 		switch d.What {
 		case "decl:ind":
@@ -275,10 +276,11 @@ func (g *Gen) load(root *Node) {
 			}
 			g.aliases[d.Name] = &Alias{Params: d.Argnames, Value: d.Value}
 		case "decl:term":
-			g.addGlobal(d.Name, d.Type, d.Value)
+			g.addGlobal(d.Name, d.Type, d.Value, 0)
 		case "decl:fixgroup":
+			groups++
 			for _, f := range d.Fixlist {
-				g.addGlobal(f.Name, f.Type, f.Value)
+				g.addGlobal(f.Name, f.Type, f.Value, groups)
 			}
 		default:
 			fail("unsupported declaration %s", d.What)
@@ -304,12 +306,12 @@ func (g *Gen) load(root *Node) {
 	}
 }
 
-func (g *Gen) addGlobal(name string, ty, val *Node) {
+func (g *Gen) addGlobal(name string, ty, val *Node, group int) {
 	val = unwrap(val)
 	if _, dup := g.globals[name]; dup {
 		fail("duplicate global %s (JSON extraction drops module qualifiers)", name)
 	}
-	gl := &Global{Name: name, Type: ty, Value: val, NVars: maxVaridx(ty)}
+	gl := &Global{Name: name, Type: ty, Value: val, NVars: maxVaridx(ty), Group: group}
 	if p, ok := prims[name]; ok {
 		gl.Prim, gl.Arity = true, p.arity
 	} else if strings.HasPrefix(name, "prim_") {
@@ -489,18 +491,15 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 	return nil
 }
 
-// unaryNames are the standard library's nat arithmetic functions, as JSON
-// extraction prints them (without module qualifier, and with a numeric suffix
-// when a name is taken). ExtrGo.v maps plus, minus and mult; the copies
-// PeanoNat's Nat module re-exports (Nat.add, Nat.mul, Nat.pow, ...) are not
-// mapped, as in ExtrOcamlNatInt, and extract to their unary definitions.
-var unaryNames = regexp.MustCompile(`^(add|sub|mul|pow|div|modulo|pred|min|max|double|square)[0-9]*$`)
-
-// refuseUnary refuses unmapped unary nat arithmetic: a global named like a
-// standard nat operation whose type takes and returns only go_nat. Its cost in
-// time and stack is linear in the numbers it gets (Nat.mul on 2^20 is about
-// 2^20 nested calls), so a use of it is a performance bug in the extracted
-// checker, unless allowed by name.
+// refuseUnary refuses unary recursion on a mapped nat: a fixpoint that calls
+// itself (or a function of its fixgroup) on the predecessor bound by a
+// nat_succ pattern. Its time, and its stack unless the call is a tail call,
+// are linear in the number: Nat.add, Nat.mul, Nat.min or Pos.of_succ_nat on
+// 2^20 is about 2^20 nested calls. Structural recursion on a nat that only
+// counts list positions or fuel can be harmless; each such function must be
+// allowed by name (Options.AllowUnary, gogen -allow-unary), with the reason
+// recorded where it is allowed. "*" allows every one (for prover versions
+// other than the reference, whose standard library differs).
 func (g *Gen) refuseUnary(allow []string) {
 	allowed := map[string]bool{}
 	for _, a := range allow {
@@ -508,24 +507,83 @@ func (g *Gen) refuseUnary(allow []string) {
 	}
 	var found []string
 	for _, gl := range g.order {
-		if gl.Prim || allowed[gl.Name] || !unaryNames.MatchString(gl.Name) || !natOnly(gl.Type) {
+		if gl.Prim || gl.Group == 0 || allowed[gl.Name] || allowed["*"] {
 			continue
 		}
-		found = append(found, gl.Name)
+		if g.recursesOnPredecessor(gl.Value, gl.Group, map[string]bool{}) {
+			found = append(found, gl.Name)
+		}
 	}
 	if len(found) > 0 {
 		sort.Strings(found)
-		fail("unmapped unary nat arithmetic: %s (extracted as its Rocq definition, linear in time and stack; map it in ExtrGo.v, avoid it, or allow it with -allow-unary)", strings.Join(found, ", "))
+		fail("unary nat recursion: %s (recursion on the predecessor of a nat, linear in the number; map the function in ExtrGo.v, avoid it, or allow it by name with -allow-unary once it is shown harmless)", strings.Join(found, ", "))
 	}
 }
 
-// natOnly reports whether a MiniML type is go_nat -> ... -> go_nat.
-func natOnly(t *Node) bool {
-	switch t.What {
-	case "type:arrow":
-		return natOnly(t.Left) && natOnly(t.Right)
-	case "type:glob":
-		return t.Name == "go_nat" && len(t.Args) == 0
+// recursesOnPredecessor reports whether n calls a function of fixgroup group
+// with an argument that is a predecessor (a name bound by a nat_succ pattern,
+// in preds) of the value matched.
+func (g *Gen) recursesOnPredecessor(n *Node, group int, preds map[string]bool) bool {
+	if n == nil {
+		return false
+	}
+	without := func(names ...string) map[string]bool {
+		out := map[string]bool{}
+		for k := range preds {
+			out[k] = true
+		}
+		for _, x := range names {
+			delete(out, x)
+		}
+		return out
+	}
+	switch n.What {
+	case "expr:apply":
+		if n.Func.What == "expr:global" {
+			if callee, ok := g.globals[n.Func.Name]; ok && callee.Group == group {
+				for _, a := range n.Args {
+					if a.What == "expr:rel" && preds[a.Name] {
+						return true
+					}
+				}
+			}
+		}
+		if g.recursesOnPredecessor(n.Func, group, preds) {
+			return true
+		}
+		for _, a := range n.Args {
+			if g.recursesOnPredecessor(a, group, preds) {
+				return true
+			}
+		}
+		return false
+	case "expr:lambda":
+		return g.recursesOnPredecessor(n.Body, group, without(n.Argnames...))
+	case "expr:let":
+		return g.recursesOnPredecessor(n.Nameval, group, preds) || g.recursesOnPredecessor(n.Body, group, without(n.Name))
+	case "expr:case":
+		if g.recursesOnPredecessor(n.Expr, group, preds) {
+			return true
+		}
+		for _, c := range n.Cases {
+			inner := without(c.Pat.Argnames...)
+			if c.Pat.What == "pat:rel" {
+				inner = without(c.Pat.Name)
+			}
+			if c.Pat.What == "pat:constructor" && c.Pat.Name == "nat_succ" && len(c.Pat.Argnames) == 1 && c.Pat.Argnames[0] != "_" {
+				inner[c.Pat.Argnames[0]] = true
+			}
+			if g.recursesOnPredecessor(c.Body, group, inner) {
+				return true
+			}
+		}
+		return false
+	case "expr:constructor":
+		for _, a := range n.Args {
+			if g.recursesOnPredecessor(a, group, preds) {
+				return true
+			}
+		}
 	}
 	return false
 }
@@ -1011,6 +1069,19 @@ func Generate(raw []byte, pkg, srcName string) ([]byte, error) {
 	return GenerateWith(raw, pkg, srcName, Options{})
 }
 
+// AllowedFor returns the functions an allow-unary file lists for the
+// extraction named json: lines "<json> <function> <reason>", # for comments.
+func AllowedFor(file, json string) []string {
+	var out []string
+	for _, line := range strings.Split(file, "\n") {
+		f := strings.Fields(line)
+		if len(f) >= 2 && !strings.HasPrefix(f[0], "#") && f[0] == json {
+			out = append(out, f[1])
+		}
+	}
+	return out
+}
+
 // Options adjusts what Generate accepts.
 type Options struct {
 	// AllowUnary names unmapped unary nat arithmetic functions to accept (see
@@ -1055,7 +1126,8 @@ func GenerateWith(raw []byte, pkg, srcName string, opts Options) (src []byte, er
 func main() {
 	pkg := flag.String("pkg", "main", "Go package name")
 	out := flag.String("o", "", "output file (default stdout)")
-	allowUnary := flag.String("allow-unary", "", "comma-separated unary nat arithmetic functions to accept (see Options.AllowUnary)")
+	allowUnary := flag.String("allow-unary", "", "comma-separated unary nat recursions to accept, or * for all (see Options.AllowUnary)")
+	allowFile := flag.String("allow-unary-file", "", "file of <json> <function> <reason> lines: accept the unary recursions listed for this input")
 	flag.Parse()
 	if flag.NArg() != 1 {
 		fmt.Fprintln(os.Stderr, "usage: gogen [-pkg name] [-o out.go] [-allow-unary f,g] extraction.json")
@@ -1069,6 +1141,14 @@ func main() {
 	var opts Options
 	if *allowUnary != "" {
 		opts.AllowUnary = strings.Split(*allowUnary, ",")
+	}
+	if *allowFile != "" {
+		b, err := os.ReadFile(*allowFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "gogen:", err)
+			os.Exit(1)
+		}
+		opts.AllowUnary = append(opts.AllowUnary, AllowedFor(string(b), filepath.Base(flag.Arg(0)))...)
 	}
 	src, err := GenerateWith(raw, *pkg, flag.Arg(0), opts)
 	if err != nil {

@@ -673,7 +673,7 @@
       "what": "decl:fixgroup",
       "fixlist": [
         {
-          "what": "fixgroup:item", "name": "add",
+          "what": "fixgroup:item", "name": "prim_nat_min",
           "type": {
             "what": "type:arrow",
             "left": {
@@ -697,142 +697,9 @@
           },
           "value": {
             "what": "expr:lambda", "argnames": [
-              "n", "m"
-            ],
-            "body": {
-              "what": "expr:case",
-              "expr": {
-                "what": "expr:rel", "name": "n"
-              },
-              "cases": [
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_0",
-                    "argnames": [
-                      
-                    ]
-                  }, "body": {
-                    "what": "expr:rel", "name": "m"
-                  }
-                },
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_succ",
-                    "argnames": [
-                      "p"
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:constructor", "name": "nat_succ",
-                    "args": [
-                      {
-                        "what": "expr:apply",
-                        "func": {
-                          "what": "expr:global", "name": "add"
-                        },
-                        "args": [
-                          {
-                            "what": "expr:rel", "name": "p"
-                          }, {
-                            "what": "expr:rel", "name": "m"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "what": "decl:fixgroup",
-      "fixlist": [
-        {
-          "what": "fixgroup:item", "name": "mul",
-          "type": {
-            "what": "type:arrow",
-            "left": {
-              "what": "type:glob", "name": "go_nat", "args": [
-                
-              ]
-            },
-            "right": {
-              "what": "type:arrow",
-              "left": {
-                "what": "type:glob", "name": "go_nat", "args": [
-                  
-                ]
-              },
-              "right": {
-                "what": "type:glob", "name": "go_nat", "args": [
-                  
-                ]
-              }
-            }
-          },
-          "value": {
-            "what": "expr:lambda", "argnames": [
-              "n", "m"
-            ],
-            "body": {
-              "what": "expr:case",
-              "expr": {
-                "what": "expr:rel", "name": "n"
-              },
-              "cases": [
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_0",
-                    "argnames": [
-                      
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:constructor", "name": "nat_0", "args": [
-                      
-                    ]
-                  }
-                },
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_succ",
-                    "argnames": [
-                      "p"
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:apply",
-                    "func": {
-                      "what": "expr:global", "name": "add"
-                    },
-                    "args": [
-                      {
-                        "what": "expr:rel", "name": "m"
-                      },
-                      {
-                        "what": "expr:apply",
-                        "func": {
-                          "what": "expr:global", "name": "mul"
-                        },
-                        "args": [
-                          {
-                            "what": "expr:rel", "name": "p"
-                          }, {
-                            "what": "expr:rel", "name": "m"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ]
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
             }
           }
         }
@@ -1111,121 +978,6 @@
                               "what": "expr:rel", "name": "n'"
                             }, {
                               "what": "expr:rel", "name": "m'"
-                            }
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "what": "decl:fixgroup",
-      "fixlist": [
-        {
-          "what": "fixgroup:item", "name": "min",
-          "type": {
-            "what": "type:arrow",
-            "left": {
-              "what": "type:glob", "name": "go_nat", "args": [
-                
-              ]
-            },
-            "right": {
-              "what": "type:arrow",
-              "left": {
-                "what": "type:glob", "name": "go_nat", "args": [
-                  
-                ]
-              },
-              "right": {
-                "what": "type:glob", "name": "go_nat", "args": [
-                  
-                ]
-              }
-            }
-          },
-          "value": {
-            "what": "expr:lambda", "argnames": [
-              "n", "m"
-            ],
-            "body": {
-              "what": "expr:case",
-              "expr": {
-                "what": "expr:rel", "name": "n"
-              },
-              "cases": [
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_0",
-                    "argnames": [
-                      
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:constructor", "name": "nat_0", "args": [
-                      
-                    ]
-                  }
-                },
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_succ",
-                    "argnames": [
-                      "n'"
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:case",
-                    "expr": {
-                      "what": "expr:rel", "name": "m"
-                    },
-                    "cases": [
-                      {
-                        "what": "case",
-                        "pat": {
-                          "what": "pat:constructor", "name": "nat_0",
-                          "argnames": [
-                            
-                          ]
-                        },
-                        "body": {
-                          "what": "expr:constructor", "name": "nat_0",
-                          "args": [
-                            
-                          ]
-                        }
-                      },
-                      {
-                        "what": "case",
-                        "pat": {
-                          "what": "pat:constructor", "name": "nat_succ",
-                          "argnames": [
-                            "m'"
-                          ]
-                        },
-                        "body": {
-                          "what": "expr:constructor", "name": "nat_succ",
-                          "args": [
-                            {
-                              "what": "expr:apply",
-                              "func": {
-                                "what": "expr:global", "name": "min"
-                              },
-                              "args": [
-                                {
-                                  "what": "expr:rel", "name": "n'"
-                                }, {
-                                  "what": "expr:rel", "name": "m'"
-                                }
-                              ]
                             }
                           ]
                         }
@@ -1554,7 +1306,7 @@
       "what": "decl:fixgroup",
       "fixlist": [
         {
-          "what": "fixgroup:item", "name": "add0",
+          "what": "fixgroup:item", "name": "add",
           "type": {
             "what": "type:arrow",
             "left": {
@@ -1641,7 +1393,7 @@
                             {
                               "what": "expr:apply",
                               "func": {
-                                "what": "expr:global", "name": "add0"
+                                "what": "expr:global", "name": "add"
                               },
                               "args": [
                                 {
@@ -1710,7 +1462,7 @@
                             {
                               "what": "expr:apply",
                               "func": {
-                                "what": "expr:global", "name": "add0"
+                                "what": "expr:global", "name": "add"
                               },
                               "args": [
                                 {
@@ -1737,7 +1489,7 @@
                             {
                               "what": "expr:apply",
                               "func": {
-                                "what": "expr:global", "name": "add0"
+                                "what": "expr:global", "name": "add"
                               },
                               "args": [
                                 {
@@ -2037,7 +1789,7 @@
                             {
                               "what": "expr:apply",
                               "func": {
-                                "what": "expr:global", "name": "add0"
+                                "what": "expr:global", "name": "add"
                               },
                               "args": [
                                 {
@@ -2258,6 +2010,124 @@
                     "args": [
                       
                     ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "mul",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_pos", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_pos", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_pos", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "x", "y"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "x"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "pos_xI",
+                    "argnames": [
+                      "p"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:apply",
+                    "func": {
+                      "what": "expr:global", "name": "add"
+                    },
+                    "args": [
+                      {
+                        "what": "expr:rel", "name": "y"
+                      },
+                      {
+                        "what": "expr:constructor", "name": "pos_xO",
+                        "args": [
+                          {
+                            "what": "expr:apply",
+                            "func": {
+                              "what": "expr:global", "name": "mul"
+                            },
+                            "args": [
+                              {
+                                "what": "expr:rel", "name": "p"
+                              }, {
+                                "what": "expr:rel", "name": "y"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "pos_xO",
+                    "argnames": [
+                      "p"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:constructor", "name": "pos_xO",
+                    "args": [
+                      {
+                        "what": "expr:apply",
+                        "func": {
+                          "what": "expr:global", "name": "mul"
+                        },
+                        "args": [
+                          {
+                            "what": "expr:rel", "name": "p"
+                          }, {
+                            "what": "expr:rel", "name": "y"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "pos_xH",
+                    "argnames": [
+                      
+                    ]
+                  }, "body": {
+                    "what": "expr:rel", "name": "y"
                   }
                 }
               ]
@@ -3014,82 +2884,6 @@
       }
     },
     {
-      "what": "decl:fixgroup",
-      "fixlist": [
-        {
-          "what": "fixgroup:item", "name": "of_succ_nat",
-          "type": {
-            "what": "type:arrow",
-            "left": {
-              "what": "type:glob", "name": "go_nat", "args": [
-                
-              ]
-            },
-            "right": {
-              "what": "type:glob", "name": "go_pos", "args": [
-                
-              ]
-            }
-          },
-          "value": {
-            "what": "expr:lambda", "argnames": [
-              "n"
-            ],
-            "body": {
-              "what": "expr:case",
-              "expr": {
-                "what": "expr:rel", "name": "n"
-              },
-              "cases": [
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_0",
-                    "argnames": [
-                      
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:constructor", "name": "pos_xH",
-                    "args": [
-                      
-                    ]
-                  }
-                },
-                {
-                  "what": "case",
-                  "pat": {
-                    "what": "pat:constructor", "name": "nat_succ",
-                    "argnames": [
-                      "x"
-                    ]
-                  },
-                  "body": {
-                    "what": "expr:apply",
-                    "func": {
-                      "what": "expr:global", "name": "succ"
-                    },
-                    "args": [
-                      {
-                        "what": "expr:apply",
-                        "func": {
-                          "what": "expr:global", "name": "of_succ_nat"
-                        }, "args": [
-                          {
-                            "what": "expr:rel", "name": "x"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
       "what": "decl:term", "name": "double",
       "type": {
         "what": "type:arrow",
@@ -3759,7 +3553,7 @@
                         {
                           "what": "expr:apply",
                           "func": {
-                            "what": "expr:global", "name": "add0"
+                            "what": "expr:global", "name": "add"
                           },
                           "args": [
                             {
@@ -3858,7 +3652,7 @@
                         {
                           "what": "expr:apply",
                           "func": {
-                            "what": "expr:global", "name": "add0"
+                            "what": "expr:global", "name": "add"
                           },
                           "args": [
                             {
@@ -3996,6 +3790,224 @@
                   "what": "expr:rel", "name": "n"
                 }
               ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "prim_z_mul",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_z", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_z", "args": [
+              
+            ]
+          }, "right": {
+            "what": "type:glob", "name": "go_z", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "x", "y"
+        ],
+        "body": {
+          "what": "expr:case", "expr": {
+            "what": "expr:rel", "name": "x"
+          },
+          "cases": [
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "z_0", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "z_0", "args": [
+                  
+                ]
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "z_pos",
+                "argnames": [
+                  "x'"
+                ]
+              },
+              "body": {
+                "what": "expr:case",
+                "expr": {
+                  "what": "expr:rel", "name": "y"
+                },
+                "cases": [
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_0",
+                      "argnames": [
+                        
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_0", "args": [
+                        
+                      ]
+                    }
+                  },
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_pos",
+                      "argnames": [
+                        "y'"
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_pos",
+                      "args": [
+                        {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "mul"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "x'"
+                            }, {
+                              "what": "expr:rel", "name": "y'"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_neg",
+                      "argnames": [
+                        "y'"
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_neg",
+                      "args": [
+                        {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "mul"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "x'"
+                            }, {
+                              "what": "expr:rel", "name": "y'"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "z_neg",
+                "argnames": [
+                  "x'"
+                ]
+              },
+              "body": {
+                "what": "expr:case",
+                "expr": {
+                  "what": "expr:rel", "name": "y"
+                },
+                "cases": [
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_0",
+                      "argnames": [
+                        
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_0", "args": [
+                        
+                      ]
+                    }
+                  },
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_pos",
+                      "argnames": [
+                        "y'"
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_neg",
+                      "args": [
+                        {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "mul"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "x'"
+                            }, {
+                              "what": "expr:rel", "name": "y'"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "what": "case",
+                    "pat": {
+                      "what": "pat:constructor", "name": "z_neg",
+                      "argnames": [
+                        "y'"
+                      ]
+                    },
+                    "body": {
+                      "what": "expr:constructor", "name": "z_pos",
+                      "args": [
+                        {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "mul"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "x'"
+                            }, {
+                              "what": "expr:rel", "name": "y'"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           ]
         }
@@ -4741,70 +4753,6 @@
               "body": {
                 "what": "expr:constructor", "name": "nat_0", "args": [
                   
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "what": "decl:term", "name": "of_nat",
-      "type": {
-        "what": "type:arrow",
-        "left": {
-          "what": "type:glob", "name": "go_nat", "args": [
-            
-          ]
-        }, "right": {
-          "what": "type:glob", "name": "go_z", "args": [
-            
-          ]
-        }
-      },
-      "value": {
-        "what": "expr:lambda", "argnames": [
-          "n"
-        ],
-        "body": {
-          "what": "expr:case", "expr": {
-            "what": "expr:rel", "name": "n"
-          },
-          "cases": [
-            {
-              "what": "case",
-              "pat": {
-                "what": "pat:constructor", "name": "nat_0", "argnames": [
-                  
-                ]
-              },
-              "body": {
-                "what": "expr:constructor", "name": "z_0", "args": [
-                  
-                ]
-              }
-            },
-            {
-              "what": "case",
-              "pat": {
-                "what": "pat:constructor", "name": "nat_succ",
-                "argnames": [
-                  "n0"
-                ]
-              },
-              "body": {
-                "what": "expr:constructor", "name": "z_pos",
-                "args": [
-                  {
-                    "what": "expr:apply",
-                    "func": {
-                      "what": "expr:global", "name": "of_succ_nat"
-                    }, "args": [
-                      {
-                        "what": "expr:rel", "name": "n0"
-                      }
-                    ]
-                  }
                 ]
               }
             }
@@ -18768,6 +18716,299 @@
       "what": "decl:fixgroup",
       "fixlist": [
         {
+          "what": "fixgroup:item", "name": "natZF",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_z", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "f", "n"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "f"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_0",
+                    "argnames": [
+                      
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:constructor", "name": "z_0", "args": [
+                      
+                    ]
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_succ",
+                    "argnames": [
+                      "f'"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:case",
+                    "expr": {
+                      "what": "expr:apply",
+                      "func": {
+                        "what": "expr:global", "name": "prim_nat_eqb"
+                      },
+                      "args": [
+                        {
+                          "what": "expr:rel", "name": "n"
+                        },
+                        {
+                          "what": "expr:constructor", "name": "nat_0",
+                          "args": [
+                            
+                          ]
+                        }
+                      ]
+                    },
+                    "cases": [
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "true",
+                          "argnames": [
+                            
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:constructor", "name": "z_0",
+                          "args": [
+                            
+                          ]
+                        }
+                      },
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "false",
+                          "argnames": [
+                            
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "prim_z_add"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:apply",
+                              "func": {
+                                "what": "expr:global", "name": "prim_z_mul"
+                              },
+                              "args": [
+                                {
+                                  "what": "expr:constructor",
+                                  "name": "z_pos",
+                                  "args": [
+                                    {
+                                      "what": "expr:constructor",
+                                      "name": "pos_xO",
+                                      "args": [
+                                        {
+                                          "what": "expr:constructor",
+                                          "name": "pos_xH", "args": [
+                                            
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "what": "expr:apply",
+                                  "func": {
+                                    "what": "expr:global", "name": "natZF"
+                                  },
+                                  "args": [
+                                    {
+                                      "what": "expr:rel", "name": "f'"
+                                    },
+                                    {
+                                      "what": "expr:apply",
+                                      "func": {
+                                        "what": "expr:global",
+                                        "name": "prim_nat_div2"
+                                      },
+                                      "args": [
+                                        {
+                                          "what": "expr:rel", "name": "n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "what": "expr:case",
+                              "expr": {
+                                "what": "expr:apply",
+                                "func": {
+                                  "what": "expr:global",
+                                  "name": "prim_nat_eqb"
+                                },
+                                "args": [
+                                  {
+                                    "what": "expr:rel", "name": "n"
+                                  },
+                                  {
+                                    "what": "expr:apply",
+                                    "func": {
+                                      "what": "expr:global",
+                                      "name": "prim_nat_mul"
+                                    },
+                                    "args": [
+                                      {
+                                        "what": "expr:constructor",
+                                        "name": "nat_succ",
+                                        "args": [
+                                          {
+                                            "what": "expr:constructor",
+                                            "name": "nat_succ",
+                                            "args": [
+                                              {
+                                                "what": "expr:constructor",
+                                                "name": "nat_0", "args": [
+                                                  
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "what": "expr:apply",
+                                        "func": {
+                                          "what": "expr:global",
+                                          "name": "prim_nat_div2"
+                                        },
+                                        "args": [
+                                          {
+                                            "what": "expr:rel", "name": "n"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              },
+                              "cases": [
+                                {
+                                  "what": "case",
+                                  "pat": {
+                                    "what": "pat:constructor",
+                                    "name": "true", "argnames": [
+                                      
+                                    ]
+                                  },
+                                  "body": {
+                                    "what": "expr:constructor",
+                                    "name": "z_0", "args": [
+                                      
+                                    ]
+                                  }
+                                },
+                                {
+                                  "what": "case",
+                                  "pat": {
+                                    "what": "pat:constructor",
+                                    "name": "false", "argnames": [
+                                      
+                                    ]
+                                  },
+                                  "body": {
+                                    "what": "expr:constructor",
+                                    "name": "z_pos",
+                                    "args": [
+                                      {
+                                        "what": "expr:constructor",
+                                        "name": "pos_xH", "args": [
+                                          
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:term", "name": "natZ",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        }, "right": {
+          "what": "type:glob", "name": "go_z", "args": [
+            
+          ]
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "n"
+        ],
+        "body": {
+          "what": "expr:apply",
+          "func": {
+            "what": "expr:global", "name": "natZF"
+          },
+          "args": [
+            {
+              "what": "expr:rel", "name": "n"
+            }, {
+              "what": "expr:rel", "name": "n"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
           "what": "fixgroup:item", "name": "evalE",
           "type": {
             "what": "type:arrow",
@@ -18849,7 +19090,7 @@
                       {
                         "what": "expr:apply",
                         "func": {
-                          "what": "expr:global", "name": "of_nat"
+                          "what": "expr:global", "name": "natZ"
                         },
                         "args": [
                           {
@@ -19328,7 +19569,7 @@
             {
               "what": "expr:apply",
               "func": {
-                "what": "expr:global", "name": "min"
+                "what": "expr:global", "name": "prim_nat_min"
               },
               "args": [
                 {
@@ -20023,7 +20264,7 @@
           },
           "args": [
             {
-              "what": "expr:global", "name": "mul"
+              "what": "expr:global", "name": "prim_nat_mul"
             },
             {
               "what": "expr:case",
@@ -20226,6 +20467,234 @@
       "what": "decl:fixgroup",
       "fixlist": [
         {
+          "what": "fixgroup:item", "name": "prependAll",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "list",
+                "args": [
+                  {
+                    "what": "type:glob", "name": "valn", "args": [
+                      
+                    ]
+                  }
+                ]
+              },
+              "right": {
+                "what": "type:arrow",
+                "left": {
+                  "what": "type:glob", "name": "list",
+                  "args": [
+                    {
+                      "what": "type:glob", "name": "valn", "args": [
+                        
+                      ]
+                    }
+                  ]
+                },
+                "right": {
+                  "what": "type:glob", "name": "list",
+                  "args": [
+                    {
+                      "what": "type:glob", "name": "valn", "args": [
+                        
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "x", "ws", "acc"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "ws"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "Nil",
+                    "argnames": [
+                      
+                    ]
+                  }, "body": {
+                    "what": "expr:rel", "name": "acc"
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "Cons",
+                    "argnames": [
+                      "w", "t"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:apply",
+                    "func": {
+                      "what": "expr:global", "name": "prependAll"
+                    },
+                    "args": [
+                      {
+                        "what": "expr:rel", "name": "x"
+                      }, {
+                        "what": "expr:rel", "name": "t"
+                      },
+                      {
+                        "what": "expr:constructor", "name": "Cons",
+                        "args": [
+                          {
+                            "what": "expr:constructor", "name": "Cons",
+                            "args": [
+                              {
+                                "what": "expr:rel", "name": "x"
+                              }, {
+                                "what": "expr:rel", "name": "w"
+                              }
+                            ]
+                          }, {
+                            "what": "expr:rel", "name": "acc"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "layer",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "list",
+                "args": [
+                  {
+                    "what": "type:glob", "name": "valn", "args": [
+                      
+                    ]
+                  }
+                ]
+              },
+              "right": {
+                "what": "type:arrow",
+                "left": {
+                  "what": "type:glob", "name": "list",
+                  "args": [
+                    {
+                      "what": "type:glob", "name": "valn", "args": [
+                        
+                      ]
+                    }
+                  ]
+                },
+                "right": {
+                  "what": "type:glob", "name": "list",
+                  "args": [
+                    {
+                      "what": "type:glob", "name": "valn", "args": [
+                        
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "k", "ws", "acc"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "k"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_0",
+                    "argnames": [
+                      
+                    ]
+                  }, "body": {
+                    "what": "expr:rel", "name": "acc"
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_succ",
+                    "argnames": [
+                      "k'"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:apply",
+                    "func": {
+                      "what": "expr:global", "name": "layer"
+                    },
+                    "args": [
+                      {
+                        "what": "expr:rel", "name": "k'"
+                      }, {
+                        "what": "expr:rel", "name": "ws"
+                      },
+                      {
+                        "what": "expr:apply",
+                        "func": {
+                          "what": "expr:global", "name": "prependAll"
+                        },
+                        "args": [
+                          {
+                            "what": "expr:rel", "name": "k'"
+                          }, {
+                            "what": "expr:rel", "name": "ws"
+                          }, {
+                            "what": "expr:rel", "name": "acc"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
           "what": "fixgroup:item", "name": "box",
           "type": {
             "what": "type:arrow",
@@ -20297,62 +20766,26 @@
                   "body": {
                     "what": "expr:apply",
                     "func": {
-                      "what": "expr:global", "name": "flat_map"
+                      "what": "expr:global", "name": "layer"
                     },
                     "args": [
                       {
-                        "what": "expr:lambda", "argnames": [
-                          "v"
-                        ],
-                        "body": {
-                          "what": "expr:apply",
-                          "func": {
-                            "what": "expr:global", "name": "map"
-                          },
-                          "args": [
-                            {
-                              "what": "expr:lambda", "argnames": [
-                                "x"
-                              ],
-                              "body": {
-                                "what": "expr:constructor", "name": "Cons",
-                                "args": [
-                                  {
-                                    "what": "expr:rel", "name": "v"
-                                  }, {
-                                    "what": "expr:rel", "name": "x"
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "what": "expr:apply",
-                              "func": {
-                                "what": "expr:global", "name": "box"
-                              },
-                              "args": [
-                                {
-                                  "what": "expr:rel", "name": "rest"
-                                }
-                              ]
-                            }
-                          ]
-                        }
+                        "what": "expr:rel", "name": "d"
                       },
                       {
                         "what": "expr:apply",
                         "func": {
-                          "what": "expr:global", "name": "seq"
-                        },
-                        "args": [
+                          "what": "expr:global", "name": "box"
+                        }, "args": [
                           {
-                            "what": "expr:constructor", "name": "nat_0",
-                            "args": [
-                              
-                            ]
-                          }, {
-                            "what": "expr:rel", "name": "d"
+                            "what": "expr:rel", "name": "rest"
                           }
+                        ]
+                      },
+                      {
+                        "what": "expr:constructor", "name": "Nil",
+                        "args": [
+                          
                         ]
                       }
                     ]
@@ -20733,7 +21166,7 @@
                         {
                           "what": "expr:apply",
                           "func": {
-                            "what": "expr:global", "name": "of_nat"
+                            "what": "expr:global", "name": "natZ"
                           },
                           "args": [
                             {
@@ -21733,7 +22166,7 @@
                           {
                             "what": "expr:apply",
                             "func": {
-                              "what": "expr:global", "name": "of_nat"
+                              "what": "expr:global", "name": "natZ"
                             },
                             "args": [
                               {

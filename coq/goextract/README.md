@@ -32,9 +32,11 @@ TableFast.v, AstChecker.v
     - A wildcard or variable case that is not the last case (ML takes the first match, a Go switch its default last).
     - A binder list that binds a name twice.
   - **Absurd branches.** An absurd branch (`expr:exception`) becomes a panic with nothing after it.
-  - **Unary arithmetic refused.** gogen refuses unmapped unary `nat` arithmetic unless it is allowed by name (`-allow-unary`). These are the standard library's `Nat.add`, `Nat.mul`, `Nat.min`, ... extracted as their Rocq definitions, whose time and stack are linear in the numbers.
-    - Today the rules oracle uses `Nat.mul` in `fuelOf` and `Nat.min` in `setClamped`, so `make gen` allows `add`, `min` and `mul`. Fixes are pending in the proof.
-    - The OCaml extraction has the same cost there.
+  - **Unary recursion refused.** gogen refuses unary recursion on a `nat` unless it is allowed by name in `allow-unary.txt`, with the reason. This means a fixpoint that calls itself, or a function of its fixgroup, on the predecessor bound by an `S` pattern.
+    - Its time, and its stack unless the call is a tail call, are linear in the number. Examples are `Nat.add`, `Nat.mul` and `Nat.min` extracted as their Rocq definitions, and `Pos.of_succ_nat`, which `Z.of_nat` goes through.
+    - The checkers' entries are all bounded: by fuel, trie depth, list position, the number of events or variables, or a domain size. Each one is a tail call where the bound can be large.
+    - A test requires the list to be exact: nothing missing, nothing stale.
+    - The check follows names bound by the pattern. A predecessor passed through another binding, such as `let k := p in f k`, is not traced.
   - **Types.** Inductives become generic Go structs. Hindley-Milner inference supplies every Go type, and every generic use is instantiated explicitly.
   - **Functions.** Local lambdas and partial applications become curried closures. A match becomes a switch.
   - **Tail calls.** A self tail call becomes a loop, with a fresh copy of the parameters per iteration so closures never see a later iteration's values. `andb` is a short-circuit `&&` whose right operand is in tail position.
