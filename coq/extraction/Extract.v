@@ -5,6 +5,11 @@
    per input token) can reach 2^62, and check rejects any machine whose expression
    values could leave 32-bit range (check_no_overflow).
    Entry points, all machine-checked axiom-free:
+     - check_fn (TableFn.v): the table oracle over accessor functions
+       (nf s, st e s) instead of lists, so a caller holding its tables in
+       arrays passes accessors and nothing is copied. check_fn_converges states
+       the guarantee on the accessors; check_fast_fn proves check_fast equal to
+       check_fn on the list accessors. The checker front end (main.ml) uses it.
      - check_fast (TableFast.v): certify a machine's STEP TABLES against
        Build's property (the table oracle): normal forms land on valid states,
        every step lands on a valid state, and every declared pair commutes on the
@@ -32,6 +37,7 @@ From Coq Require Import ExtrOcamlBasic.
 From Coq Require Import ExtrOcamlNatInt.
 From Coq Require Import ExtrOcamlZInt.
 Require Import NC.TableFast.
+Require Import NC.TableFn.
 Require Import NC.AstChecker.
 
-Extraction "extraction/checker_core.ml" check_fast checkBuild wfc bounded signSafe compensationFree.
+Extraction "extraction/checker_core.ml" check_fn check_fast checkBuild wfc bounded signSafe compensationFree.

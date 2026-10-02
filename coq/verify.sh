@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.AstChecker NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -39,6 +39,9 @@ Print Assumptions vlook_of_listV.
 Print Assumptions bget_chunk.
 Print Assumptions check_fast_eq.
 Print Assumptions check_fast_converges.
+Print Assumptions check_fn_converges.
+Print Assumptions check_tables_fn.
+Print Assumptions check_fast_fn.
 Print Assumptions stepG_valid_eq.
 Print Assumptions checkBuild_normalize_valid.
 Print Assumptions checkBuild_wfc_terminates.
@@ -115,8 +118,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 93 ]; then
-  echo "FAIL: expected 93 axiom-free results, got $N"
+if [ "$N" -lt 96 ]; then
+  echo "FAIL: expected 96 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
