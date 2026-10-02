@@ -94,6 +94,25 @@ else
   fail=$((fail + 1)); echo "FAIL checker bits20-all.tables in 768 MiB: want exit 0, got $got"; echo "$out" | sed 's/^/     /'
 fi
 fi
+# Budget guard for the rules oracle: 20 two-valued variables (2^20 states), one
+# invariant with a repair, and 20 events (event i sets variable i), with every
+# pair declared (190 pairs). Every pair commutes, so the check does all of its
+# work. It must finish within 30 s, the budget of gsm's in-process gate, at an
+# 8 MiB stack. The pairwise rules check took about 250 s here on an Apple M1
+# Pro; computing step tables from the rules and scanning them as check_fast
+# does is what brings it under budget. timeout stops a regression at 60 s.
+{ printf '(doms'; for i in $(seq 1 20); do printf ' 2'; done; echo ')'
+  echo '(inv (le (var 0) (var 1)) (do (set 1 (lit 1))))'
+  for i in $(seq 0 19); do echo "(ev (do (set $i (lit 1))))"; done
+} > "$big/many20.machine"
+start=$SECONDS
+out="$(ulimit -s 8192 && timeout 60 "$bin/astchecker" "$big/many20.machine" 2>&1)"; got=$?
+took=$((SECONDS - start))
+if [ "$got" = 0 ] && [ "$took" -le 30 ]; then
+  pass=$((pass + 1)); echo "ok   astchecker many20.machine (exit 0, ${took} s)"
+else
+  fail=$((fail + 1)); echo "FAIL astchecker many20.machine: want exit 0 within 30 s, got exit $got after ${took} s"; echo "$out" | sed 's/^/     /'
+fi
 rm -rf "$big"
 
 # The extracted code must not call unary nat arithmetic or conversions: the Nat
