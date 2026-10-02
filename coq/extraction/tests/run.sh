@@ -58,13 +58,15 @@ for f in dom20 bits20; do
     fail=$((fail + 1)); echo "FAIL astchecker $f.machine: want exit 0, got $got (convergent; the checker must not need stack that grows with the input)"; echo "$out" | sed 's/^/     /'
   fi
 done
-# Speed: 2^20 states and 20 events with every pair declared (gsm's largest
-# machine with its default declaration, 190 pairs). Event e sets bit e, so
-# every pair commutes and the check does all of its work. gsm runs this check
-# in process with a 30 s budget. The cell-indexed check_fast takes about 10 s
-# here end to end on an Apple M-series laptop, parsing the 150 MB file
-# included; the previous check_fast (two row-trie lookups per pair per state)
-# took about 29 s.
+# Budget guard: 2^20 states and 20 events with every pair declared (gsm's
+# largest machine with its default declaration, 190 pairs) must be checked
+# within 30 s, the budget of gsm's in-process gate. Event e sets bit e, so every
+# pair commutes and the check does all of its work. The budget is checked on the
+# CI runner (the pinned image, OCaml 4.14), where the checker takes about 11 s
+# end to end, parsing the 150 MB file included. This is a guard against
+# regressions past the budget, not a test that failed before the change: the
+# previous check_fast took about 22 s on the same runner (about 29 s on an Apple
+# M-series laptop with OCaml 5).
 { echo "gsm-tables 2"; echo "$n 20"; printf 'nf'; ids $n; echo "pairs all"
   awk -v n="$n" 'BEGIN { for (e = 0; e < 20; e++) { b = 2 ^ e; for (s = 0; s < n; s++) printf " %d", (int(s / b) % 2 ? s : s + b); print "" } }'
 } > "$big/bits20-all.tables"
