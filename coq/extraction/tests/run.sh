@@ -78,6 +78,18 @@ if [ "$got" = 0 ] && [ "$took" -le 30 ]; then
 else
   fail=$((fail + 1)); echo "FAIL checker bits20-all.tables: want exit 0 within 30 s, got exit $got after ${took} s"; echo "$out" | sed 's/^/     /'
 fi
+# Memory guard on the same machine: the checker must run in 768 MiB of address
+# space (ulimit -v, so a larger allocation fails and the run exits non-zero).
+# The input is 20M step entries; held as lists they alone take about 480 MB, so
+# the front end reads them into arrays and checks them with check_fn over array
+# accessors (TableFn.v). Checked on the CI runner (Linux; macOS does not
+# enforce ulimit -v).
+out="$(ulimit -s 8192 && ulimit -v 786432 && "$bin/checker" "$big/bits20-all.tables" 2>&1)"; got=$?
+if [ "$got" = 0 ]; then
+  pass=$((pass + 1)); echo "ok   checker bits20-all.tables in 768 MiB (exit 0)"
+else
+  fail=$((fail + 1)); echo "FAIL checker bits20-all.tables in 768 MiB: want exit 0, got $got"; echo "$out" | sed 's/^/     /'
+fi
 rm -rf "$big"
 
 # The extracted code must not call unary nat arithmetic or conversions: the Nat
