@@ -2,13 +2,14 @@
 
 `extraction/` extracts the two verified checkers to OCaml. This directory extracts the same Rocq definitions to Go, so gsm can run them in-process: no OCaml, no subprocess, no cgo, and no dependencies.
 
-- `check_fast` is the table oracle. It is proven equal to `check_tables` (`check_fast_eq`) and convergent (`check_fast_converges`).
+- `check_fn` is the table oracle over accessor functions (`TableFn.v`): the caller passes `nf s` and `st e s` over tables it already holds, so nothing is copied. It is proven convergent on the accessors themselves (`check_fn_converges`), which must be pure, total and non-negative, and equal to `check_tables` and `check_fast` (`check_tables_fn`, `check_fast_fn`). gsm's gate uses it.
+- `check_fast` is the table oracle over lists. It is proven equal to `check_tables` (`check_fast_eq`) and convergent (`check_fast_converges`). `cmd/tablecheck` uses it.
 - `checkBuild` is the rules oracle, together with `wfc`, `bounded`, `signSafe` and `compensationFree`.
 
 The Go is not hand-written. Rocq extracts the definitions to MiniML (`Extraction Language JSON`), and `gogen` translates that MiniML to Go mechanically.
 
 ```
-TableFast.v, AstChecker.v
+TableFast.v, TableFn.v, AstChecker.v
    --(Rocq extraction, ExtrGo.v directives)-->  oracle_core.json
    --(gogen)-->                                 oracle/oracle_gen.go   (package oracle)
 ```
