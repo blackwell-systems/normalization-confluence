@@ -6,6 +6,7 @@ checker_core.mli
 *.o
 checker
 astchecker
+astdiff
 *.tables
 *.machine
 *.vo

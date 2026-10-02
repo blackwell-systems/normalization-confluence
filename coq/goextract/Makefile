@@ -24,7 +24,7 @@ all: gen build
 # reused.
 .PHONY: proof
 proof:
-	$(MAKE) -C .. Trace.vo TableCheck.vo TableFast.vo TableFn.vo Checker.vo AstChecker.vo
+	$(MAKE) -C .. Trace.vo TableCheck.vo TableFast.vo TableFn.vo Checker.vo AstChecker.vo AstTables.vo
 
 ExtrGo.vo: ExtrGo.v
 	cd .. && $(COQC) -Q . NC goextract/ExtrGo.v

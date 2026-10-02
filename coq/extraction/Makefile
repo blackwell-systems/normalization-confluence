@@ -1,8 +1,10 @@
 # Build the verified convergence checkers: extract from Coq, compile with OCaml.
 #   checker    -- table oracle: certifies a machine's emitted step tables converge.
 #   astchecker -- rules oracle: certifies a combinator machine from its AST itself.
+#   astdiff    -- test only: the rules oracle (checkBuildT) against checkBuild.
 CHECKER = checker
 ASTCHECKER = astchecker
+ASTDIFF = astdiff
 
 all: $(CHECKER) $(ASTCHECKER)
 
@@ -26,15 +28,21 @@ all: $(CHECKER) $(ASTCHECKER)
 ../AstChecker.vo: ../AstChecker.v ../Checker.vo ../Trace.vo ../TableCheck.vo
 	cd .. && coqc -Q . NC AstChecker.v
 
+../AstTables.vo: ../AstTables.v ../AstChecker.vo ../TableFn.vo ../TableFast.vo ../TableCheck.vo ../Trace.vo
+	cd .. && coqc -Q . NC AstTables.v
+
 # Both checkers extract from one Extract.v into the shared checker_core module.
-checker_core.ml: Extract.v ../TableFast.vo ../TableFn.vo ../AstChecker.vo
+checker_core.ml: Extract.v ../TableFast.vo ../TableFn.vo ../AstChecker.vo ../AstTables.vo
 	cd .. && coqc -Q . NC extraction/Extract.v
 
 $(CHECKER): checker_core.ml main.ml
 	ocamlfind ocamlopt checker_core.mli checker_core.ml main.ml -o $(CHECKER)
 
-$(ASTCHECKER): checker_core.ml ast_main.ml
-	ocamlfind ocamlopt checker_core.mli checker_core.ml ast_main.ml -o $(ASTCHECKER)
+$(ASTCHECKER): checker_core.ml ast_front.ml ast_main.ml
+	ocamlfind ocamlopt checker_core.mli checker_core.ml ast_front.ml ast_main.ml -o $(ASTCHECKER)
+
+$(ASTDIFF): checker_core.ml ast_front.ml ast_diff.ml
+	ocamlfind ocamlopt checker_core.mli checker_core.ml ast_front.ml ast_diff.ml -o $(ASTDIFF)
 
 # Show the table oracle accepts a commuting machine and rejects a non-commuting one.
 demo: $(CHECKER)
@@ -51,10 +59,11 @@ astdemo: $(ASTCHECKER)
 	@echo "convergent rules:";     ./$(ASTCHECKER) good.machine
 	@echo "non-convergent rules:"; ./$(ASTCHECKER) bad.machine || echo "(correctly rejected)"
 
-# Regression tests: semantics (gsm's signed arithmetic) and front-end input validation.
-test: $(CHECKER) $(ASTCHECKER)
+# Regression tests: semantics (gsm's signed arithmetic), front-end input validation,
+# large inputs, and the differential test of the two rules oracles.
+test: $(CHECKER) $(ASTCHECKER) $(ASTDIFF)
 	bash tests/run.sh
 
 clean:
-	rm -f checker_core.ml checker_core.mli *.cmi *.cmx *.cmo *.o $(CHECKER) $(ASTCHECKER) \
+	rm -f checker_core.ml checker_core.mli *.cmi *.cmx *.cmo *.o $(CHECKER) $(ASTCHECKER) $(ASTDIFF) \
 		good.tables bad.tables good.machine bad.machine

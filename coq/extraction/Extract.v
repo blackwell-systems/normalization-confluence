@@ -39,5 +39,6 @@ From Coq Require Import ExtrOcamlZInt.
 Require Import NC.TableFast.
 Require Import NC.TableFn.
 Require Import NC.AstChecker.
+Require Import NC.AstTables.
 
-Extraction "extraction/checker_core.ml" check_fn check_fast checkBuild wfc bounded signSafe compensationFree.
+Extraction "extraction/checker_core.ml" check_fn check_fast checkBuildT checkBuild wfc bounded signSafe compensationFree.

@@ -8,6 +8,7 @@ Require Import NC.goextract.ExtrGo.
 Require Import NC.TableFast.
 Require Import NC.TableFn.
 Require Import NC.AstChecker.
+Require Import NC.AstTables.
 
 Extraction Language JSON.
-Extraction "goextract/oracle_core.json" check_fn check_fast checkBuild wfc bounded signSafe compensationFree.
+Extraction "goextract/oracle_core.json" check_fn check_fast checkBuildT checkBuild wfc bounded signSafe compensationFree.

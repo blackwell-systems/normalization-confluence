@@ -19,6 +19,49 @@ while IFS=$'\t' read -r want tool file why; do
   fi
 done < "$here/cases.tsv"
 
+# The two rules oracles agree (astdiff: checkBuildT, which astchecker runs,
+# against checkBuild). checkBuildT_eq proves it; this checks the extraction:
+# on every well-formed machine case above, on the profile's machine shapes at
+# 2^10 states, and on random machines (accepted and rejected ones; astdiff
+# prints the verdict counts and stops at the first disagreement).
+while IFS=$'\t' read -r want tool file why; do
+  case "$want" in ''|'#'*|2) continue ;; esac
+  [ "$tool" = astchecker ] || continue
+  args=(); for f in $file; do args+=("$here/cases/$f"); done
+  if out="$("$bin/astdiff" "${args[@]}" 2>&1)"; then
+    pass=$((pass + 1)); echo "ok   astdiff $file"
+  else
+    fail=$((fail + 1)); echo "FAIL astdiff $file: the rules oracles disagree"; echo "$out" | sed 's/^/     /'
+  fi
+done < "$here/cases.tsv"
+shapes="$(mktemp -d)"
+{ echo "(doms 32 32)"; echo "(inv (le (var 0) (lit 30)) (do (set 0 (lit 30))))"
+  echo "(ev (do (set 0 (add (var 0) (lit 1)))))"; echo "(ev (do (set 1 (add (var 1) (lit 1)))))"
+  echo "(evwhen (le (var 1) (lit 100000)) (do (set 1 (add (var 1) (lit 1)))))"; } > "$shapes/sq10.machine"
+{ printf '(doms'; for i in $(seq 1 10); do printf ' 2'; done; echo ')'
+  echo '(inv (le (var 0) (var 1)) (do (set 1 (lit 1))))'
+  for i in 0 2 3; do echo "(ev (do (set $i (lit 1))))"; done; } > "$shapes/bool10.machine"
+{ printf '(doms'; for i in $(seq 1 10); do printf ' 2'; done; echo ')'
+  echo '(inv (le (var 0) (var 1)) (do (set 1 (lit 1))))'
+  for i in $(seq 0 9); do echo "(ev (do (set $i (lit 1))))"; done; } > "$shapes/many10.machine"
+# A non-convergent variant: event 10 clears variable 1, which the repair sets.
+{ cat "$shapes/many10.machine"; echo "(ev (do (set 1 (lit 0))))"; } > "$shapes/many10-bad.machine"
+for f in sq10 bool10 many10 many10-bad; do
+  if out="$("$bin/astdiff" "$shapes/$f.machine" 2>&1)"; then
+    pass=$((pass + 1)); echo "ok   astdiff $f.machine ($out)"
+  else
+    fail=$((fail + 1)); echo "FAIL astdiff $f.machine: the rules oracles disagree"; echo "$out" | sed 's/^/     /'
+  fi
+done
+rm -rf "$shapes"
+for seed in 1 2 3; do
+  if out="$("$bin/astdiff" --random 20000 "$seed" 2>&1)"; then
+    pass=$((pass + 1)); echo "ok   astdiff --random 20000 $seed ($out)"
+  else
+    fail=$((fail + 1)); echo "FAIL astdiff --random 20000 $seed: the rules oracles disagree"; echo "$out" | sed 's/^/     /'
+  fi
+done
+
 # Large inputs. Identity tables over 2^20 states (gsm's maximum; one event, every
 # state valid) must be accepted. Generated, not stored (about 15 MB). The
 # previous extraction (check_tables) died here with Stack_overflow under OCaml
