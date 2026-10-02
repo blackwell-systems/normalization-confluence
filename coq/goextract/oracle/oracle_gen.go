@@ -4064,6 +4064,8 @@ func eqb(a, b int64) bool { return a == b }
 
 func ltb(a, b int64) bool { return a < b }
 
+func leb(a, b int64) bool { return a <= b }
+
 func compare(a, b int64) *I_comparison {
 	if a == b {
 		return C_Eq

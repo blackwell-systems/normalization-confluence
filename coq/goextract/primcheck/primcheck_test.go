@@ -116,6 +116,7 @@ func TestPrimsMatchTheirRocqDefinitions(t *testing.T) {
 
 	unaries := []unary{
 		{"nat_div2", natR, func(a int64) any { return M.F_ref_nat_div2()(a) }, func(a int64) any { return c(P.F_ref_nat_div2()(P.Nat(a))) }},
+		{"nat_pred", natR, func(a int64) any { return M.F_ref_nat_pred()(a) }, func(a int64) any { return c(P.F_ref_nat_pred()(P.Nat(a))) }},
 		{"pos_succ", pos2, func(a int64) any { return M.F_ref_pos_succ()(a) }, func(a int64) any { return c(P.F_ref_pos_succ()(P.Pos(a))) }},
 		{"pos_pred", pos2, func(a int64) any { return M.F_ref_pos_pred()(a) }, func(a int64) any { return c(P.F_ref_pos_pred()(P.Pos(a))) }},
 		{"n_succ", n2, func(a int64) any { return M.F_ref_n_succ()(a) }, func(a int64) any { return c(P.F_ref_n_succ()(P.N(a))) }},
@@ -170,6 +171,22 @@ func TestPrimsMatchTheirRocqDefinitions(t *testing.T) {
 		natB("nat_compare", lc(M.F_ref_nat_compare()), func(a *P.I_nat) func(*P.I_nat) any {
 			return func(b *P.I_nat) any { return P.F_ref_nat_compare()(a)(b) }
 		}),
+		natB("nat_max", li(M.F_ref_nat_max()), func(a *P.I_nat) func(*P.I_nat) any { return func(b *P.I_nat) any { return P.F_ref_nat_max()(a)(b) } }),
+		natB("nat_min", li(M.F_ref_nat_min()), func(a *P.I_nat) func(*P.I_nat) any { return func(b *P.I_nat) any { return P.F_ref_nat_min()(a)(b) } }),
+		natB("nat_leb", func(a int64) func(int64) any { return func(b int64) any { return M.F_ref_nat_leb()(a)(b) } },
+			func(a *P.I_nat) func(*P.I_nat) any { return func(b *P.I_nat) any { return P.F_ref_nat_leb()(a)(b) } }),
+		natB("nat_le_lt_dec", func(a int64) func(int64) any { return func(b int64) any { return M.F_ref_nat_le_lt_dec(a, b) } },
+			func(a *P.I_nat) func(*P.I_nat) any {
+				return func(b *P.I_nat) any { return P.F_ref_nat_le_lt_dec(a, b) }
+			}),
+		natB("nat_eq_nat_decide", func(a int64) func(int64) any { return func(b int64) any { return M.F_ref_nat_eq_nat_decide(a, b) } },
+			func(a *P.I_nat) func(*P.I_nat) any {
+				return func(b *P.I_nat) any { return P.F_ref_nat_eq_nat_decide(a, b) }
+			}),
+		natB("nat_eq_nat_dec", func(a int64) func(int64) any { return func(b int64) any { return M.F_ref_nat_eq_nat_dec(a, b) } },
+			func(a *P.I_nat) func(*P.I_nat) any {
+				return func(b *P.I_nat) any { return P.F_ref_nat_eq_nat_dec(a, b) }
+			}),
 		natB("probe_sumbool", func(a int64) func(int64) any { return func(b int64) any { return M.F_probe_sumbool(a, b) } },
 			func(a *P.I_nat) func(*P.I_nat) any { return func(b *P.I_nat) any { return P.F_probe_sumbool(a, b) } }),
 

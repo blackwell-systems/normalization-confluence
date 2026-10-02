@@ -30,6 +30,13 @@ Definition ref_nat_eqb := Nat.eqb.
 Definition ref_nat_compare := Nat.compare.
 Definition ref_nat_ltb (a b : nat) : bool := if Compare_dec.lt_dec a b then true else false.
 Definition ref_nat_div2 := Nat.div2.
+Definition ref_nat_pred := pred.
+Definition ref_nat_max := max.
+Definition ref_nat_min := min.
+Definition ref_nat_eq_nat_decide (a b : nat) : bool := if EqNat.eq_nat_decide a b then true else false.
+Definition ref_nat_eq_nat_dec (a b : nat) : bool := if Peano_dec.eq_nat_dec a b then true else false.
+Definition ref_nat_leb := Compare_dec.leb.
+Definition ref_nat_le_lt_dec (a b : nat) : bool := if Compare_dec.le_lt_dec a b then true else false.
 
 Definition ref_pos_add := Pos.add.
 Definition ref_pos_succ := Pos.succ.

@@ -1156,6 +1156,78 @@ func F_double_pred_mask0(x_in *I_positive) *I_mask0 {
 	}
 }
 
+func F_eq_dec(n0_in *I_nat, m_in *I_nat) *I_sumbool {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		m_2 := m_in
+		_ = m_2
+		switch n0_1.tag {
+		case 0:
+			switch m_2.tag {
+			case 0:
+				return C_Left
+			case 1:
+				return C_Right
+			default:
+				panic("gogen: no case matches")
+			}
+		case 1:
+			n1_3 := n0_1.f1_0
+			_ = n1_3
+			switch m_2.tag {
+			case 0:
+				return C_Right
+			case 1:
+				n2_4 := m_2.f1_0
+				_ = n2_4
+				n0_in, m_in = n1_3, n2_4
+				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_eq_nat_decide(n0_in *I_nat, m_in *I_nat) *I_sumbool {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		m_2 := m_in
+		_ = m_2
+		switch n0_1.tag {
+		case 0:
+			switch m_2.tag {
+			case 0:
+				return C_Left
+			case 1:
+				return C_Right
+			default:
+				panic("gogen: no case matches")
+			}
+		case 1:
+			n1_3 := n0_1.f1_0
+			_ = n1_3
+			switch m_2.tag {
+			case 0:
+				return C_Right
+			case 1:
+				n2_4 := m_2.f1_0
+				_ = n2_4
+				n0_in, m_in = n1_3, n2_4
+				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_eqb(n0_in *I_nat, m_in *I_nat) *I_bool {
 	for {
 		n0_1 := n0_in
@@ -1254,7 +1326,36 @@ func F_le_lt_dec(n0_in *I_nat, m_in *I_nat) *I_sumbool {
 	}
 }
 
-func F_leb(x_in *I_n, y_in *I_n) *I_bool {
+func F_leb(n0_in *I_nat, m_in *I_nat) *I_bool {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		m_2 := m_in
+		_ = m_2
+		switch n0_1.tag {
+		case 0:
+			return C_True
+		case 1:
+			n_p_3 := n0_1.f1_0
+			_ = n_p_3
+			switch m_2.tag {
+			case 0:
+				return C_False
+			case 1:
+				m_p_4 := m_2.f1_0
+				_ = m_p_4
+				n0_in, m_in = n_p_3, m_p_4
+				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_leb0(x_in *I_n, y_in *I_n) *I_bool {
 	for {
 		x_1 := x_in
 		_ = x_1
@@ -1282,7 +1383,37 @@ func F_lt_dec(n0_in *I_nat, m_in *I_nat) *I_sumbool {
 	}
 }
 
-func F_max(p_in *I_positive, p_p_in *I_positive) *I_positive {
+func F_max(n0_in *I_nat, m_in *I_nat) *I_nat {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		m_2 := m_in
+		_ = m_2
+		switch n0_1.tag {
+		case 0:
+			return m_2
+		case 1:
+			n_p_3 := n0_1.f1_0
+			_ = n_p_3
+			switch m_2.tag {
+			case 0:
+				return n0_1
+			case 1:
+				m_p_4 := m_2.f1_0
+				_ = m_p_4
+				t_5 := F_max(n_p_3, m_p_4)
+				t_6 := &I_nat{tag: 1, f1_0: t_5}
+				return t_6
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_max0(p_in *I_positive, p_p_in *I_positive) *I_positive {
 	for {
 		p_1 := p_in
 		_ = p_1
@@ -1298,7 +1429,7 @@ func F_max(p_in *I_positive, p_p_in *I_positive) *I_positive {
 	}
 }
 
-func F_max0(n0_in *I_n, n_p_in *I_n) *I_n {
+func F_max1(n0_in *I_n, n_p_in *I_n) *I_n {
 	for {
 		n0_1 := n0_in
 		_ = n0_1
@@ -1314,7 +1445,7 @@ func F_max0(n0_in *I_n, n_p_in *I_n) *I_n {
 	}
 }
 
-func F_max1(n0_in *I_z, m_in *I_z) *I_z {
+func F_max2(n0_in *I_z, m_in *I_z) *I_z {
 	for {
 		n0_1 := n0_in
 		_ = n0_1
@@ -1330,7 +1461,37 @@ func F_max1(n0_in *I_z, m_in *I_z) *I_z {
 	}
 }
 
-func F_min(p_in *I_positive, p_p_in *I_positive) *I_positive {
+func F_min(n0_in *I_nat, m_in *I_nat) *I_nat {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		m_2 := m_in
+		_ = m_2
+		switch n0_1.tag {
+		case 0:
+			return C_O
+		case 1:
+			n_p_3 := n0_1.f1_0
+			_ = n_p_3
+			switch m_2.tag {
+			case 0:
+				return C_O
+			case 1:
+				m_p_4 := m_2.f1_0
+				_ = m_p_4
+				t_5 := F_min(n_p_3, m_p_4)
+				t_6 := &I_nat{tag: 1, f1_0: t_5}
+				return t_6
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_min0(p_in *I_positive, p_p_in *I_positive) *I_positive {
 	for {
 		p_1 := p_in
 		_ = p_1
@@ -1346,7 +1507,7 @@ func F_min(p_in *I_positive, p_p_in *I_positive) *I_positive {
 	}
 }
 
-func F_min0(n0_in *I_n, n_p_in *I_n) *I_n {
+func F_min1(n0_in *I_n, n_p_in *I_n) *I_n {
 	for {
 		n0_1 := n0_in
 		_ = n0_1
@@ -1362,7 +1523,7 @@ func F_min0(n0_in *I_n, n_p_in *I_n) *I_n {
 	}
 }
 
-func F_min1(n0_in *I_z, m_in *I_z) *I_z {
+func F_min2(n0_in *I_z, m_in *I_z) *I_z {
 	for {
 		n0_1 := n0_in
 		_ = n0_1
@@ -1615,7 +1776,7 @@ func F_pos_div_eucl(a_in *I_positive, b_in *I_n) *I_prod[*I_n, *I_n] {
 				t_7 := F_succ_double(r_6)
 				r_p_8 := t_7
 				_ = r_p_8
-				t_9 := F_leb(b_2, r_p_8)
+				t_9 := F_leb0(b_2, r_p_8)
 				switch t_9.tag {
 				case 0:
 					t_10 := F_succ_double(q_5)
@@ -1645,7 +1806,7 @@ func F_pos_div_eucl(a_in *I_positive, b_in *I_n) *I_prod[*I_n, *I_n] {
 				t_19 := F_double(r_18)
 				r_p_20 := t_19
 				_ = r_p_20
-				t_21 := F_leb(b_2, r_p_20)
+				t_21 := F_leb0(b_2, r_p_20)
 				switch t_21.tag {
 				case 0:
 					t_22 := F_succ_double(q_17)
@@ -1768,7 +1929,24 @@ func F_pos_sub(x_in *I_positive, y_in *I_positive) *I_z {
 	}
 }
 
-func F_pred(x_in *I_positive) *I_positive {
+func F_pred(n0_in *I_nat) *I_nat {
+	for {
+		n0_1 := n0_in
+		_ = n0_1
+		switch n0_1.tag {
+		case 0:
+			return n0_1
+		case 1:
+			u_2 := n0_1.f1_0
+			_ = u_2
+			return u_2
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_pred0(x_in *I_positive) *I_positive {
 	for {
 		x_1 := x_in
 		_ = x_1
@@ -1791,7 +1969,7 @@ func F_pred(x_in *I_positive) *I_positive {
 	}
 }
 
-func F_pred0(n0_in *I_n) *I_n {
+func F_pred1(n0_in *I_n) *I_n {
 	for {
 		n0_1 := n0_in
 		_ = n0_1
@@ -1809,7 +1987,7 @@ func F_pred0(n0_in *I_n) *I_n {
 	}
 }
 
-func F_pred1(x_in *I_z) *I_z {
+func F_pred2(x_in *I_z) *I_z {
 	for {
 		x_1 := x_in
 		_ = x_1
@@ -2187,7 +2365,7 @@ func F_ref_n_max() func(*I_n) func(*I_n) *I_n {
 	for {
 		t_3 := func(a_1 *I_n) func(*I_n) *I_n {
 			return func(a_2 *I_n) *I_n {
-				return F_max0(a_1, a_2)
+				return F_max1(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2198,7 +2376,7 @@ func F_ref_n_min() func(*I_n) func(*I_n) *I_n {
 	for {
 		t_3 := func(a_1 *I_n) func(*I_n) *I_n {
 			return func(a_2 *I_n) *I_n {
-				return F_min0(a_1, a_2)
+				return F_min1(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2230,7 +2408,7 @@ func F_ref_n_mul() func(*I_n) func(*I_n) *I_n {
 func F_ref_n_pred() func(*I_n) *I_n {
 	for {
 		t_2 := func(a_1 *I_n) *I_n {
-			return F_pred0(a_1)
+			return F_pred1(a_1)
 		}
 		return t_2
 	}
@@ -2287,11 +2465,76 @@ func F_ref_nat_div2() func(*I_nat) *I_nat {
 	}
 }
 
+func F_ref_nat_eq_nat_dec(a_in *I_nat, b_in *I_nat) *I_bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := F_eq_dec(a_1, b_2)
+		switch t_3.tag {
+		case 0:
+			return C_True
+		case 1:
+			return C_False
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_ref_nat_eq_nat_decide(a_in *I_nat, b_in *I_nat) *I_bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := F_eq_nat_decide(a_1, b_2)
+		switch t_3.tag {
+		case 0:
+			return C_True
+		case 1:
+			return C_False
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_ref_nat_eqb() func(*I_nat) func(*I_nat) *I_bool {
 	for {
 		t_3 := func(a_1 *I_nat) func(*I_nat) *I_bool {
 			return func(a_2 *I_nat) *I_bool {
 				return F_eqb(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
+func F_ref_nat_le_lt_dec(a_in *I_nat, b_in *I_nat) *I_bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := F_le_lt_dec(a_1, b_2)
+		switch t_3.tag {
+		case 0:
+			return C_True
+		case 1:
+			return C_False
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_ref_nat_leb() func(*I_nat) func(*I_nat) *I_bool {
+	for {
+		t_3 := func(a_1 *I_nat) func(*I_nat) *I_bool {
+			return func(a_2 *I_nat) *I_bool {
+				return F_leb(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2316,6 +2559,28 @@ func F_ref_nat_ltb(a_in *I_nat, b_in *I_nat) *I_bool {
 	}
 }
 
+func F_ref_nat_max() func(*I_nat) func(*I_nat) *I_nat {
+	for {
+		t_3 := func(a_1 *I_nat) func(*I_nat) *I_nat {
+			return func(a_2 *I_nat) *I_nat {
+				return F_max(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
+func F_ref_nat_min() func(*I_nat) func(*I_nat) *I_nat {
+	for {
+		t_3 := func(a_1 *I_nat) func(*I_nat) *I_nat {
+			return func(a_2 *I_nat) *I_nat {
+				return F_min(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
 func F_ref_nat_mul() func(*I_nat) func(*I_nat) *I_nat {
 	for {
 		t_3 := func(a_1 *I_nat) func(*I_nat) *I_nat {
@@ -2324,6 +2589,15 @@ func F_ref_nat_mul() func(*I_nat) func(*I_nat) *I_nat {
 			}
 		}
 		return t_3
+	}
+}
+
+func F_ref_nat_pred() func(*I_nat) *I_nat {
+	for {
+		t_2 := func(a_1 *I_nat) *I_nat {
+			return F_pred(a_1)
+		}
+		return t_2
 	}
 }
 
@@ -2373,7 +2647,7 @@ func F_ref_pos_max() func(*I_positive) func(*I_positive) *I_positive {
 	for {
 		t_3 := func(a_1 *I_positive) func(*I_positive) *I_positive {
 			return func(a_2 *I_positive) *I_positive {
-				return F_max(a_1, a_2)
+				return F_max0(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2384,7 +2658,7 @@ func F_ref_pos_min() func(*I_positive) func(*I_positive) *I_positive {
 	for {
 		t_3 := func(a_1 *I_positive) func(*I_positive) *I_positive {
 			return func(a_2 *I_positive) *I_positive {
-				return F_min(a_1, a_2)
+				return F_min0(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2405,7 +2679,7 @@ func F_ref_pos_mul() func(*I_positive) func(*I_positive) *I_positive {
 func F_ref_pos_pred() func(*I_positive) *I_positive {
 	for {
 		t_2 := func(a_1 *I_positive) *I_positive {
-			return F_pred(a_1)
+			return F_pred0(a_1)
 		}
 		return t_2
 	}
@@ -2475,7 +2749,7 @@ func F_ref_z_max() func(*I_z) func(*I_z) *I_z {
 	for {
 		t_3 := func(a_1 *I_z) func(*I_z) *I_z {
 			return func(a_2 *I_z) *I_z {
-				return F_max1(a_1, a_2)
+				return F_max2(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2486,7 +2760,7 @@ func F_ref_z_min() func(*I_z) func(*I_z) *I_z {
 	for {
 		t_3 := func(a_1 *I_z) func(*I_z) *I_z {
 			return func(a_2 *I_z) *I_z {
-				return F_min1(a_1, a_2)
+				return F_min2(a_1, a_2)
 			}
 		}
 		return t_3
@@ -2525,7 +2799,7 @@ func F_ref_z_opp() func(*I_z) *I_z {
 func F_ref_z_pred() func(*I_z) *I_z {
 	for {
 		t_2 := func(a_1 *I_z) *I_z {
-			return F_pred1(a_1)
+			return F_pred2(a_1)
 		}
 		return t_2
 	}
@@ -3198,6 +3472,8 @@ func id64(a int64) int64 { return a }
 func eqb(a, b int64) bool { return a == b }
 
 func ltb(a, b int64) bool { return a < b }
+
+func leb(a, b int64) bool { return a <= b }
 
 func compare(a, b int64) *I_comparison {
 	if a == b {

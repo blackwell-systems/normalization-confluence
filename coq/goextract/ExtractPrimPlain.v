@@ -5,7 +5,7 @@ Require Import NC.goextract.PrimRef.
 
 Extraction Language JSON.
 Extraction "goextract/primref_plain.json"
-  ref_andb ref_nat_add ref_nat_sub ref_nat_mul ref_nat_eqb ref_nat_compare ref_nat_ltb ref_nat_div2
+  ref_andb ref_nat_add ref_nat_sub ref_nat_mul ref_nat_eqb ref_nat_compare ref_nat_ltb ref_nat_div2 ref_nat_pred ref_nat_max ref_nat_min ref_nat_eq_nat_decide ref_nat_eq_nat_dec ref_nat_leb ref_nat_le_lt_dec
   ref_pos_add ref_pos_succ ref_pos_pred ref_pos_sub ref_pos_mul ref_pos_min ref_pos_max ref_pos_compare ref_pos_compare_cont
   ref_n_add ref_n_succ ref_n_pred ref_n_sub ref_n_mul ref_n_min ref_n_max ref_n_div ref_n_modulo ref_n_compare
   ref_z_add ref_z_succ ref_z_pred ref_z_sub ref_z_mul ref_z_opp ref_z_abs ref_z_min ref_z_max ref_z_compare ref_z_of_n ref_z_abs_n

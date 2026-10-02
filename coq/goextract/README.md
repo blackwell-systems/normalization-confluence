@@ -16,12 +16,16 @@ TableFast.v, AstChecker.v
 ## Files
 
 - `ExtrGo.v`: the extraction directives.
-  - It maps exactly the constants that ExtrOcamlBasic, ExtrOcamlNatInt and ExtrOcamlZInt map for the OCaml checkers, with the same references and the same Require context.
+  - It maps the constants that ExtrOcamlBasic, ExtrOcamlNatInt and ExtrOcamlZInt map for the OCaml checkers, with the same references and the same Require context.
+  - Three ExtrOcamlNatInt maps are left out, because the checkers do not use them: `lt_eq_lt_dec`, `Even_or_Odd` and Euclid's division. If one appears, it is extracted as its Rocq definition.
   - Each constant gets its own `prim_*` symbol, and each mapped inductive (`bool`, `sumbool`, `nat`, `positive`, `N`, `Z`) gets a `go_*` type.
   - Nothing else is mapped.
 - `ExtractGo.v`: extracts `oracle_core.json`, with the same entry points as `extraction/Extract.v`.
 - `gogen/`: the translator from MiniML JSON to Go.
   - **Strict decoding.** An unknown node kind or key, `Obj.magic`, or modular extraction is refused.
+  - **Unary arithmetic refused.** gogen refuses unmapped unary `nat` arithmetic unless it is allowed by name (`-allow-unary`). These are the standard library's `Nat.add`, `Nat.mul`, `Nat.min`, ... extracted as their Rocq definitions, whose time and stack are linear in the numbers.
+    - Today the rules oracle uses `Nat.mul` in `fuelOf` and `Nat.min` in `setClamped`, so `make gen` allows `add`, `min` and `mul`. Fixes are pending in the proof.
+    - The OCaml extraction has the same cost there.
   - **Types.** Inductives become generic Go structs. Hindley-Milner inference supplies every Go type, and every generic use is instantiated explicitly.
   - **Functions.** Local lambdas and partial applications become curried closures. A match becomes a switch.
   - **Tail calls.** A self tail call becomes a loop, with a fresh copy of the parameters per iteration so closures never see a later iteration's values. `andb` is a short-circuit `&&` whose right operand is in tail position.

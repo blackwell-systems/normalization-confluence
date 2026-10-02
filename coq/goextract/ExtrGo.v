@@ -1,8 +1,9 @@
 (* Extraction directives for gogen (goextract/gogen), the Go back end.
 
-   They map exactly the constants Stdlib's ExtrOcamlBasic, ExtrOcamlNatInt and
+   They map the constants Stdlib's ExtrOcamlBasic, ExtrOcamlNatInt and
    ExtrOcamlZInt map for the OCaml checkers, with the same references and the
-   same Require context. Each constant maps to a distinct prim_* symbol, and each
+   same Require context; the three ExtrOcamlNatInt maps that are left out are
+   listed below. Each constant maps to a distinct prim_* symbol, and each
    mapped inductive to a go_* type with its own constructor names. gogen gives
    every symbol a fixed Go meaning (prims and mapped types in gogen), and refuses
    any prim_* or go_* name it does not know.
@@ -30,6 +31,16 @@ Extract Inlined Constant Nat.eqb => "prim_nat_eqb".
 Extract Constant Nat.compare => "prim_nat_compare".
 Extract Inlined Constant Compare_dec.lt_dec => "prim_nat_ltb".
 Extract Constant Nat.div2 => "prim_nat_div2".
+Extract Constant pred => "prim_nat_pred".
+Extract Inlined Constant max => "prim_nat_max".
+Extract Inlined Constant min => "prim_nat_min".
+Extract Inlined Constant EqNat.eq_nat_decide => "prim_nat_eq_nat_decide".
+Extract Inlined Constant Peano_dec.eq_nat_dec => "prim_nat_eq_nat_dec".
+Extract Inlined Constant Compare_dec.leb => "prim_nat_leb".
+Extract Inlined Constant Compare_dec.le_lt_dec => "prim_nat_le_lt_dec".
+(* Not mapped (ExtrOcamlNatInt maps them; the checkers do not use them):
+   Compare_dec.lt_eq_lt_dec, Nat.Even_or_Odd and Euclid's division. If one
+   appears it extracts as its Rocq definition, which is exact. *)
 
 (* ExtrOcamlZInt. *)
 Extract Inductive positive => "go_pos" [ "pos_xI" "pos_xO" "pos_xH" ] "pos_case".

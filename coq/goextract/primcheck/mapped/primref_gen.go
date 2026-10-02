@@ -1258,11 +1258,76 @@ func F_ref_nat_div2() func(int64) int64 {
 	}
 }
 
+func F_ref_nat_eq_nat_dec(a_in int64, b_in int64) bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := eqb(a_1, b_2)
+		switch {
+		case t_3:
+			return true
+		case !t_3:
+			return false
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_ref_nat_eq_nat_decide(a_in int64, b_in int64) bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := eqb(a_1, b_2)
+		switch {
+		case t_3:
+			return true
+		case !t_3:
+			return false
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_ref_nat_eqb() func(int64) func(int64) bool {
 	for {
 		t_3 := func(a_1 int64) func(int64) bool {
 			return func(a_2 int64) bool {
 				return eqb(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
+func F_ref_nat_le_lt_dec(a_in int64, b_in int64) bool {
+	for {
+		a_1 := a_in
+		_ = a_1
+		b_2 := b_in
+		_ = b_2
+		t_3 := leb(a_1, b_2)
+		switch {
+		case t_3:
+			return true
+		case !t_3:
+			return false
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_ref_nat_leb() func(int64) func(int64) bool {
+	for {
+		t_3 := func(a_1 int64) func(int64) bool {
+			return func(a_2 int64) bool {
+				return leb(a_1, a_2)
 			}
 		}
 		return t_3
@@ -1287,6 +1352,28 @@ func F_ref_nat_ltb(a_in int64, b_in int64) bool {
 	}
 }
 
+func F_ref_nat_max() func(int64) func(int64) int64 {
+	for {
+		t_3 := func(a_1 int64) func(int64) int64 {
+			return func(a_2 int64) int64 {
+				return max64(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
+func F_ref_nat_min() func(int64) func(int64) int64 {
+	for {
+		t_3 := func(a_1 int64) func(int64) int64 {
+			return func(a_2 int64) int64 {
+				return min64(a_1, a_2)
+			}
+		}
+		return t_3
+	}
+}
+
 func F_ref_nat_mul() func(int64) func(int64) int64 {
 	for {
 		t_3 := func(a_1 int64) func(int64) int64 {
@@ -1295,6 +1382,15 @@ func F_ref_nat_mul() func(int64) func(int64) int64 {
 			}
 		}
 		return t_3
+	}
+}
+
+func F_ref_nat_pred() func(int64) int64 {
+	for {
+		t_2 := func(a_1 int64) int64 {
+			return nPred(a_1)
+		}
+		return t_2
 	}
 }
 
@@ -2020,6 +2116,8 @@ func id64(a int64) int64 { return a }
 func eqb(a, b int64) bool { return a == b }
 
 func ltb(a, b int64) bool { return a < b }
+
+func leb(a, b int64) bool { return a <= b }
 
 func compare(a, b int64) *I_comparison {
 	if a == b {

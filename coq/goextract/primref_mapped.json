@@ -183,6 +183,54 @@
       ]
     },
     {
+      "what": "decl:term", "name": "prim_nat_pred",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        }, "right": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "n"
+        ],
+        "body": {
+          "what": "expr:case", "expr": {
+            "what": "expr:rel", "name": "n"
+          },
+          "cases": [
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "nat_0", "argnames": [
+                  
+                ]
+              }, "body": {
+                "what": "expr:rel", "name": "n"
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "nat_succ",
+                "argnames": [
+                  "u"
+                ]
+              }, "body": {
+                "what": "expr:rel", "name": "u"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "what": "decl:fixgroup",
       "fixlist": [
         {
@@ -259,6 +307,78 @@
       "fixlist": [
         {
           "what": "fixgroup:item", "name": "prim_nat_sub",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_max",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_min",
           "type": {
             "what": "type:arrow",
             "left": {
@@ -414,6 +534,116 @@
                           "what": "expr:apply",
                           "func": {
                             "what": "expr:global", "name": "prim_nat_eqb"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "n'"
+                            }, {
+                              "what": "expr:rel", "name": "m'"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_leb",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_bool", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "n", "m"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "n"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_0",
+                    "argnames": [
+                      
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:constructor", "name": "true", "args": [
+                      
+                    ]
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_succ",
+                    "argnames": [
+                      "n'"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:case",
+                    "expr": {
+                      "what": "expr:rel", "name": "m"
+                    },
+                    "cases": [
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_0",
+                          "argnames": [
+                            
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:constructor", "name": "false",
+                          "args": [
+                            
+                          ]
+                        }
+                      },
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_succ",
+                          "argnames": [
+                            "m'"
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global", "name": "prim_nat_leb"
                           },
                           "args": [
                             {
@@ -677,6 +907,222 @@
                   }
                 }
               ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_eq_nat_dec",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_bool", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              "n", "m"
+            ],
+            "body": {
+              "what": "expr:case",
+              "expr": {
+                "what": "expr:rel", "name": "n"
+              },
+              "cases": [
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_0",
+                    "argnames": [
+                      
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:case",
+                    "expr": {
+                      "what": "expr:rel", "name": "m"
+                    },
+                    "cases": [
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_0",
+                          "argnames": [
+                            
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:constructor", "name": "true",
+                          "args": [
+                            
+                          ]
+                        }
+                      },
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_succ",
+                          "argnames": [
+                            "_"
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:constructor", "name": "false",
+                          "args": [
+                            
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "what": "case",
+                  "pat": {
+                    "what": "pat:constructor", "name": "nat_succ",
+                    "argnames": [
+                      "n0"
+                    ]
+                  },
+                  "body": {
+                    "what": "expr:case",
+                    "expr": {
+                      "what": "expr:rel", "name": "m"
+                    },
+                    "cases": [
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_0",
+                          "argnames": [
+                            
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:constructor", "name": "false",
+                          "args": [
+                            
+                          ]
+                        }
+                      },
+                      {
+                        "what": "case",
+                        "pat": {
+                          "what": "pat:constructor", "name": "nat_succ",
+                          "argnames": [
+                            "n1"
+                          ]
+                        },
+                        "body": {
+                          "what": "expr:apply",
+                          "func": {
+                            "what": "expr:global",
+                            "name": "prim_nat_eq_nat_dec"
+                          },
+                          "args": [
+                            {
+                              "what": "expr:rel", "name": "n0"
+                            }, {
+                              "what": "expr:rel", "name": "n1"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_eq_nat_decide",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_bool", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_le_lt_dec",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_bool", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
             }
           }
         }
@@ -9001,6 +9447,338 @@
           
         ], "body": {
           "what": "expr:global", "name": "prim_nat_div2"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_pred",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        }, "right": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ], "body": {
+          "what": "expr:global", "name": "prim_nat_pred"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_max",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          }, "right": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ], "body": {
+          "what": "expr:global", "name": "prim_nat_max"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_min",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          }, "right": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ], "body": {
+          "what": "expr:global", "name": "prim_nat_min"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_eq_nat_decide",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          },
+          "right": {
+            "what": "type:glob", "name": "go_bool", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "a", "b"
+        ],
+        "body": {
+          "what": "expr:case",
+          "expr": {
+            "what": "expr:apply",
+            "func": {
+              "what": "expr:global", "name": "prim_nat_eq_nat_decide"
+            },
+            "args": [
+              {
+                "what": "expr:rel", "name": "a"
+              }, {
+                "what": "expr:rel", "name": "b"
+              }
+            ]
+          },
+          "cases": [
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "true", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "true", "args": [
+                  
+                ]
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "false", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "false", "args": [
+                  
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_eq_nat_dec",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          },
+          "right": {
+            "what": "type:glob", "name": "go_bool", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "a", "b"
+        ],
+        "body": {
+          "what": "expr:case",
+          "expr": {
+            "what": "expr:apply",
+            "func": {
+              "what": "expr:global", "name": "prim_nat_eq_nat_dec"
+            },
+            "args": [
+              {
+                "what": "expr:rel", "name": "a"
+              }, {
+                "what": "expr:rel", "name": "b"
+              }
+            ]
+          },
+          "cases": [
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "true", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "true", "args": [
+                  
+                ]
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "false", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "false", "args": [
+                  
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_leb",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          },
+          "right": {
+            "what": "type:glob", "name": "go_bool", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ], "body": {
+          "what": "expr:global", "name": "prim_nat_leb"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "ref_nat_le_lt_dec",
+      "type": {
+        "what": "type:arrow",
+        "left": {
+          "what": "type:glob", "name": "go_nat", "args": [
+            
+          ]
+        },
+        "right": {
+          "what": "type:arrow",
+          "left": {
+            "what": "type:glob", "name": "go_nat", "args": [
+              
+            ]
+          },
+          "right": {
+            "what": "type:glob", "name": "go_bool", "args": [
+              
+            ]
+          }
+        }
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          "a", "b"
+        ],
+        "body": {
+          "what": "expr:case",
+          "expr": {
+            "what": "expr:apply",
+            "func": {
+              "what": "expr:global", "name": "prim_nat_le_lt_dec"
+            },
+            "args": [
+              {
+                "what": "expr:rel", "name": "a"
+              }, {
+                "what": "expr:rel", "name": "b"
+              }
+            ]
+          },
+          "cases": [
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "true", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "true", "args": [
+                  
+                ]
+              }
+            },
+            {
+              "what": "case",
+              "pat": {
+                "what": "pat:constructor", "name": "false", "argnames": [
+                  
+                ]
+              },
+              "body": {
+                "what": "expr:constructor", "name": "false", "args": [
+                  
+                ]
+              }
+            }
+          ]
         }
       }
     },
