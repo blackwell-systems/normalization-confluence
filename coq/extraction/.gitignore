@@ -13,3 +13,6 @@ astchecker
 *.vos
 *.glob
 .*.aux
+fast_core.ml
+fast_core.mli
+checker_fast

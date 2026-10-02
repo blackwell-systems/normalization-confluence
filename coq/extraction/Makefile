@@ -4,7 +4,9 @@
 CHECKER = checker
 ASTCHECKER = astchecker
 
-all: $(CHECKER) $(ASTCHECKER)
+CHECKER_FAST = checker_fast
+
+all: $(CHECKER) $(ASTCHECKER) $(CHECKER_FAST)
 
 .PHONY: all test demo astdemo clean
 
@@ -23,6 +25,17 @@ all: $(CHECKER) $(ASTCHECKER)
 # Both checkers extract from one Extract.v into the shared checker_core module.
 checker_core.ml: Extract.v ../TableCheck.vo ../AstChecker.vo
 	cd .. && coqc -Q . NC extraction/Extract.v
+
+../TableFast.vo: ../TableFast.v ../TableCheck.vo ../Trace.vo
+	cd .. && coqc -Q . NC TableFast.v
+
+# SPIKE: the fast table oracle, extracted on its own so checker_core.ml (and the
+# pinned hashes of checker and astchecker) do not change.
+fast_core.ml: ExtractFast.v ../TableFast.vo
+	cd .. && coqc -Q . NC extraction/ExtractFast.v
+
+$(CHECKER_FAST): fast_core.ml main_fast.ml
+	ocamlfind ocamlopt fast_core.mli fast_core.ml main_fast.ml -o $(CHECKER_FAST)
 
 $(CHECKER): checker_core.ml main.ml
 	ocamlfind ocamlopt checker_core.mli checker_core.ml main.ml -o $(CHECKER)
@@ -50,5 +63,5 @@ test: $(CHECKER) $(ASTCHECKER)
 	bash tests/run.sh
 
 clean:
-	rm -f checker_core.ml checker_core.mli *.cmi *.cmx *.cmo *.o $(CHECKER) $(ASTCHECKER) \
+	rm -f fast_core.ml fast_core.mli $(CHECKER_FAST) checker_core.ml checker_core.mli *.cmi *.cmx *.cmo *.o $(CHECKER) $(ASTCHECKER) \
 		good.tables bad.tables good.machine bad.machine
