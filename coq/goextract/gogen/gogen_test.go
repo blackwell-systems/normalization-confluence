@@ -199,3 +199,77 @@ func TestOracleUnaryArithmeticIsKnown(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+const natTy = `{"what": "type:glob", "name": "go_nat", "args": []}`
+
+func natFun(name, body string) string {
+	return `{"what": "decl:term", "name": "` + name + `", "type": {"what": "type:arrow", "left": ` + natTy + `, "right": ` + natTy + `},
+  "value": {"what": "expr:lambda", "argnames": ["n"], "body": ` + body + `}}`
+}
+
+func TestRefusesMalformedPrograms(t *testing.T) {
+	zero := `{"what": "expr:constructor", "name": "nat_0", "args": []}`
+	// A wildcard before another case: ML takes the first match, a Go switch
+	// takes default last, so the two would disagree.
+	mustRefuse(t, "non-final wildcard", modHead+natFun("f", `{"what": "expr:case", "expr": {"what": "expr:rel", "name": "n"}, "cases": [
+		{"what": "case", "pat": {"what": "pat:wild"}, "body": `+zero+`},
+		{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_0", "argnames": []}, "body": `+zero+`}]}`)+`]}`, "not the last case")
+	mustRefuse(t, "non-final variable pattern", modHead+natFun("f", `{"what": "expr:case", "expr": {"what": "expr:rel", "name": "n"}, "cases": [
+		{"what": "case", "pat": {"what": "pat:rel", "name": "m"}, "body": `+zero+`},
+		{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_0", "argnames": []}, "body": `+zero+`}]}`)+`]}`, "not the last case")
+	// The same name bound twice in one binder list.
+	mustRefuse(t, "duplicate lambda binders", modHead+`{"what": "decl:term", "name": "f", "type": {"what": "type:arrow", "left": `+natTy+`, "right": {"what": "type:arrow", "left": `+natTy+`, "right": `+natTy+`}},
+  "value": {"what": "expr:lambda", "argnames": ["x", "x"], "body": {"what": "expr:rel", "name": "x"}}}]}`, "binds x twice")
+	// need_magic must be a boolean.
+	mustRefuse(t, "need_magic not a boolean",
+		`{"what": "module", "name": "m", "need_magic": "no", "need_dummy": false, "used_modules": [], "declarations": []}`, "need_magic")
+}
+
+// An absurd branch (extracted as an exception) compiles to a panic with
+// nothing after it, in and out of tail position, so the output is vet-clean.
+func TestExceptionIsATerminatingPanic(t *testing.T) {
+	exc := `{"what": "expr:exception", "msg": "absurd case"}`
+	src, err := Generate([]byte(modHead+natFun("f", `{"what": "expr:case", "expr": {"what": "expr:rel", "name": "n"}, "cases": [
+		{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_0", "argnames": []}, "body": `+exc+`},
+		{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_succ", "argnames": ["k"]},
+		 "body": {"what": "expr:constructor", "name": "nat_succ", "args": [{"what": "expr:case", "expr": {"what": "expr:rel", "name": "k"}, "cases": [
+			{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_0", "argnames": []}, "body": `+exc+`},
+			{"what": "case", "pat": {"what": "pat:wild"}, "body": {"what": "expr:rel", "name": "k"}}]}]}}]}`)+`]}`), "p", "x.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(src), "*new(") {
+		t.Errorf("an exception leaves code after its panic:\n%s", src)
+	}
+}
+
+// A match on a mapped number first checks that the value is in its type, so a
+// value outside it (a negative nat, a positive below 1) panics even when the
+// match has a wildcard.
+func TestMatchOnAMappedNumberChecksItsDomain(t *testing.T) {
+	src, err := Generate([]byte(modHead+natFun("f", `{"what": "expr:case", "expr": {"what": "expr:rel", "name": "n"}, "cases": [
+		{"what": "case", "pat": {"what": "pat:constructor", "name": "nat_0", "argnames": []}, "body": {"what": "expr:rel", "name": "n"}},
+		{"what": "case", "pat": {"what": "pat:wild"}, "body": {"what": "expr:rel", "name": "n"}}]}`)+`]}`), "p", "x.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(src), "< 0 {") || !strings.Contains(string(src), "not a nat") {
+		t.Errorf("no domain check before the match:\n%s", src)
+	}
+}
+
+// GuardCoind.v covers every entry point gogen translates.
+func TestGuardCoversEveryEntryPoint(t *testing.T) {
+	guard := string(read(t, "../GuardCoind.v"))
+	for _, f := range []string{"../ExtractGo.v", "../ExtractPrimMapped.v", "../ExtractFixture.v"} {
+		src := string(read(t, f))
+		for _, chunk := range strings.Split(src, "Extraction \"")[1:] {
+			names := strings.Fields(strings.SplitN(strings.SplitN(chunk, "\"", 2)[1], ".", 2)[0])
+			for _, n := range names {
+				if !strings.Contains(guard, " "+n+" ") && !strings.Contains(guard, " "+n+".") && !strings.Contains(guard, " "+n+"\n") {
+					t.Errorf("%s extracts %s, which GuardCoind.v does not check", f, n)
+				}
+			}
+		}
+	}
+}
