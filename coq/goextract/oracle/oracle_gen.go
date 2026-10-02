@@ -1135,6 +1135,33 @@ func F_box(ds_in *I_list[int64]) *I_list[*I_list[int64]] {
 	}
 }
 
+func F_boxT(ds_in *I_list[int64]) *I_list[*I_list[int64]] {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		switch ds_1.tag {
+		case 0:
+			t_2 := &I_list[int64]{tag: 0}
+			t_3 := &I_list[*I_list[int64]]{tag: 0}
+			t_4 := &I_list[*I_list[int64]]{tag: 1, f1_0: t_2, f1_1: t_3}
+			return t_4
+		case 1:
+			d_5 := ds_1.f1_0
+			_ = d_5
+			rest_6 := ds_1.f1_1
+			_ = rest_6
+			t_7 := F_boxT(rest_6)
+			t_8 := &I_list[*I_list[int64]]{tag: 0}
+			t_9 := F_rev_append[*I_list[int64]](t_7, t_8)
+			t_10 := &I_list[*I_list[int64]]{tag: 0}
+			t_11 := F_layer(d_5, t_9, t_10)
+			return t_11
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_ccA(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
 	for {
 		m_1 := m_in
@@ -1174,6 +1201,99 @@ func F_ccA(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool
 		t_22 := F_box(r_20)
 		t_23 := F_forallb[*I_list[int64]](t_19, t_22)
 		return t_23
+	}
+}
+
+func F_cellOf(m_in *I_machine, look_in func(int64) int64, s_in int64, v_in *I_list[int64]) *I_cell {
+	for {
+		m_1 := m_in
+		_ = m_1
+		look_2 := look_in
+		_ = look_2
+		s_3 := s_in
+		_ = s_3
+		v_4 := v_in
+		_ = v_4
+		t_5 := look_2(s_3)
+		t_23 := func(x_6 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+			return func(x0_7 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+				return func(x1_8 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+					return func(x2_9 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+						return func(x3_10 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+							return func(x4_11 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+								return func(x5_12 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+									return func(x6_13 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+										return func(x7_14 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+											return func(x8_15 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+												return func(x9_16 int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+													return func(x10_17 int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+														return func(x11_18 int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+															return func(x12_19 int64) func(int64) func(int64) *I_blk[int64] {
+																return func(x13_20 int64) func(int64) *I_blk[int64] {
+																	return func(x14_21 int64) *I_blk[int64] {
+																		_ = x_6
+																		_ = x0_7
+																		_ = x1_8
+																		_ = x2_9
+																		_ = x3_10
+																		_ = x4_11
+																		_ = x5_12
+																		_ = x6_13
+																		_ = x7_14
+																		_ = x8_15
+																		_ = x9_16
+																		_ = x10_17
+																		_ = x11_18
+																		_ = x12_19
+																		_ = x13_20
+																		_ = x14_21
+																		t_22 := &I_blk[int64]{tag: 0, f0_0: x_6, f0_1: x0_7, f0_2: x1_8, f0_3: x2_9, f0_4: x3_10, f0_5: x4_11, f0_6: x5_12, f0_7: x6_13, f0_8: x7_14, f0_9: x8_15, f0_10: x9_16, f0_11: x10_17, f0_12: x11_18, f0_13: x12_19, f0_14: x13_20, f0_15: x14_21}
+																		return t_22
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		t_30 := func(ge_24 *I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]) int64 {
+			_ = ge_24
+			var r_25 *I_list[int64]
+			switch m_1.tag {
+			case 0:
+				doms_26 := m_1.f0_0
+				_ = doms_26
+				r_25 = doms_26
+			default:
+				panic("gogen: no case matches")
+			}
+			t_27 := F_gapp(m_1, ge_24, v_4)
+			t_28 := F_enc(r_25, t_27)
+			t_29 := look_2(t_28)
+			return t_29
+		}
+		var r_31 *I_list[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]]
+		switch m_1.tag {
+		case 0:
+			evs_32 := m_1.f0_3
+			_ = evs_32
+			r_31 = evs_32
+		default:
+			panic("gogen: no case matches")
+		}
+		t_33 := F_mapT[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]], int64](t_30, r_31)
+		t_34 := F_chunk[int64, *I_blk[int64]](t_23, int64(0), t_33)
+		t_35 := &I_cell{tag: 0, f0_0: s_3, f0_1: t_5, f0_2: t_34}
+		return t_35
 	}
 }
 
@@ -1364,6 +1484,39 @@ func F_cellsB(s_in int64, d_in int64, nfl_in *I_list[int64], hb_in *I_list[*I_bl
 	}
 }
 
+func F_cellsR(m_in *I_machine, look_in func(int64) int64, s_in int64, vs_in *I_list[*I_list[int64]], acc_in *I_list[*I_cell]) *I_list[*I_cell] {
+	for {
+		m_1 := m_in
+		_ = m_1
+		look_2 := look_in
+		_ = look_2
+		s_3 := s_in
+		_ = s_3
+		vs_4 := vs_in
+		_ = vs_4
+		acc_5 := acc_in
+		_ = acc_5
+		switch vs_4.tag {
+		case 0:
+			t_6 := &I_list[*I_cell]{tag: 0}
+			t_7 := F_rev_append[*I_cell](acc_5, t_6)
+			return t_7
+		case 1:
+			v_8 := vs_4.f1_0
+			_ = v_8
+			t_9 := vs_4.f1_1
+			_ = t_9
+			t_10 := natSucc(s_3)
+			t_11 := F_cellOf(m_1, look_2, s_3, v_8)
+			t_12 := &I_list[*I_cell]{tag: 1, f1_0: t_11, f1_1: acc_5}
+			m_in, look_in, s_in, vs_in, acc_in = m_1, look_2, t_10, t_9, t_12
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_checkBuild(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
 	for {
 		m_1 := m_in
@@ -1391,6 +1544,94 @@ func F_checkBuild(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]
 		}
 		t_10 := F_ccA(m_1, p_2)
 		return t_10
+	}
+}
+
+func F_checkBuildT(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
+	for {
+		m_1 := m_in
+		_ = m_1
+		p_2 := p_in
+		_ = p_2
+		t_4 := F_bounded(m_1)
+		b_3 := t_4
+		if b_3 {
+			t_5 := F_signSafe(m_1)
+			b_3 = t_5
+		}
+		if !b_3 {
+			return false
+		}
+		var r_6 *I_list[int64]
+		switch m_1.tag {
+		case 0:
+			doms_7 := m_1.f0_0
+			_ = doms_7
+			r_6 = doms_7
+		default:
+			panic("gogen: no case matches")
+		}
+		ds_8 := r_6
+		_ = ds_8
+		t_9 := F_boxT(ds_8)
+		bx_10 := t_9
+		_ = bx_10
+		t_11 := F_fuelOf(m_1)
+		t_13 := func(a_12 *I_list[int64]) *I_list[int64] {
+			return F_normalize(m_1, t_11, a_12)
+		}
+		t_14 := F_mapT[*I_list[int64], *I_list[int64]](t_13, bx_10)
+		nv_15 := t_14
+		_ = nv_15
+		t_17 := func(a_16 *I_list[int64]) bool {
+			return F_allValid(m_1, a_16)
+		}
+		t_18 := F_forallb[*I_list[int64]](t_17, nv_15)
+		if !t_18 {
+			return false
+		}
+		t_19 := F_lenT[*I_list[int64]](bx_10, int64(0))
+		n_20 := t_19
+		_ = n_20
+		var r_21 *I_list[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]]
+		switch m_1.tag {
+		case 0:
+			evs_22 := m_1.f0_3
+			_ = evs_22
+			r_21 = evs_22
+		default:
+			panic("gogen: no case matches")
+		}
+		t_23 := F_lenT[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]](r_21, int64(0))
+		nE_24 := t_23
+		_ = nE_24
+		t_26 := func(a_25 *I_list[int64]) int64 {
+			return F_enc(ds_8, a_25)
+		}
+		t_27 := F_mapT[*I_list[int64], int64](t_26, nv_15)
+		t_28 := F_of_listV[int64](int64(0), t_27)
+		t_30 := func(a_29 int64) int64 {
+			return F_vlook[int64](int64(0), t_28, a_29)
+		}
+		look_31 := t_30
+		_ = look_31
+		t_32 := &I_list[*I_cell]{tag: 0}
+		t_33 := F_cellsR(m_1, look_31, int64(0), bx_10, t_32)
+		cs_34 := t_33
+		_ = cs_34
+		t_35 := F_pairs_okW(nE_24, p_2)
+		if !t_35 {
+			return false
+		}
+		t_36 := F_zcell(n_20)
+		t_37 := F_of_listV[*I_cell](t_36, cs_34)
+		t_39 := func(a_38 *I_prod[int64, int64]) *I_rpair {
+			return F_rpairOf(a_38)
+		}
+		t_40 := F_pairsOfT(nE_24, p_2)
+		t_41 := F_mapT[*I_prod[int64, int64], *I_rpair](t_39, t_40)
+		t_42 := F_scanI(n_20, nE_24, t_37, t_41, int64(0), cs_34)
+		return t_42
 	}
 }
 
@@ -1966,6 +2207,54 @@ func F_dsel[T1 any](d_in int64, t_in *I_blk[T1]) T1 {
 	}
 }
 
+func F_enc(ds_in *I_list[int64], v_in *I_list[int64]) int64 {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		v_2 := v_in
+		_ = v_2
+		t_3 := F_encA(ds_1, v_2, int64(0))
+		return t_3
+	}
+}
+
+func F_encA(ds_in *I_list[int64], v_in *I_list[int64], acc_in int64) int64 {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		v_2 := v_in
+		_ = v_2
+		acc_3 := acc_in
+		_ = acc_3
+		switch ds_1.tag {
+		case 0:
+			return acc_3
+		case 1:
+			d_4 := ds_1.f1_0
+			_ = d_4
+			ds_p_5 := ds_1.f1_1
+			_ = ds_p_5
+			switch v_2.tag {
+			case 0:
+				return acc_3
+			case 1:
+				x_6 := v_2.f1_0
+				_ = x_6
+				v_p_7 := v_2.f1_1
+				_ = v_p_7
+				t_8 := zMul(acc_3, d_4)
+				t_9 := zAdd(t_8, x_6)
+				ds_in, v_in, acc_in = ds_p_5, v_p_7, t_9
+				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_eqb(p_in int64, q_in int64) bool {
 	for {
 		p_1 := p_in
@@ -2527,6 +2816,38 @@ func F_fuelOf(m_in *I_machine) int64 {
 		}
 		t_7 := F_fold_left[int64, int64](t_4, r_5, int64(1))
 		return t_7
+	}
+}
+
+func F_gapp(m_in *I_machine, ge_in *I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]], s_in *I_list[int64]) *I_list[int64] {
+	for {
+		m_1 := m_in
+		_ = m_1
+		ge_2 := ge_in
+		_ = ge_2
+		s_3 := s_in
+		_ = s_3
+		var r_4 *I_list[int64]
+		switch m_1.tag {
+		case 0:
+			mins_5 := m_1.f0_1
+			_ = mins_5
+			r_4 = mins_5
+		default:
+			panic("gogen: no case matches")
+		}
+		t_6 := F_fst[*I_pred, *I_list[*I_prod[int64, *I_expr]]](ge_2)
+		t_7 := F_evalP(r_4, s_3, t_6)
+		switch {
+		case t_7:
+			t_8 := F_snd[*I_pred, *I_list[*I_prod[int64, *I_expr]]](ge_2)
+			t_9 := F_applyT(m_1, t_8, s_3)
+			return t_9
+		case !t_7:
+			return s_3
+		default:
+			panic("gogen: no case matches")
+		}
 	}
 }
 
