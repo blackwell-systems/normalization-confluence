@@ -34,6 +34,7 @@ Print Assumptions check_tables_step_valid.
 Print Assumptions check_tables_commute.
 Print Assumptions check_tables_converges.
 Print Assumptions check_tables_converges_all.
+Print Assumptions check_tables_pairs_in_range.
 Print Assumptions stepG_valid_eq.
 Print Assumptions checkBuild_normalize_valid.
 Print Assumptions checkBuild_wfc_terminates.
@@ -44,6 +45,7 @@ Print Assumptions checkBuild_converges.
 Print Assumptions checkBuild_converges_all.
 Print Assumptions checkBuild_no_overflow.
 Print Assumptions checkBuild_binary_writes_exact.
+Print Assumptions checkBuild_pairs_in_range.
 Print Assumptions compensationFree_step_no_repair.
 Print Assumptions cmrdt_SEC.
 Print Assumptions cmrdt_governed_SEC.
@@ -109,8 +111,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 87 ]; then
-  echo "FAIL: expected 87 axiom-free results, got $N"
+if [ "$N" -lt 89 ]; then
+  echo "FAIL: expected 89 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

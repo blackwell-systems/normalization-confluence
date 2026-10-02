@@ -194,6 +194,17 @@ Section Tables.
     unfold check_tables in Hchk. repeat rewrite andb_true_iff in Hchk. tauto.
   Qed.
 
+  (* Every declared pair names events that exist, so a declaration cannot
+     silently refer to an event the tables do not have. *)
+  Theorem check_tables_pairs_in_range :
+    forall a b, In (a, b) pairsOf -> a < nE /\ b < nE.
+  Proof.
+    intros a b Hin. destruct check_parts as [Hp _].
+    unfold pairs_ok in Hp. rewrite forallb_forall in Hp. specialize (Hp (a, b) Hin).
+    simpl in Hp. apply andb_true_iff in Hp. destruct Hp as [Ha Hb].
+    apply ltn_spec in Ha. apply ltn_spec in Hb. split; assumption.
+  Qed.
+
   Lemma in_seq0 : forall k m, k < m -> In k (seq 0 m).
   Proof. intros k m H. apply in_seq. lia. Qed.
 

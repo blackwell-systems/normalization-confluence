@@ -781,6 +781,15 @@ Section CheckBuild.
     repeat rewrite Bool.andb_true_iff in H. tauto.
   Qed.
 
+  Theorem checkBuild_pairs_in_range :
+    forall a b, In (a, b) (pairsA m P) -> a < length (evs m) /\ b < length (evs m).
+  Proof.
+    intros a b Hin. destruct checkBuild_parts as [_ [_ [Hp _]]].
+    unfold pairsOkA in Hp. rewrite forallb_forall in Hp. specialize (Hp (a, b) Hin).
+    simpl in Hp. apply Bool.andb_true_iff in Hp. destruct Hp as [Ha Hb].
+    apply ltn_spec in Ha. apply ltn_spec in Hb. split; assumption.
+  Qed.
+
   Theorem checkBuild_normalize_valid :
     forall v, In v (box (doms m)) -> allValid m (normalize m (fuelOf m) v) = true.
   Proof.
