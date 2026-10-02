@@ -24,12 +24,14 @@ jobs:
       - name: Build and test the extracted checkers
         run: bash coq/extraction/ci-build.sh "$ROCQ_IMAGE"
       - name: Hashes
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           cd coq/extraction
           sha256sum checker_core.ml checker_core.mli checker astchecker | tee SHA256SUMS
           {
             echo '### Extracted checkers'
-            echo "commit: \`$GITHUB_SHA\`"
+            echo "commit: \`$HEAD_SHA\`"
             echo "image: \`$ROCQ_IMAGE\`"
             echo '```'
             cat SHA256SUMS
@@ -37,7 +39,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: oracles-${{ github.sha }}
+          name: oracles-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             coq/extraction/checker
             coq/extraction/astchecker
