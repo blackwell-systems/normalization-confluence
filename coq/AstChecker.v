@@ -28,6 +28,8 @@
    conclusion. *)
 
 Require Import NC.Checker.
+Require Import NC.Trace.
+Require Import NC.TableCheck.
 From Coq Require Import List.
 From Coq Require Import PeanoNat.
 From Coq Require Import ZArith.
@@ -653,3 +655,254 @@ Proof.
     - rewrite (nth_overflow (doms m) 0) in Hd by exact Hi. discriminate. }
   rewrite Hd1. f_equal. apply clamp_binary_is_bool. lia.
 Qed.
+
+(* ===== the rules oracle aligned with gsm's Build =====
+
+   `check` above decides a property that differs from Build's in three ways, each
+   measured by gsm's differential test:
+   - Repair termination. Build requires repair to terminate from EVERY state in
+     the box (computeNormalForms runs it from every encoding); check only required
+     it from the states an event reaches from a valid state. Every theorem of the
+     convergence meta-theory assumes the stronger form (Governance.wfc and
+     Gsm.repair_terminates quantify over all states), the runtime's
+     Machine.Normalize applies it to any state, and THEORY.md section 5.1 defines
+     WFC over the whole state space. So the oracle takes Build's side: `wfc`.
+   - Declared pairs. Build checks only the pairs declared independent, or every
+     pair when none is declared. checkBuild takes the declared pairs as an input
+     (None: every pair), and its guarantee is stated for sequences that differ by
+     reordering declared-independent events (Trace.tequiv).
+   - Domain. Build checks commutation on the valid states plus the zero state
+     Machine.NewState returns, valid or not; check used the valid states only.
+     The zero state brings a second alignment: gsm's step normalizes even when
+     the guard is false (its step table holds NF(s) there, and the lazy runtime
+     does the same), where stepAst returns s unchanged. The two agree on valid
+     states (stepG_valid_eq), so only an invalid zero state can tell them apart,
+     and stepG is gsm's step.
+   The arithmetic fragment (bounded, signSafe) is unchanged. *)
+
+Local Open Scope bool_scope.
+
+Definition stepG (m : machine) (ge : gevent) (s : valn) : valn :=
+  normalize m (fuelOf m) (if evalP (mins m) s (fst ge) then applyT m (snd ge) s else s).
+
+Definition noEvent : gevent := (PAnd [], []).
+Definition evAt (m : machine) (e : nat) : gevent := nth e (evs m) noEvent.
+Definition stepI (m : machine) (e : nat) (s : valn) : valn := stepG m (evAt m e) s.
+
+Definition zeroV (m : machine) : valn := repeat 0 (length (doms m)).
+Definition inDA (m : machine) (v : valn) : bool := allValid m v || valeqb v (zeroV m).
+
+(* Build's WFC: repair reaches a valid state from every state in the box. The
+   fuel is the box size, which is enough: repair is deterministic, so a run that
+   has not reached a valid state after that many steps has repeated a state and
+   cycles forever (Build fails the same machines, on a repeat or on a run longer
+   than the state count). *)
+Definition wfc (m : machine) : bool :=
+  forallb (fun v => allValid m (normalize m (fuelOf m) v)) (box (doms m)).
+
+Definition pairsA (m : machine) (P : option (list (nat * nat))) : list (nat * nat) :=
+  match P with None => allPairs (length (evs m)) | Some l => l end.
+
+Definition indepA (m : machine) (P : option (list (nat * nat))) (a b : nat) : Prop :=
+  match P with
+  | None => a < length (evs m) /\ b < length (evs m)
+  | Some l => In (a, b) l \/ In (b, a) l
+  end.
+
+Definition pairsOkA (m : machine) (P : option (list (nat * nat))) : bool :=
+  forallb (fun p => ltn (fst p) (length (evs m)) && ltn (snd p) (length (evs m))) (pairsA m P).
+
+Definition ccA (m : machine) (P : option (list (nat * nat))) : bool :=
+  forallb (fun v => implb (inDA m v)
+    (forallb (fun p => valeqb (stepI m (fst p) (stepI m (snd p) v))
+                              (stepI m (snd p) (stepI m (fst p) v)))
+       (pairsA m P)))
+    (box (doms m)).
+
+Definition checkBuild (m : machine) (P : option (list (nat * nat))) : bool :=
+  bounded m && signSafe m && pairsOkA m P && wfc m && ccA m P.
+
+(* gsm's step and stepAst agree on valid states. *)
+Lemma stepG_valid_eq : forall m ge v, allValid m v = true -> stepG m ge v = stepAst m ge v.
+Proof.
+  intros m ge v Hv. unfold stepG, stepAst.
+  destruct (evalP (mins m) v (fst ge)); [reflexivity |].
+  apply normalize_valid_id. exact Hv.
+Qed.
+
+Lemma stepG_pres : forall m ge s, inRange (doms m) s -> inRange (doms m) (stepG m ge s).
+Proof.
+  intros m ge s Hs. unfold stepG. apply normalize_pres.
+  destruct (evalP (mins m) s (fst ge)); [apply applyT_pres |]; exact Hs.
+Qed.
+
+(* ===== repair termination ===== *)
+
+Definition rstepA (m : machine) (t s : valn) : Prop := allValid m s = false /\ t = repair1 m s.
+
+Lemma normalize_valid_acc : forall m f s,
+  allValid m (normalize m f s) = true -> Acc (rstepA m) s.
+Proof.
+  intros m f. induction f as [| f IH]; intros s H; simpl in H.
+  - constructor. intros t [Hf _]. congruence.
+  - destruct (allValid m s) eqn:Hv.
+    + constructor. intros t [Hf _]. congruence.
+    + specialize (IH _ H). constructor. intros t [_ ->]. exact IH.
+Qed.
+
+Fixpoint depthF (m : machine) (f : nat) (s : valn) : nat :=
+  match f with
+  | 0 => 0
+  | S f' => if allValid m s then 0 else S (depthF m f' (repair1 m s))
+  end.
+
+Lemma depthF_stable : forall m f s, allValid m (normalize m f s) = true ->
+  forall g, f <= g -> depthF m g s = depthF m f s.
+Proof.
+  intros m f. induction f as [| f IH]; intros s H g Hg; simpl in H.
+  - destruct g; simpl; [reflexivity | rewrite H; reflexivity].
+  - destruct g as [| g]; [lia |]. simpl.
+    destruct (allValid m s) eqn:Hv; [reflexivity |].
+    f_equal. apply IH; [exact H | lia].
+Qed.
+
+(* The repair-depth potential: what Governance.wfc and Gsm.wfc_decreases assume. *)
+Definition phiA (m : machine) (s : valn) : nat := depthF m (fuelOf m) s.
+
+Section CheckBuild.
+  Variable m : machine.
+  Variable P : option (list (nat * nat)).
+  Hypothesis Hchk : checkBuild m P = true.
+
+  Lemma checkBuild_parts :
+    bounded m = true /\ signSafe m = true /\ pairsOkA m P = true /\ wfc m = true /\ ccA m P = true.
+  Proof.
+    pose proof Hchk as H. unfold checkBuild in H.
+    repeat rewrite Bool.andb_true_iff in H. tauto.
+  Qed.
+
+  Theorem checkBuild_normalize_valid :
+    forall v, In v (box (doms m)) -> allValid m (normalize m (fuelOf m) v) = true.
+  Proof.
+    intros v Hv. destruct checkBuild_parts as [_ [_ [_ [Hw _]]]].
+    unfold wfc in Hw. rewrite forallb_forall in Hw. apply Hw, Hv.
+  Qed.
+
+  (* WFC, as the meta-theory states it: no infinite compensation sequence starts
+     anywhere in the box. *)
+  Theorem checkBuild_wfc_terminates : forall v, In v (box (doms m)) -> Acc (rstepA m) v.
+  Proof.
+    intros v Hv. apply (normalize_valid_acc m (fuelOf m)). apply checkBuild_normalize_valid, Hv.
+  Qed.
+
+  (* ... and with the potential the meta-theory's wfc hypothesis asks for: every
+     repair of an invalid state in the box strictly decreases the repair depth. *)
+  Theorem checkBuild_wfc_potential :
+    forall v, In v (box (doms m)) -> allValid m v = false -> phiA m (repair1 m v) < phiA m v.
+  Proof.
+    intros v Hv Hinv. pose proof (checkBuild_normalize_valid v Hv) as Hn.
+    unfold phiA. destruct (fuelOf m) as [| F] eqn:HF.
+    - simpl in Hn. congruence.
+    - simpl in Hn. rewrite Hinv in Hn.
+      rewrite (depthF_stable m F (repair1 m v) Hn (S F)) by lia.
+      change (depthF m (S F) v) with (if allValid m v then 0 else S (depthF m F (repair1 m v))).
+      rewrite Hinv. lia.
+  Qed.
+
+  (* Machine.Apply lands on a valid state from every state in the box. *)
+  Theorem checkBuild_step_valid :
+    forall e v, In v (box (doms m)) -> allValid m (stepI m e v) = true.
+  Proof.
+    intros e v Hv. unfold stepI, stepG. apply checkBuild_normalize_valid.
+    apply box_iff. destruct (evalP (mins m) v (fst (evAt m e))); [apply applyT_pres |];
+      apply box_iff; exact Hv.
+  Qed.
+
+  Lemma stepI_in_box : forall e v, In v (box (doms m)) -> In (stepI m e v) (box (doms m)).
+  Proof. intros e v Hv. apply box_iff. apply stepG_pres. apply box_iff. exact Hv. Qed.
+
+  Lemma ccA_listed : forall a b v, In (a, b) (pairsA m P) ->
+    In v (box (doms m)) -> inDA m v = true ->
+    stepI m a (stepI m b v) = stepI m b (stepI m a v).
+  Proof.
+    intros a b v Hin Hv HD. destruct checkBuild_parts as [_ [_ [_ [_ Hc]]]].
+    unfold ccA in Hc. rewrite forallb_forall in Hc. specialize (Hc v Hv).
+    rewrite HD in Hc. simpl in Hc. rewrite forallb_forall in Hc.
+    apply valeqb_eq. exact (Hc (a, b) Hin).
+  Qed.
+
+  (* CC on Build's domain, for every declared-independent pair. *)
+  Theorem checkBuild_commute :
+    forall a b v, indepA m P a b -> In v (box (doms m)) -> inDA m v = true ->
+    stepI m a (stepI m b v) = stepI m b (stepI m a v).
+  Proof.
+    intros a b v Hab Hv HD.
+    pose proof (fun a b H => ccA_listed a b v H Hv HD) as Hc.
+    unfold indepA in Hab. unfold pairsA in Hc. destruct P as [l |].
+    - destruct Hab as [Hab | Hba]; [apply Hc, Hab | symmetry; apply Hc, Hba].
+    - destruct Hab as [Ha Hb].
+      destruct (Nat.lt_trichotomy a b) as [Hlt | [-> | Hgt]].
+      + apply Hc, allPairs_in; assumption.
+      + reflexivity.
+      + symmetry. apply Hc, allPairs_in; assumption.
+  Qed.
+
+  (* The runtime guarantee, from the rules: from a valid state or the zero state,
+     event sequences that differ only by reordering declared-independent events
+     reach the same state. *)
+  Theorem checkBuild_converges :
+    forall es1 es2, tequiv (indepA m P) es1 es2 -> Forall (fun e => e < length (evs m)) es1 ->
+    forall v, In v (box (doms m)) -> inDA m v = true -> runT (stepI m) es1 v = runT (stepI m) es2 v.
+  Proof.
+    intros es1 es2 Hte Hev v Hv HD.
+    apply (run_tequiv (stepI m) (indepA m P) (fun e => e < length (evs m))
+             (fun s => In s (box (doms m)) /\ allValid m s = true)
+             (fun s => In s (box (doms m)) /\ inDA m s = true)); try assumption.
+    - intros s [Hb Hs]. split; [exact Hb |]. unfold inDA. rewrite Hs. reflexivity.
+    - intros e s _ [Hb _]. split; [apply stepI_in_box, Hb | apply checkBuild_step_valid, Hb].
+    - intros a b s _ _ Hab [Hb Hs]. apply checkBuild_commute; assumption.
+    - split; assumption.
+  Qed.
+
+  Theorem checkBuild_converges_all :
+    P = None ->
+    forall es1 es2, Permutation es1 es2 -> Forall (fun e => e < length (evs m)) es1 ->
+    forall v, In v (box (doms m)) -> inDA m v = true -> runT (stepI m) es1 v = runT (stepI m) es2 v.
+  Proof.
+    intros HP es1 es2 Hp Hev v Hv HD. apply checkBuild_converges; [| exact Hev | exact Hv | exact HD].
+    apply (perm_tequiv_total (indepA m P) (fun e => e < length (evs m))); [| exact Hp | exact Hev].
+    intros a b Ha Hb. unfold indepA. rewrite HP. split; assumption.
+  Qed.
+
+  (* The fragment guarantees carry over unchanged. *)
+  Theorem checkBuild_no_overflow :
+    forall e, In e (exprsM m) -> forall e', In e' (subexprs e) ->
+    forall v, In v (box (doms m)) -> (Z.abs (evalE (mins m) v e') <= maxAbs)%Z.
+  Proof.
+    intros e He e' Hsub v Hv. destruct checkBuild_parts as [Hb _].
+    unfold bounded in Hb. rewrite forallb_forall in Hb.
+    specialize (Hb e He). apply Z.leb_le in Hb.
+    pose proof (evalE_bnd m v e' Hv). pose proof (subexprs_bnd m e e' Hsub). lia.
+  Qed.
+
+  Theorem checkBuild_binary_writes_exact :
+    forall t, In t (transformsM m) ->
+    forall i e, In (i, e) t -> nth i (doms m) 0 = 2 -> nth i (mins m) 0%Z = 0%Z ->
+    forall v s, In v (box (doms m)) ->
+      setClamped m i (evalE (mins m) v e) s =
+      wr i (if Z.eqb (evalE (mins m) v e) 0 then 0 else 1) s.
+  Proof.
+    intros t Ht i e Hin Hd Hm v s Hv. destruct checkBuild_parts as [_ [Hs _]].
+    unfold signSafe in Hs. rewrite forallb_forall in Hs. specialize (Hs t Ht).
+    unfold signSafeT in Hs. rewrite forallb_forall in Hs. specialize (Hs (i, e) Hin).
+    simpl in Hs. unfold binaryVar in Hs. rewrite Hd, Hm in Hs. simpl in Hs.
+    apply Z.leb_le in Hs.
+    pose proof (evalE_range m v e Hv) as [Hlo _].
+    unfold setClamped. rewrite Hm.
+    assert (Hd1 : nth i (doms m) 1 = 2).
+    { destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
+      - rewrite <- Hd. apply nth_indep. exact Hi.
+      - rewrite (nth_overflow (doms m) 0) in Hd by exact Hi. discriminate. }
+    rewrite Hd1. f_equal. apply clamp_binary_is_bool. lia.
+  Qed.
+End CheckBuild.

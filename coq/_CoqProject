@@ -6,6 +6,8 @@ Gsm.v
 Federation.v
 Chaotic.v
 Checker.v
+Trace.v
+TableCheck.v
 AstChecker.v
 CRDT.v
 Categorical.v

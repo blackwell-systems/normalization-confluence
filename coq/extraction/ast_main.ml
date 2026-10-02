@@ -1,7 +1,20 @@
 (* Runnable front-end for the AST oracle: reads a combinator MACHINE (its rules,
    not its output tables) and certifies convergence by recomputing each event's
    step function straight from the expression trees, using the Coq-extracted,
-   machine-checked Checker_core.check.
+   machine-checked Checker_core.checkBuild. It checks the property gsm's Build
+   checks: repair terminates from every state (WFC), and every declared pair of
+   events commutes on every valid state and on the zero state, under gsm's step
+   (apply the event if its guard holds, then normalize).
+
+   Usage: astchecker <machine-file> [<pairs-file>]
+
+   The optional pairs file names the event pairs declared independent (gsm's
+   Registry.Independent), by event index in the machine file's order:
+     pairs all                    every pair (the default without a pairs file)
+     pairs k a1 b1 ... ak bk      only these pairs
+   It is a separate file so the machine format, and every digest computed over
+   it, stays unchanged. Without it every pair is checked, which is the stronger
+   property, so a verdict without a pairs file holds for any declaration.
 
    Machine file format (S-expressions, whitespace-insensitive):
 
@@ -28,7 +41,8 @@
    indices and domains are non-negative; every domain is at least 1; mins gives
    exactly one entry per variable; every variable index names a declared variable;
    doms and mins appear at most once and doms appears before any rule; the file is
-   at most 64 MiB. Exit 0 = verified convergent, 1 = not verified, 2 = usage/parse error. *)
+   at most 64 MiB; the pairs file is well formed and names existing events. Exit
+   0 = verified convergent, 1 = not verified, 2 = usage/parse error. *)
 
 open Checker_core
 
@@ -176,9 +190,33 @@ let read_all path =
   let s = really_input_string ic len in
   close_in ic; s
 
+(* The pairs file: "pairs all" or "pairs k a1 b1 ... ak bk", event indices below
+   the machine's event count. *)
+let read_pairs path nevents =
+  let content = read_all path in
+  let toks = List.filter (fun t -> t <> "")
+      (String.split_on_char ' ' (String.map (fun c -> if c = '\n' || c = '\t' || c = '\r' then ' ' else c) content)) in
+  match toks with
+  | ["pairs"; "all"] -> None
+  | "pairs" :: k :: rest ->
+    let k = nat_of k in
+    if List.length rest <> 2 * k then
+      failwith (Printf.sprintf "expected %d pair entries, got %d" (2 * k) (List.length rest));
+    let rec go = function
+      | a :: b :: tl ->
+        let a = nat_of a and b = nat_of b in
+        if a >= nevents || b >= nevents then
+          failwith (Printf.sprintf "declared pair (%d, %d) names an event past the %d events" a b nevents);
+        (a, b) :: go tl
+      | [] -> []
+      | _ -> failwith "odd number of pair entries" in
+    Some (go rest)
+  | _ -> failwith "expected 'pairs all' or 'pairs k a1 b1 ...'"
+
 let () =
-  if Array.length Sys.argv < 2 then
-    (prerr_endline "usage: astchecker <machine-file>"; exit 2);
+  let argc = Array.length Sys.argv in
+  if argc < 2 || argc > 3 then
+    (prerr_endline "usage: astchecker <machine-file> [<pairs-file>]"; exit 2);
   let content =
     try read_all Sys.argv.(1)
     with _ -> (prerr_endline "cannot read machine file"; exit 2)
@@ -188,6 +226,13 @@ let () =
     with Failure msg -> (prerr_endline ("parse error: " ^ msg); exit 2)
   in
   let nv = List.length m.doms and ni = List.length m.invs and ne = List.length m.evs in
+  let pairs =
+    if argc = 3 then
+      (try read_pairs Sys.argv.(2) ne
+       with Failure msg -> (prerr_endline ("pairs file error: " ^ msg); exit 2)
+          | Sys_error msg -> (prerr_endline ("cannot read pairs file: " ^ msg); exit 2))
+    else None
+  in
   (* Machine-readable classification line, parsed by consumers to cross-check a producer's CRDT-fragment claim. Certified
      by the extracted, axiom-free compensationFree, not asserted. *)
   Printf.printf "compensation_free=%b\n" (compensationFree m);
@@ -199,12 +244,17 @@ let () =
     (Printf.printf
        "FAIL: outside the certified fragment: a write can store a negative value into a two-valued variable with min 0 (a gsm Bool stores value <> 0, the model clamps)\n";
      exit 1);
-  if check m then
+  if not (wfc m) then
     (Printf.printf
-       "OK: %d vars, %d invariants, %d events; machine verified convergent from its RULES (events preserve validity and commute on all valid states)\n"
-       nv ni ne;
+       "FAIL: compensation does not terminate (WFC): repair from some state never reaches a valid state\n";
+     exit 1);
+  let declared = match pairs with None -> "every pair" | Some l -> Printf.sprintf "%d declared pairs" (List.length l) in
+  if checkBuild m pairs then
+    (Printf.printf
+       "OK: %d vars, %d invariants, %d events, %s; machine verified convergent from its RULES (repair terminates from every state; declared pairs commute on valid states and the zero state)\n"
+       nv ni ne declared;
      exit 0)
   else
     (Printf.printf
-       "FAIL: machine does NOT converge (an event breaks an invariant it cannot repair, or two events do not commute on some valid state)\n";
+       "FAIL: machine does NOT converge (a declared pair does not commute on a valid state or the zero state)\n";
      exit 1)
