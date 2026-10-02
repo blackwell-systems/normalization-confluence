@@ -87,12 +87,42 @@ Fixpoint wr (i v : nat) (s : valn) {struct s} : valn :=
   | x :: t => match i with 0 => v :: t | S i' => x :: wr i' v t end
   end.
 
+(* nat to Z in O(log n) steps, by binary digits. Z.of_nat extracts through the
+   unary, non-tail Pos.of_succ_nat (a read of a 2^20 value overflows an 8 MiB
+   stack); this uses only the mapped Nat.div2, Init.Nat.mul, Nat.eqb and Z
+   arithmetic. natZ_eq: it is Z.of_nat. *)
+Fixpoint natZF (f n : nat) : Z :=
+  match f with
+  | 0 => 0%Z
+  | S f' => if Nat.eqb n 0 then 0%Z
+            else (2 * natZF f' (Nat.div2 n) + (if Nat.eqb n (2 * Nat.div2 n) then 0 else 1))%Z
+  end.
+
+Definition natZ (n : nat) : Z := natZF n n.
+
+Lemma natZF_eq : forall f n, n <= f -> natZF f n = Z.of_nat n.
+Proof.
+  induction f as [| f IH]; intros n Hn; cbn [natZF].
+  - assert (n = 0) by lia. subst. reflexivity.
+  - destruct (Nat.eqb_spec n 0) as [-> | Hn0]; [reflexivity |].
+    pose proof (Nat.div2_odd n) as Hd.
+    assert (Hlt : Nat.div2 n <= f).
+    { pose proof (Nat.lt_div2 n ltac:(lia)). lia. }
+    rewrite (IH _ Hlt).
+    destruct (Nat.eqb_spec n (2 * Nat.div2 n)) as [He | He].
+    + rewrite He at 2. lia.
+    + destruct (Nat.odd n); simpl in Hd; [| lia]. rewrite Hd at 2. lia.
+Qed.
+
+Lemma natZ_eq : forall n, natZ n = Z.of_nat n.
+Proof. intro n. apply natZF_eq. lia. Qed.
+
 (* A variable reads in LOGICAL space: min[i] + the raw stored offset. Arithmetic
    is signed, as in gsm's binE.eval over Go int (see check_no_overflow for why no
    wraparound needs modelling). *)
 Fixpoint evalE (mins : list Z) (s : valn) (e : expr) : Z :=
   match e with
-  | EVar i => (nth i mins 0%Z + Z.of_nat (rd i s))%Z
+  | EVar i => (nth i mins 0%Z + natZ (rd i s))%Z
   | ELit n => n
   | EAdd a b => (evalE mins s a + evalE mins s b)%Z
   | ESub a b => (evalE mins s a - evalE mins s b)%Z
@@ -112,8 +142,10 @@ Fixpoint evalP (mins : list Z) (s : valn) (p : pred) : bool :=
    0..doms[i]-1 (so the state stays in range), like gsm's SetInt (clamp into
    min..max, store val-min) and its enum write (clamp into 0..domain-1). Z.to_nat
    sends a value below the minimum to raw 0, which is the lower clamp. *)
+(* Init.Nat.min, which ExtrOcamlNatInt maps to OCaml's min; PeanoNat's Nat.min is
+   an unmapped copy that extracts as unary recursion. *)
 Definition setClamped (m : machine) (i : nat) (v : Z) (s : valn) : valn :=
-  wr i (Nat.min (Z.to_nat (v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
+  wr i (Init.Nat.min (Z.to_nat (v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
 
 Fixpoint applyT (m : machine) (t : transform) (s : valn) : valn :=
   match t with
@@ -138,7 +170,9 @@ Fixpoint normalize (m : machine) (fuel : nat) (s : valn) : valn :=
   | S f => if allValid m s then s else normalize m f (repair1 m s)
   end.
 
-Definition fuelOf (m : machine) : nat := fold_left Nat.mul (doms m) 1.
+(* Init.Nat.mul, which ExtrOcamlNatInt maps to OCaml's ( * ); PeanoNat's Nat.mul is an
+   unmapped copy that extracts as unary recursion. *)
+Definition fuelOf (m : machine) : nat := fold_left Init.Nat.mul (doms m) 1.
 
 (* The step function of a guarded event: if the guard holds, apply the effect then
    normalize; otherwise the event is a no-op. *)
@@ -163,12 +197,70 @@ Qed.
 
 (* ===== the checker ===== *)
 
-(* Enumerate the valuation box: all assignments of each variable over its domain. *)
+(* Enumerate the valuation box: all assignments of each variable over its domain.
+   boxR is the specification. box builds the same set with tail-recursive loops
+   (boxR's flat_map/map/seq recurse once per valuation, which overflows an 8 MiB
+   stack at 2^20 valuations); its only non-tail recursion is once per variable.
+   box_in: the two have the same members, which is all the proofs use. *)
+Fixpoint boxR (ds : list nat) : list valn :=
+  match ds with
+  | [] => [ [] ]
+  | d :: rest => flat_map (fun v => map (cons v) (boxR rest)) (seq 0 d)
+  end.
+
+Fixpoint prependAll (x : nat) (ws acc : list valn) : list valn :=
+  match ws with [] => acc | w :: t => prependAll x t ((x :: w) :: acc) end.
+
+Fixpoint layer (k : nat) (ws acc : list valn) : list valn :=
+  match k with 0 => acc | S k' => layer k' ws (prependAll k' ws acc) end.
+
 Fixpoint box (ds : list nat) : list valn :=
   match ds with
   | [] => [ [] ]
-  | d :: rest => flat_map (fun v => map (cons v) (box rest)) (seq 0 d)
+  | d :: rest => layer d (box rest) []
   end.
+
+Lemma prependAll_in : forall x ws acc v,
+  In v (prependAll x ws acc) <-> (exists w, v = x :: w /\ In w ws) \/ In v acc.
+Proof.
+  intros x ws. induction ws as [| w t IH]; intros acc v; simpl.
+  - split; [tauto | intros [[w [_ []]] | H]; exact H].
+  - rewrite IH. simpl. split.
+    + intros [[w' [-> Hw]] | [<- | Hin]].
+      * left. exists w'. split; [reflexivity | right; exact Hw].
+      * left. exists w. split; [reflexivity | left; reflexivity].
+      * right. exact Hin.
+    + intros [[w' [-> [<- | Hw]]] | Hin].
+      * right. left. reflexivity.
+      * left. exists w'. split; [reflexivity | exact Hw].
+      * right. right. exact Hin.
+Qed.
+
+Lemma layer_in : forall k ws acc v,
+  In v (layer k ws acc) <-> (exists x w, v = x :: w /\ x < k /\ In w ws) \/ In v acc.
+Proof.
+  induction k as [| k IH]; intros ws acc v; simpl.
+  - split; [tauto | intros [[x [w [_ [Hx _]]]] | H]; [lia | exact H]].
+  - rewrite IH, prependAll_in. split.
+    + intros [[x [w [-> [Hx Hw]]]] | [[w [-> Hw]] | Hin]].
+      * left. exists x, w. split; [reflexivity | split; [lia | exact Hw]].
+      * left. exists k, w. split; [reflexivity | split; [lia | exact Hw]].
+      * right. exact Hin.
+    + intros [[x [w [-> [Hx Hw]]]] | Hin]; [| right; right; exact Hin].
+      destruct (Nat.eq_dec x k) as [-> | Hne].
+      * right. left. exists w. split; [reflexivity | exact Hw].
+      * left. exists x, w. split; [reflexivity | split; [lia | exact Hw]].
+Qed.
+
+Lemma box_in : forall ds v, In v (box ds) <-> In v (boxR ds).
+Proof.
+  induction ds as [| d rest IH]; intro v; [reflexivity |].
+  simpl. rewrite layer_in, in_flat_map. split.
+  - intros [[x [w [-> [Hx Hw]]]] | []].
+    exists x. split; [apply in_seq; lia |]. apply in_map_iff. exists w. split; [reflexivity | apply IH; exact Hw].
+  - intros [x [Hx Hm]]. apply in_seq in Hx. apply in_map_iff in Hm. destruct Hm as [w [<- Hw]].
+    left. exists x, w. split; [reflexivity | split; [lia | apply IH; exact Hw]].
+Qed.
 
 (* check: on every VALID valuation in the box, every event-step lands on a valid
    valuation (so normalization actually completed) and every ordered pair of
@@ -194,7 +286,7 @@ Definition stepCheckOne (m : machine) (v : valn) : bool :=
 Definition maxAbs : Z := 2147483647%Z.
 
 Definition varBound (m : machine) (i : nat) : Z :=
-  Z.max (Z.abs (nth i (mins m) 0%Z)) (Z.abs (nth i (mins m) 0%Z + Z.of_nat (nth i (doms m) 0) - 1)).
+  Z.max (Z.abs (nth i (mins m) 0%Z)) (Z.abs (nth i (mins m) 0%Z + natZ (nth i (doms m) 0) - 1)).
 
 Fixpoint bnd (m : machine) (e : expr) : Z :=
   match e with
@@ -243,7 +335,7 @@ Fixpoint lo (m : machine) (e : expr) : Z :=
   end
 with hi (m : machine) (e : expr) : Z :=
   match e with
-  | EVar i => (nth i (mins m) 0%Z + Z.of_nat (nth i (doms m) 1%nat) - 1)%Z
+  | EVar i => (nth i (mins m) 0%Z + natZ (nth i (doms m) 1%nat) - 1)%Z
   | ELit n => n
   | EAdd a b => (hi m a + hi m b)%Z
   | ESub a b => (hi m a - lo m b)%Z
@@ -318,7 +410,7 @@ Qed.
 Definition inRange (ds : list nat) (v : valn) : Prop :=
   length v = length ds /\ forall j, j < length ds -> nth j v 0 < nth j ds 0.
 
-Lemma box_length : forall ds v, In v (box ds) -> length v = length ds.
+Lemma boxR_length : forall ds v, In v (boxR ds) -> length v = length ds.
 Proof.
   induction ds as [| d rest IH]; intros v Hin; simpl in Hin.
   - destruct Hin as [<- | []]. reflexivity.
@@ -327,7 +419,7 @@ Proof.
     simpl. f_equal. apply IH; exact Hw.
 Qed.
 
-Lemma box_range : forall ds v, In v (box ds) ->
+Lemma boxR_range : forall ds v, In v (boxR ds) ->
   forall j, j < length ds -> nth j v 0 < nth j ds 0.
 Proof.
   induction ds as [| d rest IH]; intros v Hin j Hj; simpl in *.
@@ -339,10 +431,10 @@ Proof.
     + apply IH; [exact Hw | lia].
 Qed.
 
-Lemma box_intro : forall ds v,
+Lemma boxR_intro : forall ds v,
   length v = length ds ->
   (forall j, j < length ds -> nth j v 0 < nth j ds 0) ->
-  In v (box ds).
+  In v (boxR ds).
 Proof.
   induction ds as [| d rest IH]; intros v Hlen Hr; simpl.
   - destruct v; simpl in Hlen; [left; reflexivity | discriminate].
@@ -352,6 +444,19 @@ Proof.
     + apply in_map_iff. exists w. split; [reflexivity | ].
       apply IH; [lia | ]. intros j Hj. specialize (Hr (S j) ltac:(simpl; lia)). simpl in Hr. exact Hr.
 Qed.
+
+Lemma box_length : forall ds v, In v (box ds) -> length v = length ds.
+Proof. intros ds v H. apply boxR_length, box_in, H. Qed.
+
+Lemma box_range : forall ds v, In v (box ds) ->
+  forall j, j < length ds -> nth j v 0 < nth j ds 0.
+Proof. intros ds v H. apply boxR_range, box_in, H. Qed.
+
+Lemma box_intro : forall ds v,
+  length v = length ds ->
+  (forall j, j < length ds -> nth j v 0 < nth j ds 0) ->
+  In v (box ds).
+Proof. intros ds v Hl Hr. apply box_in, boxR_intro; assumption. Qed.
 
 Lemma box_iff : forall ds v, In v (box ds) <-> inRange ds v.
 Proof.
@@ -566,7 +671,7 @@ Lemma evalE_bnd : forall m v e,
 Proof.
   intros m v e Hv.
   induction e as [i | n | a IHa b IHb | a IHa b IHb]; simpl.
-  - unfold varBound. rewrite rd_nth.
+  - unfold varBound. rewrite !natZ_eq, rd_nth.
     destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
     + pose proof (box_range _ _ Hv i Hi) as Hr. lia.
     + rewrite (nth_overflow v 0) by (rewrite (box_length _ _ Hv); exact Hi). lia.
@@ -612,7 +717,7 @@ Lemma evalE_range : forall m v e,
 Proof.
   intros m v e Hv.
   induction e as [i | n | a IHa b IHb | a IHa b IHb]; simpl.
-  - rewrite rd_nth.
+  - rewrite !natZ_eq, rd_nth.
     destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
     + pose proof (box_range _ _ Hv i Hi) as Hr.
       assert (Hd : nth i (doms m) 1 = nth i (doms m) 0) by (apply nth_indep; exact Hi).
