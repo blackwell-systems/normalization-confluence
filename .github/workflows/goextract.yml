@@ -107,7 +107,7 @@ jobs:
                 astchecker) bin=$v/ast/gocheck_ast ;;
                 *) continue ;;
               esac
-              "$bin" "${args[@]}" >/dev/null 2>&1; got=$?
+              got=0; "$bin" "${args[@]}" >/dev/null 2>&1 || got=$?
               if [ "$got" = "$want" ]; then echo "ok   $(basename $v) $tool $file"; else echo "FAIL $(basename $v) $tool $file: want $want got $got"; fail=1; fi
             done < cases.tsv
           done
