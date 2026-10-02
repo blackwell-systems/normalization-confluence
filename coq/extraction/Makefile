@@ -17,11 +17,14 @@ all: $(CHECKER) $(ASTCHECKER)
 ../TableCheck.vo: ../TableCheck.v ../Trace.vo
 	cd .. && coqc -Q . NC TableCheck.v
 
+../TableFast.vo: ../TableFast.v ../TableCheck.vo ../Trace.vo
+	cd .. && coqc -Q . NC TableFast.v
+
 ../AstChecker.vo: ../AstChecker.v ../Checker.vo ../Trace.vo ../TableCheck.vo
 	cd .. && coqc -Q . NC AstChecker.v
 
 # Both checkers extract from one Extract.v into the shared checker_core module.
-checker_core.ml: Extract.v ../TableCheck.vo ../AstChecker.vo
+checker_core.ml: Extract.v ../TableFast.vo ../AstChecker.vo
 	cd .. && coqc -Q . NC extraction/Extract.v
 
 $(CHECKER): checker_core.ml main.ml
