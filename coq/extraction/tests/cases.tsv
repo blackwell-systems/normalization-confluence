@@ -19,4 +19,31 @@
 2	astchecker	ast-mins-length.machine	mins must give one minimum per variable
 2	astchecker	ast-hex-literal.machine	only decimal integers are accepted
 2	astchecker	ast-empty-domain.machine	every domain must have at least one value
-2	astchecker	ast-literal-range.machine	integers above 2^31-1 in magnitude are input error
+1	astchecker	ast-literal-range.machine	a literal above 2^31-1 in magnitude is outside the certified fragment (gsm's Go int could wrap), not input error
+0	checker	tables2-declared-pairs.tables	v2: only declared pairs are checked; e0 and e1 do not commute but are not declared independent
+1	checker	tables2-declared-pair-fails.tables	v2: a declared pair that does not commute is rejected
+1	checker	tables2-all-pairs-fail.tables	v2: with every pair independent (gsm's default), a non-commuting pair is rejected
+0	checker	tables2-invalid-state.tables	v2: commutation is checked on valid states and the zero state only; state 2 is invalid (NF 2 = 1) and not zero
+1	checker	tables2-invalid-zero.tables	v2: the zero state is checked even when it is invalid (Machine.NewState)
+1	checker	tables2-nf-not-retract.tables	v2: NF must land on valid states (NF 0 = 1 but NF 1 = 2)
+1	checker	tables2-step-invalid.tables	v2: every step must land on a valid state
+2	checker	tables2-pair-range.tables	v2: a declared pair naming an event past nE is input error
+2	checker	tables2-no-states.tables	v2: there is always a zero state, so n = 0 is input error
+2	checker	tables2-pairs-short.tables	v2: fewer pair entries than declared is input error
+2	checker	tables2-bad-version.tables	v2: an unknown format version is input error
+1	astchecker	ast-wfc-unreachable.machine	repair must terminate from every state, as Build requires; x = 2 repairs to itself, though no event reaches it
+1	astchecker	ast-declared-pairs.machine	with no pairs file every pair is checked; a := 0 and a := 1 do not commute
+1	astchecker	ast-declared-pairs.machine ast-all.pairs	'pairs all' is the default: every pair is checked
+0	astchecker	ast-declared-pairs.machine ast-declared-pairs.pairs	only declared pairs are checked; (0,2) and (1,2) commute
+1	astchecker	ast-declared-pairs.machine ast-declared-pair-fails.pairs	a declared pair that does not commute is rejected
+2	astchecker	ast-declared-pairs.machine ast-pair-range.pairs	a declared pair naming a missing event is input error
+2	astchecker	ast-declared-pairs.machine ast-pairs-short.pairs	fewer pair entries than declared is input error
+1	astchecker	ast-zero-invalid-cc.machine	the invalid zero state is in Build's CC domain; the pair commutes on every valid state but not at zero
+1	astchecker	ast-zero-guard-false.machine	gsm's step normalizes even when the guard is false; at the invalid zero state that is what makes the pair fail
+0	astchecker	ast-invalid-state.machine	commutation is not checked at an invariant-invalid state other than zero (x = 2), which no run reaches
+1	astchecker	ast-declared-pairs.machine ast-second-pair-fails.pairs	every declared pair is checked, not only the first
+1	checker	tables2-second-pair-fails.tables	v2: every declared pair is checked, not only the first
+1	astchecker	ast-literal-int64.machine	a 19-digit literal (a Go int64) is outside the certified fragment
+1	astchecker	ast-min-range.machine	a minimum above 2^31-1 is outside the certified fragment
+2	astchecker	ast-literal-20digits.machine	more than 19 digits is not a Go int, so input error
+0	astchecker	ast-doc-example.machine	the format example in ast_main.ml parses and converges (it has no comment syntax to trip over)

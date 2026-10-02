@@ -1,0 +1,4 @@
+(doms 3)
+(inv (le (var 0) (lit 1)) (do (set 0 (lit 1))))
+(evwhen (eq (var 0) (lit 2)) (do (set 0 (lit 0))))
+(evwhen (eq (var 0) (lit 2)) (do (set 0 (lit 1))))

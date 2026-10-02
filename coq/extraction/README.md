@@ -5,17 +5,20 @@ axiom-free, that independently certify a governed machine converges. Because the
 is extracted from Coq, a bug in gsm's hand-written Go verification cannot make a non-convergent
 machine pass here.
 
-- **`checker`** (the TABLE oracle, from `../Checker.v`): certifies a machine's emitted step
-  tables converge, i.e. the per-event step functions commute and stay in range, so applying the
-  same events in any order reaches the same state. Proven axiom-free via `checked_converges`,
-  `check_commuting_sound`.
+- **`checker`** (the TABLE oracle, from `../TableCheck.v`): certifies a machine's emitted tables
+  have the property gsm's `Build` checks: normal forms and steps land on valid states (`NF s = s`),
+  and every declared-independent pair of events commutes on the valid states and the zero state.
+  So event sequences that differ only by reordering declared-independent events reach the same
+  state. Proven axiom-free via `check_tables_converges` (and `check_tables_converges_all` for
+  every permutation when no pairs are declared).
 - **`astchecker`** (the RULES oracle, from `../AstChecker.v`): certifies a combinator machine
   straight from its **rules** (the expression-tree AST), not its output tables. It recomputes
   each event's step function by evaluating the AST (apply the event, then normalize by iterated
-  repair) and confirms every event preserves validity and every pair commutes on every valid
-  valuation. So it does not trust gsm to have enumerated or normalized anything: it re-derives
-  convergence from the declarations themselves. Proven axiom-free via `check_sound_converges`,
-  `check_sound_commute`. Arithmetic is gsm's: signed integers, with `check_no_overflow` proving
+  repair) and checks the property gsm's `Build` checks: repair terminates from every valuation
+  (WFC), and every declared pair commutes on every valid valuation and on the zero valuation,
+  under gsm's step (which normalizes even when a guard is false). So it does not trust gsm to have
+  enumerated or normalized anything: it re-derives convergence from the declarations themselves.
+  Proven axiom-free via `checkBuild_converges`, `checkBuild_commute`, `checkBuild_wfc_terminates`. Arithmetic is gsm's: signed integers, with `check_no_overflow` proving
   that a certified machine never leaves 32-bit range, so Go's `int` never wraps. It also prints a `compensation_free=<bool>` line: the machine-checked
   CRDT-fragment classification (no in-domain valuation ever needs repair, the AST analogue of
   "max repair depth = 0"), proven axiom-free via `compensationFree_step_no_repair`, so a consumer
@@ -55,9 +58,26 @@ fails if the verified checker disagrees with gsm's verdict.
 
 ## File formats
 
-**Tables** (`checker`): whitespace-separated integers `V nE`, then `nE` rows of `V` next-state
-ids, where entry `(e, s)` is the normalized state reached by applying event `e` in state `s`.
-gsm emits only the valid states, remapped to `0..V-1`.
+**Tables** (`checker`), version 2, whitespace-separated:
+
+```
+gsm-tables 2
+V nE
+nf <V state ids>                        ; normal form of each state
+pairs all | pairs k a1 b1 ... ak bk     ; event pairs declared independent
+<nE rows of V next-state ids>
+```
+
+Entry `(e, s)` of a row is the normalized state reached by applying event `e` in state `s`. A
+state is valid when `nf[s] = s`; state 0 is the zero state. gsm emits every in-domain encoding
+(every variable within its domain), remapped to `0..V-1` in encoding order. A version-1 file
+(`V nE` then the rows, no header) is still accepted and checked as if every state were valid and
+every pair declared, which is the original check.
+
+**Declared pairs** (`astchecker`'s optional second file): `pairs all` or
+`pairs k a1 b1 ... ak bk`, by event index in the order the machine file lists events. Without the
+file every pair is checked. gsm writes it with `Registry.WriteDeclaredPairs`; it is not part of the
+machine file, so `PolicyBytes` and the digests over it do not change.
 
 **Machine rules** (`astchecker`): S-expressions, one form per top-level line.
 
@@ -75,7 +95,7 @@ with `expr ::= (var i) | (lit n) | (add e e) | (sub e e)` (`n` may be negative),
 `pred ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)`, and
 `xform ::= (do (set i e)...)`. A variable's values live in `min .. min+domain-1`; the state stores
 the raw `0..domain-1` offset. Arithmetic and comparisons are signed, and a write clamps the value
-into the variable's range. `check` refuses (exit 1, "outside the certified fragment") two kinds of
+into the variable's range. The checker refuses (exit 1, "outside the certified fragment") two kinds of
 machine it does not model: one where some expression could exceed 2^31-1 in magnitude, because
 gsm's Go `int` would wrap there on 32-bit platforms; and one where a write could store a negative
 value into a two-valued variable with min 0, because a gsm Bool stores `value != 0` there while
@@ -88,19 +108,22 @@ guard) and refuses anything outside it.
 Both front ends validate input and exit 2 on anything malformed, because the extracted code is
 only meaningful on well-formed values: integers must be decimal (no `0x`, `+` or `_`) and at most
 2^31-1 in magnitude; state ids, variable indices and domains must be non-negative; the tables
-file must hold exactly `2 + V*nE` integers; every domain is at least 1; `mins` gives exactly one
+file must hold exactly the entries its header announces, with `V >= 1`; declared pairs must name
+existing events; every domain is at least 1; `mins` gives exactly one
 entry per variable; every variable index names a declared variable.
 
 ## Tests
 
 `make test` runs `tests/run.sh`, which runs each case in `tests/cases.tsv` through its checker
 and compares the exit code. The cases pin gsm's signed semantics (including the subtraction-guard
-probe that the earlier `nat` semantics certified wrongly) and the input validation above. CI runs
+probe that the earlier `nat` semantics certified wrongly), `Build`'s property (declared pairs,
+the zero state, invalid states, repair termination from every state) and the input validation
+above. CI runs
 them on every push.
 
 ## Scope
 
-The `checker` certifies **convergence of the emitted tables**; it operates on the finite table
+The `checker` certifies **convergence of the emitted tables** for the declared pairs; it operates on the finite table
 gsm produces, so it shares Build's global-enumeration ceiling (compositional machines have no
 global tables to export). The `astchecker` certifies **convergence of the rules** over the whole
 valuation box, so it likewise enumerates that box, but it never trusts gsm's tables or

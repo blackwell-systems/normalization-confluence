@@ -23,11 +23,11 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 68 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all thirty-eight headline results (the single-registry
+Expected tail: `PASS: all 89 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 89 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
-verified-checker soundness results, the six CRDT-subsumption results, and the ten categorical-core
+verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
 results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
 clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
 federated operator's retraction and image characterization, the order-independence commutation core,
@@ -159,22 +159,51 @@ hypotheses; `Print Assumptions` on all four results is "Closed under the global 
 brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
 not mechanized; the disjointness path is the substantive one.
 
-## Verified checkers: two differential oracles for gsm (`Checker.v`, `AstChecker.v`, `extraction/`)
+## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `AstChecker.v`, `extraction/`)
 
 Two independent, machine-checked checkers re-certify a gsm machine's convergence, each extracted
 to a runnable OCaml binary in `extraction/`. Both are proven axiom-free, so a bug in gsm's
 hand-written Go verification cannot make a non-convergent machine pass either one. See
 `extraction/README.md` for build, demo, and file formats.
 
-### Table oracle (`Checker.v`)
+Both checkers decide exactly the property gsm's `Build` checks, so on every machine they and
+`Build` must agree (gsm's differential test fails on any disagreement outside the rules oracle's
+arithmetic fragment):
 
-`Checker.v` proves that a governed machine converges (applying the same events in any order
+- **WFC over every state.** Repair reaches a valid state from every state in the box, as `Build`
+  requires and as the meta-theory assumes (`Governance.wfc`, `Gsm.repair_terminates`). The table
+  image of WFC is that the normal-form table lands on valid states.
+- **Declared pairs.** Only the event pairs declared independent are checked (every pair when none
+  is declared). The guarantee is stated for event sequences that differ by reordering adjacent
+  declared-independent events: `Trace.v` defines that trace equivalence (`tequiv`) and proves
+  `run_tequiv` (trace-equivalent sequences reach the same state) and `perm_tequiv_total` (with
+  every pair declared, it is any permutation).
+- **Domain.** Commutation is checked on the valid states plus the zero state that gsm's
+  `Machine.NewState` returns, valid or not, under gsm's step, which normalizes even when a guard
+  is false.
+
+### Table oracle (`TableCheck.v`, on top of `Checker.v`)
+
+`TableCheck.v` defines `check_tables` over a state count, an event count, the normal-form table,
+the step tables and the declared pairs. A state `s` is valid when `NF s = s` (gsm's `IsValid`), so
+the domain comes from the tables and gsm cannot shrink it. Theorems, all axiom-free:
+`check_tables_nf_valid` (normal forms are valid), `check_tables_step_valid` (every step from every
+state is valid), `check_tables_commute` (declared pairs commute on the valid states and the zero
+state), `check_tables_converges` (trace-equivalent sequences reach the same state from that
+domain) and `check_tables_converges_all` (every permutation, with no pairs declared). Lookups go
+through an axiom-free binary trie, proven equal to list lookup (`tget_of_list`), in O(log n);
+Rocq's primitive arrays would be O(1) but are specified by axioms.
+
+`Checker.v`, the original table oracle, proves that a governed machine converges (applying the same events in any order
 reaches the same state) exactly when its per-event step functions **commute** and stay in range,
 and packages that as a boolean `check_commuting` / `closed` proven sound (`check_commuting_sound`,
 `checked_converges`), axiom-free. The mathematical core is `run_perm_invariant`: commuting steps
 make `fold` over any permutation of an event list give the same result. It is extracted to the
-`checker` binary. gsm emits a built machine's step tables (`Machine.WriteConvergenceTables`) and
-the extracted checker independently re-certifies that they converge. gsm's
+`checker` binary's version-1 input. That property is stricter than `Build`'s (every pair, every
+state), and it is exactly `check_tables` with every state valid and every pair declared, which is
+how the front end now reads a version-1 file. gsm emits a built machine's tables
+(`Machine.WriteConvergenceTables`, format version 2) and the extracted `check_tables`
+independently re-certifies them. gsm's
 `TestConvergenceTables_WriteAndVerify` runs it on gsm's real output when `GSM_CONVERGENCE_CHECKER`
 points at the binary.
 
@@ -210,12 +239,17 @@ predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, signed literals and 
 guarded events; the serializer refuses anything outside it, so a
 passing cross-check always compares like semantics.
 
-What `check` decides differs from gsm's `Build` in three known ways, all on the side of the
-domain: it checks every event pair (gsm checks only declared pairs once `Independent` is used),
-it checks commutation from valid valuations only (gsm also checks from the zero state
-`NewState` returns, even when that state is invalid), and it requires repair to terminate only on
-states an event can reach (gsm requires it on every valuation). Aligning these is the next step
-for the oracles.
+`check` decides a property that differs from `Build`'s in the three ways listed above. The
+extracted rules oracle runs `checkBuild` instead, which takes the declared pairs as an input and
+decides `Build`'s property. Its theorems, all axiom-free: `checkBuild_wfc_terminates` (no infinite
+compensation sequence starts anywhere in the box), `checkBuild_wfc_potential` (each repair of an
+invalid state strictly decreases the repair depth: the potential `Governance.wfc` assumes),
+`checkBuild_normalize_valid`, `checkBuild_step_valid`, `checkBuild_commute`,
+`checkBuild_converges`, `checkBuild_converges_all`, and the fragment guarantees
+`checkBuild_no_overflow` and `checkBuild_binary_writes_exact`. `stepG_valid_eq` shows gsm's step
+(`stepG`) equals `stepAst` on valid states, so the two differ only at an invalid zero state. The
+declared pairs travel in a separate pairs file (`Registry.WriteDeclaredPairs`), so the rules
+format and every digest over it are unchanged; without that file every pair is checked.
 
 ### What this does and does not require of you: no continuous porting to Coq
 
@@ -438,17 +472,17 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 68 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 89 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
 
 ```
 make          # compiles every module (Newman, Governance, Defensibility, Gsm, Federation,
-              # Chaotic, Checker, AstChecker, CRDT)
+              # Chaotic, Checker, Trace, TableCheck, AstChecker, CRDT, ...)
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all eighteen
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 87
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`).

@@ -1,0 +1,3 @@
+(doms 3)
+(inv (le (var 0) (lit 1)) (do (set 0 (lit 2))))
+(ev (do (set 0 (lit 0))))
