@@ -1,5 +1,5 @@
 # Build the mechanized confluence proof. Requires coqc (Rocq/Coq >= 8.18; tested on Rocq 9.3).
-all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo AstChecker.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo
+all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo TableFast.vo AstChecker.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo
 
 Newman.vo: Newman.v
 	coqc -Q . NC Newman.v
@@ -27,6 +27,9 @@ Trace.vo: Trace.v
 
 TableCheck.vo: TableCheck.v Trace.vo
 	coqc -Q . NC TableCheck.v
+
+TableFast.vo: TableFast.v TableCheck.vo Trace.vo
+	coqc -Q . NC TableFast.v
 
 AstChecker.vo: AstChecker.v Checker.vo Trace.vo TableCheck.vo
 	coqc -Q . NC AstChecker.v
