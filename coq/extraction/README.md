@@ -5,12 +5,14 @@ axiom-free, that independently certify a governed machine converges. Because the
 is extracted from Coq, a bug in gsm's hand-written Go verification cannot make a non-convergent
 machine pass here.
 
-- **`checker`** (the TABLE oracle, from `../TableCheck.v`): certifies a machine's emitted tables
+- **`checker`** (the TABLE oracle, from `../TableFast.v`, proven equal to `../TableCheck.v`'s
+  `check_tables` by `check_fast_eq`): certifies a machine's emitted tables
   have the property gsm's `Build` checks: normal forms and steps land on valid states (`NF s = s`),
   and every declared-independent pair of events commutes on the valid states and the zero state.
   So event sequences that differ only by reordering declared-independent events reach the same
   state. Proven axiom-free via `check_tables_converges` (and `check_tables_converges_all` for
-  every permutation when no pairs are declared).
+  every permutation when no pairs are declared), carried to the extracted `check_fast` by
+  `check_fast_converges`. It handles gsm's largest machines (2^20 states) in constant stack.
 - **`astchecker`** (the RULES oracle, from `../AstChecker.v`): certifies a combinator machine
   straight from its **rules** (the expression-tree AST), not its output tables. It recomputes
   each event's step function by evaluating the AST (apply the event, then normalize by iterated

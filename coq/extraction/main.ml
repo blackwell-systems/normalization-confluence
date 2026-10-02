@@ -1,6 +1,7 @@
 (* Runnable front-end for the table oracle. Reads a machine's step tables and
    reports whether they have the property gsm's Build checks, using the
-   Coq-extracted, machine-checked check_tables (TableCheck.v). Exit 0 = verified
+   Coq-extracted, machine-checked check_fast (TableFast.v), proven equal to
+   check_tables (TableCheck.v) by check_fast_eq. Exit 0 = verified
    convergent, 1 = not, 2 = input error.
 
    Tables file format, version 2 (whitespace-separated tokens; this is what gsm's
@@ -14,7 +15,7 @@
      <event nE-1: n next-states>
    where entry (e, s) is the normalized state reached by applying event e in state
    s. State 0 is the zero state (Machine.NewState). A state s is valid when
-   nf[s] = s. check_tables requires: every declared pair names events below nE;
+   nf[s] = s. check_fast (= check_tables) requires: every declared pair names events below nE;
    every nf entry is a valid state; every step from every state is a valid state;
    and every declared pair commutes on every valid state and on state 0
    (check_tables_converges).
@@ -97,9 +98,9 @@ let () =
   in
   if len - !pos <> n * ne then
     fail_input (Printf.sprintf "expected %d step entries (n=%d, nE=%d), got %d" (n * ne) n ne (len - !pos));
-  let rows = List.init ne (fun _ -> Checker_core.of_list (List.init n (fun _ -> nat "step entry"))) in
+  let rows = List.init ne (fun _ -> List.init n (fun _ -> nat "step entry")) in
   let declared = match pairs with None -> "every pair" | Some l -> Printf.sprintf "%d declared pairs" (List.length l) in
-  if Checker_core.check_tables n ne (Checker_core.of_list nf) rows pairs then
+  if Checker_core.check_fast n ne nf rows pairs then
     (Printf.printf
        "OK: %d states, %d events, %s; tables verified convergent (normal forms and steps land on valid states; declared pairs commute on valid states and the zero state)\n"
        n ne declared;
