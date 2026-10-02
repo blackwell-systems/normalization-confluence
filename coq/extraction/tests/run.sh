@@ -33,19 +33,19 @@ if [ -x "$bin/checker_fast" ]; then
   done < "$here/cases.tsv"
 fi
 
-# Large inputs: identity tables over 2^19 states (one event, every state valid)
-# must be accepted. Generated, not stored (about 7 MB).
+# Large inputs: identity tables over 2^20 states (one event, every state valid)
+# must be accepted. Generated, not stored (about 15 MB).
 big="$(mktemp -d)"
-n=524288
+n=1048576
 { echo "gsm-tables 2"; echo "$n 1"; printf 'nf'; seq 0 $((n - 1)) | tr '\n' ' ' | sed 's/^/ /'; echo
-  echo "pairs all"; seq 0 $((n - 1)) | tr '\n' ' '; echo; } > "$big/id19.tables"
+  echo "pairs all"; seq 0 $((n - 1)) | tr '\n' ' '; echo; } > "$big/id20.tables"
 for tool in checker checker_fast; do
   [ -x "$bin/$tool" ] || continue
-  out="$("$bin/$tool" "$big/id19.tables" 2>&1)"; got=$?
+  out="$("$bin/$tool" "$big/id20.tables" 2>&1)"; got=$?
   if [ "$got" = 0 ]; then
-    pass=$((pass + 1)); echo "ok   $tool id19.tables (exit 0)"
+    pass=$((pass + 1)); echo "ok   $tool id20.tables (exit 0)"
   else
-    fail=$((fail + 1)); echo "FAIL $tool id19.tables: want exit 0, got $got (2^19 identity tables are convergent)"; echo "$out" | sed 's/^/     /'
+    fail=$((fail + 1)); echo "FAIL $tool id20.tables: want exit 0, got $got (2^20 identity tables are convergent)"; echo "$out" | sed 's/^/     /'
   fi
 done
 rm -rf "$big"
