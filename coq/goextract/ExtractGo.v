@@ -1,30 +1,16 @@
-(* SPIKE (spike/go-extraction): extract check_fast as JSON (MiniML) for the Go
-   generator in goextract/gogen.
-
-   The directives map exactly the constants ExtrOcamlBasic and ExtrOcamlNatInt
-   map for the OCaml checker (same references, same Require context), to symbols
-   the generator replaces with fixed Go definitions (prims in gogen/main.go).
-   Nothing else is mapped: in particular PeanoNat's Nat.add, Nat.mul and Nat.pow
-   stay recursive, as in the OCaml extraction. *)
-From Stdlib Require Extraction.
-From Stdlib Require Import PeanoNat Peano_dec EqNat Euclid.
+(* Extract the verified checkers as MiniML JSON for gogen (goextract/gogen):
+   - fast_core.json: check_fast (TableFast.v), the table oracle;
+   - ast_core.json: checkBuild and the parts its front end reports (wfc,
+     bounded, signSafe, compensationFree) (AstChecker.v), the rules oracle, plus
+     check_tables and of_list (TableCheck.v);
+   the same entry points as Extract.v and ExtractFast.v, with the directives of
+   ExtrGo.v in place of ExtrOcamlBasic, ExtrOcamlNatInt and ExtrOcamlZInt. *)
+From Coq Require Import Extraction.
+Require Import NC.goextract.ExtrGo.
+Require Import NC.TableCheck.
 Require Import NC.TableFast.
+Require Import NC.AstChecker.
 
 Extraction Language JSON.
-
-(* ExtrOcamlBasic (the parts check_fast uses). *)
-Extract Inductive bool => "bool" [ "true" "false" ].
-Extract Inductive sumbool => "bool" [ "true" "false" ].
-Extract Inlined Constant andb => "prim_andb".
-
-(* ExtrOcamlNatInt. *)
-Extract Inductive nat => "nat" [ "0" "nat_succ" ] "nat_case".
-Extract Constant plus => "prim_add".
-Extract Constant minus => "prim_sub".
-Extract Constant mult => "prim_mul".
-Extract Inlined Constant Nat.eqb => "prim_eqb".
-Extract Constant Nat.compare => "prim_compare".
-Extract Inlined Constant Compare_dec.lt_dec => "prim_ltb".
-Extract Constant Nat.div2 => "prim_div2".
-
 Extraction "goextract/fast_core.json" check_fast.
+Extraction "goextract/ast_core.json" check_tables of_list checkBuild wfc bounded signSafe compensationFree.

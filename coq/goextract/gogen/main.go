@@ -1,26 +1,25 @@
-// SPIKE (spike/go-extraction): gogen turns Coq's JSON extraction (MiniML) into Go.
+// Command gogen turns Rocq's MiniML JSON extraction into Go.
 //
-// Usage: gogen -pkg main -o out.go fast_core.json
+// Usage: gogen [-pkg name] [-o out.go] extraction.json
 //
-// It accepts the MiniML fragment check_fast extracts to and fails loudly on
-// anything else:
-//   - inductives (possibly parameterized) become generic Go structs, values are
-//     pointers, the constructor is a tag; nat and bool are mapped (see prims);
+// It accepts the MiniML fragment the verified checkers extract to, and fails on
+// anything else rather than guess:
+//   - inductives (possibly parameterized) become generic Go structs; a value is
+//     a pointer and its constructor a tag. The inductives ExtrGo.v maps become
+//     Go bool and int64 (prims.go);
 //   - top-level terms and fixpoints become Go functions, generic over the type
-//     variables of their declared MiniML type; local lambdas become curried Go
-//     closures; partial applications of globals become closures;
+//     variables of their declared MiniML type. Local lambdas become curried Go
+//     closures, and so do partial applications of globals;
 //   - Hindley-Milner inference (declared types for globals, monomorphic locals)
-//     supplies every Go type the output needs, and every generic call is
+//     gives every Go type the output needs, and every generic use is
 //     instantiated explicitly;
-//   - match becomes a switch on the tag; self tail calls become loops (a fresh
-//     copy of the parameters per iteration, so closures never see a later
-//     iteration's values); prim_andb is short-circuit, and its right operand is
-//     in tail position, as OCaml's (&&) is.
+//   - a match becomes a switch. A self tail call becomes a loop, with a fresh
+//     copy of the parameters per iteration so that closures never see a later
+//     iteration's values. prim_andb is a short-circuit &&, and its right operand
+//     is in tail position, as OCaml's (&&) is.
 //
-// The prims are the only hand-written semantics: each one is the Go meaning of a
-// constant ExtractGo.v maps (the same set ExtrOcamlNatInt maps). nat is int64;
-// with -checked (the default) every operation that can grow a nat panics on
-// overflow instead of wrapping, so the int64 mapping is exact or the run stops.
+// The output is gofmt'd and depends only on the input, so regenerating from the
+// same extraction gives the same bytes.
 package main
 
 import (
@@ -30,61 +29,10 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
-
-// ===== MiniML JSON =====
-
-type Node struct {
-	What        string            `json:"what"`
-	Name        json.RawMessage   `json:"name"`
-	Argnames    []string          `json:"argnames"`
-	Body        *Node             `json:"body"`
-	Expr        *Node             `json:"expr"`
-	Cases       []*Node           `json:"cases"`
-	Pat         *Node             `json:"pat"`
-	Func        *Node             `json:"func"`
-	Args        json.RawMessage   `json:"args"`
-	Nameval     *Node             `json:"nameval"`
-	Value       *Node             `json:"value"`
-	Type        *Node             `json:"type"`
-	Left        *Node             `json:"left"`
-	Right       *Node             `json:"right"`
-	Fixlist     []*Node           `json:"fixlist"`
-	Constrs     []*Ctor           `json:"constructors"`
-	Msg         string            `json:"msg"`
-	Decls       []*Node           `json:"declarations"`
-	Extra       map[string]any    `json:"-"`
-	args        []*Node           // decoded Args (expressions or types)
-	unknownKeys map[string]json.RawMessage
-}
-
-type Ctor struct {
-	Name     string  `json:"name"`
-	Argtypes []*Node `json:"argtypes"`
-}
-
-func (n *Node) name() string {
-	var s string
-	if json.Unmarshal(n.Name, &s) == nil {
-		return s
-	}
-	var i int
-	if json.Unmarshal(n.Name, &i) == nil {
-		return fmt.Sprint(i)
-	}
-	return ""
-}
-
-func (n *Node) argList() []*Node {
-	if n.args == nil && len(n.Args) > 0 {
-		if err := json.Unmarshal(n.Args, &n.args); err != nil {
-			fail("args of %s: %v", n.What, err)
-		}
-	}
-	return n.args
-}
 
 func fail(f string, a ...any) {
 	fmt.Fprintf(os.Stderr, "gogen: "+f+"\n", a...)
@@ -93,14 +41,17 @@ func fail(f string, a ...any) {
 
 // ===== types and inference =====
 
+// Ty is a MiniML type during inference.
 type Ty struct {
-	K    byte // 'm' meta, 'p' rigid parameter, 'c' constructor, 'a' arrow
+	K    byte // 'm' meta variable, 'p' rigid parameter, 'c' type constructor, 'a' arrow
 	Name string
 	Args []*Ty // 'c': type arguments; 'a': [left, right]
-	ref  *Ty   // 'm': binding
+	ref  *Ty   // 'm': what it is bound to
 }
 
 func meta() *Ty { return &Ty{K: 'm'} }
+
+func arrow(l, r *Ty) *Ty { return &Ty{K: 'a', Args: []*Ty{l, r}} }
 
 func (t *Ty) res() *Ty {
 	for t.K == 'm' && t.ref != nil {
@@ -163,54 +114,6 @@ func show(t *Ty) string {
 	return "(" + s + ")"
 }
 
-func arrow(l, r *Ty) *Ty { return &Ty{K: 'a', Args: []*Ty{l, r}} }
-
-// tyOf converts a MiniML type. vars maps type:var names and type:varidx indices
-// (as strings) to Go types.
-func tyOf(n *Node, vars map[string]*Ty) *Ty {
-	switch n.What {
-	case "type:arrow":
-		return arrow(tyOf(n.Left, vars), tyOf(n.Right, vars))
-	case "type:glob":
-		t := &Ty{K: 'c', Name: n.name()}
-		for _, a := range n.argList() {
-			t.Args = append(t.Args, tyOf(a, vars))
-		}
-		return t
-	case "type:var", "type:varidx":
-		v, ok := vars[n.name()]
-		if !ok {
-			fail("unbound type variable %s", n.name())
-		}
-		return v
-	}
-	fail("unsupported type node %s", n.What)
-	return nil
-}
-
-// maxVaridx returns the largest type:varidx in a declared type (its arity as a
-// scheme).
-func maxVaridx(n *Node) int {
-	if n == nil {
-		return 0
-	}
-	m := 0
-	if n.What == "type:varidx" {
-		fmt.Sscan(n.name(), &m)
-	}
-	for _, c := range []*Node{n.Left, n.Right} {
-		if k := maxVaridx(c); k > m {
-			m = k
-		}
-	}
-	for _, a := range n.argList() {
-		if k := maxVaridx(a); k > m {
-			m = k
-		}
-	}
-	return m
-}
-
 // ===== program model =====
 
 type Ind struct {
@@ -224,81 +127,82 @@ type CtorRef struct {
 	Idx int
 }
 
-type Global struct {
-	Name   string
-	Type   *Node // declared MiniML type
-	NVars  int
+type Alias struct {
+	Params []string
 	Value  *Node
-	Arity  int
-	Prim   *Prim
-	Fixgrp bool
 }
 
-type Prim struct {
+type Global struct {
+	Name  string
+	Type  *Node // declared MiniML type
+	NVars int   // its type variables are 1..NVars
+	Value *Node
 	Arity int
-	Go    string // a Go function name, or "" for operators handled inline
-}
-
-// The Go meaning of each constant ExtractGo.v maps. Every one is total on
-// int64 values in range; the checked forms panic rather than wrap.
-var prims = map[string]*Prim{
-	"prim_add":     {2, "natAdd"},
-	"prim_sub":     {2, "natSub"},
-	"prim_mul":     {2, "natMul"},
-	"prim_eqb":     {2, "natEqb"},
-	"prim_compare": {2, "natCompare"},
-	"prim_ltb":     {2, "natLtb"},
-	"prim_div2":    {1, "natDiv2"},
-	"prim_andb":    {2, ""},
+	Prim  bool
 }
 
 type Gen struct {
 	inds    map[string]*Ind
 	ctors   map[string]CtorRef
+	aliases map[string]*Alias
 	globals map[string]*Global
 	order   []*Global
 	types   map[*Node]*Ty   // inferred type of each expression node
-	insts   map[*Node][]*Ty // explicit instantiation of each global / constructor use
-	checked bool
+	insts   map[*Node][]*Ty // instantiation of each global or constructor use
 
 	out    *bytes.Buffer
 	tmp    int
-	selfFn *Global   // function being emitted (for tail calls)
-	params []string  // its loop-carried parameter names
+	selfFn *Global  // function being emitted, for tail calls
+	params []string // its loop-carried parameter names
 }
 
-func (g *Gen) load(root *Node) {
-	if root.What != "module" {
-		fail("expected a module, got %s", root.What)
+// tyOf converts a MiniML type. vars maps type:var names and type:varidx
+// indices (as strings) to types.
+func (g *Gen) tyOf(n *Node, vars map[string]*Ty) *Ty {
+	switch n.What {
+	case "type:arrow":
+		return arrow(g.tyOf(n.Left, vars), g.tyOf(n.Right, vars))
+	case "type:glob":
+		var args []*Ty
+		for _, a := range n.Args {
+			args = append(args, g.tyOf(a, vars))
+		}
+		if al, ok := g.aliases[n.Name]; ok {
+			if len(args) != len(al.Params) {
+				fail("type %s applied to %d arguments, wants %d", n.Name, len(args), len(al.Params))
+			}
+			sub := map[string]*Ty{}
+			for i, p := range al.Params {
+				sub[p] = args[i]
+			}
+			return g.tyOf(al.Value, sub)
+		}
+		return &Ty{K: 'c', Name: n.Name, Args: args}
+	case "type:var", "type:varidx":
+		v, ok := vars[n.Name]
+		if !ok {
+			fail("unbound type variable %s", n.Name)
+		}
+		return v
 	}
-	for _, d := range root.Decls {
-		switch d.What {
-		case "decl:ind":
-			name := d.name()
-			if name == "bool" || name == "nat" {
-				continue // mapped: Go bool and int64
-			}
-			if _, dup := g.inds[name]; dup {
-				fail("duplicate inductive %s", name)
-			}
-			ind := &Ind{Name: name, Params: d.Argnames, Ctors: d.Constrs}
-			g.inds[name] = ind
-			for i, c := range d.Constrs {
-				if _, dup := g.ctors[c.Name]; dup {
-					fail("duplicate constructor %s", c.Name)
-				}
-				g.ctors[c.Name] = CtorRef{ind, i}
-			}
-		case "decl:term":
-			g.addGlobal(d.name(), d.Type, d.Value, false)
-		case "decl:fixgroup":
-			for _, f := range d.Fixlist {
-				g.addGlobal(f.name(), f.Type, f.Value, true)
-			}
-		default:
-			fail("unsupported declaration %s", d.What)
+	fail("unsupported type node %s", n.What)
+	return nil
+}
+
+func maxVaridx(n *Node) int {
+	if n == nil {
+		return 0
+	}
+	m := 0
+	if n.What == "type:varidx" {
+		fmt.Sscan(n.Name, &m)
+	}
+	for _, c := range append([]*Node{n.Left, n.Right}, n.Args...) {
+		if k := maxVaridx(c); k > m {
+			m = k
 		}
 	}
+	return m
 }
 
 // unwrap drops lambdas that bind nothing (extraction emits them for eta-reduced
@@ -310,28 +214,100 @@ func unwrap(n *Node) *Node {
 	for n.What == "expr:lambda" && len(n.Argnames) == 0 {
 		n = n.Body
 	}
-	n.Body, n.Expr, n.Func, n.Nameval, n.Value = unwrap(n.Body), unwrap(n.Expr), unwrap(n.Func), unwrap(n.Nameval), unwrap(n.Value)
+	n.Body, n.Expr, n.Func, n.Nameval = unwrap(n.Body), unwrap(n.Expr), unwrap(n.Func), unwrap(n.Nameval)
 	for _, c := range n.Cases {
 		unwrap(c)
 	}
 	if n.What == "expr:apply" || n.What == "expr:constructor" {
-		as := n.argList()
-		for i := range as {
-			as[i] = unwrap(as[i])
+		for i := range n.Args {
+			n.Args[i] = unwrap(n.Args[i])
 		}
 	}
 	return n
 }
 
-func (g *Gen) addGlobal(name string, ty, val *Node, fix bool) {
+func (g *Gen) load(root *Node) {
+	if root.What != "module" {
+		fail("expected a module, got %s", root.What)
+	}
+	if root.NeedMagic || root.NeedDummy {
+		fail("the extraction needs Obj.magic or a dummy (need_magic=%v, need_dummy=%v): not typable in Go", root.NeedMagic, root.NeedDummy)
+	}
+	seenMapped := map[string]bool{}
+	for _, d := range root.Decls {
+		switch d.What {
+		case "decl:ind":
+			if mt, ok := mappedTypes[d.Name]; ok {
+				// sumbool and bool both map to go_bool: one declaration each.
+				if len(d.Argnames) != 0 || len(d.Ctors) != len(mt.ctors) {
+					fail("mapped type %s has an unexpected shape", d.Name)
+				}
+				for _, c := range d.Ctors {
+					mc, ok := mt.ctors[c.Name]
+					if !ok || mc.arity != len(c.Argtypes) {
+						fail("mapped type %s: unexpected constructor %s", d.Name, c.Name)
+					}
+				}
+				seenMapped[d.Name] = true
+				continue
+			}
+			if strings.HasPrefix(d.Name, "go_") {
+				fail("unknown mapped type %s", d.Name)
+			}
+			if _, dup := g.inds[d.Name]; dup {
+				fail("duplicate inductive %s", d.Name)
+			}
+			ind := &Ind{Name: d.Name, Params: d.Argnames, Ctors: d.Ctors}
+			g.inds[d.Name] = ind
+			for i, c := range d.Ctors {
+				if _, dup := g.ctors[c.Name]; dup {
+					fail("duplicate constructor %s", c.Name)
+				}
+				g.ctors[c.Name] = CtorRef{ind, i}
+			}
+		case "decl:type":
+			if _, dup := g.aliases[d.Name]; dup {
+				fail("duplicate type %s", d.Name)
+			}
+			g.aliases[d.Name] = &Alias{Params: d.Argnames, Value: d.Value}
+		case "decl:term":
+			g.addGlobal(d.Name, d.Type, d.Value)
+		case "decl:fixgroup":
+			for _, f := range d.Fixlist {
+				g.addGlobal(f.Name, f.Type, f.Value)
+			}
+		default:
+			fail("unsupported declaration %s", d.What)
+		}
+	}
+	for name, mt := range mappedTypes {
+		for cname := range mt.ctors {
+			if _, clash := g.ctors[cname]; clash {
+				fail("constructor %s clashes with mapped type %s", cname, name)
+			}
+		}
+	}
+	ci, ok := g.inds["comparison"]
+	if !ok {
+		ci = &Ind{Name: "comparison", Ctors: []*Ctor{{Name: "Eq"}, {Name: "Lt"}, {Name: "Gt"}}}
+		g.inds["comparison"] = ci
+		for i, c := range ci.Ctors {
+			g.ctors[c.Name] = CtorRef{ci, i}
+		}
+	}
+	if len(ci.Params) != 0 || len(ci.Ctors) != 3 || ci.Ctors[0].Name != "Eq" || ci.Ctors[1].Name != "Lt" || ci.Ctors[2].Name != "Gt" {
+		fail("comparison is not Eq | Lt | Gt")
+	}
+}
+
+func (g *Gen) addGlobal(name string, ty, val *Node) {
 	val = unwrap(val)
 	if _, dup := g.globals[name]; dup {
 		fail("duplicate global %s (JSON extraction drops module qualifiers)", name)
 	}
-	gl := &Global{Name: name, Type: ty, Value: val, NVars: maxVaridx(ty), Fixgrp: fix}
+	gl := &Global{Name: name, Type: ty, Value: val, NVars: maxVaridx(ty)}
 	if p, ok := prims[name]; ok {
-		gl.Prim = p
-		gl.Arity = p.Arity
+		gl.Prim, gl.Arity = true, p.arity
 	} else if strings.HasPrefix(name, "prim_") {
 		fail("unknown prim %s", name)
 	} else if val.What == "expr:lambda" {
@@ -350,20 +326,35 @@ func (g *Gen) scheme(gl *Global) (*Ty, []*Ty) {
 		vars[fmt.Sprint(i)] = m
 		inst = append(inst, m)
 	}
-	return tyOf(gl.Type, vars), inst
+	return g.tyOf(gl.Type, vars), inst
 }
 
-// ctorType returns the constructor's argument types and result type with fresh
-// metas for the inductive's parameters.
+// mappedOf returns the mapped type a constructor name belongs to, if any.
+func mappedOf(ctor string) (string, *mappedCtor) {
+	for name, mt := range mappedTypes {
+		if mc, ok := mt.ctors[ctor]; ok {
+			return name, mc
+		}
+	}
+	return "", nil
+}
+
+// ctorType returns a constructor's argument types and result type, with fresh
+// metas for the inductive's parameters (also returned).
 func (g *Gen) ctorType(name string) ([]*Ty, *Ty, []*Ty) {
-	switch name {
-	case "true", "false":
-		return nil, &Ty{K: 'c', Name: "bool"}, nil
-	case "0":
-		return nil, &Ty{K: 'c', Name: "nat"}, nil
-	case "nat_succ":
-		n := &Ty{K: 'c', Name: "nat"}
-		return []*Ty{n}, n, nil
+	if tn, mc := mappedOf(name); mc != nil {
+		t := &Ty{K: 'c', Name: tn}
+		// A mapped constructor's argument is a nat (nat_succ) or a positive
+		// (pos_xI, pos_xO, n_pos, z_pos, z_neg).
+		argTy := "go_pos"
+		if tn == "go_nat" {
+			argTy = "go_nat"
+		}
+		var args []*Ty
+		for i := 0; i < mc.arity; i++ {
+			args = append(args, &Ty{K: 'c', Name: argTy})
+		}
+		return args, t, nil
 	}
 	cr, ok := g.ctors[name]
 	if !ok {
@@ -380,7 +371,7 @@ func (g *Gen) ctorType(name string) ([]*Ty, *Ty, []*Ty) {
 	}
 	var args []*Ty
 	for _, a := range cr.Ind.Ctors[cr.Idx].Argtypes {
-		args = append(args, tyOf(a, vars))
+		args = append(args, g.tyOf(a, vars))
 	}
 	return args, res, inst
 }
@@ -410,33 +401,32 @@ func (g *Gen) infer(n *Node, e *env) *Ty {
 func (g *Gen) infer1(n *Node, e *env) *Ty {
 	switch n.What {
 	case "expr:rel":
-		b := e.look(n.name())
+		b := e.look(n.Name)
 		if b == nil {
-			fail("unbound variable %s", n.name())
+			fail("unbound variable %s", n.Name)
 		}
 		return b.ty
 	case "expr:global":
-		gl, ok := g.globals[n.name()]
+		gl, ok := g.globals[n.Name]
 		if !ok {
-			fail("unknown global %s", n.name())
+			fail("unknown global %s", n.Name)
 		}
 		t, inst := g.scheme(gl)
 		g.insts[n] = inst
 		return t
 	case "expr:constructor":
-		args, res, inst := g.ctorType(n.name())
+		args, res, inst := g.ctorType(n.Name)
 		g.insts[n] = inst
-		as := n.argList()
-		if len(as) != len(args) {
-			fail("constructor %s applied to %d args, wants %d (partial constructors are eta-expanded by extraction)", n.name(), len(as), len(args))
+		if len(n.Args) != len(args) {
+			fail("constructor %s applied to %d arguments, wants %d", n.Name, len(n.Args), len(args))
 		}
-		for i, a := range as {
-			unify(g.infer(a, e), args[i], "constructor "+n.name())
+		for i, a := range n.Args {
+			unify(g.infer(a, e), args[i], "constructor "+n.Name)
 		}
 		return res
 	case "expr:apply":
 		ft := g.infer(n.Func, e)
-		for _, a := range n.argList() {
+		for _, a := range n.Args {
 			r := meta()
 			unify(ft, arrow(g.infer(a, e), r), "application")
 			ft = r
@@ -456,7 +446,7 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 		return r
 	case "expr:let":
 		t := g.infer(n.Nameval, e)
-		return g.infer(n.Body, &env{name: n.name(), ty: t, next: e})
+		return g.infer(n.Body, &env{name: n.Name, ty: t, next: e})
 	case "expr:case":
 		st := g.infer(n.Expr, e)
 		r := meta()
@@ -465,10 +455,10 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 			switch c.Pat.What {
 			case "pat:wild":
 			case "pat:constructor":
-				args, res, _ := g.ctorType(c.Pat.name())
-				unify(st, res, "pattern "+c.Pat.name())
+				args, res, _ := g.ctorType(c.Pat.Name)
+				unify(st, res, "pattern "+c.Pat.Name)
 				if len(c.Pat.Argnames) != len(args) {
-					fail("pattern %s binds %d, wants %d", c.Pat.name(), len(c.Pat.Argnames), len(args))
+					fail("pattern %s binds %d, wants %d", c.Pat.Name, len(c.Pat.Argnames), len(args))
 				}
 				for i, a := range c.Pat.Argnames {
 					ce = &env{name: a, ty: args[i], next: ce}
@@ -498,13 +488,13 @@ func (g *Gen) goTy(t *Ty) string {
 	case 'a':
 		return "func(" + g.goTy(t.Args[0]) + ") " + g.goTy(t.Args[1])
 	}
-	switch t.Name {
-	case "nat":
-		return "int64"
-	case "bool":
-		return "bool"
+	if mt, ok := mappedTypes[t.Name]; ok {
+		return mt.goType
 	}
-	return "*" + goIdent("I_"+t.Name) + g.tyArgs(t.Args)
+	if _, ok := g.inds[t.Name]; !ok {
+		fail("unknown type %s", t.Name)
+	}
+	return "*I_" + goIdent(t.Name) + g.tyArgs(t.Args)
 }
 
 func (g *Gen) tyArgs(ts []*Ty) string {
@@ -559,7 +549,7 @@ func (g *Gen) emitInds() {
 		fmt.Fprintf(g.out, "type I_%s%s struct {\n\ttag uint8\n", goIdent(n), tparams)
 		for ci, c := range ind.Ctors {
 			for ai, a := range c.Argtypes {
-				fmt.Fprintf(g.out, "\tf%d_%d %s\n", ci, ai, g.goTy(tyOf(a, vars)))
+				fmt.Fprintf(g.out, "\tf%d_%d %s\n", ci, ai, g.goTy(g.tyOf(a, vars)))
 			}
 		}
 		g.out.WriteString("}\n\n")
@@ -572,7 +562,47 @@ func (g *Gen) emitInds() {
 			}
 			g.out.WriteString("\n")
 		}
+		// A constructor function per constructor, for front ends that build
+		// inputs (they never depend on tags or field names).
+		var targs []string
+		for _, p := range ind.Params {
+			targs = append(targs, "P_"+goIdent(p))
+		}
+		self := "*I_" + goIdent(n)
+		if len(targs) > 0 {
+			self += "[" + strings.Join(targs, ", ") + "]"
+		}
+		for ci, c := range ind.Ctors {
+			var ps, fs []string
+			fs = append(fs, fmt.Sprintf("tag: %d", ci))
+			for ai, a := range c.Argtypes {
+				ps = append(ps, fmt.Sprintf("a%d %s", ai, g.goTy(g.tyOf(a, vars))))
+				fs = append(fs, fmt.Sprintf("f%d_%d: a%d", ci, ai, ai))
+			}
+			fmt.Fprintf(g.out, "// K_%s builds the constructor %s.\nfunc K_%s%s(%s) %s {\n\treturn &%s{%s}\n}\n\n",
+				goIdent(c.Name), c.Name, goIdent(c.Name), tparams, strings.Join(ps, ", "), self, self[1:], strings.Join(fs, ", "))
+		}
 	}
+}
+
+// konst folds a tree of mapped number constructors to its value.
+func konst(n *Node) (int64, bool) {
+	if n.What != "expr:constructor" {
+		return 0, false
+	}
+	_, mc := mappedOf(n.Name)
+	if mc == nil || mc.konst == nil {
+		return 0, false
+	}
+	var vs []int64
+	for _, a := range n.Args {
+		v, ok := konst(a)
+		if !ok {
+			return 0, false
+		}
+		vs = append(vs, v)
+	}
+	return mc.konst(vs)
 }
 
 // ---- expressions: emit statements into g.out, return a Go expression ----
@@ -580,37 +610,37 @@ func (g *Gen) emitInds() {
 func (g *Gen) expr(n *Node, e *env) string {
 	switch n.What {
 	case "expr:rel":
-		return e.look(n.name()).goid
+		return e.look(n.Name).goid
 	case "expr:constructor":
 		return g.ctorExpr(n, e)
 	case "expr:global":
 		return g.apply(n, nil, e)
 	case "expr:apply":
 		if n.Func.What == "expr:global" {
-			return g.apply(n.Func, n.argList(), e)
+			return g.apply(n.Func, n.Args, e)
 		}
 		f := g.expr(n.Func, e)
-		for _, a := range n.argList() {
+		for _, a := range n.Args {
 			f = f + "(" + g.expr(a, e) + ")"
 		}
-		return g.bind(f, g.types[n])
+		return g.bind(f)
 	case "expr:lambda":
 		return g.lambda(n.Argnames, n.Body, g.types[n], e)
 	case "expr:let":
 		v := g.expr(n.Nameval, e)
-		id := g.fresh(n.name())
+		id := g.fresh(n.Name)
 		fmt.Fprintf(g.out, "%s := %s\n_ = %s\n", id, v, id)
-		return g.expr(n.Body, &env{name: n.name(), ty: g.types[n.Nameval], goid: id, next: e})
+		return g.expr(n.Body, &env{name: n.Name, ty: g.types[n.Nameval], goid: id, next: e})
 	case "expr:case":
 		r := g.fresh("r")
 		fmt.Fprintf(g.out, "var %s %s\n", r, g.goTy(g.types[n]))
 		g.caseStmt(n, e, func(body *Node, be *env) {
 			v := g.expr(body, be)
 			fmt.Fprintf(g.out, "%s = %s\n", r, v)
-		})
+		}, true)
 		return r
 	case "expr:exception":
-		fmt.Fprintf(g.out, "panic(%q)\n", n.Msg)
+		fmt.Fprintf(g.out, "panic(%q)\n", "gogen: extracted exception: "+n.Msg)
 		return "*new(" + g.goTy(g.types[n]) + ")"
 	}
 	fail("unsupported expression %s", n.What)
@@ -618,48 +648,42 @@ func (g *Gen) expr(n *Node, e *env) string {
 }
 
 // bind evaluates a Go expression once into a temporary.
-func (g *Gen) bind(v string, t *Ty) string {
+func (g *Gen) bind(v string) string {
 	id := g.fresh("t")
 	fmt.Fprintf(g.out, "%s := %s\n", id, v)
 	return id
 }
 
 func (g *Gen) ctorExpr(n *Node, e *env) string {
-	name := n.name()
-	as := n.argList()
-	switch name {
-	case "true", "false":
-		return name
-	case "0":
-		return "int64(0)"
-	case "nat_succ":
-		// Fold literals: S (S 0) is the constant 2.
-		k, inner := 1, as[0]
-		for inner.What == "expr:constructor" && inner.name() == "nat_succ" {
-			k++
-			inner = inner.argList()[0]
-		}
-		if inner.What == "expr:constructor" && inner.name() == "0" {
-			return fmt.Sprintf("int64(%d)", k)
-		}
-		return g.bind(fmt.Sprintf("natAddK(%s, %d)", g.expr(inner, e), k), nil)
+	if v, ok := konst(n); ok {
+		return fmt.Sprintf("int64(%d)", v)
 	}
-	cr := g.ctors[name]
-	if len(as) == 0 && len(cr.Ind.Params) == 0 {
-		return "C_" + goIdent(name)
+	if _, mc := mappedOf(n.Name); mc != nil {
+		var as []string
+		for _, a := range n.Args {
+			as = append(as, g.expr(a, e))
+		}
+		s := mc.build(as)
+		if len(as) == 0 {
+			return s
+		}
+		return g.bind(s)
 	}
-	var fs []string
-	fs = append(fs, fmt.Sprintf("tag: %d", cr.Idx))
-	for i, a := range as {
+	cr := g.ctors[n.Name]
+	if len(n.Args) == 0 && len(cr.Ind.Params) == 0 {
+		return "C_" + goIdent(n.Name)
+	}
+	fs := []string{fmt.Sprintf("tag: %d", cr.Idx)}
+	for i, a := range n.Args {
 		fs = append(fs, fmt.Sprintf("f%d_%d: %s", cr.Idx, i, g.expr(a, e)))
 	}
-	return g.bind(fmt.Sprintf("&I_%s%s{%s}", goIdent(cr.Ind.Name), g.tyArgs(g.insts[n]), strings.Join(fs, ", ")), nil)
+	return g.bind(fmt.Sprintf("&I_%s%s{%s}", goIdent(cr.Ind.Name), g.tyArgs(g.insts[n]), strings.Join(fs, ", ")))
 }
 
 // apply emits a use of a global applied to args (possibly none, possibly more
 // than its arity).
 func (g *Gen) apply(f *Node, args []*Node, e *env) string {
-	gl := g.globals[f.name()]
+	gl := g.globals[f.Name]
 	if gl.Name == "prim_andb" && len(args) == 2 {
 		r := g.fresh("b")
 		fmt.Fprintf(g.out, "%s := %s\n", r, g.expr(args[0], e))
@@ -672,48 +696,43 @@ func (g *Gen) apply(f *Node, args []*Node, e *env) string {
 	for _, a := range args {
 		vs = append(vs, g.expr(a, e))
 	}
-	ft := g.types[f]
 	if len(vs) < gl.Arity {
 		// Partial application: a curried closure over the remaining arguments.
-		var rest []string
-		var restTy []*Ty
-		t := ft.res()
-		for i := 0; i < len(vs); i++ {
+		t := g.types[f].res()
+		for range vs {
 			t = t.Args[1].res()
 		}
+		var rest []string
+		var restTy []*Ty
 		for i := len(vs); i < gl.Arity; i++ {
-			id := g.fresh("a")
-			rest = append(rest, id)
+			rest = append(rest, g.fresh("a"))
 			restTy = append(restTy, t.Args[0])
 			t = t.Args[1].res()
 		}
-		call := g.callGlobal(gl, f, append(append([]string{}, vs...), rest...))
-		s := "return " + call
+		s := "return " + g.callGlobal(gl, f, append(append([]string{}, vs...), rest...))
+		ret := t
 		for i := len(rest) - 1; i >= 0; i-- {
-			retTy := t
-			for j := len(rest) - 1; j > i; j-- {
-				retTy = arrow(restTy[j], retTy)
-			}
-			s = fmt.Sprintf("func(%s %s) %s {\n%s\n}", rest[i], g.goTy(restTy[i]), g.goTy(retTy), s)
+			s = fmt.Sprintf("func(%s %s) %s {\n%s\n}", rest[i], g.goTy(restTy[i]), g.goTy(ret), s)
+			ret = arrow(restTy[i], ret)
 			if i > 0 {
 				s = "return " + s
 			}
 		}
-		return g.bind(s, nil)
+		return g.bind(s)
 	}
 	call := g.callGlobal(gl, f, vs[:gl.Arity])
 	for _, v := range vs[gl.Arity:] {
 		call += "(" + v + ")"
 	}
-	return g.bind(call, nil)
+	return g.bind(call)
 }
 
 func (g *Gen) callGlobal(gl *Global, f *Node, vs []string) string {
-	if gl.Prim != nil {
+	if gl.Prim {
 		if gl.Name == "prim_andb" {
 			return "(" + vs[0] + " && " + vs[1] + ")"
 		}
-		return gl.Prim.Go + "(" + strings.Join(vs, ", ") + ")"
+		return prims[gl.Name].fn + "(" + strings.Join(vs, ", ") + ")"
 	}
 	return "F_" + goIdent(gl.Name) + g.tyArgs(g.insts[f]) + "(" + strings.Join(vs, ", ") + ")"
 }
@@ -736,9 +755,8 @@ func (g *Gen) lambda(argnames []string, body *Node, t *Ty, e *env) string {
 		fmt.Fprintf(g.out, "_ = %s\n", id)
 	}
 	g.tail(body, e)
-	inner := g.out.String()
+	s := g.out.String()
 	g.out, g.selfFn = saved, savedSelf
-	s := inner
 	ret := tt
 	for i := len(ids) - 1; i >= 0; i-- {
 		s = fmt.Sprintf("func(%s %s) %s {\n%s}", ids[i], g.goTy(tys[i]), g.goTy(ret), s)
@@ -747,50 +765,46 @@ func (g *Gen) lambda(argnames []string, body *Node, t *Ty, e *env) string {
 			s = "return " + s + "\n"
 		}
 	}
-	return g.bind(s, nil)
+	return g.bind(s)
 }
 
-func (g *Gen) caseStmt(n *Node, e *env, branch func(*Node, *env)) {
+// caseStmt emits a switch over n's scrutinee, calling branch for each case body
+// in the environment its pattern extends. With mustMatch, a value no case
+// matches panics (only possible for a mapped number outside its type).
+func (g *Gen) caseStmt(n *Node, e *env, branch func(*Node, *env), mustMatch bool) {
 	s := g.expr(n.Expr, e)
 	st := g.types[n.Expr].res()
-	switch {
-	case st.K == 'c' && st.Name == "nat":
-		fmt.Fprintf(g.out, "switch {\n")
+	hasWild := false
+	if mt, ok := mappedTypes[st.Name]; ok && st.K == 'c' {
+		g.out.WriteString("switch {\n")
 		for _, c := range n.Cases {
 			be := e
-			switch {
-			case c.Pat.What == "pat:wild":
+			if c.Pat.What == "pat:wild" {
+				hasWild = true
 				g.out.WriteString("default:\n")
-			case c.Pat.name() == "0":
-				fmt.Fprintf(g.out, "case %s == 0:\n", s)
-			default:
-				fmt.Fprintf(g.out, "case %s > 0:\n", s)
-				a := c.Pat.Argnames[0]
-				id := g.fresh(a)
-				fmt.Fprintf(g.out, "%s := %s - 1\n_ = %s\n", id, s, id)
-				be = &env{name: a, ty: st, goid: id, next: e}
+			} else {
+				mc := mt.ctors[c.Pat.Name]
+				args, _, _ := g.ctorType(c.Pat.Name)
+				fmt.Fprintf(g.out, "case %s:\n", mc.cond(s))
+				for i, p := range mc.proj(s) {
+					a := c.Pat.Argnames[i]
+					id := g.fresh(a)
+					fmt.Fprintf(g.out, "%s := %s\n_ = %s\n", id, p, id)
+					be = &env{name: a, ty: args[i], goid: id, next: be}
+				}
 			}
 			branch(c.Body, be)
 		}
-	case st.K == 'c' && st.Name == "bool":
-		fmt.Fprintf(g.out, "switch %s {\n", s)
-		for _, c := range n.Cases {
-			if c.Pat.What == "pat:wild" {
-				g.out.WriteString("default:\n")
-			} else {
-				fmt.Fprintf(g.out, "case %s:\n", c.Pat.name())
-			}
-			branch(c.Body, e)
-		}
-	default:
+	} else {
 		fmt.Fprintf(g.out, "switch %s.tag {\n", s)
 		for _, c := range n.Cases {
 			be := e
 			if c.Pat.What == "pat:wild" {
+				hasWild = true
 				g.out.WriteString("default:\n")
 			} else {
-				cr := g.ctors[c.Pat.name()]
-				args, res, _ := g.ctorType(c.Pat.name())
+				cr := g.ctors[c.Pat.Name]
+				args, res, _ := g.ctorType(c.Pat.Name)
 				unify(st, res, "pattern")
 				fmt.Fprintf(g.out, "case %d:\n", cr.Idx)
 				for i, a := range c.Pat.Argnames {
@@ -805,6 +819,9 @@ func (g *Gen) caseStmt(n *Node, e *env, branch func(*Node, *env)) {
 			branch(c.Body, be)
 		}
 	}
+	if !hasWild && mustMatch {
+		g.out.WriteString("default:\npanic(\"gogen: no case matches\")\n")
+	}
 	g.out.WriteString("}\n")
 }
 
@@ -813,26 +830,26 @@ func (g *Gen) tail(n *Node, e *env) {
 	switch n.What {
 	case "expr:let":
 		v := g.expr(n.Nameval, e)
-		id := g.fresh(n.name())
+		id := g.fresh(n.Name)
 		fmt.Fprintf(g.out, "%s := %s\n_ = %s\n", id, v, id)
-		g.tail(n.Body, &env{name: n.name(), ty: g.types[n.Nameval], goid: id, next: e})
+		g.tail(n.Body, &env{name: n.Name, ty: g.types[n.Nameval], goid: id, next: e})
 		return
 	case "expr:case":
-		g.caseStmt(n, e, g.tail)
-		g.out.WriteString("panic(\"unreachable: non-exhaustive match\")\n")
+		// The switch always has a default, and every branch ends in a return,
+		// a continue of the enclosing loop or a panic, so nothing follows it.
+		g.caseStmt(n, e, g.tail, true)
 		return
 	case "expr:apply":
 		if n.Func.What == "expr:global" {
-			gl := g.globals[n.Func.name()]
-			as := n.argList()
-			if gl.Name == "prim_andb" && len(as) == 2 {
-				fmt.Fprintf(g.out, "if !%s {\nreturn false\n}\n", g.expr(as[0], e))
-				g.tail(as[1], e)
+			gl := g.globals[n.Func.Name]
+			if gl.Name == "prim_andb" && len(n.Args) == 2 {
+				fmt.Fprintf(g.out, "if !%s {\nreturn false\n}\n", g.expr(n.Args[0], e))
+				g.tail(n.Args[1], e)
 				return
 			}
-			if g.selfFn != nil && gl == g.selfFn && len(as) == gl.Arity {
+			if g.selfFn != nil && gl == g.selfFn && len(n.Args) == gl.Arity {
 				var vs []string
-				for _, a := range as {
+				for _, a := range n.Args {
 					vs = append(vs, g.expr(a, e))
 				}
 				fmt.Fprintf(g.out, "%s = %s\ncontinue\n", strings.Join(g.params, ", "), strings.Join(vs, ", "))
@@ -844,7 +861,7 @@ func (g *Gen) tail(n *Node, e *env) {
 }
 
 func (g *Gen) emitGlobal(gl *Global) {
-	if gl.Prim != nil {
+	if gl.Prim {
 		return
 	}
 	vars := map[string]*Ty{}
@@ -854,31 +871,31 @@ func (g *Gen) emitGlobal(gl *Global) {
 		vars[fmt.Sprint(i)] = &Ty{K: 'p', Name: name}
 		tp = append(tp, name+" any")
 	}
-	t := tyOf(gl.Type, vars)
+	t := g.tyOf(gl.Type, vars)
 	// Infer the body against the declared type, rigid in its variables.
-	g.types[gl.Value] = nil
 	unify(g.infer(gl.Value, nil), t, "declaration "+gl.Name)
 
-	var names []string
-	var e *env
 	body := gl.Value
-	tt := t
-	var params []string
+	ret := t.res()
+	var params, names []string
+	var ptys []*Ty
 	if gl.Arity > 0 {
 		body = gl.Value.Body
 		for _, a := range gl.Value.Argnames {
 			id := goIdent(a) + "_in"
-			params = append(params, fmt.Sprintf("%s %s", id, g.goTy(tt.Args[0])))
 			names = append(names, id)
-			tt = tt.Args[1].res()
+			ptys = append(ptys, ret.Args[0])
+			params = append(params, fmt.Sprintf("%s %s", id, g.goTy(ret.Args[0])))
+			ret = ret.Args[1].res()
 		}
 	}
 	tparams := ""
 	if len(tp) > 0 {
 		tparams = "[" + strings.Join(tp, ", ") + "]"
 	}
-	fmt.Fprintf(g.out, "func F_%s%s(%s) %s {\n", goIdent(gl.Name), tparams, strings.Join(params, ", "), g.goTy(tt))
+	fmt.Fprintf(g.out, "func F_%s%s(%s) %s {\n", goIdent(gl.Name), tparams, strings.Join(params, ", "), g.goTy(ret))
 	g.out.WriteString("for {\n")
+	var e *env
 	for i, a := range gl.Value.Argnames {
 		if gl.Arity == 0 {
 			break
@@ -886,7 +903,7 @@ func (g *Gen) emitGlobal(gl *Global) {
 		// A fresh copy per iteration, so closures capture this iteration's value.
 		id := g.fresh(a)
 		fmt.Fprintf(g.out, "%s := %s\n_ = %s\n", id, names[i], id)
-		e = &env{name: a, ty: g.paramTy(t, i), goid: id, next: e}
+		e = &env{name: a, ty: ptys[i], goid: id, next: e}
 	}
 	g.selfFn, g.params = gl, names
 	g.tail(body, e)
@@ -894,89 +911,22 @@ func (g *Gen) emitGlobal(gl *Global) {
 	g.out.WriteString("}\n}\n\n")
 }
 
-func (g *Gen) paramTy(t *Ty, i int) *Ty {
-	t = t.res()
-	for ; i > 0; i-- {
-		t = t.Args[1].res()
-	}
-	return t.Args[0]
-}
-
-const runtime = `
-// ===== prims: the Go meaning of the constants ExtractGo.v maps =====
-
-func natAdd(a, b int64) int64 {
-	r := a + b
-	if checked && r < a {
-		panic("nat overflow in add")
-	}
-	return r
-}
-
-func natAddK(a int64, k int64) int64 { return natAdd(a, k) }
-
-func natSub(a, b int64) int64 {
-	if a < b {
-		return 0
-	}
-	return a - b
-}
-
-func natMul(a, b int64) int64 {
-	if checked && a != 0 && b != 0 {
-		r := a * b
-		if r/b != a || r < 0 {
-			panic("nat overflow in mul")
-		}
-		return r
-	}
-	return a * b
-}
-
-func natEqb(a, b int64) bool { return a == b }
-
-func natLtb(a, b int64) bool { return a < b }
-
-func natDiv2(a int64) int64 { return a / 2 }
-
-func natCompare(a, b int64) *I_comparison {
-	if a == b {
-		return C_Eq
-	}
-	if a < b {
-		return C_Lt
-	}
-	return C_Gt
-}
-`
-
 func main() {
 	pkg := flag.String("pkg", "main", "Go package name")
 	out := flag.String("o", "", "output file (default stdout)")
-	checked := flag.Bool("checked", true, "panic on nat overflow instead of wrapping")
 	flag.Parse()
 	if flag.NArg() != 1 {
-		fail("usage: gogen [-pkg p] [-o out.go] extraction.json")
+		fail("usage: gogen [-pkg name] [-o out.go] extraction.json")
 	}
 	raw, err := os.ReadFile(flag.Arg(0))
 	if err != nil {
 		fail("%v", err)
 	}
-	var root Node
-	if err := json.Unmarshal(raw, &root); err != nil {
-		fail("%v", err)
-	}
-	g := &Gen{inds: map[string]*Ind{}, ctors: map[string]CtorRef{}, globals: map[string]*Global{},
-		types: map[*Node]*Ty{}, insts: map[*Node][]*Ty{}, out: &bytes.Buffer{}, checked: *checked}
-	g.load(&root)
-	if _, ok := g.inds["comparison"]; !ok {
-		g.inds["comparison"] = &Ind{Name: "comparison", Ctors: []*Ctor{{Name: "Eq"}, {Name: "Lt"}, {Name: "Gt"}}}
-	}
-	if g.inds["comparison"].Ctors[0].Name != "Eq" || g.inds["comparison"].Ctors[1].Name != "Lt" || g.inds["comparison"].Ctors[2].Name != "Gt" {
-		fail("comparison constructors are not Eq, Lt, Gt")
-	}
-	fmt.Fprintf(g.out, "// Code generated by gogen from %s. DO NOT EDIT.\n\npackage %s\n\n", flag.Arg(0), *pkg)
-	fmt.Fprintf(g.out, "const checked = %v\n\n", *checked)
+	root := decode(json.RawMessage(raw), "root")
+	g := &Gen{inds: map[string]*Ind{}, ctors: map[string]CtorRef{}, aliases: map[string]*Alias{},
+		globals: map[string]*Global{}, types: map[*Node]*Ty{}, insts: map[*Node][]*Ty{}, out: &bytes.Buffer{}}
+	g.load(root)
+	fmt.Fprintf(g.out, "// Code generated by gogen from %s (module %s). DO NOT EDIT.\n\npackage %s\n\n", filepath.Base(flag.Arg(0)), root.Name, *pkg)
 	g.emitInds()
 	for _, gl := range g.order {
 		g.emitGlobal(gl)
@@ -984,8 +934,8 @@ func main() {
 	g.out.WriteString(runtime)
 	src, ferr := format.Source(g.out.Bytes())
 	if ferr != nil {
+		fmt.Fprintf(os.Stderr, "gogen: generated code does not parse: %v\n", ferr)
 		src = g.out.Bytes()
-		fmt.Fprintf(os.Stderr, "gogen: gofmt failed (writing unformatted): %v\n", ferr)
 	}
 	if *out == "" {
 		os.Stdout.Write(src)

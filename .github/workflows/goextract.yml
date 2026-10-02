@@ -1,0 +1,100 @@
+name: goextract
+
+# SPIKE (spike/go-extraction): extract check_fast and checkBuild to MiniML JSON
+# on every supported prover (Coq 8.18, Coq 8.20, and the digest-pinned Rocq 9.3
+# image the oracles use), generate Go from each with gogen, and require the
+# generated Go to be byte-identical to the committed files. Then build and test
+# the Go checkers with Go 1.22 (gsm's floor) and current stable Go.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: coq-8.18
+            image: coqorg/coq:8.18
+          - name: coq-8.20
+            image: coqorg/coq:8.20
+          - name: rocq-9.3
+            image: rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract to JSON
+        run: |
+          chmod -R a+rwX coq
+          docker run --rm --platform linux/amd64 -v "$PWD:/work" -w /work/coq "${{ matrix.image }}" bash -euo pipefail -c '
+            eval "$(opam env 2>/dev/null)" || true
+            if ! command -v coqc >/dev/null 2>&1; then
+              mkdir -p "$HOME/.local/bin"
+              printf "#!/bin/sh\nexec %s compile \"\$@\"\n" "$(command -v rocq)" > "$HOME/.local/bin/coqc"
+              chmod +x "$HOME/.local/bin/coqc"
+              export PATH="$HOME/.local/bin:$PATH"
+            fi
+            coqc --version
+            for f in Trace TableCheck TableFast Checker AstChecker goextract/ExtrGo goextract/ExtractGo; do
+              coqc -Q . NC "$f.v"
+            done
+          '
+          mkdir -p out
+          cp coq/goextract/fast_core.json coq/goextract/ast_core.json out/
+          sha256sum out/*.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: json-${{ matrix.name }}
+          path: out/
+
+  generate:
+    needs: extract
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [ '1.22.x', 'stable' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - uses: actions/download-artifact@v4
+        with:
+          path: json
+      - name: Generate from every prover's JSON and compare with the committed Go
+        run: |
+          go version
+          (cd coq/goextract/gogen && go vet . && go build -o gogen .)
+          G=coq/goextract/gogen/gogen
+          status=0
+          sha256sum json/*/*.json
+          for v in json/*; do
+            $G -o /tmp/fast.go "$v/fast_core.json"
+            $G -o /tmp/ast.go "$v/ast_core.json"
+            for p in "fast.go coq/goextract/gocheck/fastcore_gen.go" "ast.go coq/goextract/gocheck_ast/astcore_gen.go"; do
+              set -- $p
+              if cmp -s "/tmp/$1" "$2"; then echo "$v: $2 identical"; else echo "$v: $2 DIFFERS"; diff "/tmp/$1" "$2" | head -40; status=1; fi
+            done
+          done
+          exit $status
+      - name: Build the Go checkers and run the regression cases
+        run: |
+          (cd coq/goextract/gocheck && go vet . && go build -o gocheck .)
+          (cd coq/goextract/gocheck_ast && go vet . && go build -o gocheck_ast .)
+          cd coq/extraction/tests
+          fail=0
+          while IFS=$'\t' read -r want tool file why; do
+            case "$want" in ''|'#'*) continue ;; esac
+            args=(); for f in $file; do args+=("cases/$f"); done
+            case "$tool" in
+              checker) bin=../../goextract/gocheck/gocheck ;;
+              astchecker) bin=../../goextract/gocheck_ast/gocheck_ast ;;
+              *) continue ;;
+            esac
+            "$bin" "${args[@]}" >/dev/null 2>&1; got=$?
+            if [ "$got" = "$want" ]; then echo "ok   $tool $file"; else echo "FAIL $tool $file: want $want got $got"; fail=1; fi
+          done < cases.tsv
+          exit $fail
