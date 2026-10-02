@@ -1,4 +1,4 @@
 *.json
 gocheck/gocheck
-gocheck_tables/gocheck_tables
 gogen/gogen
+gocheck_ast/gocheck_ast
