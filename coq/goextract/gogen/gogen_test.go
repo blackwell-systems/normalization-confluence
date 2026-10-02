@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -25,12 +26,13 @@ func TestCommittedOutputIsCurrent(t *testing.T) {
 		json, pkg, out string
 		opts           Options
 	}{
-		{"../oracle_core.json", "oracle", "../oracle/oracle_gen.go", Options{AllowUnary: []string{"add", "min", "mul"}}},
+		{"../oracle_core.json", "oracle", "../oracle/oracle_gen.go", Options{}},
 		{"../primref_mapped.json", "mapped", "../primcheck/mapped/primref_gen.go", Options{}},
 		{"../primref_plain.json", "plain", "../primcheck/plain/primref_gen.go", Options{}},
 		{"../fixture.json", "fixture", "../fixture/fixture_gen.go", Options{}},
-		{"../semantics.json", "semantics", "../semantics/semantics_gen.go", Options{AllowUnary: []string{"add", "div", "modulo", "mul", "pow", "pred", "sub"}}},
+		{"../semantics.json", "semantics", "../semantics/semantics_gen.go", Options{}},
 	} {
+		c.opts = allowFor(t, c.json)
 		raw := read(t, c.json)
 		a, err := GenerateWith(raw, c.pkg, c.json, c.opts)
 		if err != nil {
@@ -175,12 +177,12 @@ const unaryAdd = `{"what": "decl:fixgroup", "fixlist": [{"what": "fixgroup:item"
     {"what": "case", "pat": {"what": "pat:constructor", "name": "nat_succ", "argnames": ["p"]},
      "body": {"what": "expr:constructor", "name": "nat_succ", "args": [{"what": "expr:apply", "func": {"what": "expr:global", "name": "add"}, "args": [{"what": "expr:rel", "name": "p"}, {"what": "expr:rel", "name": "m"}]}]}}]}}}]}`
 
-// Unmapped unary nat arithmetic (Nat.add, Nat.mul, Nat.pow extracted as their
-// Rocq definitions) costs time and stack linear in the numbers. It is refused
-// unless allowed by name.
+// Unary recursion on a nat (Nat.add, Nat.mul, Nat.pow extracted as their Rocq
+// definitions, Pos.of_succ_nat, ...) costs time, and stack unless it is a tail
+// call, linear in the number. It is refused unless allowed by name.
 func TestRefusesUnaryArithmetic(t *testing.T) {
 	js := modHead + unaryAdd + `]}`
-	if _, err := Generate([]byte(js), "p", "x.json"); err == nil || !strings.Contains(err.Error(), "unary nat arithmetic") || !strings.Contains(err.Error(), "add") {
+	if _, err := Generate([]byte(js), "p", "x.json"); err == nil || !strings.Contains(err.Error(), "unary nat recursion: add") {
 		t.Fatalf("want a refusal naming add, got %v", err)
 	}
 	if _, err := GenerateWith([]byte(js), "p", "x.json", Options{AllowUnary: []string{"add"}}); err != nil {
@@ -188,16 +190,37 @@ func TestRefusesUnaryArithmetic(t *testing.T) {
 	}
 }
 
-// The checkers' extraction uses unary arithmetic in exactly the places the
-// Makefile allows, and nowhere else: AstChecker.fuelOf folds Nat.mul over the
-// domains, and setClamped clamps with Nat.min (fixes are pending in the proof).
-func TestOracleUnaryArithmeticIsKnown(t *testing.T) {
-	_, err := Generate(read(t, "../oracle_core.json"), "oracle", "oracle_core.json")
-	if err == nil || !strings.Contains(err.Error(), "unary nat arithmetic: add, min, mul") {
-		t.Fatalf("want the refusal to name exactly add, min, mul; got %v", err)
+// allowFor is what make gen allows for an extraction: allow-unary.txt's list,
+// or everything when GOEXTRACT_UNARY=any (a prover other than the reference).
+func allowFor(t *testing.T, json string) Options {
+	if os.Getenv("GOEXTRACT_UNARY") == "any" {
+		return Options{AllowUnary: []string{"*"}}
 	}
-	if _, err := GenerateWith(read(t, "../oracle_core.json"), "oracle", "oracle_core.json", Options{AllowUnary: []string{"add", "min", "mul"}}); err != nil {
-		t.Fatal(err)
+	return Options{AllowUnary: AllowedFor(string(read(t, "../allow-unary.txt")), filepath.Base(json))}
+}
+
+// allow-unary.txt lists exactly the unary recursions each extraction has: no
+// entry is missing (generation would fail) and none is stale. The semantics
+// list includes Pos.of_succ_nat, which Z.of_nat extracts through: a recursion
+// the earlier name-based check missed.
+func TestUnaryRecursionIsExactlyTheAllowList(t *testing.T) {
+	if os.Getenv("GOEXTRACT_UNARY") == "any" {
+		t.Skip("another prover's standard library")
+	}
+	file := string(read(t, "../allow-unary.txt"))
+	for _, json := range []string{"oracle_core.json", "primref_mapped.json", "primref_plain.json", "fixture.json", "semantics.json"} {
+		want := AllowedFor(file, json)
+		sort.Strings(want)
+		_, err := Generate(read(t, "../"+json), "p", json)
+		switch {
+		case len(want) == 0 && err != nil:
+			t.Errorf("%s: %v", json, err)
+		case len(want) > 0 && (err == nil || !strings.Contains(err.Error(), "unary nat recursion: "+strings.Join(want, ", ")+" (")):
+			t.Errorf("%s: allow-unary.txt lists %v; without it gogen says %v", json, want, err)
+		}
+	}
+	if !strings.Contains(file, "semantics.json      of_succ_nat ") {
+		t.Error("the of_succ_nat case is gone from allow-unary.txt")
 	}
 }
 
