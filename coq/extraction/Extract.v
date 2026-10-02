@@ -10,7 +10,8 @@
        every step lands on a valid state, and every declared pair commutes on the
        valid states and the zero state. check_fast_eq proves it equal to
        check_tables (TableCheck.v), so check_tables_converges holds for it
-       (check_fast_converges). It builds its own lookup tries from the lists.
+       (check_fast_converges). It builds its own cells and lookup trie from the
+       lists.
      - checkBuild (AstChecker.v): certify a combinator machine straight from its
        RULES against Build's property (the rules oracle): repair terminates from
        every state, and every declared pair commutes on the valid states and the
