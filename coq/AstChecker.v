@@ -14,11 +14,16 @@
    State is a valuation (list of per-variable values in raw 0..domain-1 space).
    Expressions evaluate in LOGICAL space over the integers Z, with gsm's signed Go
    semantics: a variable reads as min + raw, Add/Sub are signed, comparisons are
-   signed, and a write stores the clamped raw offset (or, for a Bool, value <> 0).
-   gsm computes with Go's `int`, which wraps at 2^31 on 32-bit platforms and 2^63
-   on 64-bit ones; `check` only certifies machines whose every expression and
-   subexpression provably stays within 32-bit range on every valuation it can see
-   (check_no_overflow), so Go never wraps and Z is exactly gsm's arithmetic.
+   signed, and a write stores the clamped raw offset. Two gsm behaviours are not
+   modelled; `check` refuses every machine where they could matter:
+   - Go's `int` wraps (at 2^31 on 32-bit platforms). check_no_overflow: on a
+     certified machine every subexpression stays within 32-bit range on every
+     valuation the checker sees, so Go never wraps and Z is exactly gsm's
+     arithmetic.
+   - A gsm Bool write stores (value <> 0), not a clamp. The format carries no
+     variable kinds, so check_binary_writes_exact covers every two-valued
+     variable with minimum 0: on a certified machine every write to one stores
+     exactly (value <> 0), which is both the clamp and the Bool write.
    Axiom-free; reuses run_perm_invariant from Checker.v for the order-independence
    conclusion. *)
 
@@ -55,12 +60,11 @@ Definition transform : Type := list assign.
 Definition gevent : Type := (pred * transform)%type.
 
 (* A machine: per-variable domain size and logical minimum (values live in
-   min .. min+domain-1; the state stores the raw 0..domain-1 offset), which
-   variables are Bools, invariants (predicate + repair), and guarded events. *)
+   min .. min+domain-1; the state stores the raw 0..domain-1 offset), invariants
+   (predicate + repair), and guarded events. *)
 Record machine := {
   doms : list nat;                     (* doms[i] = domain size of variable i *)
   mins : list Z;                       (* mins[i] = logical minimum of variable i *)
-  bools : list bool;                   (* bools[i] = variable i is a gsm Bool *)
   invs : list (pred * transform);
   evs  : list gevent
 }.
@@ -102,17 +106,12 @@ Fixpoint evalP (mins : list Z) (s : valn) (p : pred) : bool :=
   | PNot p => negb (evalP mins s p)
   end.
 
-(* The logical value a write stores, before clamping. A Bool stores (v <> 0), like
-   gsm's writeVal -> SetBool(val != 0); every other kind stores v itself. *)
-Definition storeVal (m : machine) (i : nat) (v : Z) : Z :=
-  if nth i (bools m) false then (if Z.eqb v 0 then 0%Z else 1%Z) else v.
-
 (* Writing takes a LOGICAL value and stores the raw offset value-min, clamped into
    0..doms[i]-1 (so the state stays in range), like gsm's SetInt (clamp into
    min..max, store val-min) and its enum write (clamp into 0..domain-1). Z.to_nat
    sends a value below the minimum to raw 0, which is the lower clamp. *)
 Definition setClamped (m : machine) (i : nat) (v : Z) (s : valn) : valn :=
-  wr i (Nat.min (Z.to_nat (storeVal m i v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
+  wr i (Nat.min (Z.to_nat (v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
 
 Fixpoint applyT (m : machine) (t : transform) (s : valn) : valn :=
   match t with
@@ -226,8 +225,42 @@ Fixpoint subexprs (e : expr) : list expr :=
 Definition bounded (m : machine) : bool :=
   forallb (fun e => Z.leb (bnd m e) maxAbs) (exprsM m).
 
+(* ===== writes to two-valued variables =====
+
+   gsm's Bool write stores (value <> 0); the model clamps. The two agree exactly
+   when the value is not negative. lo/hi bound an expression's value by interval
+   arithmetic, and signSafe requires lo >= 0 for every write to a two-valued
+   variable with minimum 0 (every Bool is one; Int 0..1 and two-value Enums are
+   too, and are held to the same rule because the format does not say which). *)
+Fixpoint lo (m : machine) (e : expr) : Z :=
+  match e with
+  | EVar i => nth i (mins m) 0%Z
+  | ELit n => n
+  | EAdd a b => (lo m a + lo m b)%Z
+  | ESub a b => (lo m a - hi m b)%Z
+  end
+with hi (m : machine) (e : expr) : Z :=
+  match e with
+  | EVar i => (nth i (mins m) 0%Z + Z.of_nat (nth i (doms m) 1%nat) - 1)%Z
+  | ELit n => n
+  | EAdd a b => (hi m a + hi m b)%Z
+  | ESub a b => (hi m a - lo m b)%Z
+  end.
+
+Definition binaryVar (m : machine) (i : nat) : bool :=
+  andb (Nat.eqb (nth i (doms m) 0) 2) (Z.eqb (nth i (mins m) 0%Z) 0).
+
+Definition signSafeT (m : machine) (t : transform) : bool :=
+  forallb (fun a => implb (binaryVar m (fst a)) (Z.leb 0 (lo m (snd a)))) t.
+
+Definition transformsM (m : machine) : list transform :=
+  map snd (invs m) ++ map snd (evs m).
+
+Definition signSafe (m : machine) : bool :=
+  forallb (signSafeT m) (transformsM m).
+
 Definition check (m : machine) : bool :=
-  andb (bounded m)
+  andb (andb (bounded m) (signSafe m))
     (forallb (fun v => if allValid m v then stepCheckOne m v else true) (box (doms m))).
 
 (* ===== soundness ===== *)
@@ -564,7 +597,59 @@ Theorem check_no_overflow :
 Proof.
   intros m Hchk e He e' Hsub v Hv.
   unfold check in Hchk. apply andb_prop in Hchk. destruct Hchk as [Hb _].
+  apply andb_prop in Hb. destruct Hb as [Hb _].
   unfold bounded in Hb. rewrite forallb_forall in Hb.
   specialize (Hb e He). apply Z.leb_le in Hb.
   pose proof (evalE_bnd m v e' Hv). pose proof (subexprs_bnd m e e' Hsub). lia.
+Qed.
+
+(* ===== certified machines write Bools exactly as gsm does ===== *)
+
+Lemma evalE_range : forall m v e,
+  In v (box (doms m)) -> (lo m e <= evalE (mins m) v e <= hi m e)%Z.
+Proof.
+  intros m v e Hv.
+  induction e as [i | n | a IHa b IHb | a IHa b IHb]; simpl.
+  - rewrite rd_nth.
+    destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
+    + pose proof (box_range _ _ Hv i Hi) as Hr.
+      assert (Hd : nth i (doms m) 1 = nth i (doms m) 0) by (apply nth_indep; exact Hi).
+      rewrite Hd. lia.
+    + rewrite (nth_overflow v 0) by (rewrite (box_length _ _ Hv); exact Hi).
+      rewrite (nth_overflow (doms m) 1) by exact Hi. lia.
+  - lia.
+  - lia.
+  - lia.
+Qed.
+
+(* The clamp into a two-valued, minimum-0 variable stores exactly gsm's Bool value
+   (value <> 0) whenever the value is not negative. *)
+Lemma clamp_binary_is_bool : forall v : Z,
+  (0 <= v)%Z -> Nat.min (Z.to_nat (v - 0)) (2 - 1) = (if Z.eqb v 0 then 0 else 1).
+Proof.
+  intros v Hv. destruct (Z.eqb_spec v 0) as [-> | Hne]; [reflexivity | lia].
+Qed.
+
+Theorem check_binary_writes_exact :
+  forall m, check m = true ->
+  forall t, In t (transformsM m) ->
+  forall i e, In (i, e) t -> nth i (doms m) 0 = 2 -> nth i (mins m) 0%Z = 0%Z ->
+  forall v s, In v (box (doms m)) ->
+    setClamped m i (evalE (mins m) v e) s =
+    wr i (if Z.eqb (evalE (mins m) v e) 0 then 0 else 1) s.
+Proof.
+  intros m Hchk t Ht i e Hin Hd Hm v s Hv.
+  unfold check in Hchk. apply andb_prop in Hchk. destruct Hchk as [Hb _].
+  apply andb_prop in Hb. destruct Hb as [_ Hs].
+  unfold signSafe in Hs. rewrite forallb_forall in Hs. specialize (Hs t Ht).
+  unfold signSafeT in Hs. rewrite forallb_forall in Hs. specialize (Hs (i, e) Hin).
+  simpl in Hs. unfold binaryVar in Hs. rewrite Hd, Hm in Hs. simpl in Hs.
+  apply Z.leb_le in Hs.
+  pose proof (evalE_range m v e Hv) as [Hlo _].
+  unfold setClamped. rewrite Hm.
+  assert (Hd1 : nth i (doms m) 1 = 2).
+  { destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
+    - rewrite <- Hd. apply nth_indep. exact Hi.
+    - rewrite (nth_overflow (doms m) 0) in Hd by exact Hi. discriminate. }
+  rewrite Hd1. f_equal. apply clamp_binary_is_bool. lia.
 Qed.

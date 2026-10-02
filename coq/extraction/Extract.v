@@ -11,8 +11,10 @@
        (the AST oracle) -- it recomputes each event's step function by evaluating
        the expression trees, so it does not trust gsm to have produced correct
        tables at all.
-     - bounded (AstChecker.v): the 32-bit arithmetic fragment check, which check
-       already includes; extracted so the front end can name the reason.
+     - bounded, signSafe (AstChecker.v): the fragment checks (32-bit arithmetic;
+       no possibly negative write into a two-valued variable with minimum 0),
+       which check already includes; extracted so the front end can name the
+       reason.
      - compensationFree (AstChecker.v): certify that a machine is in the CRDT
        fragment (no in-domain state ever needs repair), so the CRDT classification
        is checked from the rules, not asserted. *)
@@ -23,4 +25,4 @@ From Coq Require Import ExtrOcamlZInt.
 Require Import NC.Checker.
 Require Import NC.AstChecker.
 
-Extraction "extraction/checker_core.ml" check_commuting closed check bounded compensationFree.
+Extraction "extraction/checker_core.ml" check_commuting closed check bounded signSafe compensationFree.

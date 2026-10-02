@@ -194,17 +194,20 @@ event, then normalize by iterated repair), and proves:
   since commutation is guaranteed only on valid states.
 - `check_no_overflow`: if `check` passes, every subexpression of every rule evaluates to a value
   of magnitude at most 2^31-1 on every valuation in the box, axiom-free. Expressions evaluate over
-  `Z` with gsm's signed Go semantics (signed `Add`/`Sub` and comparisons; a Bool write stores
-  `value != 0`; other writes clamp into the variable's range), and this theorem is why `Z` is
-  exactly gsm's arithmetic: Go's `int` never wraps on a certified machine, on 32-bit or 64-bit
-  platforms.
+  `Z` with gsm's signed Go semantics (signed `Add`/`Sub` and comparisons; a write clamps into the
+  variable's range), and this theorem is why `Z` is exactly gsm's arithmetic: Go's `int` never
+  wraps on a certified machine, on 32-bit or 64-bit platforms.
+- `check_binary_writes_exact`: if `check` passes, every write to a two-valued variable with
+  minimum 0 stores exactly `value != 0`, which is what gsm's Bool write stores, axiom-free. The
+  rules format does not say which variables are Bools, so the checker holds every such variable
+  to this rule.
 
 It is extracted to the `astchecker` binary. gsm serializes a machine's rules
 (`Registry.WriteMachineAST`) and the extracted checker re-derives convergence from the
 declarations, trusting neither gsm's enumeration nor its normalization. gsm's `TestMachineAST`
 tests run it when `GSM_AST_CHECKER` points at the binary. The modeled fragment covers comparison
-predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, signed literals and minimums, Bool,
-Enum and Int variables, and guarded events; the serializer refuses anything outside it, so a
+predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, signed literals and minimums, and
+guarded events; the serializer refuses anything outside it, so a
 passing cross-check always compares like semantics.
 
 What `check` decides differs from gsm's `Build` in three known ways, all on the side of the

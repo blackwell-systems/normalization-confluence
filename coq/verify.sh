@@ -25,6 +25,7 @@ Print Assumptions checked_converges.
 Print Assumptions check_sound_commute.
 Print Assumptions check_sound_converges.
 Print Assumptions check_no_overflow.
+Print Assumptions check_binary_writes_exact.
 Print Assumptions compensationFree_step_no_repair.
 Print Assumptions cmrdt_SEC.
 Print Assumptions cmrdt_governed_SEC.
@@ -90,8 +91,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 68 ]; then
-  echo "FAIL: expected 68 axiom-free results, got $N"
+if [ "$N" -lt 69 ]; then
+  echo "FAIL: expected 69 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

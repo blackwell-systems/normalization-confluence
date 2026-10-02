@@ -9,7 +9,8 @@
 0	astchecker	ast-good.machine	the astdemo convergent machine is accepted
 1	astchecker	ast-bad.machine	the astdemo non-convergent machine is rejected
 1	astchecker	ast-sub-guard.machine	F1: guard a - b < 0 is true at a=0,b=1 under gsm's signed int, so mark and seta do not commute
-1	astchecker	ast-bool-negative-write.machine	a Bool write stores (value != 0), so flag := a - b = -1 sets flag, and mark and seta do not commute
+1	astchecker	ast-bool-negative-write.machine	flag := a - b can be -1; a gsm Bool stores (value != 0) but the model clamps, so the write is outside the certified fragment
+0	astchecker	ast-binary-toggle.machine	x := 1 - x never goes negative, so a write into a two-valued variable is certified
 1	astchecker	ast-neg-literal.machine	negative literals use signed arithmetic: a + (-1) < 0 iff a = 0
 0	astchecker	ast-neg-min-good.machine	a variable with a negative minimum converges
 1	astchecker	ast-overflow-bound.machine	expressions whose magnitude can exceed 2^31-1 are outside the certified fragment
