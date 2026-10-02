@@ -200,10 +200,16 @@ equal to `check_tables` (`check_fast_eq`), so `check_tables_converges` holds for
 keys instead of a 20-level binary tree, proven equal to list lookup by `wlook_of_list16`), with
 the digit chosen by integer comparisons that extract inline; one fused pass over the states that
 reads each state's normal form and steps sequentially, so only the lookups the property needs
-remain; and tail-recursive list helpers, so the extracted code runs in constant stack. On 2^20
+remain; and tail-recursive list helpers, so the extracted code's stack depth does not grow with
+the number of states, events or declared pairs (its only recursion is the trie, at most 8
+levels). On 2^20
 states with 10 declared pairs (gsm's largest machines) the extracted check takes about 5 s, where
-`check_tables`' extraction took about 60 s and overflowed OCaml 4.14's 8 MiB native stack. No
-axioms and no extraction directives beyond `Extract.v`'s.
+`check_tables`' extraction took about 60 s (measured with OCaml 5, whose stacks grow) and
+overflowed OCaml 4.14's 8 MiB native stack. No axioms and no extraction directives beyond
+`Extract.v`'s. The table path relies on these existing `ExtrOcamlNatInt` mappings: `nat` as OCaml
+`int`, `Compare_dec.lt_dec` as `(<)` (inlined), `Nat.eqb` as `(=)`, `Nat.div2` as `n/2`, and
+`Init.Nat.add`, `Init.Nat.mul`, `Init.Nat.sub` as `(+)`, `( * )` and subtraction clamped at 0. It
+avoids `Nat.pow`, which extracts through the unmapped, unary `Nat.mul` inside the `Nat` module.
 
 `Checker.v`, the original table oracle, proves that a governed machine converges (applying the same events in any order
 reaches the same state) exactly when its per-event step functions **commute** and stay in range,

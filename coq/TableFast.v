@@ -19,9 +19,12 @@
    check_fast_eq proves check_fast equal to check_tables (on the Braun tries
    built from the same lists), so every theorem about check_tables
    (check_tables_converges and the rest) holds for check_fast unchanged
-   (check_fast_converges). The list helpers it runs are tail-recursive, so the
-   extracted code needs constant stack (OCaml 4.14 native code runs on the 8 MiB
-   system stack; check_tables' extraction overflowed it at 2^20 states). *)
+   (check_fast_converges). Every list helper it runs is tail-recursive (mapA,
+   chunkT, lenT, pairsAll), so the extracted code's stack depth does not grow
+   with the number of states, events or declared pairs; the only recursion is
+   the trie depth, at most 8 levels. That matters because OCaml 4.14 native code
+   runs on the 8 MiB system stack: check_tables' extraction overflowed it at
+   2^20 states. *)
 
 Require Import NC.Trace.
 Require Import NC.TableCheck.
@@ -53,7 +56,6 @@ Inductive w16 :=
 | WL (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 : nat)
 | WN (c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 c11 c12 c13 c14 c15 : w16).
 
-(* (x_j, k - j * p) where j = k / p, for k < 16 * p, by binary search. *)
 (* (x_j, b + j * p) where j = (k - b) / p, for b <= k < b + 16 * p, by binary
    search. It never subtracts: nat subtraction extracts to a call that clamps
    at 0 through a polymorphic max. *)
@@ -120,9 +122,9 @@ Fixpoint chunkF {A B : Type} (f : nat) (mk : A -> A -> A -> A -> A -> A -> A -> 
             end
   end.
 
-(* Tail-recursive forms, so the extracted code runs in constant stack: OCaml
-   4.14 native code has the 8 MiB system stack, and List.length and chunkF
-   recurse once per element (or per group of 16). *)
+(* Tail-recursive forms, so the extracted code's stack does not grow with the
+   input: OCaml 4.14 native code has the 8 MiB system stack, and List.length
+   and chunkF recurse once per element (or per group of 16). *)
 Fixpoint lenT {A : Type} (l : list A) (a : nat) : nat :=
   match l with [] => a | _ :: t => lenT t (S a) end.
 
@@ -150,12 +152,29 @@ Fixpoint depthF (f m p : nat) : nat :=
   | S f' => if ltd (16 * p) m then S (depthF f' m (16 * p)) else 0
   end.
 
+(* 16^(depthF f m p) * p, computed alongside depthF: Nat.pow is extracted from
+   Nat.mul inside the Nat module, which ExtrOcamlNatInt does not map, so it is
+   unary there (pow 16 6 overflows the stack). Top-level multiplication is
+   mapped to OCaml's ( * ). *)
+Fixpoint powF (f m p : nat) : nat :=
+  match f with
+  | 0 => p
+  | S f' => if ltd (16 * p) m then powF f' m (16 * p) else p
+  end.
+
+Lemma powF_eq : forall f m p, powF f m p = p * 16 ^ depthF f m p.
+Proof.
+  induction f as [| f IH]; intros m p; cbn [powF depthF].
+  - simpl. lia.
+  - destruct (ltd (16 * p) m); [rewrite IH; simpl; lia | simpl; lia].
+Qed.
+
 Record wt := { wd : nat; wp : nat; wroot : w16 }.
 
 Definition of_list16 (l : list nat) : wt :=
   let m := lenT l 0 in
   let d := depthF m m 1 in
-  {| wd := d; wp := Nat.pow 16 d; wroot := nth 0 (levels l d) (zt d) |}.
+  {| wd := d; wp := powF m m 1; wroot := nth 0 (levels l d) (zt d) |}.
 
 Definition wlook (t : wt) (k : nat) : nat :=
   if ltd k (16 * wp t) then wget (wp t) 0 (wroot t) k else 0.
@@ -261,7 +280,7 @@ Qed.
 
 Theorem wlook_of_list16 : forall l k, wlook (of_list16 l) k = nth k l 0.
 Proof.
-  intros l k. unfold wlook, of_list16. cbn [wp wd wroot]. rewrite lenT_eq, Nat.add_0_r.
+  intros l k. unfold wlook, of_list16. cbn [wp wd wroot]. rewrite lenT_eq, Nat.add_0_r, powF_eq, Nat.mul_1_l.
   set (d := depthF (length l) (length l) 1).
   destruct (ltd k (16 * 16 ^ d)) eqn:E.
   - apply ltd_spec in E. rewrite <- Nat.pow_succ_r' in E.
@@ -272,6 +291,90 @@ Proof.
     rewrite Nat.pow_succ_r' in Hl. rewrite nth_overflow by lia. reflexivity.
 Qed.
 
+(* ===== tail-recursive list builders ===== *)
+
+(* The extracted code must run in stack independent of the input: OCaml 4.14
+   native code has the 8 MiB system stack, and List.map recurses once per
+   element (events, declared pairs). *)
+Fixpoint mapA {A B : Type} (f : A -> B) (l : list A) (acc : list B) : list B :=
+  match l with [] => rev_append acc [] | x :: t => mapA f t (f x :: acc) end.
+
+Definition mapT {A B : Type} (f : A -> B) (l : list A) : list B := mapA f l [].
+
+Lemma mapA_eq : forall {A B} (f : A -> B) l acc, mapA f l acc = rev acc ++ map f l.
+Proof.
+  intros A B f l. induction l as [| x t IH]; intro acc; simpl.
+  - rewrite rev_append_rev, app_nil_r. reflexivity.
+  - rewrite IH. simpl. rewrite <- app_assoc. reflexivity.
+Qed.
+
+Lemma mapT_eq : forall {A B} (f : A -> B) l, mapT f l = map f l.
+Proof. intros. unfold mapT. rewrite mapA_eq. reflexivity. Qed.
+
+(* Every pair (i, j) with i < j < nE, built tail-recursively (allPairs, in
+   TableCheck.v, recurses once per event and per pair). *)
+Fixpoint pairsRow (i j k : nat) (acc : list (nat * nat)) : list (nat * nat) :=
+  match k with 0 => acc | S k' => pairsRow i (S j) k' ((i, j) :: acc) end.
+
+Fixpoint pairsAll (nE i k : nat) (acc : list (nat * nat)) : list (nat * nat) :=
+  match k with 0 => acc | S k' => pairsAll nE (S i) k' (pairsRow i (S i) (nE - S i) acc) end.
+
+Definition allPairsT (nE : nat) : list (nat * nat) := pairsAll nE 0 nE [].
+
+Lemma pairsRow_in : forall i j k acc p,
+  In p (pairsRow i j k acc) <-> (fst p = i /\ j <= snd p < j + k) \/ In p acc.
+Proof.
+  intros i j k. revert j. induction k as [| k IH]; intros j acc [a b]; simpl.
+  - split; [tauto | intros [[_ H] | H]; [lia | exact H]].
+  - rewrite IH. simpl. split.
+    + intros [[Ha Hb] | [Heq | Hin]]; [left; split; [exact Ha | lia] | | tauto].
+      inversion Heq; subst. left. split; [reflexivity | lia].
+    + intros [[Ha Hb] | Hin].
+      * destruct (Nat.eq_dec b j) as [-> | Hne]; [right; left; subst; reflexivity |].
+        left. split; [exact Ha | lia].
+      * right; right; exact Hin.
+Qed.
+
+Lemma pairsAll_in : forall nE i k acc p,
+  In p (pairsAll nE i k acc) <-> (i <= fst p < i + k /\ fst p < snd p < nE) \/ In p acc.
+Proof.
+  intros nE i k. revert i. induction k as [| k IH]; intros i acc [a b]; simpl.
+  - split; [tauto | intros [[H _] | H]; [lia | exact H]].
+  - rewrite IH, pairsRow_in. simpl. split.
+    + intros [[Ha Hb] | [[Ha Hb] | Hin]]; [left; lia | left; subst; lia | tauto].
+    + intros [[Ha Hb] | Hin]; [| tauto].
+      destruct (Nat.eq_dec a i) as [-> | Hne]; [right; left; lia | left; lia].
+Qed.
+
+Lemma allPairs_in_iff : forall nE a b, In (a, b) (allPairs nE) <-> a < b /\ b < nE.
+Proof.
+  intros nE a b. unfold allPairs. rewrite in_flat_map. split.
+  - intros [i [Hi Hm]]. apply in_seq in Hi. apply in_map_iff in Hm.
+    destruct Hm as [j [Heq Hj]]. inversion Heq; subst. apply in_seq in Hj. lia.
+  - intros [Hab Hb]. exists a. split; [apply in_seq; lia |].
+    apply in_map_iff. exists b. split; [reflexivity | apply in_seq; lia].
+Qed.
+
+Definition pairsOfT (nE : nat) (P : option (list (nat * nat))) : list (nat * nat) :=
+  match P with None => allPairsT nE | Some l => l end.
+
+Lemma pairsOfT_in : forall nE P p, In p (pairsOfT nE P) <-> In p (pairsOf nE P).
+Proof.
+  intros nE [l |] [a b]; unfold pairsOfT, pairsOf; [reflexivity |].
+  unfold allPairsT. rewrite pairsAll_in, allPairs_in_iff. simpl. lia.
+Qed.
+
+Definition pairs_okW (nE : nat) (P : option (list (nat * nat))) : bool :=
+  forallb (fun p => ltd (fst p) nE && ltd (snd p) nE) (pairsOfT nE P).
+
+Lemma pairs_okW_eq : forall nE P, pairs_okW nE P = pairs_ok nE P.
+Proof.
+  intros nE P. apply eq_iff_eq_true. unfold pairs_okW, pairs_ok. rewrite !forallb_forall.
+  split; intros H p Hp.
+  - rewrite <- ltd_ltn, <- ltd_ltn. apply H. apply pairsOfT_in. exact Hp.
+  - rewrite ltd_ltn, ltd_ltn. apply H. apply pairsOfT_in. exact Hp.
+Qed.
+
 (* ===== the fused check ===== *)
 
 (* The tries are arguments, built once by check_fast, so the extracted code does
@@ -280,8 +383,8 @@ Definition inVw (n : nat) (nfw : wt) (x : nat) : bool := ltd x n && Nat.eqb (wlo
 
 (* Each declared pair with its two tries resolved once. *)
 Definition rpairsW (nE : nat) (tw : list wt) (P : option (list (nat * nat))) : list (nat * nat * wt * wt) :=
-  map (fun p => (fst p, snd p, nth (fst p) tw (of_list16 []), nth (snd p) tw (of_list16 [])))
-    (pairsOf nE P).
+  mapT (fun p => (fst p, snd p, nth (fst p) tw (of_list16 []), nth (snd p) tw (of_list16 [])))
+    (pairsOfT nE P).
 
 (* State s, with nfs = NF[s] and col = [T[0][s]; ...; T[nE-1][s]]. *)
 Definition state_okW (n : nat) (nfw : wt) (rp : list (nat * nat * wt * wt)) (s nfs : nat) (col : list nat) : bool :=
@@ -294,13 +397,13 @@ Fixpoint scanW (n : nat) (nfw : wt) (rp : list (nat * nat * wt * wt)) (s : nat) 
     (rows : list (list nat)) : bool :=
   match nfl with
   | [] => true
-  | x :: t => state_okW n nfw rp s x (map (hd 0) rows) && scanW n nfw rp (S s) t (map (@tl nat) rows)
+  | x :: t => state_okW n nfw rp s x (mapT (hd 0) rows) && scanW n nfw rp (S s) t (mapT (@tl nat) rows)
   end.
 
 Definition check_fast (n nE : nat) (NFl : list nat) (Tl : list (list nat)) (P : option (list (nat * nat))) : bool :=
   let nfw := of_list16 NFl in
-  let rp := rpairsW nE (map of_list16 Tl) P in
-  pairs_ok nE P && scanW n nfw rp 0 NFl Tl.
+  let rp := rpairsW nE (mapT of_list16 Tl) P in
+  pairs_okW nE P && scanW n nfw rp 0 NFl Tl.
 
 Section Fast.
   Variables (n nE : nat) (NFl : list nat) (Tl : list (list nat)) (P : option (list (nat * nat))).
@@ -315,7 +418,8 @@ Section Fast.
   Lemma scan_iff : forall nfl rows s, scan s nfl rows = true <->
     forall i, i < length nfl -> state_ok (s + i) (nth i nfl 0) (map (fun r => nth i r 0) rows) = true.
   Proof.
-    unfold scan. induction nfl as [| x t IH]; intros rows s; cbn [scanW]; fold state_ok.
+    unfold scan. induction nfl as [| x t IH]; intros rows s; cbn [scanW]; fold state_ok;
+      rewrite ?mapT_eq.
     - split; [intros _ i Hi; simpl in Hi; lia | reflexivity].
     - rewrite andb_true_iff, IH.
       assert (Hhd : map (hd 0) rows = map (fun r => nth 0 r 0) rows)
@@ -377,15 +481,15 @@ Section Fast.
       + intros HD q Hq. rewrite HD in Hc. simpl in Hc. rewrite forallb_forall in Hc.
         specialize (Hc (fst q, snd q, nth (fst q) Tw (of_list16 []), nth (snd q) Tw (of_list16 []))).
         cbv beta iota in Hc. rewrite !row_eq. rewrite wlook_row, wlook_row, col_nth, col_nth in Hc.
-        apply Hc. unfold rpairs, rpairsW. apply in_map_iff. exists q. split; [reflexivity | exact Hq].
+        apply Hc. unfold rpairs, rpairsW. rewrite mapT_eq. apply in_map_iff. exists q. split; [reflexivity | apply pairsOfT_in; exact Hq].
     - intros [Hnf [Hst Hc]]. split; [split |].
       + exact Hnf.
       + intros x Hx. apply in_map_iff in Hx. destruct Hx as [r [<- Hr]].
         apply In_nth with (d := []) in Hr. destruct Hr as [e [He <-]].
         rewrite inVf_eq, <- row_eq. apply Hst. lia.
       + destruct (inD n NF i) eqn:HD; [| reflexivity]. simpl. apply forallb_forall.
-        intros q Hq. unfold rpairs, rpairsW in Hq. apply in_map_iff in Hq. destruct Hq as [pq [<- Hpq]].
-        cbv beta iota. rewrite wlook_row, wlook_row, col_nth, col_nth, <- !row_eq. apply Hc; [reflexivity | exact Hpq].
+        intros q Hq. unfold rpairs, rpairsW in Hq. rewrite mapT_eq in Hq. apply in_map_iff in Hq. destruct Hq as [pq [<- Hpq]].
+        cbv beta iota. rewrite wlook_row, wlook_row, col_nth, col_nth, <- !row_eq. apply Hc; [reflexivity | apply pairsOfT_in; exact Hpq].
   Qed.
 
   Lemma seq_forall : forall (f : nat -> bool) m, forallb f (seq 0 m) = true <-> forall i, i < m -> f i = true.
@@ -397,7 +501,9 @@ Section Fast.
 
   Theorem check_fast_eq : check_fast n nE NFl Tl P = check_tables n nE NF T P.
   Proof.
-    change (check_fast n nE NFl Tl P) with (pairs_ok nE P && scan 0 NFl Tl).
+    change (check_fast n nE NFl Tl P) with
+      (pairs_okW nE P && scanW n (of_list16 NFl) (rpairsW nE (mapT of_list16 Tl) P) 0 NFl Tl).
+    rewrite mapT_eq, pairs_okW_eq. change (scanW n (of_list16 NFl) (rpairsW nE Tw P)) with scan.
     unfold check_tables. rewrite <- !andb_assoc. f_equal.
     apply eq_iff_eq_true. rewrite scan_iff, Hn. rewrite !andb_true_iff.
     unfold nf_ok, steps_ok, comm_ok. rewrite !seq_forall, forallb_forall.
