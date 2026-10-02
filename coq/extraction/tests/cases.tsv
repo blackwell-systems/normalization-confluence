@@ -40,3 +40,6 @@
 2	astchecker	ast-declared-pairs.machine ast-pairs-short.pairs	fewer pair entries than declared is input error
 1	astchecker	ast-zero-invalid-cc.machine	the invalid zero state is in Build's CC domain; the pair commutes on every valid state but not at zero
 1	astchecker	ast-zero-guard-false.machine	gsm's step normalizes even when the guard is false; at the invalid zero state that is what makes the pair fail
+0	astchecker	ast-invalid-state.machine	commutation is not checked at an invariant-invalid state other than zero (x = 2), which no run reaches
+1	astchecker	ast-declared-pairs.machine ast-second-pair-fails.pairs	every declared pair is checked, not only the first
+1	checker	tables2-second-pair-fails.tables	v2: every declared pair is checked, not only the first
