@@ -28,8 +28,11 @@ jobs:
       - name: The JSON matches the committed JSON
         run: |
           sha256sum coq/goextract/*.json
-          git diff --exit-code --stat -- coq/goextract/*.json
+          git diff --stat -- coq/goextract/*.json
+          git diff -- coq/goextract/*.json | head -100
+          git diff --quiet -- coq/goextract/*.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: pinned
           path: |
