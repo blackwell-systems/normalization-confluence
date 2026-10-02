@@ -37,8 +37,8 @@ fi
 # must be accepted. Generated, not stored (about 15 MB).
 big="$(mktemp -d)"
 n=1048576
-{ echo "gsm-tables 2"; echo "$n 1"; printf 'nf'; seq 0 $((n - 1)) | tr '\n' ' ' | sed 's/^/ /'; echo
-  echo "pairs all"; seq 0 $((n - 1)) | tr '\n' ' '; echo; } > "$big/id20.tables"
+ids() { awk -v n="$1" 'BEGIN { for (i = 0; i < n; i++) printf " %d", i; print "" }'; }
+{ echo "gsm-tables 2"; echo "$n 1"; printf 'nf'; ids $n; echo "pairs all"; ids $n; } > "$big/id20.tables"
 for tool in checker checker_fast; do
   [ -x "$bin/$tool" ] || continue
   out="$("$bin/$tool" "$big/id20.tables" 2>&1)"; got=$?
