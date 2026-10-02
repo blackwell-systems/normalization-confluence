@@ -1,5 +1,5 @@
 // Command tablecheck is the table oracle's front end over the Go that gogen
-// generates from check_fast's extraction (package oracle). It is a port of
+// generates from check_fn's extraction (package oracle). It is a port of
 // extraction/main.ml: the same tables format (versions 1 and 2), validation,
 // output lines and exit codes (0 verified convergent, 1 not, 2 input error);
 // see main.ml for the format. tests/run.sh checks it against the regression
@@ -134,15 +134,39 @@ func main() {
 	if int64(len(toks)-pos) != n*ne {
 		failInput(fmt.Sprintf("expected %d step entries (n=%d, nE=%d), got %d", n*ne, n, ne, len(toks)-pos))
 	}
-	rows := make([]*oracle.I_list[int64], ne)
-	row := make([]int64, n)
+	rows := make([][]int64, ne)
 	for e := range rows {
-		for s := range row {
-			row[s] = nat("step entry")
+		rows[e] = make([]int64, n)
+		for s := range rows[e] {
+			rows[e][s] = nat("step entry")
 		}
-		rows[e] = list(row)
 	}
-	if oracle.F_check_fast(n, ne, list(nf), list(rows), pairs) {
+	// check_fn (TableFn.v) over accessors on the arrays, shaped like gsm's
+	// gate: pure, total, the parsed (non-negative) entries, 0 out of range.
+	nfA := func(s int64) int64 {
+		if s >= 0 && s < n {
+			return nf[s]
+		}
+		return 0
+	}
+	zero := func(int64) int64 { return 0 }
+	rowA := make([]func(int64) int64, ne)
+	for e := range rows {
+		r := rows[e]
+		rowA[e] = func(s int64) int64 {
+			if s >= 0 && s < n {
+				return r[s]
+			}
+			return 0
+		}
+	}
+	stA := func(e int64) func(int64) int64 {
+		if e >= 0 && e < ne {
+			return rowA[e]
+		}
+		return zero
+	}
+	if oracle.F_check_fn(n, ne, nfA, stA, pairs) {
 		fmt.Printf("OK: %d states, %d events, %s; tables verified convergent (normal forms and steps land on valid states; declared pairs commute on valid states and the zero state)\n", n, ne, declared)
 		os.Exit(0)
 	}

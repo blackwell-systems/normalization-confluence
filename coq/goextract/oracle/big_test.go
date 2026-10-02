@@ -43,6 +43,45 @@ func fast(n, ne int, nf []int64, rows [][]int64, pairs [][2]int64) bool {
 
 // reference is check_tables read directly: declared pairs name events below
 // nE; every NF entry and every step is a valid state; every declared pair
+
+// fn runs check_fn on accessors over the slices, shaped like gsm's gate:
+// entries in range, 0 out of range.
+func fn(n, ne int, nf []int64, rows [][]int64, pairs [][2]int64) bool {
+	n64, ne64 := int64(n), int64(ne)
+	nfA := func(s int64) int64 {
+		if s >= 0 && s < n64 {
+			return nf[s]
+		}
+		return 0
+	}
+	zero := func(int64) int64 { return 0 }
+	rowA := make([]func(int64) int64, ne)
+	for e := range rows {
+		r := rows[e]
+		rowA[e] = func(s int64) int64 {
+			if s >= 0 && s < int64(len(r)) {
+				return r[s]
+			}
+			return 0
+		}
+	}
+	st := func(e int64) func(int64) int64 {
+		if e >= 0 && e < ne64 {
+			return rowA[e]
+		}
+		return zero
+	}
+	p := K_None[*I_list[*I_prod[int64, int64]]]()
+	if pairs != nil {
+		ps := make([]*I_prod[int64, int64], len(pairs))
+		for i, q := range pairs {
+			ps[i] = K_Pair(q[0], q[1])
+		}
+		p = K_Some(lst(ps))
+	}
+	return F_check_fn(n64, ne64, nfA, st, p)
+}
+
 // commutes on the valid states and the zero state.
 func reference(n, ne int, nf []int64, rows [][]int64, pairs [][2]int64) bool {
 	inV := func(x int64) bool { return x < int64(n) && nf[x] == x }
@@ -163,6 +202,9 @@ func agreeOn(t *testing.T, what string, n, ne int, nf []int64, rows [][]int64, p
 	want := reference(n, ne, nf, rows, pairs)
 	if got := fast(n, ne, nf, rows, pairs); got != want {
 		t.Errorf("%s (n=%d, nE=%d, pairs=%v): check_fast=%v, check_tables=%v", what, n, ne, pairs, got, want)
+	}
+	if got := fn(n, ne, nf, rows, pairs); got != want {
+		t.Errorf("%s (n=%d, nE=%d, pairs=%v): check_fn=%v, check_tables=%v", what, n, ne, pairs, got, want)
 	}
 	return want
 }

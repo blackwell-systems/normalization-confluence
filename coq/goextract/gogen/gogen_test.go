@@ -283,17 +283,35 @@ func TestMatchOnAMappedNumberChecksItsDomain(t *testing.T) {
 }
 
 // GuardCoind.v covers every entry point gogen translates.
+// GuardCoind.v's entry-point list is exactly the union of the Extract*.v
+// lists: every name gogen translates is guarded, and the guard names nothing
+// that is not extracted (a stale entry would hide a missing one).
 func TestGuardCoversEveryEntryPoint(t *testing.T) {
-	guard := string(read(t, "../GuardCoind.v"))
+	src := string(read(t, "../GuardCoind.v"))
+	body := strings.SplitN(src, "Recursive Extraction", 2)
+	if len(body) != 2 {
+		t.Fatal("GuardCoind.v has no Recursive Extraction")
+	}
+	guarded := map[string]bool{}
+	for _, n := range strings.Fields(strings.SplitN(body[1], ".\n", 2)[0]) {
+		guarded[strings.TrimSuffix(n, ".")] = true
+	}
+	extracted := map[string]bool{}
 	for _, f := range []string{"../ExtractGo.v", "../ExtractPrimMapped.v", "../ExtractFixture.v", "../ExtractSemantics.v"} {
 		src := string(read(t, f))
 		for _, chunk := range strings.Split(src, "Extraction \"")[1:] {
 			names := strings.Fields(strings.SplitN(strings.SplitN(chunk, "\"", 2)[1], ".", 2)[0])
 			for _, n := range names {
-				if !strings.Contains(guard, " "+n+" ") && !strings.Contains(guard, " "+n+".") && !strings.Contains(guard, " "+n+"\n") {
+				extracted[n] = true
+				if !guarded[n] {
 					t.Errorf("%s extracts %s, which GuardCoind.v does not check", f, n)
 				}
 			}
+		}
+	}
+	for n := range guarded {
+		if !extracted[n] {
+			t.Errorf("GuardCoind.v checks %s, which no Extract*.v extracts", n)
 		}
 	}
 }
