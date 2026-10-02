@@ -410,6 +410,16 @@ func F_allPairs(nE_in int64) *I_list[*I_prod[int64, int64]] {
 	}
 }
 
+func F_allPairsT(nE_in int64) *I_list[*I_prod[int64, int64]] {
+	for {
+		nE_1 := nE_in
+		_ = nE_1
+		t_2 := &I_list[*I_prod[int64, int64]]{tag: 0}
+		t_3 := F_pairsAll(nE_1, int64(0), nE_1, t_2)
+		return t_3
+	}
+}
+
 func F_allValid(m_in *I_machine, s_in *I_list[int64]) bool {
 	for {
 		m_1 := m_in
@@ -730,11 +740,11 @@ func F_check_fast(n_in int64, nE_in int64, nFl_in *I_list[int64], tl0_in *I_list
 		t_9 := func(a_8 *I_list[int64]) *I_wt {
 			return F_of_list16(a_8)
 		}
-		t_10 := F_map[*I_list[int64], *I_wt](t_9, tl0_4)
+		t_10 := F_mapT[*I_list[int64], *I_wt](t_9, tl0_4)
 		t_11 := F_rpairsW(nE_2, t_10, p_5)
 		rp_12 := t_11
 		_ = rp_12
-		t_13 := F_pairs_ok(nE_2, p_5)
+		t_13 := F_pairs_okW(nE_2, p_5)
 		if !t_13 {
 			return false
 		}
@@ -1985,6 +1995,46 @@ func F_map[T1 any, T2 any](f_in func(T1) T2, l_in *I_list[T1]) *I_list[T2] {
 	}
 }
 
+func F_mapA[T1 any, T2 any](f_in func(T1) T2, l_in *I_list[T1], acc_in *I_list[T2]) *I_list[T2] {
+	for {
+		f_1 := f_in
+		_ = f_1
+		l_2 := l_in
+		_ = l_2
+		acc_3 := acc_in
+		_ = acc_3
+		switch l_2.tag {
+		case 0:
+			t_4 := &I_list[T2]{tag: 0}
+			t_5 := F_rev_append[T2](acc_3, t_4)
+			return t_5
+		case 1:
+			x_6 := l_2.f1_0
+			_ = x_6
+			t_7 := l_2.f1_1
+			_ = t_7
+			t_8 := f_1(x_6)
+			t_9 := &I_list[T2]{tag: 1, f1_0: t_8, f1_1: acc_3}
+			f_in, l_in, acc_in = f_1, t_7, t_9
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_mapT[T1 any, T2 any](f_in func(T1) T2, l_in *I_list[T1]) *I_list[T2] {
+	for {
+		f_1 := f_in
+		_ = f_1
+		l_2 := l_in
+		_ = l_2
+		t_3 := &I_list[T2]{tag: 0}
+		t_4 := F_mapA[T1, T2](f_1, l_2, t_3)
+		return t_4
+	}
+}
+
 func F_maxAbs() int64 {
 	for {
 		return int64(2147483647)
@@ -2148,7 +2198,7 @@ func F_of_list16(l_in *I_list[int64]) *I_wt {
 		t_4 := F_depthF(m_3, m_3, int64(1))
 		d_5 := t_4
 		_ = d_5
-		t_6 := F_pow(int64(16), d_5)
+		t_6 := F_powF(m_3, m_3, int64(1))
 		t_7 := F_levels(l_1, d_5)
 		t_8 := F_zt(d_5)
 		t_9 := F_nth[*I_w16](int64(0), t_7, t_8)
@@ -2225,7 +2275,36 @@ func F_pairsA(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) *
 	}
 }
 
-func F_pairsOf(nE_in int64, p_in *I_option[*I_list[*I_prod[int64, int64]]]) *I_list[*I_prod[int64, int64]] {
+func F_pairsAll(nE_in int64, i_in int64, k_in int64, acc_in *I_list[*I_prod[int64, int64]]) *I_list[*I_prod[int64, int64]] {
+	for {
+		nE_1 := nE_in
+		_ = nE_1
+		i_2 := i_in
+		_ = i_2
+		k_3 := k_in
+		_ = k_3
+		acc_4 := acc_in
+		_ = acc_4
+		switch {
+		case k_3 == 0:
+			return acc_4
+		case k_3 > 0:
+			k_p_5 := k_3 - 1
+			_ = k_p_5
+			t_6 := natSucc(i_2)
+			t_7 := natSucc(i_2)
+			t_8 := natSucc(i_2)
+			t_9 := natSub(nE_1, t_8)
+			t_10 := F_pairsRow(i_2, t_7, t_9, acc_4)
+			nE_in, i_in, k_in, acc_in = nE_1, t_6, k_p_5, t_10
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_pairsOfT(nE_in int64, p_in *I_option[*I_list[*I_prod[int64, int64]]]) *I_list[*I_prod[int64, int64]] {
 	for {
 		nE_1 := nE_in
 		_ = nE_1
@@ -2237,7 +2316,7 @@ func F_pairsOf(nE_in int64, p_in *I_option[*I_list[*I_prod[int64, int64]]]) *I_l
 			_ = l_3
 			return l_3
 		case 1:
-			t_4 := F_allPairs(nE_1)
+			t_4 := F_allPairsT(nE_1)
 			return t_4
 		default:
 			panic("gogen: no case matches")
@@ -2288,26 +2367,69 @@ func F_pairsOkA(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]])
 	}
 }
 
-func F_pairs_ok(nE_in int64, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
+func F_pairsRow(i_in int64, j_in int64, k_in int64, acc_in *I_list[*I_prod[int64, int64]]) *I_list[*I_prod[int64, int64]] {
+	for {
+		i_1 := i_in
+		_ = i_1
+		j_2 := j_in
+		_ = j_2
+		k_3 := k_in
+		_ = k_3
+		acc_4 := acc_in
+		_ = acc_4
+		switch {
+		case k_3 == 0:
+			return acc_4
+		case k_3 > 0:
+			k_p_5 := k_3 - 1
+			_ = k_p_5
+			t_6 := natSucc(j_2)
+			t_7 := &I_prod[int64, int64]{tag: 0, f0_0: i_1, f0_1: j_2}
+			t_8 := &I_list[*I_prod[int64, int64]]{tag: 1, f1_0: t_7, f1_1: acc_4}
+			i_in, j_in, k_in, acc_in = i_1, t_6, k_p_5, t_8
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_pairs_okW(nE_in int64, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
 	for {
 		nE_1 := nE_in
 		_ = nE_1
 		p_2 := p_in
 		_ = p_2
-		t_8 := func(p0_3 *I_prod[int64, int64]) bool {
+		t_9 := func(p0_3 *I_prod[int64, int64]) bool {
 			_ = p0_3
-			t_4 := F_fst[int64, int64](p0_3)
-			t_5 := F_ltn(t_4, nE_1)
-			if !t_5 {
+			var r_4 bool
+			t_5 := F_fst[int64, int64](p0_3)
+			t_6 := ltb(t_5, nE_1)
+			switch {
+			case t_6:
+				r_4 = true
+			case !t_6:
+				r_4 = false
+			default:
+				panic("gogen: no case matches")
+			}
+			if !r_4 {
 				return false
 			}
-			t_6 := F_snd[int64, int64](p0_3)
-			t_7 := F_ltn(t_6, nE_1)
-			return t_7
+			t_7 := F_snd[int64, int64](p0_3)
+			t_8 := ltb(t_7, nE_1)
+			switch {
+			case t_8:
+				return true
+			case !t_8:
+				return false
+			default:
+				panic("gogen: no case matches")
+			}
 		}
-		t_9 := F_pairsOf(nE_1, p_2)
-		t_10 := F_forallb[*I_prod[int64, int64]](t_8, t_9)
-		return t_10
+		t_10 := F_pairsOfT(nE_1, p_2)
+		t_11 := F_forallb[*I_prod[int64, int64]](t_9, t_10)
+		return t_11
 	}
 }
 
@@ -2389,21 +2511,32 @@ func F_pos_sub(x_in int64, y_in int64) int64 {
 	}
 }
 
-func F_pow(n_in int64, m_in int64) int64 {
+func F_powF(f_in int64, m_in int64, p_in int64) int64 {
 	for {
-		n_1 := n_in
-		_ = n_1
+		f_1 := f_in
+		_ = f_1
 		m_2 := m_in
 		_ = m_2
+		p_3 := p_in
+		_ = p_3
 		switch {
-		case m_2 == 0:
-			return int64(1)
-		case m_2 > 0:
-			m0_3 := m_2 - 1
-			_ = m0_3
-			t_4 := F_pow(n_1, m0_3)
-			t_5 := F_mul(n_1, t_4)
-			return t_5
+		case f_1 == 0:
+			return p_3
+		case f_1 > 0:
+			f_p_4 := f_1 - 1
+			_ = f_p_4
+			t_5 := zMul(int64(16), p_3)
+			t_6 := ltb(t_5, m_2)
+			switch {
+			case t_6:
+				t_7 := zMul(int64(16), p_3)
+				f_in, m_in, p_in = f_p_4, m_2, t_7
+				continue
+			case !t_6:
+				return p_3
+			default:
+				panic("gogen: no case matches")
+			}
 		default:
 			panic("gogen: no case matches")
 		}
@@ -2608,8 +2741,8 @@ func F_rpairsW(nE_in int64, tw_in *I_list[*I_wt], p_in *I_option[*I_list[*I_prod
 			t_17 := &I_prod[*I_prod[*I_prod[int64, int64], *I_wt], *I_wt]{tag: 0, f0_0: t_12, f0_1: t_16}
 			return t_17
 		}
-		t_19 := F_pairsOf(nE_1, p_3)
-		t_20 := F_map[*I_prod[int64, int64], *I_prod[*I_prod[*I_prod[int64, int64], *I_wt], *I_wt]](t_18, t_19)
+		t_19 := F_pairsOfT(nE_1, p_3)
+		t_20 := F_mapT[*I_prod[int64, int64], *I_prod[*I_prod[*I_prod[int64, int64], *I_wt], *I_wt]](t_18, t_19)
 		return t_20
 	}
 }
@@ -2639,7 +2772,7 @@ func F_scanW(n_in int64, nfw_in *I_wt, rp_in *I_list[*I_prod[*I_prod[*I_prod[int
 			t_10 := func(a_9 *I_list[int64]) int64 {
 				return F_hd[int64](int64(0), a_9)
 			}
-			t_11 := F_map[*I_list[int64], int64](t_10, rows_6)
+			t_11 := F_mapT[*I_list[int64], int64](t_10, rows_6)
 			t_12 := F_state_okW(n_1, nfw_2, rp_3, s_4, x_7, t_11)
 			if !t_12 {
 				return false
@@ -2648,7 +2781,7 @@ func F_scanW(n_in int64, nfw_in *I_wt, rp_in *I_list[*I_prod[*I_prod[*I_prod[int
 			t_15 := func(a_14 *I_list[int64]) *I_list[int64] {
 				return F_tl[int64](a_14)
 			}
-			t_16 := F_map[*I_list[int64], *I_list[int64]](t_15, rows_6)
+			t_16 := F_mapT[*I_list[int64], *I_list[int64]](t_15, rows_6)
 			n_in, nfw_in, rp_in, s_in, nfl_in, rows_in = n_1, nfw_2, rp_3, t_13, t_8, t_16
 			continue
 		default:
