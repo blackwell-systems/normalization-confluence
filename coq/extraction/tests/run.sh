@@ -19,7 +19,7 @@ while IFS=$'\t' read -r want tool file why; do
   fi
 done < "$here/cases.tsv"
 
-# Large input: identity tables over 2^20 states (gsm's maximum; one event, every
+# Large inputs. Identity tables over 2^20 states (gsm's maximum; one event, every
 # state valid) must be accepted. Generated, not stored (about 15 MB). The
 # previous extraction (check_tables) died here with Stack_overflow under OCaml
 # 4.14 native code.
@@ -27,12 +27,20 @@ big="$(mktemp -d)"
 n=1048576
 ids() { awk -v n="$1" 'BEGIN { for (i = 0; i < n; i++) printf " %d", i; print "" }'; }
 { echo "gsm-tables 2"; echo "$n 1"; printf 'nf'; ids $n; echo "pairs all"; ids $n; } > "$big/id20.tables"
-out="$("$bin/checker" "$big/id20.tables" 2>&1)"; got=$?
-if [ "$got" = 0 ]; then
-  pass=$((pass + 1)); echo "ok   checker id20.tables (exit 0)"
-else
-  fail=$((fail + 1)); echo "FAIL checker id20.tables: want exit 0, got $got (2^20 identity tables are convergent)"; echo "$out" | sed 's/^/     /'
-fi
+# Many events or pairs: the stack must not grow with them either. One state
+# (0, valid), every step 0, so each table converges.
+zeros() { awk -v n="$1" 'BEGIN { for (i = 0; i < n; i++) printf " 0"; print "" }'; }
+{ echo "gsm-tables 2"; echo "1 1000"; echo "nf 0"; echo "pairs all"; zeros 1000; } > "$big/events1000-all.tables"
+{ echo "gsm-tables 2"; echo "1 1"; echo "nf 0"; printf 'pairs 500000'; awk 'BEGIN { for (i = 0; i < 500000; i++) printf " 0 0"; print "" }'; echo " 0"; } > "$big/pairs500k.tables"
+{ echo "gsm-tables 2"; echo "1 300000"; echo "nf 0"; echo "pairs 0"; zeros 300000; } > "$big/events300k.tables"
+for f in id20 events1000-all pairs500k events300k; do
+  out="$("$bin/checker" "$big/$f.tables" 2>&1)"; got=$?
+  if [ "$got" = 0 ]; then
+    pass=$((pass + 1)); echo "ok   checker $f.tables (exit 0)"
+  else
+    fail=$((fail + 1)); echo "FAIL checker $f.tables: want exit 0, got $got (convergent; the checker must not need stack that grows with the input)"; echo "$out" | sed 's/^/     /'
+  fi
+done
 rm -rf "$big"
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
