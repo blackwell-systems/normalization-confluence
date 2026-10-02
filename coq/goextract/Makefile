@@ -38,11 +38,22 @@ fixture.json: ExtractFixture.v ExtrGo.vo Fixture.vo
 
 # guard.sh refuses coinductive types and cofixpoints in everything gogen
 # translates (GuardCoind.v); its self-test must refuse tests/coind/Coind.v.
-guard: PrimRef.vo Fixture.vo ../TableFast.vo ../AstChecker.vo
+guard: PrimRef.vo Fixture.vo Semantics.vo ../TableFast.vo ../AstChecker.vo
 	cd .. && bash goextract/guard.sh goextract/GuardCoind.v
 	cd .. && ! bash goextract/guard.sh goextract/tests/coind/Coind.v >/dev/null
 
-json: guard oracle_core.json primref_mapped.json primref_plain.json fixture.json
+Semantics.vo: Semantics.v
+	cd .. && $(COQC) -Q . NC goextract/Semantics.v
+
+semantics.json: ExtractSemantics.v ExtrGo.vo Semantics.vo
+	cd .. && $(COQC) -Q . NC goextract/ExtractSemantics.v
+
+# Rocq's own values for Semantics.v, which semantics/semantics_test.go compares
+# the generated Go with.
+semantics/compute.out: SemanticsCompute.v Semantics.vo
+	cd .. && $(COQC) -Q . NC goextract/SemanticsCompute.v 2>/dev/null > goextract/semantics/compute.out
+
+json: guard oracle_core.json primref_mapped.json primref_plain.json fixture.json semantics.json semantics/compute.out
 
 gen:
 	# AstChecker uses the unmapped, unary Nat.mul (fuelOf) and Nat.min
@@ -51,6 +62,8 @@ gen:
 	$(GO) run ./gogen -pkg mapped -o primcheck/mapped/primref_gen.go primref_mapped.json
 	$(GO) run ./gogen -pkg plain -o primcheck/plain/primref_gen.go primref_plain.json
 	$(GO) run ./gogen -pkg fixture -o fixture/fixture_gen.go fixture.json
+	# Semantics.v exercises unmapped arithmetic on purpose.
+	$(GO) run ./gogen -pkg semantics -allow-unary add,div,modulo,mul,pow,pred,sub -o semantics/semantics_gen.go semantics.json
 
 build:
 	$(GO) build -o bin/tablecheck ./cmd/tablecheck

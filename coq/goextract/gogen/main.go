@@ -970,6 +970,9 @@ func (g *Gen) emitGlobal(gl *Global) {
 		body = gl.Value.Body
 		for _, a := range gl.Value.Argnames {
 			id := goIdent(a) + "_in"
+			if a == "_" {
+				id = "_" // an unused argument: Go's blank identifier, which may repeat
+			}
 			names = append(names, id)
 			ptys = append(ptys, ret.Args[0])
 			params = append(params, fmt.Sprintf("%s %s", id, g.goTy(ret.Args[0])))
@@ -986,6 +989,9 @@ func (g *Gen) emitGlobal(gl *Global) {
 	for i, a := range gl.Value.Argnames {
 		if gl.Arity == 0 {
 			break
+		}
+		if a == "_" {
+			continue // never referenced
 		}
 		// A fresh copy per iteration, so closures capture this iteration's value.
 		id := g.fresh(a)

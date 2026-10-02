@@ -29,16 +29,17 @@ jobs:
         run: bash coq/goextract/ci-extract.sh "$ROCQ_IMAGE" --ocaml
       - name: The JSON matches the committed JSON
         run: |
-          sha256sum coq/goextract/*.json
-          git diff --stat -- coq/goextract/*.json
-          git diff -- coq/goextract/*.json | head -100
-          git diff --quiet -- coq/goextract/*.json
+          sha256sum coq/goextract/*.json coq/goextract/semantics/compute.out
+          git diff --stat -- coq/goextract/*.json coq/goextract/semantics/compute.out
+          git diff -- coq/goextract/*.json coq/goextract/semantics/compute.out | head -100
+          git diff --quiet -- coq/goextract/*.json coq/goextract/semantics/compute.out
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: pinned
           path: |
             coq/goextract/*.json
+            coq/goextract/semantics/compute.out
             coq/extraction/checker
             coq/extraction/astchecker
 
@@ -63,6 +64,7 @@ jobs:
         run: |
           go version
           cp pinned/goextract/*.json coq/goextract/
+          cp pinned/goextract/semantics/compute.out coq/goextract/semantics/
           make -C coq/goextract gen
           git diff --exit-code --stat -- coq/goextract
       - name: Prim check, generator tests, regression, large and differential cases
@@ -86,7 +88,7 @@ jobs:
         run: bash coq/goextract/ci-extract.sh "${{ matrix.image }}"
       - name: Generate from that JSON, build, and run the same tests
         run: |
-          git diff --stat -- coq/goextract/*.json || true
+          git diff --stat -- coq/goextract/*.json coq/goextract/semantics/compute.out || true
           make -C coq/goextract gen
           echo "generated Go differs from the pinned image's in $(git diff --numstat -- coq/goextract | awk '{s += $1 + $2} END {print s + 0}') lines"
           make -C coq/goextract test

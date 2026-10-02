@@ -28,6 +28,7 @@ TableFast.v, AstChecker.v
     - Axioms (`expr:axiom`).
     - Types extraction cannot express (`type:unknown`, which needs `Obj.magic`).
     - A let-bound polymorphic function used at two types (locals are monomorphic).
+    - A local fixpoint that extraction leaves in place (`expr:fix`, for example one applied inside a constructor argument).
     - A wildcard or variable case that is not the last case (ML takes the first match, a Go switch its default last).
     - A binder list that binds a name twice.
   - **Absurd branches.** An absurd branch (`expr:exception`) becomes a panic with nothing after it.
@@ -44,6 +45,10 @@ TableFast.v, AstChecker.v
 - `cmd/tablecheck`, `cmd/rulecheck`: ports of `extraction/main.ml` and `extraction/ast_main.ml` over the generated oracle. They use the same formats, validation, output lines and exit codes.
 - `PrimRef.v`, `ExtractPrimMapped.v`, `ExtractPrimPlain.v`, `primcheck/`: the prim check (below).
 - `Fixture.v`, `ExtractFixture.v`, `fixture/`: small programs that reach the parts of `gogen` the checkers' extraction does not, run by `fixture/fixture_test.go`. Two of those parts are a let outside tail position and wildcard or variable patterns on mapped numbers. A third is closures built inside a tail-recursive loop, each of which must keep its own iteration's value.
+- `Semantics.v`, `ExtractSemantics.v`, `SemanticsCompute.v`, `semantics/`: programs from the adversarial review, run by `semantics/semantics_test.go`.
+  - The test compares the generated Go with Rocq's own `Compute` of every value (`semantics/compute.out`, written by `make json`).
+  - The programs cover closures in loops, argument-swapping tail calls, mutual recursion, shadowing, unmapped Z/N/positive/nat arithmetic, partial and over-application, polymorphism, default branches, int64 edge values, records of functions, unused arguments and absurd branches.
+- `gogen/testdata/refuse`: extractions gogen must refuse (an axiom, a let-polymorphic function used at two types, a type needing `Obj.magic`, a local fixpoint in argument position).
 - `tests/`: the regression, large-input and differential tests (`tests/run.sh`).
 - `ci-extract.sh`: extracts inside a prover image, as CI does.
 

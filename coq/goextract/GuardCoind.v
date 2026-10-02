@@ -3,12 +3,13 @@
    cofixpoint as a recursive value, so gogen cannot tell them apart and its Go
    would recurse forever. OCaml extraction marks them with Lazy, which guard.sh
    refuses. Keep the entry points in step with ExtractGo.v, ExtractPrimMapped.v
-   and ExtractFixture.v. *)
+   ExtractFixture.v and ExtractSemantics.v. *)
 From Coq Require Import Extraction.
 Require Import NC.TableFast.
 Require Import NC.AstChecker.
 Require Import NC.goextract.PrimRef.
 Require Import NC.goextract.Fixture.
+Require Import NC.goextract.Semantics.
 
 Extraction Language OCaml.
 Recursive Extraction
@@ -19,4 +20,5 @@ Recursive Extraction
   ref_n_add ref_n_succ ref_n_pred ref_n_sub ref_n_mul ref_n_min ref_n_max ref_n_div ref_n_modulo ref_n_compare
   ref_z_add ref_z_succ ref_z_pred ref_z_sub ref_z_mul ref_z_opp ref_z_abs ref_z_min ref_z_max ref_z_compare ref_z_of_n ref_z_abs_n
   probe_nat probe_pos_bits probe_pos_mk probe_n probe_n_mk probe_z probe_z_mk probe_bool probe_sumbool
-  fx_let fx_nat_wild fx_z_wild fx_pos_rel fx_list_wild fx_over fx_closures fx_partial.
+  fx_let fx_nat_wild fx_z_wild fx_pos_rel fx_list_wild fx_over fx_closures fx_partial
+  t_clos t_swap t_mut t_shadow t_zdiv t_nat t_pa t_poly t_big t_and t_cmp t_z t_n t_pos t_dec t_rec t_opt t_comp t_sort t_unused t_exn.
