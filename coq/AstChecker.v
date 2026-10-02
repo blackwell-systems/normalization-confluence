@@ -112,8 +112,10 @@ Fixpoint evalP (mins : list Z) (s : valn) (p : pred) : bool :=
    0..doms[i]-1 (so the state stays in range), like gsm's SetInt (clamp into
    min..max, store val-min) and its enum write (clamp into 0..domain-1). Z.to_nat
    sends a value below the minimum to raw 0, which is the lower clamp. *)
+(* Init.Nat.min, which ExtrOcamlNatInt maps to OCaml's min; PeanoNat's Nat.min is
+   an unmapped copy that extracts as unary recursion. *)
 Definition setClamped (m : machine) (i : nat) (v : Z) (s : valn) : valn :=
-  wr i (Nat.min (Z.to_nat (v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
+  wr i (Init.Nat.min (Z.to_nat (v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
 
 Fixpoint applyT (m : machine) (t : transform) (s : valn) : valn :=
   match t with
@@ -138,7 +140,9 @@ Fixpoint normalize (m : machine) (fuel : nat) (s : valn) : valn :=
   | S f => if allValid m s then s else normalize m f (repair1 m s)
   end.
 
-Definition fuelOf (m : machine) : nat := fold_left Nat.mul (doms m) 1.
+(* Init.Nat.mul, which ExtrOcamlNatInt maps to OCaml's ( * ); PeanoNat's Nat.mul is an
+   unmapped copy that extracts as unary recursion. *)
+Definition fuelOf (m : machine) : nat := fold_left Init.Nat.mul (doms m) 1.
 
 (* The step function of a guarded event: if the guard holds, apply the effect then
    normalize; otherwise the event is a no-op. *)

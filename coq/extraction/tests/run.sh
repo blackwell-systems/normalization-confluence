@@ -37,7 +37,7 @@ zeros() { awk -v n="$1" 'BEGIN { for (i = 0; i < n; i++) printf " 0"; print "" }
 # (CI containers may have it unlimited), so the result does not depend on it.
 echo "host stack limit: $(ulimit -s); large cases run with 8192 KiB"
 for f in id20 events1000-all pairs500k events300k; do
-  out="$(ulimit -s 8192; "$bin/checker" "$big/$f.tables" 2>&1)"; got=$?
+  out="$(ulimit -s 8192 && "$bin/checker" "$big/$f.tables" 2>&1)"; got=$?
   if [ "$got" = 0 ]; then
     pass=$((pass + 1)); echo "ok   checker $f.tables (exit 0)"
   else
