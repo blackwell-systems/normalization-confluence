@@ -1,0 +1,22 @@
+# expected-exit	checker	case-file	what it pins
+# Exit codes: 0 = verified convergent, 1 = not verified, 2 = input rejected.
+0	checker	tables-good.tables	commuting identity tables are accepted
+1	checker	tables-bad.tables	non-commuting constant steps are rejected
+2	checker	tables-negative-id.tables	a negative state id is input error, not an in-range step
+2	checker	tables-short.tables	fewer step entries than V*nE is input error
+2	checker	tables-trailing.tables	extra tokens after the tables are input error
+2	checker	tables-hex.tables	only decimal integers are accepted
+0	astchecker	ast-good.machine	the astdemo convergent machine is accepted
+1	astchecker	ast-bad.machine	the astdemo non-convergent machine is rejected
+1	astchecker	ast-sub-guard.machine	F1: guard a - b < 0 is true at a=0,b=1 under gsm's signed int, so mark and seta do not commute
+1	astchecker	ast-bool-negative-write.machine	flag := a - b can be -1; a gsm Bool stores (value != 0) but the model clamps, so the write is outside the certified fragment
+0	astchecker	ast-binary-toggle.machine	x := 1 - x never goes negative, so a write into a two-valued variable is certified
+1	astchecker	ast-neg-literal.machine	negative literals use signed arithmetic: a + (-1) < 0 iff a = 0
+0	astchecker	ast-neg-min-good.machine	a variable with a negative minimum converges
+1	astchecker	ast-overflow-bound.machine	expressions whose magnitude can exceed 2^31-1 are outside the certified fragment
+2	astchecker	ast-negative-index.machine	a negative variable index is input error
+2	astchecker	ast-index-out-of-range.machine	a variable index past the declared variables is input error
+2	astchecker	ast-mins-length.machine	mins must give one minimum per variable
+2	astchecker	ast-hex-literal.machine	only decimal integers are accepted
+2	astchecker	ast-empty-domain.machine	every domain must have at least one value
+2	astchecker	ast-literal-range.machine	integers above 2^31-1 in magnitude are input error

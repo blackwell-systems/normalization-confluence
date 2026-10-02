@@ -1,0 +1,48 @@
+name: oracles
+
+# Builds the extracted checkers (`checker`, `astchecker`) in a digest-pinned Rocq
+# image, runs their tests, and publishes them with SHA256SUMS. gsm's CI rebuilds
+# the same commit in the same image and compares against hashes it pins, so a
+# consumer can confirm the binaries it tests against are this commit's extraction.
+# The extraction itself (checker_core.ml/.mli) is a pure function of the commit
+# and the Rocq version, so its hash is the strongest pin.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ROCQ_IMAGE: rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test the extracted checkers
+        run: bash coq/extraction/ci-build.sh "$ROCQ_IMAGE"
+      - name: Hashes
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          cd coq/extraction
+          sha256sum checker_core.ml checker_core.mli checker astchecker | tee SHA256SUMS
+          {
+            echo '### Extracted checkers'
+            echo "commit: \`$HEAD_SHA\`"
+            echo "image: \`$ROCQ_IMAGE\`"
+            echo '```'
+            cat SHA256SUMS
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oracles-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            coq/extraction/checker
+            coq/extraction/astchecker
+            coq/extraction/checker_core.ml
+            coq/extraction/checker_core.mli
+            coq/extraction/SHA256SUMS

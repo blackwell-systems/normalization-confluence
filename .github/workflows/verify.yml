@@ -29,6 +29,11 @@ jobs:
               cd coq
               bash verify.sh
             endGroup
+            startGroup "Extracted checkers: build + tests"
+              cd extraction
+              make
+              make test
+            endGroup
 
   # Rocq 9.x line (rocq/rocq-prover images; Rocq >= 9.0 is not a coqorg/coq tag,
   # so it is selected via custom_image). chown uses the container's own user,
@@ -62,4 +67,9 @@ jobs:
               echo "compiler: $(command -v coqc)"; coqc --version || true
               cd coq
               bash verify.sh
+            endGroup
+            startGroup "Extracted checkers: build + tests"
+              cd extraction
+              make
+              make test
             endGroup

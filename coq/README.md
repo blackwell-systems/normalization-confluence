@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 38 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 68 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all thirty-eight headline results (the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -192,14 +192,30 @@ event, then normalize by iterated repair), and proves:
   order from a valid valuation yields the same valuation (order-independent convergence),
   axiom-free. The argument mirrors `run_perm_invariant` but carries a validity side-condition,
   since commutation is guaranteed only on valid states.
+- `check_no_overflow`: if `check` passes, every subexpression of every rule evaluates to a value
+  of magnitude at most 2^31-1 on every valuation in the box, axiom-free. Expressions evaluate over
+  `Z` with gsm's signed Go semantics (signed `Add`/`Sub` and comparisons; a write clamps into the
+  variable's range), and this theorem is why `Z` is exactly gsm's arithmetic: Go's `int` never
+  wraps on a certified machine, on 32-bit or 64-bit platforms.
+- `check_binary_writes_exact`: if `check` passes, every write to a two-valued variable with
+  minimum 0 stores exactly `value != 0`, which is what gsm's Bool write stores, axiom-free. The
+  rules format does not say which variables are Bools, so the checker holds every such variable
+  to this rule.
 
 It is extracted to the `astchecker` binary. gsm serializes a machine's rules
 (`Registry.WriteMachineAST`) and the extracted checker re-derives convergence from the
 declarations, trusting neither gsm's enumeration nor its normalization. gsm's `TestMachineAST`
 tests run it when `GSM_AST_CHECKER` points at the binary. The modeled fragment covers comparison
-predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, per-variable nonzero minimums, and
-guarded events; the serializer refuses anything outside it, so a passing cross-check always
-compares like semantics.
+predicates, `and`/`or`/`not`, `Set`/`Add`/`Sub` transforms, signed literals and minimums, and
+guarded events; the serializer refuses anything outside it, so a
+passing cross-check always compares like semantics.
+
+What `check` decides differs from gsm's `Build` in three known ways, all on the side of the
+domain: it checks every event pair (gsm checks only declared pairs once `Independent` is used),
+it checks commutation from valid valuations only (gsm also checks from the zero state
+`NewState` returns, even when that state is invalid), and it requires repair to terminate only on
+states an event can reach (gsm requires it on every valuation). Aligning these is the next step
+for the oracles.
 
 ### What this does and does not require of you: no continuous porting to Coq
 
@@ -422,7 +438,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 67 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 68 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

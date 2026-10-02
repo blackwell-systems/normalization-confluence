@@ -1,0 +1,3 @@
+(doms 2 2)
+(mins 0)
+(ev (do (set 0 (lit 1))))
