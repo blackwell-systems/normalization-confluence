@@ -1,0 +1,116 @@
+name: goextract
+
+# The Go oracle (coq/goextract). In the digest-pinned Rocq image the oracles use:
+# extract the JSON, and require it, and the Go gogen generates from it, to be
+# byte-identical to the committed files; then run the prim check, the generator's
+# tests, the regression and large cases, and the differential tests against the
+# OCaml checkers built in the same image. Under Go 1.22 (gsm's floor) and stable.
+# On Coq 8.18 and 8.20 the standard library extracts differently (binder names,
+# and which copy of Pos.succ/add/compare the directives catch), so the Go is not
+# byte-identical there; it is generated, built and must pass the same tests.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * *' # nightly: the long random sweep (job long)
+
+env:
+  ROCQ_IMAGE: rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start from a clean tree (no build output can be reused)
+        run: |
+          git clean -xdfq coq
+          test -z "$(git ls-files -- '*.vo' '*.vos' '*.vok' '*.glob')"
+      - name: Extract the JSON and build the OCaml checkers (pinned image)
+        run: bash coq/goextract/ci-extract.sh "$ROCQ_IMAGE" --ocaml
+      - name: The JSON matches the committed JSON
+        run: |
+          sha256sum coq/goextract/*.json coq/goextract/semantics/compute.out
+          git diff --stat -- coq/goextract/*.json coq/goextract/semantics/compute.out
+          git diff -- coq/goextract/*.json coq/goextract/semantics/compute.out | head -100
+          git diff --quiet -- coq/goextract/*.json coq/goextract/semantics/compute.out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pinned
+          path: |
+            coq/goextract/*.json
+            coq/goextract/semantics/compute.out
+            coq/extraction/checker
+            coq/extraction/astchecker
+
+  go:
+    needs: extract
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [ '1.22.x', 'stable' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: pinned
+          path: pinned
+      - name: The generated Go matches the committed Go
+        run: |
+          go version
+          cp pinned/goextract/*.json coq/goextract/
+          cp pinned/goextract/semantics/compute.out coq/goextract/semantics/
+          make -C coq/goextract gen
+          git diff --exit-code --stat -- coq/goextract
+      - name: Prim check, generator tests, regression, large and differential cases
+        run: |
+          chmod +x pinned/extraction/checker pinned/extraction/astchecker
+          make -C coq/goextract test OCAML="$PWD/pinned/extraction"
+
+  provers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ 'coqorg/coq:8.18', 'coqorg/coq:8.20' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache: false
+      - name: Extract on ${{ matrix.image }}
+        run: bash coq/goextract/ci-extract.sh "${{ matrix.image }}"
+      - name: Generate from that JSON, build, and run the same tests
+        run: |
+          git diff --stat -- coq/goextract/*.json coq/goextract/semantics/compute.out || true
+          # Another prover's standard library extracts differently, including
+          # which unary recursions appear: accept them all here (the pinned
+          # image's list is exact).
+          make -C coq/goextract gen UNARY=any
+          echo "generated Go differs from the pinned image's in $(git diff --numstat -- coq/goextract | awk '{s += $1 + $2} END {print s + 0}') lines"
+          GOEXTRACT_UNARY=any make -C coq/goextract test
+
+  long:
+    # The review's random differential sweep of check_fast against a direct
+    # reading of check_tables, with repetitions at every size up to 2^20 states
+    # (oracle/big_test.go, GOEXTRACT_LONG=1). Nightly and on demand.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: false
+      - name: Long differential sweep
+        run: cd coq/goextract && GOEXTRACT_LONG=1 go test -count=1 -timeout 60m -run 'TestBigDifferential' -v ./oracle

@@ -162,7 +162,8 @@ not mechanized; the disjointness path is the substantive one.
 ## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `TableFast.v`, `AstChecker.v`, `extraction/`)
 
 Two independent, machine-checked checkers re-certify a gsm machine's convergence, each extracted
-to a runnable OCaml binary in `extraction/`. Both are proven axiom-free, so a bug in gsm's
+to a runnable OCaml binary in `extraction/` and generated as Go in `goextract/` (gsm runs the Go
+in-process). Both are proven axiom-free, so a bug in gsm's
 hand-written Go verification cannot make a non-convergent machine pass either one. See
 `extraction/README.md` for build, demo, and file formats.
 
@@ -524,4 +525,5 @@ make check    # prints the assumption base (expect "Closed under the global cont
 
 `bash verify.sh` does the same compile and then runs the full axiom-free gate over all 96
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
-`make demo`, `make astdemo`).
+`make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
+in-process: see `goextract/` (`make test`).

@@ -1,0 +1,52 @@
+     = 116 :: 112 :: 108 :: 104 :: nil
+     : list nat
+     = 23 :: 5 :: nil
+     : list nat
+     = true :: false :: false :: true :: nil
+     : list bool
+     = 32 :: nil
+     : list nat
+     = (-4)%Z
+       :: 1%Z :: (-4)%Z :: (-1)%Z :: (-3)%Z :: (-1)%Z :: 0%Z :: (-7)%Z :: nil
+     : list Z
+     = 0 :: 0 :: 3 :: 7 :: 0 :: 32 :: 4 :: 9 :: nil
+     : list nat
+     = 123 :: 456 :: 324 :: nil
+     : list nat
+     = 5 :: 1 :: 2 :: nil
+     : list nat
+     = 36 :: 99 :: 4 :: 99 :: nil
+     : list nat
+     = true :: false :: false :: nil
+     : list bool
+     = false :: true :: true :: true :: true :: true :: false :: nil
+     : list bool
+     = 4611686018427387904%Z
+       :: (-9223372036854775808)%Z
+          :: 9223372036854775807%Z
+             :: (-9223372036854775807)%Z
+                :: 4611686018427387904%Z
+                   :: 4611686018427387904%Z :: 8%Z :: 14%Z :: 6%Z :: nil
+     : list Z
+     = 0%N :: 0%N :: 17%N :: 0%N :: 9%N :: 42%N :: 81%N :: nil
+     : list N
+     = 1%positive
+       :: 1%positive
+          :: 9%positive
+             :: 42%positive
+                :: 1%positive :: 5%positive :: 1024%positive :: nil
+     : list positive
+     = 1 :: 0 :: 1 :: nil
+     : list nat
+     = 81 :: nil
+     : list nat
+     = 7 :: 42 :: nil
+     : list nat
+     = 15 :: 17 :: nil
+     : list nat
+     = 0 :: 1 :: 3 :: 3 :: 5 :: 7 :: 9 :: nil
+     : list nat
+     = 7 :: nil
+     : list nat
+     = 4 :: nil
+     : list nat

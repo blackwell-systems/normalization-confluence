@@ -1,0 +1,44 @@
+# Unary nat recursion gogen accepts (see refuseUnary in gogen/main.go), and why
+# each is harmless. Format: <extraction json> <function> <reason>. gogen reads
+# this file (-allow-unary-file) and so do its tests; any other unary recursion
+# is refused.
+#
+# The checkers. None recurses on a number that grows with the state space
+# without being a tail call, so no stack grows with the input, and each runs
+# a bounded number of steps:
+oracle_core.json depthF      fuel; stops after at most 5 steps at 2^20 keys; tail call
+oracle_core.json powF        fuel; stops with depthF; tail call
+oracle_core.json nth         list index, below the list's length; tail call
+oracle_core.json seq         number of events (allPairs); not tail, depth = events
+oracle_core.json pairsAll    number of events; tail call (accumulator)
+oracle_core.json pairsRow    number of events; tail call (accumulator)
+oracle_core.json natZF       fuel; halves the number each step, so log2 steps
+oracle_core.json layer       one variable's domain size; tail call (accumulator)
+oracle_core.json normalize   repair fuel; stops at the first valid state; tail call
+oracle_core.json rd          variable index; recursion on the valuation list (number of variables)
+oracle_core.json wr          variable index; recursion on the valuation list (number of variables)
+oracle_core.json repeat      number of variables (zeroV)
+#
+# Tests, unary on purpose:
+fixture.json        fx_mkfs      closures-in-a-loop fixture (small n)
+primref_mapped.json probe_nat    probes the nat constructors (small n)
+semantics.json      add          Semantics.v exercises unmapped arithmetic
+semantics.json      sub          Semantics.v exercises unmapped arithmetic
+semantics.json      mul          Semantics.v exercises unmapped arithmetic
+semantics.json      pow          Semantics.v exercises unmapped arithmetic
+semantics.json      divmod       Semantics.v exercises unmapped arithmetic
+semantics.json      log2_iter    Semantics.v exercises unmapped arithmetic
+semantics.json      sqrt_iter    Semantics.v exercises unmapped arithmetic
+semantics.json      of_nat       Semantics.v exercises unmapped arithmetic
+semantics.json      of_succ_nat  Semantics.v exercises unmapped arithmetic (Pos.of_succ_nat, via Z.of_nat)
+semantics.json      of_succ_nat0 Semantics.v exercises unmapped arithmetic
+semantics.json      nth_error    Semantics.v (option chains)
+semantics.json      compose_n    Semantics.v (tail loop building closures)
+semantics.json      swapper      Semantics.v (tail call swapping arguments)
+semantics.json      ev           Semantics.v (mutual recursion)
+semantics.json      od           Semantics.v (mutual recursion)
+oracle_core.json allK        loop counter over states or events (check_fn); tail call
+oracle_core.json chunkH      fuel = list length; tail call (accumulator)
+oracle_core.json levelsV     trie depth, at most 5 at 2^20 keys
+oracle_core.json qget        block index of an event, below nE / 16; tail call
+oracle_core.json ztV         trie depth, at most 5 at 2^20 keys
