@@ -1,6 +1,6 @@
 package oracle
 
-// The generated check_fast against a direct Go reading of check_tables
+// The generated check_fast and check_fn against a direct Go reading of check_tables
 // (TableCheck.v), at every trie depth up to 2^20 states, with corruptions at
 // the trie's boundary indices (16^k - 1, 16^k, 16^k + 1, n - 1). Contributed by
 // the adversarial review of the Go oracle.
@@ -8,11 +8,12 @@ package oracle
 // go test runs the deterministic cases, including rejections at trie depth 3
 // and 4 and at 2^20 states (skipped with -short). GOEXTRACT_LONG=1 adds the
 // random sweep with repetitions at every size; the goextract workflow runs it
-// nightly.
+// nightly. SEED=k shifts the sweep's seed (7 + k), for runs over many seeds.
 
 import (
 	"math/rand"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -246,7 +247,7 @@ func TestBigDifferentialSweep(t *testing.T) {
 	if os.Getenv("GOEXTRACT_LONG") == "" {
 		t.Skip("set GOEXTRACT_LONG=1 (the nightly run does)")
 	}
-	r := rand.New(rand.NewSource(7))
+	r := rand.New(rand.NewSource(sweepSeed()))
 	sizes := []int{1, 2, 15, 16, 17, 255, 256, 257, 4095, 4096, 4097, 65535, 65536, 65537, 1 << 20}
 	agree, acc := 0, 0
 	for _, n := range sizes {
@@ -294,4 +295,10 @@ func TestBigDifferentialSweep(t *testing.T) {
 		}
 	}
 	t.Logf("%d cases, %d accepted", agree, acc)
+}
+
+// sweepSeed is 7, or 7 + SEED when SEED is set.
+func sweepSeed() int64 {
+	v, _ := strconv.Atoi(os.Getenv("SEED"))
+	return int64(7 + v)
 }
