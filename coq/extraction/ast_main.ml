@@ -18,13 +18,18 @@
 
    Machine file format (S-expressions, whitespace-insensitive):
 
-     (doms 4 4 2)                          ; domain size of each variable
-     (mins 0 -3 0)                         ; logical minimum of each variable (optional; default 0s)
-     (inv (le (var 0) (lit 3))             ; invariant: predicate ...
-          (do (set 0 (lit 3))))            ;   ... and its repair transform
-     (ev   (do (set 0 (add (var 0) (lit 1)))))        ; unguarded event
-     (evwhen (lt (var 1) (lit 3))          ; guarded event: fires only when the guard holds
+     (doms 4 4 2)
+     (mins 0 -3 0)
+     (inv (le (var 0) (lit 3))
+          (do (set 0 (lit 3))))
+     (ev   (do (set 0 (add (var 0) (lit 1)))))
+     (evwhen (lt (var 1) (lit 3))
              (do (set 1 (add (var 1) (lit 1)))))
+
+   doms gives each variable's domain size; mins (optional, default all 0) each
+   variable's logical minimum; inv a predicate and its repair transform; ev an
+   unguarded event; evwhen a guarded event, which fires only when its guard
+   holds. The format has no comment syntax.
 
    expr  ::= (var i) | (lit n) | (add e e) | (sub e e)     ; n may be negative
    pred  ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)
@@ -37,7 +42,9 @@
    two-valued variable with minimum 0 (a gsm Bool stores value <> 0 there).
 
    Input validation (the extracted code is only meaningful on well-formed input):
-   integers are decimal with an optional leading '-', at most 2^31-1 in magnitude;
+   integers are decimal with an optional leading '-'; indices, domains and
+   pair entries are at most 2^31-1; a literal or minimum beyond that (up to 19
+   digits) is refused as outside the certified fragment (exit 1), not rejected;
    indices and domains are non-negative; every domain is at least 1; mins gives
    exactly one entry per variable; every variable index names a declared variable;
    doms and mins appear at most once and doms appears before any rule; the file is
@@ -107,6 +114,23 @@ let int_of s =
   if abs v > max_abs then failwith ("integer out of range (|n| <= 2147483647): " ^ s);
   v
 
+(* A literal or minimum: a decimal integer of up to 19 digits (a Go int64). One
+   beyond 2^31-1 in magnitude is well-formed input outside the certified
+   fragment: it sets out_of_fragment, and main refuses to certify the machine
+   (exit 1) without running the checker on it. *)
+let out_of_fragment = ref false
+
+let value_of s =
+  let n = String.length s in
+  let start = if n > 0 && s.[0] = '-' then 1 else 0 in
+  if n = start || n - start > 19 then failwith ("expected decimal integer, got " ^ s);
+  String.iteri (fun i c ->
+    if i >= start && (c < '0' || c > '9') then failwith ("expected decimal integer, got " ^ s)) s;
+  if n - start > 10 then (out_of_fragment := true; 0)
+  else
+    let v = int_of_string s in
+    if abs v > max_abs then (out_of_fragment := true; 0) else v
+
 let nat_of s =
   let v = int_of s in
   if v < 0 then failwith ("expected non-negative integer, got " ^ s);
@@ -123,7 +147,7 @@ let var_index s =
 
 let rec build_expr = function
   | List [Atom "var"; Atom i] -> EVar (var_index i)
-  | List [Atom "lit"; Atom n] -> ELit (int_of n)
+  | List [Atom "lit"; Atom n] -> ELit (value_of n)
   | List [Atom "add"; a; b] -> EAdd (build_expr a, build_expr b)
   | List [Atom "sub"; a; b] -> ESub (build_expr a, build_expr b)
   | _ -> failwith "malformed expr"
@@ -152,7 +176,7 @@ let always_true : pred = PAnd []
 let build_ints conv = List.map (function Atom a -> conv a | _ -> failwith "expected integer")
 
 let build_machine (forms : sexp list) : machine =
-  nvars := -1;
+  nvars := -1; out_of_fragment := false;
   let doms = ref None and mins = ref None
   and invs = ref [] and evs = ref [] in
   let once r v what = match !r with
@@ -164,7 +188,7 @@ let build_machine (forms : sexp list) : machine =
       let ds = build_ints nat_of ds in
       List.iter (fun d -> if d < 1 then failwith "every domain must be at least 1") ds;
       once doms ds "doms"; nvars := List.length ds
-    | List (Atom "mins" :: ms) -> once mins (build_ints int_of ms) "mins"
+    | List (Atom "mins" :: ms) -> once mins (build_ints value_of ms) "mins"
     | List [Atom "inv"; p; t] -> invs := (build_pred p, build_transform t) :: !invs
     | List [Atom "ev"; t] -> evs := (always_true, build_transform t) :: !evs
     | List [Atom "evwhen"; g; t] -> evs := (build_pred g, build_transform t) :: !evs
@@ -177,8 +201,7 @@ let build_machine (forms : sexp list) : machine =
   in
   if List.length mins <> n then failwith "mins must give one minimum per variable";
   List.iteri (fun i d ->
-    if abs (List.nth mins i + d - 1) > max_abs then
-      failwith (Printf.sprintf "variable %d: max out of range" i)) doms;
+    if abs (List.nth mins i + d - 1) > max_abs then out_of_fragment := true) doms;
   { doms; mins; invs = List.rev !invs; evs = List.rev !evs }
 
 (* ---- main ---- *)
@@ -233,6 +256,10 @@ let () =
           | Sys_error msg -> (prerr_endline ("cannot read pairs file: " ^ msg); exit 2))
     else None
   in
+  if !out_of_fragment then
+    (Printf.printf
+       "FAIL: outside the certified fragment: a literal, minimum or maximum exceeds |2147483647| (gsm's Go int could wrap)\n";
+     exit 1);
   (* Machine-readable classification line, parsed by consumers to cross-check a producer's CRDT-fragment claim. Certified
      by the extracted, axiom-free compensationFree, not asserted. *)
   Printf.printf "compensation_free=%b\n" (compensationFree m);

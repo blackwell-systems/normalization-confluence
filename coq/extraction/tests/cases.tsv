@@ -19,7 +19,7 @@
 2	astchecker	ast-mins-length.machine	mins must give one minimum per variable
 2	astchecker	ast-hex-literal.machine	only decimal integers are accepted
 2	astchecker	ast-empty-domain.machine	every domain must have at least one value
-2	astchecker	ast-literal-range.machine	integers above 2^31-1 in magnitude are input error
+1	astchecker	ast-literal-range.machine	a literal above 2^31-1 in magnitude is outside the certified fragment (gsm's Go int could wrap), not input error
 0	checker	tables2-declared-pairs.tables	v2: only declared pairs are checked; e0 and e1 do not commute but are not declared independent
 1	checker	tables2-declared-pair-fails.tables	v2: a declared pair that does not commute is rejected
 1	checker	tables2-all-pairs-fail.tables	v2: with every pair independent (gsm's default), a non-commuting pair is rejected
@@ -43,3 +43,7 @@
 0	astchecker	ast-invalid-state.machine	commutation is not checked at an invariant-invalid state other than zero (x = 2), which no run reaches
 1	astchecker	ast-declared-pairs.machine ast-second-pair-fails.pairs	every declared pair is checked, not only the first
 1	checker	tables2-second-pair-fails.tables	v2: every declared pair is checked, not only the first
+1	astchecker	ast-literal-int64.machine	a 19-digit literal (a Go int64) is outside the certified fragment
+1	astchecker	ast-min-range.machine	a minimum above 2^31-1 is outside the certified fragment
+2	astchecker	ast-literal-20digits.machine	more than 19 digits is not a Go int, so input error
+0	astchecker	ast-doc-example.machine	the format example in ast_main.ml parses and converges (it has no comment syntax to trip over)
