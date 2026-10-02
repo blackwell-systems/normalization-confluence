@@ -44,17 +44,32 @@ for f in id20 events1000-all pairs500k events300k; do
     fail=$((fail + 1)); echo "FAIL checker $f.tables: want exit 0, got $got (convergent; the checker must not need stack that grows with the input)"; echo "$out" | sed 's/^/     /'
   fi
 done
+# The rules oracle on gsm-sized state spaces, also at an 8 MiB stack: one
+# variable with 2^20 values (every read converts a large nat to Z), and 20
+# two-valued variables (the valuation box has 2^20 entries). One event, so each
+# machine converges.
+{ echo "(doms 1048576)"; echo "(ev (do (set 0 (lit 1))))"; } > "$big/dom20.machine"
+{ printf '(doms'; for i in $(seq 1 20); do printf ' 2'; done; echo ')'; echo "(ev (do (set 0 (lit 1))))"; } > "$big/bits20.machine"
+for f in dom20 bits20; do
+  out="$(ulimit -s 8192 && "$bin/astchecker" "$big/$f.machine" 2>&1)"; got=$?
+  if [ "$got" = 0 ]; then
+    pass=$((pass + 1)); echo "ok   astchecker $f.machine (exit 0)"
+  else
+    fail=$((fail + 1)); echo "FAIL astchecker $f.machine: want exit 0, got $got (convergent; the checker must not need stack that grows with the input)"; echo "$out" | sed 's/^/     /'
+  fi
+done
 rm -rf "$big"
 
-# The extracted code must not call the Nat module's own arithmetic (add, mul,
-# pow, min, max, sub, pred): ExtrOcamlNatInt maps Init.Nat's (to OCaml's +, *,
-# min, ...), but PeanoNat's Nat module carries unmapped copies, which extract
-# as unary recursion (Nat.mul 2^19 2 overflows an 8 MiB stack). Use Init.Nat's
-# (the *, + and - notations, Init.Nat.min).
-if grep -nE "Nat\.(add|mul|pow|min|max|sub|pred)\b" "$bin/checker_core.ml"; then
-  fail=$((fail + 1)); echo "FAIL checker_core.ml calls the Nat module's unary arithmetic (lines above)"
+# The extracted code must not call unary nat arithmetic or conversions: the Nat
+# module's own add, mul, pow, min, max, sub, pred (ExtrOcamlNatInt maps Init.Nat's
+# to OCaml's +, *, min, ..., but PeanoNat's Nat module carries unmapped copies),
+# or Z.of_nat / N.of_nat / Pos.of_nat, which go through the unary, non-tail
+# Pos.of_succ_nat. Each extracts as unary recursion (Nat.mul 2^19 2 overflows an
+# 8 MiB stack). Use Init.Nat's operations and AstChecker.natZ.
+if grep -nE "Nat\.(add|mul|pow|min|max|sub|pred)\b|Z\.of_nat|N\.of_nat|Pos\.of_nat|of_succ_nat" "$bin/checker_core.ml"; then
+  fail=$((fail + 1)); echo "FAIL checker_core.ml calls unary nat arithmetic or conversions (lines above)"
 else
-  pass=$((pass + 1)); echo "ok   checker_core.ml calls none of the Nat module's unary arithmetic"
+  pass=$((pass + 1)); echo "ok   checker_core.ml calls no unary nat arithmetic or conversions"
 fi
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
