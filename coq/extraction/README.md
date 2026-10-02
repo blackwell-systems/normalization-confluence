@@ -15,7 +15,8 @@ machine pass here.
   repair) and confirms every event preserves validity and every pair commutes on every valid
   valuation. So it does not trust gsm to have enumerated or normalized anything: it re-derives
   convergence from the declarations themselves. Proven axiom-free via `check_sound_converges`,
-  `check_sound_commute`. It also prints a `compensation_free=<bool>` line: the machine-checked
+  `check_sound_commute`. Arithmetic is gsm's: signed integers, with `check_no_overflow` proving
+  that a certified machine never leaves 32-bit range, so Go's `int` never wraps. It also prints a `compensation_free=<bool>` line: the machine-checked
   CRDT-fragment classification (no in-domain valuation ever needs repair, the AST analogue of
   "max repair depth = 0"), proven axiom-free via `compensationFree_step_no_repair`, so a consumer
   can certify the CRDT claim from the rules rather than trust the producer.
@@ -62,7 +63,8 @@ gsm emits only the valid states, remapped to `0..V-1`.
 
 ```
 (doms 5 5 2)                          ; domain size of each variable
-(mins 2 0 0)                          ; logical minimum of each variable (optional; default 0s)
+(mins 2 -3 0)                         ; logical minimum of each variable (optional; default 0s)
+(kinds int int bool)                  ; int | bool | enum (optional; default all int)
 (inv (le (var 0) (lit 5))             ; invariant: a predicate ...
      (do (set 0 (lit 5))))            ;   ... and its repair transform
 (ev     (do (set 1 (add (var 1) (lit 1)))))          ; unguarded event
@@ -70,12 +72,29 @@ gsm emits only the valid states, remapped to `0..V-1`.
         (do (set 0 (add (var 0) (lit 1)))))
 ```
 
-with `expr ::= (var i) | (lit n) | (add e e) | (sub e e)`,
+with `expr ::= (var i) | (lit n) | (add e e) | (sub e e)` (`n` may be negative),
 `pred ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)`, and
 `xform ::= (do (set i e)...)`. A variable's values live in `min .. min+domain-1`; the state stores
-the raw `0..domain-1` offset. `Registry.WriteMachineAST` emits exactly this for the fragment it
-covers (any nonnegative min; comparison/and/or/not predicates; Set/Add/Sub transforms; events with
-an optional guard) and refuses anything outside it.
+the raw `0..domain-1` offset. Arithmetic and comparisons are signed. A write to a `bool` stores
+`value != 0`; any other write clamps the value into the variable's range. `check` refuses (exit 1)
+any machine where some expression could exceed 2^31-1 in magnitude, because gsm's Go `int` would
+wrap there on 32-bit platforms. `Registry.WriteMachineAST` emits exactly this for the fragment it
+covers (any min; comparison/and/or/not predicates; Set/Add/Sub transforms; events with an optional
+guard) and refuses anything outside it.
+
+Both front ends validate input and exit 2 on anything malformed, because the extracted code is
+only meaningful on well-formed values: integers must be decimal (no `0x`, `+` or `_`) and at most
+2^31-1 in magnitude; state ids, variable indices and domains must be non-negative; the tables
+file must hold exactly `2 + V*nE` integers; every domain is at least 1; `mins` and `kinds` give
+exactly one entry per variable; a `bool` has domain 2 and min 0; an `enum` has min 0; every
+variable index names a declared variable.
+
+## Tests
+
+`make test` runs `tests/run.sh`, which runs each case in `tests/cases.tsv` through its checker
+and compares the exit code. The cases pin gsm's signed semantics (including the subtraction-guard
+probe that the earlier `nat` semantics certified wrongly) and the input validation above. CI runs
+them on every push.
 
 ## Scope
 

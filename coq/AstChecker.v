@@ -11,13 +11,21 @@
    same state). Extracted, this checker recomputes convergence straight from the
    rules, so it does not have to trust gsm to have computed its tables correctly.
 
-   State is a valuation (list of per-variable values in raw 0..domain-1 space; the
-   min=0 case, which gsm's exporter targets). Axiom-free; reuses run_perm_invariant
-   from Checker.v for the order-independence conclusion. *)
+   State is a valuation (list of per-variable values in raw 0..domain-1 space).
+   Expressions evaluate in LOGICAL space over the integers Z, with gsm's signed Go
+   semantics: a variable reads as min + raw, Add/Sub are signed, comparisons are
+   signed, and a write stores the clamped raw offset (or, for a Bool, value <> 0).
+   gsm computes with Go's `int`, which wraps at 2^31 on 32-bit platforms and 2^63
+   on 64-bit ones; `check` only certifies machines whose every expression and
+   subexpression provably stays within 32-bit range on every valuation it can see
+   (check_no_overflow), so Go never wraps and Z is exactly gsm's arithmetic.
+   Axiom-free; reuses run_perm_invariant from Checker.v for the order-independence
+   conclusion. *)
 
 Require Import NC.Checker.
 From Coq Require Import List.
 From Coq Require Import PeanoNat.
+From Coq Require Import ZArith.
 From Coq Require Import Sorting.Permutation.
 From Coq Require Import Lia.
 Import ListNotations.
@@ -26,7 +34,7 @@ Import ListNotations.
 
 Inductive expr :=
 | EVar (i : nat)
-| ELit (n : nat)
+| ELit (n : Z)
 | EAdd (a b : expr)
 | ESub (a b : expr).
 
@@ -47,11 +55,12 @@ Definition transform : Type := list assign.
 Definition gevent : Type := (pred * transform)%type.
 
 (* A machine: per-variable domain size and logical minimum (values live in
-   min .. min+domain-1; the state stores the raw 0..domain-1 offset), invariants
-   (predicate + repair), and guarded events. *)
+   min .. min+domain-1; the state stores the raw 0..domain-1 offset), which
+   variables are Bools, invariants (predicate + repair), and guarded events. *)
 Record machine := {
   doms : list nat;                     (* doms[i] = domain size of variable i *)
-  mins : list nat;                     (* mins[i] = logical minimum of variable i *)
+  mins : list Z;                       (* mins[i] = logical minimum of variable i *)
+  bools : list bool;                   (* bools[i] = variable i is a gsm Bool *)
   invs : list (pred * transform);
   evs  : list gevent
 }.
@@ -72,29 +81,38 @@ Fixpoint wr (i v : nat) (s : valn) {struct s} : valn :=
   | x :: t => match i with 0 => v :: t | S i' => x :: wr i' v t end
   end.
 
-(* A variable reads in LOGICAL space: min[i] + the raw stored offset. *)
-Fixpoint evalE (mins : list nat) (s : valn) (e : expr) : nat :=
+(* A variable reads in LOGICAL space: min[i] + the raw stored offset. Arithmetic
+   is signed, as in gsm's binE.eval over Go int (see check_no_overflow for why no
+   wraparound needs modelling). *)
+Fixpoint evalE (mins : list Z) (s : valn) (e : expr) : Z :=
   match e with
-  | EVar i => nth i mins 0 + rd i s
+  | EVar i => (nth i mins 0%Z + Z.of_nat (rd i s))%Z
   | ELit n => n
-  | EAdd a b => evalE mins s a + evalE mins s b
-  | ESub a b => evalE mins s a - evalE mins s b   (* nat subtraction (truncates at 0) *)
+  | EAdd a b => (evalE mins s a + evalE mins s b)%Z
+  | ESub a b => (evalE mins s a - evalE mins s b)%Z
   end.
 
-Fixpoint evalP (mins : list nat) (s : valn) (p : pred) : bool :=
+Fixpoint evalP (mins : list Z) (s : valn) (p : pred) : bool :=
   match p with
-  | PLe a b => Nat.leb (evalE mins s a) (evalE mins s b)
-  | PLt a b => Nat.ltb (evalE mins s a) (evalE mins s b)
-  | PEq a b => Nat.eqb (evalE mins s a) (evalE mins s b)
+  | PLe a b => Z.leb (evalE mins s a) (evalE mins s b)
+  | PLt a b => Z.ltb (evalE mins s a) (evalE mins s b)
+  | PEq a b => Z.eqb (evalE mins s a) (evalE mins s b)
   | PAnd ps => forallb (evalP mins s) ps
   | POr ps => existsb (evalP mins s) ps
   | PNot p => negb (evalP mins s p)
   end.
 
-(* Writing takes a LOGICAL value, stores the raw offset value-min, clamped into
-   0..doms[i]-1 (so the state stays in range), like gsm's SetInt. *)
-Definition setClamped (m : machine) (i v : nat) (s : valn) : valn :=
-  wr i (Nat.min (v - nth i (mins m) 0) (nth i (doms m) 1 - 1)) s.
+(* The logical value a write stores, before clamping. A Bool stores (v <> 0), like
+   gsm's writeVal -> SetBool(val != 0); every other kind stores v itself. *)
+Definition storeVal (m : machine) (i : nat) (v : Z) : Z :=
+  if nth i (bools m) false then (if Z.eqb v 0 then 0%Z else 1%Z) else v.
+
+(* Writing takes a LOGICAL value and stores the raw offset value-min, clamped into
+   0..doms[i]-1 (so the state stays in range), like gsm's SetInt (clamp into
+   min..max, store val-min) and its enum write (clamp into 0..domain-1). Z.to_nat
+   sends a value below the minimum to raw 0, which is the lower clamp. *)
+Definition setClamped (m : machine) (i : nat) (v : Z) (s : valn) : valn :=
+  wr i (Nat.min (Z.to_nat (storeVal m i v - nth i (mins m) 0%Z)) (nth i (doms m) 1 - 1)) s.
 
 Fixpoint applyT (m : machine) (t : transform) (s : valn) : valn :=
   match t with
@@ -164,8 +182,53 @@ Definition stepCheckOne (m : machine) (v : valn) : bool :=
         (evs m)))
     (evs m).
 
+(* ===== the bounded-arithmetic fragment =====
+
+   gsm evaluates expressions in Go `int`. Rather than model Go's platform-dependent
+   wraparound, the checker only certifies machines where no wraparound can occur:
+   bnd over-approximates |value| of an expression on every valuation in the box,
+   and `bounded` requires bnd <= 2^31-1 for every expression the rules contain.
+   Since a subexpression's bound is at most its parent's, every intermediate value
+   Go computes is in 32-bit range too (check_no_overflow). *)
+Definition maxAbs : Z := 2147483647%Z.
+
+Definition varBound (m : machine) (i : nat) : Z :=
+  Z.max (Z.abs (nth i (mins m) 0%Z)) (Z.abs (nth i (mins m) 0%Z + Z.of_nat (nth i (doms m) 0) - 1)).
+
+Fixpoint bnd (m : machine) (e : expr) : Z :=
+  match e with
+  | EVar i => varBound m i
+  | ELit n => Z.abs n
+  | EAdd a b | ESub a b => (bnd m a + bnd m b)%Z
+  end.
+
+(* The expressions a predicate, transform, and machine contain. *)
+Fixpoint exprsP (p : pred) : list expr :=
+  match p with
+  | PLe a b | PLt a b | PEq a b => [a; b]
+  | PAnd ps | POr ps => flat_map exprsP ps
+  | PNot q => exprsP q
+  end.
+
+Definition exprsT (t : transform) : list expr := map snd t.
+
+Definition exprsM (m : machine) : list expr :=
+  flat_map (fun inv => exprsP (fst inv) ++ exprsT (snd inv)) (invs m) ++
+  flat_map (fun ge => exprsP (fst ge) ++ exprsT (snd ge)) (evs m).
+
+(* Every subexpression of e, e included. *)
+Fixpoint subexprs (e : expr) : list expr :=
+  e :: match e with
+       | EVar _ | ELit _ => []
+       | EAdd a b | ESub a b => subexprs a ++ subexprs b
+       end.
+
+Definition bounded (m : machine) : bool :=
+  forallb (fun e => Z.leb (bnd m e) maxAbs) (exprsM m).
+
 Definition check (m : machine) : bool :=
-  forallb (fun v => if allValid m v then stepCheckOne m v else true) (box (doms m)).
+  andb (bounded m)
+    (forallb (fun v => if allValid m v then stepCheckOne m v else true) (box (doms m))).
 
 (* ===== soundness ===== *)
 
@@ -180,6 +243,7 @@ Lemma check_here :
   forall v, In v (box (doms m)) -> allValid m v = true -> stepCheckOne m v = true.
 Proof.
   intros m Hchk v Hv Hval. unfold check in Hchk.
+  apply andb_prop in Hchk. destruct Hchk as [_ Hchk].
   rewrite forallb_forall in Hchk. specialize (Hchk v Hv).
   rewrite Hval in Hchk. exact Hchk.
 Qed.
@@ -442,4 +506,65 @@ Proof.
   apply normalize_valid_id.
   apply compensationFree_valid; [exact Hcf |].
   apply box_iff. apply applyT_pres. apply box_iff. exact Hv.
+Qed.
+
+(* ===== certified machines never overflow Go's int =====
+
+   gsm evaluates every expression in Go `int` (32 bits on 32-bit platforms). If
+   the checker passes, every subexpression of every expression in the rules has
+   |value| <= 2^31-1 on every valuation in the box, which contains every state
+   gsm's Build enumerates and every intermediate state of a repair or an event.
+   So no Go evaluation of these rules wraps, on any platform, and the Z semantics
+   above is exactly what gsm computes. *)
+
+Lemma rd_nth : forall s i, rd i s = nth i s 0.
+Proof.
+  induction s as [| x t IH]; intros i; destruct i as [| i']; simpl; try reflexivity.
+  apply IH.
+Qed.
+
+Lemma bnd_nonneg : forall m e, (0 <= bnd m e)%Z.
+Proof. intros m e. induction e; simpl; unfold varBound; lia. Qed.
+
+Lemma evalE_bnd : forall m v e,
+  In v (box (doms m)) -> (Z.abs (evalE (mins m) v e) <= bnd m e)%Z.
+Proof.
+  intros m v e Hv.
+  induction e as [i | n | a IHa b IHb | a IHa b IHb]; simpl.
+  - unfold varBound. rewrite rd_nth.
+    destruct (Nat.lt_ge_cases i (length (doms m))) as [Hi | Hi].
+    + pose proof (box_range _ _ Hv i Hi) as Hr. lia.
+    + rewrite (nth_overflow v 0) by (rewrite (box_length _ _ Hv); exact Hi). lia.
+  - lia.
+  - lia.
+  - lia.
+Qed.
+
+Lemma subexprs_bnd : forall m e e', In e' (subexprs e) -> (bnd m e' <= bnd m e)%Z.
+Proof.
+  intros m e. induction e as [i | n | a IHa b IHb | a IHa b IHb]; intros e' Hin; simpl in Hin.
+  - destruct Hin as [<- | []]. lia.
+  - destruct Hin as [<- | []]. lia.
+  - destruct Hin as [<- | Hin]; [lia |]. simpl.
+    pose proof (bnd_nonneg m a). pose proof (bnd_nonneg m b).
+    apply in_app_or in Hin. destruct Hin as [Hs | Hs];
+      [specialize (IHa e' Hs) | specialize (IHb e' Hs)]; lia.
+  - destruct Hin as [<- | Hin]; [lia |]. simpl.
+    pose proof (bnd_nonneg m a). pose proof (bnd_nonneg m b).
+    apply in_app_or in Hin. destruct Hin as [Hs | Hs];
+      [specialize (IHa e' Hs) | specialize (IHb e' Hs)]; lia.
+Qed.
+
+Theorem check_no_overflow :
+  forall m, check m = true ->
+  forall e, In e (exprsM m) ->
+  forall e', In e' (subexprs e) ->
+  forall v, In v (box (doms m)) ->
+    (Z.abs (evalE (mins m) v e') <= maxAbs)%Z.
+Proof.
+  intros m Hchk e He e' Hsub v Hv.
+  unfold check in Hchk. apply andb_prop in Hchk. destruct Hchk as [Hb _].
+  unfold bounded in Hb. rewrite forallb_forall in Hb.
+  specialize (Hb e He). apply Z.leb_le in Hb.
+  pose proof (evalE_bnd m v e' Hv). pose proof (subexprs_bnd m e e' Hsub). lia.
 Qed.

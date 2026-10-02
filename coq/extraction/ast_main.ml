@@ -6,19 +6,29 @@
    Machine file format (S-expressions, whitespace-insensitive):
 
      (doms 4 4 2)                          ; domain size of each variable
-     (mins 0 0 0)                          ; logical minimum of each variable (optional; default 0s)
+     (mins 0 -3 0)                         ; logical minimum of each variable (optional; default 0s)
+     (kinds int int bool)                  ; int | bool | enum per variable (optional; default int)
      (inv (le (var 0) (lit 3))             ; invariant: predicate ...
           (do (set 0 (lit 3))))            ;   ... and its repair transform
      (ev   (do (set 0 (add (var 0) (lit 1)))))        ; unguarded event
      (evwhen (lt (var 1) (lit 3))          ; guarded event: fires only when the guard holds
              (do (set 1 (add (var 1) (lit 1)))))
 
-   expr  ::= (var i) | (lit n) | (add e e) | (sub e e)
+   expr  ::= (var i) | (lit n) | (add e e) | (sub e e)     ; n may be negative
    pred  ::= (le e e) | (lt e e) | (eq e e) | (and p...) | (or p...) | (not p)
    xform ::= (do (set i e)...)
 
    A variable's values live in min .. min+domain-1; the state stores the raw
-   0..domain-1 offset. Exit 0 = verified convergent, 1 = not, 2 = usage/parse error. *)
+   0..domain-1 offset. Arithmetic is signed (gsm's Go int). A write to a bool
+   stores (value <> 0); any other write clamps into the variable's range.
+
+   Input validation (the extracted code is only meaningful on well-formed input):
+   integers are decimal with an optional leading '-', at most 2^31-1 in magnitude;
+   indices and domains are non-negative; every domain is at least 1; mins and kinds
+   give exactly one entry per variable; a bool has domain 2 and minimum 0, an enum
+   minimum 0; every variable index names a declared variable; each of doms, mins,
+   kinds appears at most once and doms appears before any rule; the file is at most
+   64 MiB. Exit 0 = verified convergent, 1 = not verified, 2 = usage/parse error. *)
 
 open Checker_core
 
@@ -69,10 +79,36 @@ let parse_all (toks : string list) : sexp list =
 
 (* ---- build the extracted AST from S-expressions ---- *)
 
-let int_of s = try int_of_string s with _ -> failwith ("expected integer, got " ^ s)
+let max_abs = 2147483647
+
+(* A decimal integer: optional '-', then 1 to 10 digits, magnitude <= 2^31-1. No
+   '+', no '_', no 0x/0o/0b prefixes (int_of_string accepts all of those). *)
+let int_of s =
+  let n = String.length s in
+  let start = if n > 0 && s.[0] = '-' then 1 else 0 in
+  if n = start || n - start > 10 then failwith ("expected decimal integer, got " ^ s);
+  String.iteri (fun i c ->
+    if i >= start && (c < '0' || c > '9') then failwith ("expected decimal integer, got " ^ s)) s;
+  let v = int_of_string s in
+  if abs v > max_abs then failwith ("integer out of range (|n| <= 2147483647): " ^ s);
+  v
+
+let nat_of s =
+  let v = int_of s in
+  if v < 0 then failwith ("expected non-negative integer, got " ^ s);
+  v
+
+(* Variable indices are checked against the declared variable count. *)
+let nvars = ref (-1)
+
+let var_index s =
+  let i = nat_of s in
+  if !nvars < 0 then failwith "doms must come before any rule";
+  if i >= !nvars then failwith (Printf.sprintf "variable index %d out of range (%d variables)" i !nvars);
+  i
 
 let rec build_expr = function
-  | List [Atom "var"; Atom i] -> EVar (int_of i)
+  | List [Atom "var"; Atom i] -> EVar (var_index i)
   | List [Atom "lit"; Atom n] -> ELit (int_of n)
   | List [Atom "add"; a; b] -> EAdd (build_expr a, build_expr b)
   | List [Atom "sub"; a; b] -> ESub (build_expr a, build_expr b)
@@ -88,7 +124,7 @@ let rec build_pred = function
   | _ -> failwith "malformed pred"
 
 let build_assign = function
-  | List [Atom "set"; Atom i; e] -> (int_of i, build_expr e)
+  | List [Atom "set"; Atom i; e] -> (var_index i, build_expr e)
   | _ -> failwith "malformed assign"
 
 let build_transform = function
@@ -99,30 +135,61 @@ let build_transform = function
    the empty list = true). *)
 let always_true : pred = PAnd []
 
-let build_ints = function
-  | ds -> List.map (function Atom a -> int_of a | _ -> failwith "expected integer") ds
+let build_ints conv = List.map (function Atom a -> conv a | _ -> failwith "expected integer")
+
+let build_kind = function
+  | Atom "int" -> `Int
+  | Atom "bool" -> `Bool
+  | Atom "enum" -> `Enum
+  | _ -> failwith "expected kind int, bool or enum"
 
 let build_machine (forms : sexp list) : machine =
-  let doms = ref [] and mins = ref None and invs = ref [] and evs = ref [] in
+  nvars := -1;
+  let doms = ref None and mins = ref None and kinds = ref None
+  and invs = ref [] and evs = ref [] in
+  let once r v what = match !r with
+    | None -> r := Some v
+    | Some _ -> failwith (what ^ " given twice") in
   List.iter (fun form ->
     match form with
-    | List (Atom "doms" :: ds) -> doms := build_ints ds
-    | List (Atom "mins" :: ms) -> mins := Some (build_ints ms)
+    | List (Atom "doms" :: ds) ->
+      let ds = build_ints nat_of ds in
+      List.iter (fun d -> if d < 1 then failwith "every domain must be at least 1") ds;
+      once doms ds "doms"; nvars := List.length ds
+    | List (Atom "mins" :: ms) -> once mins (build_ints int_of ms) "mins"
+    | List (Atom "kinds" :: ks) -> once kinds (List.map build_kind ks) "kinds"
     | List [Atom "inv"; p; t] -> invs := (build_pred p, build_transform t) :: !invs
     | List [Atom "ev"; t] -> evs := (always_true, build_transform t) :: !evs
     | List [Atom "evwhen"; g; t] -> evs := (build_pred g, build_transform t) :: !evs
-    | _ -> failwith "unknown top-level form (expected doms/mins/inv/ev/evwhen)") forms;
+    | _ -> failwith "unknown top-level form (expected doms/mins/kinds/inv/ev/evwhen)") forms;
+  let doms = match !doms with Some ds -> ds | None -> failwith "missing doms" in
+  let n = List.length doms in
   let mins = match !mins with
     | Some ms -> ms
-    | None -> List.map (fun _ -> 0) !doms   (* default: every variable min = 0 *)
+    | None -> List.map (fun _ -> 0) doms   (* default: every variable min = 0 *)
   in
-  { doms = !doms; mins; invs = List.rev !invs; evs = List.rev !evs }
+  let kinds = match !kinds with
+    | Some ks -> ks
+    | None -> List.map (fun _ -> `Int) doms (* default: every variable is an int *)
+  in
+  if List.length mins <> n then failwith "mins must give one minimum per variable";
+  if List.length kinds <> n then failwith "kinds must give one kind per variable";
+  List.iteri (fun i k ->
+    let d = List.nth doms i and lo = List.nth mins i in
+    if abs (lo + d - 1) > max_abs then failwith (Printf.sprintf "variable %d: max out of range" i);
+    match k with
+    | `Bool -> if d <> 2 || lo <> 0 then failwith (Printf.sprintf "variable %d: a bool has domain 2 and min 0" i)
+    | `Enum -> if lo <> 0 then failwith (Printf.sprintf "variable %d: an enum has min 0" i)
+    | `Int -> ()) kinds;
+  { doms; mins; bools = List.map (fun k -> k = `Bool) kinds;
+    invs = List.rev !invs; evs = List.rev !evs }
 
 (* ---- main ---- *)
 
 let read_all path =
   let ic = open_in path in
   let len = in_channel_length ic in
+  if len > 64 * 1024 * 1024 then (close_in ic; failwith "input larger than 64 MiB");
   let s = really_input_string ic len in
   close_in ic; s
 
@@ -141,6 +208,10 @@ let () =
   (* Machine-readable classification line, parsed by consumers to cross-check a producer's CRDT-fragment claim. Certified
      by the extracted, axiom-free compensationFree, not asserted. *)
   Printf.printf "compensation_free=%b\n" (compensationFree m);
+  if not (bounded m) then
+    (Printf.printf
+       "FAIL: outside the certified fragment: some expression can exceed |2147483647| (gsm's Go int could wrap)\n";
+     exit 1);
   if check m then
     (Printf.printf
        "OK: %d vars, %d invariants, %d events; machine verified convergent from its RULES (events preserve validity and commute on all valid states)\n"
