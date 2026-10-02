@@ -22,10 +22,10 @@
 
 Require Import NC.Trace.
 Require Import NC.TableCheck.
-From Stdlib Require Import List.
-From Stdlib Require Import PeanoNat.
-From Stdlib Require Import Bool.
-From Stdlib Require Import Lia.
+From Coq Require Import List.
+From Coq Require Import PeanoNat.
+From Coq Require Import Bool.
+From Coq Require Import Lia.
 Import ListNotations.
 
 (* ===== an int comparison the OCaml compiler specializes ===== *)
@@ -34,9 +34,9 @@ Import ListNotations.
    OCaml function, so every comparison is a call into the runtime's generic
    compare. lt_dec is extracted inline as (<), which ocamlopt and ocamlc compile
    to an integer comparison wherever the operands are known to be ints. It is a
-   abbreviation, not a definition, so that the comparison is extracted inline at
+   notation, not a definition, so that the comparison is extracted inline at
    each use, where the operand types are known. *)
-Abbreviation ltd a b := (if Compare_dec.lt_dec a b then true else false).
+Notation ltd a b := (if Compare_dec.lt_dec a b then true else false).
 
 Lemma ltd_spec : forall a b, ltd a b = true <-> a < b.
 Proof. intros a b. destruct (Compare_dec.lt_dec a b); split; intro; congruence || lia. Qed.
@@ -173,14 +173,14 @@ Lemma chunkF_nth : forall {A B} f mk (z : A) (l : list A) j, length l <= 16 * f 
   nth j (chunkF f mk z l) (mk z z z z z z z z z z z z z z z z) = (mk (nth (16 * j + 0) l z) (nth (16 * j + 1) l z) (nth (16 * j + 2) l z) (nth (16 * j + 3) l z) (nth (16 * j + 4) l z) (nth (16 * j + 5) l z) (nth (16 * j + 6) l z) (nth (16 * j + 7) l z) (nth (16 * j + 8) l z) (nth (16 * j + 9) l z) (nth (16 * j + 10) l z) (nth (16 * j + 11) l z) (nth (16 * j + 12) l z) (nth (16 * j + 13) l z) (nth (16 * j + 14) l z) (nth (16 * j + 15) l z) : B).
 Proof.
   intros A B f. induction f as [| f IH]; intros mk z l j Hl.
-  - destruct l; [| simpl in Hl; lia]. simpl. repeat rewrite nth_nil_any. destruct j; reflexivity.
+  - destruct l; [| simpl in Hl; lia]. simpl. destruct j; reflexivity.
   - destruct l as [| x t] eqn:El.
-    + simpl. repeat rewrite nth_nil_any. destruct j; reflexivity.
+    + simpl. destruct j; reflexivity.
     + rewrite <- El. rewrite chunkF_cons by congruence. destruct j as [| j].
       * cbn [nth]. f_equal; f_equal; lia.
       * cbn [nth]. rewrite IH.
         -- repeat rewrite skipn_nth. f_equal; f_equal; lia.
-        -- rewrite length_skipn. subst l. simpl in Hl |- *. lia.
+        -- rewrite skipn_length. subst l. simpl in Hl |- *. lia.
 Qed.
 
 Lemma lenT_eq : forall {A} (l : list A) a, lenT l a = length l + a.
