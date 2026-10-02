@@ -46,12 +46,14 @@ for f in id20 events1000-all pairs500k events300k; do
 done
 rm -rf "$big"
 
-# The table path must not call Nat.pow: it extracts through the unary Nat.mul
-# inside the Nat module (pow 16 6 overflows the stack), not the mapped ( * ).
-if grep -q "Nat\.pow" "$bin/checker_core.ml"; then
-  fail=$((fail + 1)); echo "FAIL checker_core.ml calls Nat.pow (unary under ExtrOcamlNatInt)"
+# The extracted code must not call the Nat module's own add, mul or pow:
+# ExtrOcamlNatInt maps Init.Nat's (to OCaml's +, *), but PeanoNat's Nat module
+# carries unmapped copies, which extract as unary recursion (Nat.mul 2^19 2
+# overflows an 8 MiB stack). Use Init.Nat's (the * and + notations).
+if grep -nE "Nat\.(add|mul|pow)\b" "$bin/checker_core.ml"; then
+  fail=$((fail + 1)); echo "FAIL checker_core.ml calls the unary Nat.add, Nat.mul or Nat.pow (lines above)"
 else
-  pass=$((pass + 1)); echo "ok   checker_core.ml does not call Nat.pow"
+  pass=$((pass + 1)); echo "ok   checker_core.ml calls no unary Nat.add, Nat.mul or Nat.pow"
 fi
 echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
