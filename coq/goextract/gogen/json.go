@@ -157,9 +157,13 @@ func decode(raw json.RawMessage, where string) *Node {
 		case "msg":
 			n.Msg = str(k)
 		case "need_magic":
-			json.Unmarshal(m[k], &n.NeedMagic)
+			if err := json.Unmarshal(m[k], &n.NeedMagic); err != nil {
+				fail("%s.need_magic: %v", at, err)
+			}
 		case "need_dummy":
-			json.Unmarshal(m[k], &n.NeedDummy)
+			if err := json.Unmarshal(m[k], &n.NeedDummy); err != nil {
+				fail("%s.need_dummy: %v", at, err)
+			}
 		case "used_modules":
 			if strs(k) != nil && len(strs(k)) > 0 {
 				fail("%s: used_modules %v (modular extraction is not supported)", at, strs(k))

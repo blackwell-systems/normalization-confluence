@@ -102,6 +102,9 @@ func F_fx_mkfs(n_in int64, acc_in *I_list[func(int64) int64]) *I_list[func(int64
 		_ = n_1
 		acc_2 := acc_in
 		_ = acc_2
+		if n_1 < 0 {
+			panic("gogen: not a nat")
+		}
 		switch {
 		case n_1 == 0:
 			return acc_2
@@ -126,24 +129,36 @@ func F_fx_nat_wild(n_in int64) int64 {
 	for {
 		n_1 := n_in
 		_ = n_1
+		if n_1 < 0 {
+			panic("gogen: not a nat")
+		}
 		switch {
 		case n_1 == 0:
 			return int64(0)
 		case n_1 > 0:
 			n0_2 := n_1 - 1
 			_ = n0_2
+			if n0_2 < 0 {
+				panic("gogen: not a nat")
+			}
 			switch {
 			case n0_2 == 0:
 				return int64(0)
 			case n0_2 > 0:
 				n1_3 := n0_2 - 1
 				_ = n1_3
+				if n1_3 < 0 {
+					panic("gogen: not a nat")
+				}
 				switch {
 				case n1_3 == 0:
 					return int64(0)
 				case n1_3 > 0:
 					n2_4 := n1_3 - 1
 					_ = n2_4
+					if n2_4 < 0 {
+						panic("gogen: not a nat")
+					}
 					switch {
 					case n2_4 == 0:
 						return int64(1)
@@ -217,6 +232,9 @@ func F_fx_pos_rel(p_in int64) int64 {
 	for {
 		p_1 := p_in
 		_ = p_1
+		if p_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case p_1 > 1 && p_1%2 == 1:
 			__2 := p_1 / 2

@@ -15,6 +15,10 @@ import "fmt"
 type mappedType struct {
 	goType string
 	ctors  map[string]*mappedCtor
+	// outside, when set, is a Go condition true exactly when s is not a value
+	// of the type (a negative nat, a positive below 1); a match panics then.
+	outside func(s string) string
+	name    string
 }
 
 type mappedCtor struct {
@@ -41,13 +45,13 @@ func fixed(v int64) *mappedCtor {
 const maxInt64 = int64(^uint64(0) >> 1)
 
 var mappedTypes = map[string]*mappedType{
-	"go_bool": {"bool", map[string]*mappedCtor{
+	"go_bool": {goType: "bool", name: "bool", ctors: map[string]*mappedCtor{
 		"true": {build: func([]string) string { return "true" }, cond: func(s string) string { return s },
 			proj: func(string) []string { return nil }},
 		"false": {build: func([]string) string { return "false" }, cond: func(s string) string { return "!" + s },
 			proj: func(string) []string { return nil }},
 	}},
-	"go_nat": {"int64", map[string]*mappedCtor{
+	"go_nat": {goType: "int64", name: "nat", outside: func(s string) string { return s + " < 0" }, ctors: map[string]*mappedCtor{
 		"nat_0": fixed(0),
 		"nat_succ": {arity: 1,
 			build: func(a []string) string { return "natSucc(" + a[0] + ")" },
@@ -55,7 +59,7 @@ var mappedTypes = map[string]*mappedType{
 			cond:  func(s string) string { return s + " > 0" },
 			proj:  func(s string) []string { return []string{s + " - 1"} }},
 	}},
-	"go_pos": {"int64", map[string]*mappedCtor{
+	"go_pos": {goType: "int64", name: "positive", outside: func(s string) string { return s + " < 1" }, ctors: map[string]*mappedCtor{
 		"pos_xI": {arity: 1,
 			build: func(a []string) string { return "posXI(" + a[0] + ")" },
 			konst: func(a []int64) (int64, bool) { return 2*a[0] + 1, a[0] >= 1 && a[0] < maxInt64/2 },
@@ -68,7 +72,7 @@ var mappedTypes = map[string]*mappedType{
 			proj:  func(s string) []string { return []string{s + " / 2"} }},
 		"pos_xH": fixed(1),
 	}},
-	"go_n": {"int64", map[string]*mappedCtor{
+	"go_n": {goType: "int64", name: "N", outside: func(s string) string { return s + " < 0" }, ctors: map[string]*mappedCtor{
 		"n_0": fixed(0),
 		"n_pos": {arity: 1,
 			build: func(a []string) string { return a[0] },
@@ -76,7 +80,7 @@ var mappedTypes = map[string]*mappedType{
 			cond:  func(s string) string { return s + " > 0" },
 			proj:  func(s string) []string { return []string{s} }},
 	}},
-	"go_z": {"int64", map[string]*mappedCtor{
+	"go_z": {goType: "int64", name: "Z", ctors: map[string]*mappedCtor{
 		"z_0": fixed(0),
 		"z_pos": {arity: 1,
 			build: func(a []string) string { return a[0] },

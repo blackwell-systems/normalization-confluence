@@ -22,7 +22,15 @@ TableFast.v, AstChecker.v
   - Nothing else is mapped.
 - `ExtractGo.v`: extracts `oracle_core.json`, with the same entry points as `extraction/Extract.v`.
 - `gogen/`: the translator from MiniML JSON to Go.
-  - **Strict decoding.** An unknown node kind or key, `Obj.magic`, or modular extraction is refused.
+  - **Strict decoding.** An unknown node kind or key, a malformed field, `Obj.magic`, or modular extraction is refused.
+  - **Unsupported, and refused rather than translated:**
+    - **Coinductive types and cofixpoints.** JSON extraction prints them as an ordinary inductive and a recursive value, so gogen cannot see them, and the Go would recurse until the process dies. `guard.sh` refuses them on the Rocq side: `make json` extracts every entry point once more as OCaml (`GuardCoind.v`) and fails if the output contains `Lazy`. Its self-test (`tests/coind/Coind.v`) must be refused. A gogen test checks that `GuardCoind.v` names every entry point the JSON extractions name.
+    - Axioms (`expr:axiom`).
+    - Types extraction cannot express (`type:unknown`, which needs `Obj.magic`).
+    - A let-bound polymorphic function used at two types (locals are monomorphic).
+    - A wildcard or variable case that is not the last case (ML takes the first match, a Go switch its default last).
+    - A binder list that binds a name twice.
+  - **Absurd branches.** An absurd branch (`expr:exception`) becomes a panic with nothing after it.
   - **Unary arithmetic refused.** gogen refuses unmapped unary `nat` arithmetic unless it is allowed by name (`-allow-unary`). These are the standard library's `Nat.add`, `Nat.mul`, `Nat.min`, ... extracted as their Rocq definitions, whose time and stack are linear in the numbers.
     - Today the rules oracle uses `Nat.mul` in `fuelOf` and `Nat.min` in `setClamped`, so `make gen` allows `add`, `min` and `mul`. Fixes are pending in the proof.
     - The OCaml extraction has the same cost there.
@@ -47,7 +55,7 @@ TableFast.v, AstChecker.v
 - the `positive` constructors;
 - negation.
 
-A result is therefore either the exact mathematical value, or the run stops and the gate fails closed. A match on a value its type cannot hold, such as a negative `nat`, panics too. The front ends' input bounds (integers below 2^31 in magnitude) keep every computation the checkers do far inside int64.
+A result is therefore either the exact mathematical value, or the run stops and the gate fails closed. Every match on a `nat`, `positive` or `N` first checks that the value is in its type (non-negative, or at least 1), and panics otherwise, so a value outside its type never reaches a branch. The front ends' input bounds (integers below 2^31 in magnitude) keep every computation the checkers do far inside int64.
 
 ## The prim check
 

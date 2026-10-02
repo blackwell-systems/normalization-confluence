@@ -8,7 +8,7 @@ GO ?= go
 COQC ?= coqc
 OCAML ?=
 
-.PHONY: all json gen build test clean
+.PHONY: all guard json gen build test clean
 
 all: gen build
 
@@ -36,7 +36,13 @@ Fixture.vo: Fixture.v
 fixture.json: ExtractFixture.v ExtrGo.vo Fixture.vo
 	cd .. && $(COQC) -Q . NC goextract/ExtractFixture.v
 
-json: oracle_core.json primref_mapped.json primref_plain.json fixture.json
+# guard.sh refuses coinductive types and cofixpoints in everything gogen
+# translates (GuardCoind.v); its self-test must refuse tests/coind/Coind.v.
+guard: PrimRef.vo Fixture.vo ../TableFast.vo ../AstChecker.vo
+	cd .. && bash goextract/guard.sh goextract/GuardCoind.v
+	cd .. && ! bash goextract/guard.sh goextract/tests/coind/Coind.v >/dev/null
+
+json: guard oracle_core.json primref_mapped.json primref_plain.json fixture.json
 
 gen:
 	# AstChecker uses the unmapped, unary Nat.mul (fuelOf) and Nat.min

@@ -437,6 +437,7 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 		}
 		return ft
 	case "expr:lambda":
+		distinct(n.Argnames, "a lambda")
 		var ts []*Ty
 		for _, a := range n.Argnames {
 			m := meta()
@@ -454,8 +455,13 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 	case "expr:case":
 		st := g.infer(n.Expr, e)
 		r := meta()
-		for _, c := range n.Cases {
+		for k, c := range n.Cases {
 			ce := e
+			if (c.Pat.What == "pat:wild" || c.Pat.What == "pat:rel") && k != len(n.Cases)-1 {
+				// ML takes the first matching case and a Go switch takes default
+				// last, so a catch-all must come last for the two to agree.
+				fail("a wildcard or variable pattern that is not the last case")
+			}
 			switch c.Pat.What {
 			case "pat:wild":
 			case "pat:rel":
@@ -463,6 +469,7 @@ func (g *Gen) infer1(n *Node, e *env) *Ty {
 			case "pat:constructor":
 				args, res, _ := g.ctorType(c.Pat.Name)
 				unify(st, res, "pattern "+c.Pat.Name)
+				distinct(c.Pat.Argnames, "pattern "+c.Pat.Name)
 				if len(c.Pat.Argnames) != len(args) {
 					fail("pattern %s binds %d, wants %d", c.Pat.Name, len(c.Pat.Argnames), len(args))
 				}
@@ -521,6 +528,20 @@ func natOnly(t *Node) bool {
 		return t.Name == "go_nat" && len(t.Args) == 0
 	}
 	return false
+}
+
+// distinct refuses a binder list that binds a name twice ("_" binds nothing).
+func distinct(names []string, where string) {
+	seen := map[string]bool{}
+	for _, n := range names {
+		if n == "_" {
+			continue
+		}
+		if seen[n] {
+			fail("%s binds %s twice", where, n)
+		}
+		seen[n] = true
+	}
 }
 
 // ===== Go emission =====
@@ -687,8 +708,8 @@ func (g *Gen) expr(n *Node, e *env) string {
 		}, true)
 		return r
 	case "expr:exception":
-		fmt.Fprintf(g.out, "panic(%q)\n", "gogen: extracted exception: "+n.Msg)
-		return "*new(" + g.goTy(g.types[n]) + ")"
+		// An expression that never returns: nothing follows the panic.
+		return fmt.Sprintf("func() %s { panic(%q) }()", g.goTy(g.types[n]), "gogen: extracted exception: "+n.Msg)
 	}
 	fail("unsupported expression %s", n.What)
 	return ""
@@ -823,6 +844,9 @@ func (g *Gen) caseStmt(n *Node, e *env, branch func(*Node, *env), mustMatch bool
 	st := g.types[n.Expr].res()
 	hasWild := false
 	if mt, ok := mappedTypes[st.Name]; ok && st.K == 'c' {
+		if mt.outside != nil {
+			fmt.Fprintf(g.out, "if %s {\npanic(%q)\n}\n", mt.outside(s), "gogen: not a "+mt.name)
+		}
 		g.out.WriteString("switch {\n")
 		for _, c := range n.Cases {
 			be := e
@@ -888,6 +912,9 @@ func (g *Gen) bindPatRel(p *Node, s string, st *Ty, e *env) *env {
 // tail emits statements that return the value of n.
 func (g *Gen) tail(n *Node, e *env) {
 	switch n.What {
+	case "expr:exception":
+		fmt.Fprintf(g.out, "panic(%q)\n", "gogen: extracted exception: "+n.Msg)
+		return
 	case "expr:let":
 		v := g.expr(n.Nameval, e)
 		id := g.fresh(n.Name)

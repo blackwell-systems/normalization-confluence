@@ -14,6 +14,8 @@ on:
     branches: [ main ]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * *' # nightly: the long random sweep (job long)
 
 env:
   ROCQ_IMAGE: rocq/rocq-prover:9.3@sha256:c357e8864f80359db21725ea8371347a75a1cb439545b47219d7ad5683ba1782
@@ -88,3 +90,18 @@ jobs:
           make -C coq/goextract gen
           echo "generated Go differs from the pinned image's in $(git diff --numstat -- coq/goextract | awk '{s += $1 + $2} END {print s + 0}') lines"
           make -C coq/goextract test
+
+  long:
+    # The review's random differential sweep of check_fast against a direct
+    # reading of check_tables, with repetitions at every size up to 2^20 states
+    # (oracle/big_test.go, GOEXTRACT_LONG=1). Nightly and on demand.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: false
+      - name: Long differential sweep
+        run: cd coq/goextract && GOEXTRACT_LONG=1 go test -count=1 -timeout 60m -run 'TestBigDifferential' -v ./oracle

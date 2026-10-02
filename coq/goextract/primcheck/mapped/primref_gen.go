@@ -104,10 +104,16 @@ func F_add(x_in int64, y_in int64) int64 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -131,6 +137,9 @@ func F_add(x_in int64, y_in int64) int64 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -151,6 +160,9 @@ func F_add(x_in int64, y_in int64) int64 {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_20 := y_2 / 2
@@ -180,10 +192,16 @@ func F_add_carry(x_in int64, y_in int64) int64 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -207,6 +225,9 @@ func F_add_carry(x_in int64, y_in int64) int64 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -228,6 +249,9 @@ func F_add_carry(x_in int64, y_in int64) int64 {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_21 := y_2 / 2
@@ -258,10 +282,16 @@ func F_add_carry0(x_in int64, y_in int64) int64 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -285,6 +315,9 @@ func F_add_carry0(x_in int64, y_in int64) int64 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -306,6 +339,9 @@ func F_add_carry0(x_in int64, y_in int64) int64 {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_21 := y_2 / 2
@@ -349,10 +385,16 @@ func F_compare_cont(r_in *I_comparison, x_in int64, y_in int64) *I_comparison {
 		_ = x_2
 		y_3 := y_in
 		_ = y_3
+		if x_2 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_2 > 1 && x_2%2 == 1:
 			p_4 := x_2 / 2
 			_ = p_4
+			if y_3 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_3 > 1 && y_3%2 == 1:
 				q_5 := y_3 / 2
@@ -372,6 +414,9 @@ func F_compare_cont(r_in *I_comparison, x_in int64, y_in int64) *I_comparison {
 		case x_2 > 1 && x_2%2 == 0:
 			p_7 := x_2 / 2
 			_ = p_7
+			if y_3 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_3 > 1 && y_3%2 == 1:
 				q_8 := y_3 / 2
@@ -389,6 +434,9 @@ func F_compare_cont(r_in *I_comparison, x_in int64, y_in int64) *I_comparison {
 				panic("gogen: no case matches")
 			}
 		case x_2 == 1:
+			if y_3 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_3 > 1 && y_3%2 == 1:
 				__10 := y_3 / 2
@@ -415,6 +463,9 @@ func F_div_eucl(a_in int64, b_in int64) *I_prod[int64, int64] {
 		_ = a_1
 		b_2 := b_in
 		_ = b_2
+		if a_1 < 0 {
+			panic("gogen: not a N")
+		}
 		switch {
 		case a_1 == 0:
 			t_3 := &I_prod[int64, int64]{tag: 0, f0_0: int64(0), f0_1: int64(0)}
@@ -422,6 +473,9 @@ func F_div_eucl(a_in int64, b_in int64) *I_prod[int64, int64] {
 		case a_1 > 0:
 			na_4 := a_1
 			_ = na_4
+			if b_2 < 0 {
+				panic("gogen: not a N")
+			}
 			switch {
 			case b_2 == 0:
 				t_5 := &I_prod[int64, int64]{tag: 0, f0_0: int64(0), f0_1: a_1}
@@ -444,6 +498,9 @@ func F_double(n_in int64) int64 {
 	for {
 		n_1 := n_in
 		_ = n_1
+		if n_1 < 0 {
+			panic("gogen: not a N")
+		}
 		switch {
 		case n_1 == 0:
 			return int64(0)
@@ -526,6 +583,9 @@ func F_double_pred_mask(x_in int64) *I_mask {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -553,6 +613,9 @@ func F_double_pred_mask0(x_in int64) *I_mask0 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -598,6 +661,9 @@ func F_mul(x_in int64, y_in int64) int64 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
@@ -626,6 +692,9 @@ func F_pos_div_eucl(a_in int64, b_in int64) *I_prod[int64, int64] {
 		_ = a_1
 		b_2 := b_in
 		_ = b_2
+		if a_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case a_1 > 1 && a_1%2 == 1:
 			a_p_3 := a_1 / 2
@@ -688,6 +757,9 @@ func F_pos_div_eucl(a_in int64, b_in int64) *I_prod[int64, int64] {
 				panic("gogen: no case matches")
 			}
 		case a_1 == 1:
+			if b_2 < 0 {
+				panic("gogen: not a N")
+			}
 			switch {
 			case b_2 == 0:
 				t_27 := &I_prod[int64, int64]{tag: 0, f0_0: int64(0), f0_1: int64(1)}
@@ -695,6 +767,9 @@ func F_pos_div_eucl(a_in int64, b_in int64) *I_prod[int64, int64] {
 			case b_2 > 0:
 				p_28 := b_2
 				_ = p_28
+				if p_28 < 1 {
+					panic("gogen: not a positive")
+				}
 				switch {
 				case p_28 > 1 && p_28%2 == 1:
 					__29 := p_28 / 2
@@ -727,10 +802,16 @@ func F_pos_sub(x_in int64, y_in int64) int64 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -754,6 +835,9 @@ func F_pos_sub(x_in int64, y_in int64) int64 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -775,6 +859,9 @@ func F_pos_sub(x_in int64, y_in int64) int64 {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_21 := y_2 / 2
@@ -803,6 +890,9 @@ func F_pred_N(x_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -828,6 +918,9 @@ func F_pred_double(x_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -853,6 +946,9 @@ func F_pred_double0(x_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -918,6 +1014,9 @@ func F_probe_n(n_in int64) *I_prod[int64, int64] {
 	for {
 		n_1 := n_in
 		_ = n_1
+		if n_1 < 0 {
+			panic("gogen: not a N")
+		}
 		switch {
 		case n_1 == 0:
 			t_2 := &I_prod[int64, int64]{tag: 0, f0_0: int64(0), f0_1: int64(1)}
@@ -939,6 +1038,9 @@ func F_probe_n_mk(tag_in int64, p_in int64) int64 {
 		_ = tag_1
 		p_2 := p_in
 		_ = p_2
+		if tag_1 < 0 {
+			panic("gogen: not a nat")
+		}
 		switch {
 		case tag_1 == 0:
 			return int64(0)
@@ -957,6 +1059,9 @@ func F_probe_nat(n_in int64) *I_prod[int64, bool] {
 	for {
 		n_1 := n_in
 		_ = n_1
+		if n_1 < 0 {
+			panic("gogen: not a nat")
+		}
 		switch {
 		case n_1 == 0:
 			t_2 := &I_prod[int64, bool]{tag: 0, f0_0: int64(0), f0_1: true}
@@ -986,6 +1091,9 @@ func F_probe_pos_bits(p_in int64) *I_list[bool] {
 	for {
 		p_1 := p_in
 		_ = p_1
+		if p_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case p_1 > 1 && p_1%2 == 1:
 			q_2 := p_1 / 2
@@ -1086,12 +1194,18 @@ func F_probe_z_mk(tag_in int64, p_in int64) int64 {
 		_ = tag_1
 		p_2 := p_in
 		_ = p_2
+		if tag_1 < 0 {
+			panic("gogen: not a nat")
+		}
 		switch {
 		case tag_1 == 0:
 			return int64(0)
 		case tag_1 > 0:
 			n_3 := tag_1 - 1
 			_ = n_3
+			if n_3 < 0 {
+				panic("gogen: not a nat")
+			}
 			switch {
 			case n_3 == 0:
 				t_4 := p_2
@@ -1628,10 +1742,16 @@ func F_sub_mask(x_in int64, y_in int64) *I_mask {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -1655,6 +1775,9 @@ func F_sub_mask(x_in int64, y_in int64) *I_mask {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -1676,6 +1799,9 @@ func F_sub_mask(x_in int64, y_in int64) *I_mask {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				__21 := y_2 / 2
@@ -1702,10 +1828,16 @@ func F_sub_mask0(x_in int64, y_in int64) *I_mask0 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -1729,6 +1861,9 @@ func F_sub_mask0(x_in int64, y_in int64) *I_mask0 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -1750,6 +1885,9 @@ func F_sub_mask0(x_in int64, y_in int64) *I_mask0 {
 				panic("gogen: no case matches")
 			}
 		case x_1 == 1:
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				__21 := y_2 / 2
@@ -1776,10 +1914,16 @@ func F_sub_mask_carry(x_in int64, y_in int64) *I_mask {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -1803,6 +1947,9 @@ func F_sub_mask_carry(x_in int64, y_in int64) *I_mask {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -1836,10 +1983,16 @@ func F_sub_mask_carry0(x_in int64, y_in int64) *I_mask0 {
 		_ = x_1
 		y_2 := y_in
 		_ = y_2
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_3 := x_1 / 2
 			_ = p_3
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_4 := y_2 / 2
@@ -1863,6 +2016,9 @@ func F_sub_mask_carry0(x_in int64, y_in int64) *I_mask0 {
 		case x_1 > 1 && x_1%2 == 0:
 			p_12 := x_1 / 2
 			_ = p_12
+			if y_2 < 1 {
+				panic("gogen: not a positive")
+			}
 			switch {
 			case y_2 > 1 && y_2%2 == 1:
 				q_13 := y_2 / 2
@@ -1894,6 +2050,9 @@ func F_succ(x_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 1 {
+			panic("gogen: not a positive")
+		}
 		switch {
 		case x_1 > 1 && x_1%2 == 1:
 			p_2 := x_1 / 2
@@ -1918,6 +2077,9 @@ func F_succ_double(x_in int64) int64 {
 	for {
 		x_1 := x_in
 		_ = x_1
+		if x_1 < 0 {
+			panic("gogen: not a N")
+		}
 		switch {
 		case x_1 == 0:
 			return int64(1)
