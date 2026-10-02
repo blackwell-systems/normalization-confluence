@@ -1,0 +1,115 @@
+{
+  "what": "module", "name": "Main", "need_magic": false, "need_dummy": false,
+  "used_modules": [
+    
+  ],
+  "declarations": [
+    {
+      "what": "decl:ind", "name": "go_nat", "argnames": [
+        
+      ],
+      "constructors": [
+        {
+          "name": "nat_0", "argtypes": [
+            
+          ]
+        },
+        {
+          "name": "nat_succ",
+          "argtypes": [
+            {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "what": "decl:fixgroup",
+      "fixlist": [
+        {
+          "what": "fixgroup:item", "name": "prim_nat_add",
+          "type": {
+            "what": "type:arrow",
+            "left": {
+              "what": "type:glob", "name": "go_nat", "args": [
+                
+              ]
+            },
+            "right": {
+              "what": "type:arrow",
+              "left": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              },
+              "right": {
+                "what": "type:glob", "name": "go_nat", "args": [
+                  
+                ]
+              }
+            }
+          },
+          "value": {
+            "what": "expr:lambda", "argnames": [
+              
+            ], "body": {
+              "what": "expr:exception", "msg": "UNUSED"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "what": "decl:term", "name": "ax",
+      "type": {
+        "what": "type:glob", "name": "go_nat", "args": [
+          
+        ]
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ], "body": {
+          "what": "expr:axiom"
+        }
+      }
+    },
+    {
+      "what": "decl:term", "name": "r_axiom",
+      "type": {
+        "what": "type:glob", "name": "go_nat", "args": [
+          
+        ]
+      },
+      "value": {
+        "what": "expr:lambda", "argnames": [
+          
+        ],
+        "body": {
+          "what": "expr:apply",
+          "func": {
+            "what": "expr:global", "name": "prim_nat_add"
+          },
+          "args": [
+            {
+              "what": "expr:global", "name": "ax"
+            },
+            {
+              "what": "expr:constructor", "name": "nat_succ",
+              "args": [
+                {
+                  "what": "expr:constructor", "name": "nat_0", "args": [
+                    
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

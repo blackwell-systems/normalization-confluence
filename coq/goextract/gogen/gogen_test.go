@@ -29,6 +29,7 @@ func TestCommittedOutputIsCurrent(t *testing.T) {
 		{"../primref_mapped.json", "mapped", "../primcheck/mapped/primref_gen.go", Options{}},
 		{"../primref_plain.json", "plain", "../primcheck/plain/primref_gen.go", Options{}},
 		{"../fixture.json", "fixture", "../fixture/fixture_gen.go", Options{}},
+		{"../semantics.json", "semantics", "../semantics/semantics_gen.go", Options{AllowUnary: []string{"add", "div", "modulo", "mul", "pow", "pred", "sub"}}},
 	} {
 		raw := read(t, c.json)
 		a, err := GenerateWith(raw, c.pkg, c.json, c.opts)
@@ -261,7 +262,7 @@ func TestMatchOnAMappedNumberChecksItsDomain(t *testing.T) {
 // GuardCoind.v covers every entry point gogen translates.
 func TestGuardCoversEveryEntryPoint(t *testing.T) {
 	guard := string(read(t, "../GuardCoind.v"))
-	for _, f := range []string{"../ExtractGo.v", "../ExtractPrimMapped.v", "../ExtractFixture.v"} {
+	for _, f := range []string{"../ExtractGo.v", "../ExtractPrimMapped.v", "../ExtractFixture.v", "../ExtractSemantics.v"} {
 		src := string(read(t, f))
 		for _, chunk := range strings.Split(src, "Extraction \"")[1:] {
 			names := strings.Fields(strings.SplitN(strings.SplitN(chunk, "\"", 2)[1], ".", 2)[0])
@@ -270,6 +271,23 @@ func TestGuardCoversEveryEntryPoint(t *testing.T) {
 					t.Errorf("%s extracts %s, which GuardCoind.v does not check", f, n)
 				}
 			}
+		}
+	}
+}
+
+// Programs from the review that gogen must refuse (testdata/refuse): an axiom,
+// a let-bound polymorphic function used at two types, a type that needs
+// Obj.magic, and a local fixpoint in argument position.
+func TestRefusesReviewPrograms(t *testing.T) {
+	for file, want := range map[string]string{
+		"r_axiom.json":    "expr:axiom",
+		"r_letpoly.json":  "cannot unify",
+		"r_magic.json":    "type:unknown",
+		"r_localfix.json": "expr:fix",
+	} {
+		_, err := Generate(read(t, filepath.Join("testdata", "refuse", file)), "p", file)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: want a refusal mentioning %q, got %v", file, want, err)
 		}
 	}
 }
