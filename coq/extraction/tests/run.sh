@@ -58,6 +58,26 @@ for f in dom20 bits20; do
     fail=$((fail + 1)); echo "FAIL astchecker $f.machine: want exit 0, got $got (convergent; the checker must not need stack that grows with the input)"; echo "$out" | sed 's/^/     /'
   fi
 done
+# Budget guard: 2^20 states and 20 events with every pair declared (gsm's
+# largest machine with its default declaration, 190 pairs) must be checked
+# within 30 s, the budget of gsm's in-process gate. Event e sets bit e, so every
+# pair commutes and the check does all of its work. The budget is checked on the
+# CI runner (the pinned image, OCaml 4.14), where the checker takes about 11 s
+# end to end, parsing the 150 MB file included. This is a guard against
+# regressions past the budget, not a test that failed before the change: the
+# previous check_fast took about 22 s on the same runner (about 29 s on an Apple
+# M-series laptop with OCaml 5).
+{ echo "gsm-tables 2"; echo "$n 20"; printf 'nf'; ids $n; echo "pairs all"
+  awk -v n="$n" 'BEGIN { for (e = 0; e < 20; e++) { b = 2 ^ e; for (s = 0; s < n; s++) printf " %d", (int(s / b) % 2 ? s : s + b); print "" } }'
+} > "$big/bits20-all.tables"
+start=$SECONDS
+out="$(ulimit -s 8192 && "$bin/checker" "$big/bits20-all.tables" 2>&1)"; got=$?
+took=$((SECONDS - start))
+if [ "$got" = 0 ] && [ "$took" -le 30 ]; then
+  pass=$((pass + 1)); echo "ok   checker bits20-all.tables (exit 0, ${took} s)"
+else
+  fail=$((fail + 1)); echo "FAIL checker bits20-all.tables: want exit 0 within 30 s, got exit $got after ${took} s"; echo "$out" | sed 's/^/     /'
+fi
 rm -rf "$big"
 
 # The extracted code must not call unary nat arithmetic or conversions: the Nat
