@@ -1,0 +1,4 @@
+(doms 2 2 2)
+(mins 0 0 0)
+(evwhen (lt (add (var 0) (lit -1)) (lit 0)) (do (set 2 (lit 1))))
+(ev (do (set 0 (lit 1))))

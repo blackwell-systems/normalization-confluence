@@ -1,0 +1,5 @@
+(doms 2 1 2)
+(mins 0 1 0)
+(kinds int int bool)
+(ev (do (set 2 (sub (var 0) (var 1)))))
+(ev (do (set 0 (lit 1))))

@@ -1,0 +1,2 @@
+(doms 2)
+(ev (do (set 0 (lit 0x1))))

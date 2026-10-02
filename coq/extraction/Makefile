@@ -6,6 +6,8 @@ ASTCHECKER = astchecker
 
 all: $(CHECKER) $(ASTCHECKER)
 
+.PHONY: all test demo astdemo clean
+
 ../Checker.vo: ../Checker.v
 	cd .. && coqc -Q . NC Checker.v
 
@@ -36,6 +38,10 @@ astdemo: $(ASTCHECKER)
 	@printf '(doms 6 6)\n(inv (le (var 0) (lit 3)) (do (set 0 (lit 3))))\n(ev (do (set 0 (add (var 0) (lit 1))) (set 1 (add (var 1) (lit 1)))))\n(ev (do (set 1 (lit 0))))\n' > bad.machine
 	@echo "convergent rules:";     ./$(ASTCHECKER) good.machine
 	@echo "non-convergent rules:"; ./$(ASTCHECKER) bad.machine || echo "(correctly rejected)"
+
+# Regression tests: semantics (gsm's signed arithmetic) and front-end input validation.
+test: $(CHECKER) $(ASTCHECKER)
+	bash tests/run.sh
 
 clean:
 	rm -f checker_core.ml checker_core.mli *.cmi *.cmx *.cmo *.o $(CHECKER) $(ASTCHECKER) \
