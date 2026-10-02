@@ -6,6 +6,7 @@
    ExtractFixture.v and ExtractSemantics.v. *)
 From Coq Require Import Extraction.
 Require Import NC.TableFast.
+Require Import NC.TableFn.
 Require Import NC.AstChecker.
 Require Import NC.goextract.PrimRef.
 Require Import NC.goextract.Fixture.
@@ -13,7 +14,7 @@ Require Import NC.goextract.Semantics.
 
 Extraction Language OCaml.
 Recursive Extraction
-  check_fast checkBuild wfc bounded signSafe compensationFree
+  check_fn check_fast checkBuild wfc bounded signSafe compensationFree
   ref_andb ref_nat_add ref_nat_sub ref_nat_mul ref_nat_eqb ref_nat_compare ref_nat_ltb ref_nat_div2
   ref_nat_pred ref_nat_max ref_nat_min ref_nat_eq_nat_decide ref_nat_eq_nat_dec ref_nat_leb ref_nat_le_lt_dec
   ref_pos_add ref_pos_succ ref_pos_pred ref_pos_sub ref_pos_mul ref_pos_min ref_pos_max ref_pos_compare ref_pos_compare_cont

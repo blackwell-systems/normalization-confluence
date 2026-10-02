@@ -6,12 +6,8 @@
 # The checkers. None recurses on a number that grows with the state space
 # without being a tail call, so no stack grows with the input, and each runs
 # a bounded number of steps:
-oracle_core.json chunkT      fuel = list length; tail call (accumulator)
 oracle_core.json depthF      fuel; stops after at most 5 steps at 2^20 keys; tail call
 oracle_core.json powF        fuel; stops with depthF; tail call
-oracle_core.json levels      trie depth, at most 5 at 2^20 keys
-oracle_core.json zt          trie depth, at most 5 at 2^20 keys
-oracle_core.json skipn       at most 16 per trie node; tail call
 oracle_core.json nth         list index, below the list's length; tail call
 oracle_core.json seq         number of events (allPairs); not tail, depth = events
 oracle_core.json pairsAll    number of events; tail call (accumulator)
@@ -41,3 +37,8 @@ semantics.json      compose_n    Semantics.v (tail loop building closures)
 semantics.json      swapper      Semantics.v (tail call swapping arguments)
 semantics.json      ev           Semantics.v (mutual recursion)
 semantics.json      od           Semantics.v (mutual recursion)
+oracle_core.json allK        loop counter over states or events (check_fn); tail call
+oracle_core.json chunkH      fuel = list length; tail call (accumulator)
+oracle_core.json levelsV     trie depth, at most 5 at 2^20 keys
+oracle_core.json qget        block index of an event, below nE / 16; tail call
+oracle_core.json ztV         trie depth, at most 5 at 2^20 keys

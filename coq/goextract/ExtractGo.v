@@ -6,7 +6,8 @@
 From Coq Require Import Extraction.
 Require Import NC.goextract.ExtrGo.
 Require Import NC.TableFast.
+Require Import NC.TableFn.
 Require Import NC.AstChecker.
 
 Extraction Language JSON.
-Extraction "goextract/oracle_core.json" check_fast checkBuild wfc bounded signSafe compensationFree.
+Extraction "goextract/oracle_core.json" check_fn check_fast checkBuild wfc bounded signSafe compensationFree.
