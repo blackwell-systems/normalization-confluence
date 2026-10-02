@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 92 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 92 headline results (among them the single-registry
+Expected tail: `PASS: all 93 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 93 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -197,15 +197,23 @@ Rocq's primitive arrays would be O(1) but are specified by axioms.
 
 `TableFast.v` defines `check_fast`, the function the `checker` binary actually runs, and proves it
 equal to `check_tables` (`check_fast_eq`), so `check_tables_converges` holds for it
-(`check_fast_converges`). It computes the same boolean faster: a 16-ary trie (5 levels at 2^20
-keys instead of a 20-level binary tree, proven equal to list lookup by `wlook_of_list16`), with
-the digit chosen by integer comparisons that extract inline; one fused pass over the states that
-reads each state's normal form and steps sequentially, so only the lookups the property needs
-remain; and tail-recursive list helpers, so the extracted code's stack depth does not grow with
-the number of states, events or declared pairs (its only recursion is the trie, at most 8
-levels). On 2^20
-states with 10 declared pairs (gsm's largest machines) the extracted check takes about 5 s, where
-`check_tables`' extraction took about 60 s (measured with OCaml 5, whose stacks grow) and
+(`check_fast_converges`). It computes the same boolean faster. It builds one cell per state: the
+state's normal form and its column of steps `T[0][s] ... T[nE-1][s]` in blocks of 16, read by
+skipping blocks and four comparisons (proven equal to list lookup by `bget_chunk`); the rows are
+transposed 16 states at a time, so the transposition allocates per state only the cell's own
+blocks. The cells sit in a 16-ary trie (5 levels at 2^20 keys instead of a 20-level binary tree,
+proven equal to list lookup by `vlook_of_listV`) whose digit is found by four comparisons against
+thresholds built by addition, with no division and no multiplication. One pass over the cells then
+looks up, for each state, the cell of every step target once (nE trie walks per state, whatever
+the number of pairs) and answers each declared pair `(a, b)` with four block reads:
+`T[a][T[b][s]]` is entry `a` of the column of `T[b][s]`. Every list helper is tail-recursive, so
+the extracted code's stack depth does not grow with the number of states, events or declared
+pairs (its only non-tail recursion is the trie, at most 8 levels). On 2^20 states and 20 events
+(gsm's largest machines) with every pair declared, the `checker` binary takes about 10 s end to
+end, parsing the 150 MB tables file included, where the previous `check_fast` (a 16-ary trie per
+event row, two row lookups per pair per state) took about 29 s; with 10 declared pairs it takes
+about 6 s, most of it parsing (Apple M-series, OCaml 5). `check_tables`' own extraction took
+about 60 s on 2^20 states with 10 declared pairs (measured with OCaml 5, whose stacks grow) and
 overflowed OCaml 4.14's 8 MiB native stack. No axioms and no extraction directives beyond
 `Extract.v`'s. The table path relies on these existing `ExtrOcamlNatInt` mappings: `nat` as OCaml
 `int`, `Compare_dec.lt_dec` as `(<)` (inlined), `Nat.eqb` as `(=)`, `Nat.div2` as `n/2`, and
@@ -490,7 +498,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 92 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 93 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -501,7 +509,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 92
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 93
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
