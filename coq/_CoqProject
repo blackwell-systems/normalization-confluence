@@ -9,6 +9,7 @@ Checker.v
 Trace.v
 TableCheck.v
 TableFast.v
+TableFn.v
 AstChecker.v
 CRDT.v
 Categorical.v
