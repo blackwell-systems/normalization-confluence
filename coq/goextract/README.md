@@ -4,12 +4,12 @@
 
 - `check_fn` is the table oracle over accessor functions (`TableFn.v`): the caller passes `nf s` and `st e s` over tables it already holds, so nothing is copied. It is proven convergent on the accessors themselves (`check_fn_converges`), which must be pure, total and non-negative, and equal to `check_tables` and `check_fast` (`check_tables_fn`, `check_fast_fn`). gsm's gate uses it.
 - `check_fast` is the table oracle over lists. It is proven equal to `check_tables` (`check_fast_eq`) and convergent (`check_fast_converges`). `cmd/tablecheck` uses it.
-- `checkBuild` is the rules oracle, together with `wfc`, `bounded`, `signSafe` and `compensationFree`.
+- `checkBuildT` is the rules oracle (`AstTables.v`): step tables from the rules, scanned as `check_fast` does. `checkBuildT_eq` proves it equal to `checkBuild`, which is extracted too, for the differential test. `cmd/rulecheck` uses `checkBuildT`, together with `wfc`, `bounded`, `signSafe` and `compensationFree`.
 
 The Go is not hand-written. Rocq extracts the definitions to MiniML (`Extraction Language JSON`), and `gogen` translates that MiniML to Go mechanically.
 
 ```
-TableFast.v, TableFn.v, AstChecker.v
+TableFast.v, TableFn.v, AstChecker.v, AstTables.v
    --(Rocq extraction, ExtrGo.v directives)-->  oracle_core.json
    --(gogen)-->                                 oracle/oracle_gen.go   (package oracle)
 ```
@@ -52,6 +52,7 @@ TableFast.v, TableFn.v, AstChecker.v
   - The test compares the generated Go with Rocq's own `Compute` of every value (`semantics/compute.out`, written by `make json`).
   - The programs cover closures in loops, argument-swapping tail calls, mutual recursion, shadowing, unmapped Z/N/positive/nat arithmetic, partial and over-application, polymorphism, default branches, int64 edge values, records of functions, unused arguments and absurd branches.
 - `gogen/testdata/refuse`: extractions gogen must refuse (an axiom, a let-polymorphic function used at two types, a type needing `Obj.magic`, a local fixpoint in argument position).
+- `oracle/rules_test.go`: the generated `checkBuildT` against the generated `checkBuild` on random machines (`go test`).
 - `tests/`: the regression, large-input and differential tests (`tests/run.sh`).
 - `ci-extract.sh`: extracts inside a prover image, as CI does.
 

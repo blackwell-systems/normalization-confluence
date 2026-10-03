@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -42,6 +42,7 @@ Print Assumptions check_fast_converges.
 Print Assumptions check_fn_converges.
 Print Assumptions check_tables_fn.
 Print Assumptions check_fast_fn.
+Print Assumptions scan_cells_fn.
 Print Assumptions stepG_valid_eq.
 Print Assumptions checkBuild_normalize_valid.
 Print Assumptions checkBuild_wfc_terminates.
@@ -53,6 +54,13 @@ Print Assumptions checkBuild_converges_all.
 Print Assumptions checkBuild_no_overflow.
 Print Assumptions checkBuild_binary_writes_exact.
 Print Assumptions checkBuild_pairs_in_range.
+Print Assumptions boxT_eq.
+Print Assumptions enc_box.
+Print Assumptions box_enc.
+Print Assumptions cells_ok.
+Print Assumptions tables_fn_eq.
+Print Assumptions checkBuildT_eq.
+Print Assumptions checkBuildT_converges.
 Print Assumptions compensationFree_step_no_repair.
 Print Assumptions cmrdt_SEC.
 Print Assumptions cmrdt_governed_SEC.
@@ -118,8 +126,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 96 ]; then
-  echo "FAIL: expected 96 axiom-free results, got $N"
+if [ "$N" -lt 104 ]; then
+  echo "FAIL: expected 104 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
