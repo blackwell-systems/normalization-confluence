@@ -340,7 +340,7 @@ Proof.
     destruct (hi16_spec (S e)) as [E1 D1]. destruct (hi16_spec (x * W)) as [E2 D2].
     apply alignN_rdq; [unfold viewOf; cbn [vof]; lia | exact D1 |].
     assert (hi16 (S e) <= hi16 nE).
-    { unfold hi16. repeat apply Nat.div2_le_mono. lia. }
+    { destruct (hi16_spec nE) as [E3 D3]. lia. }
     lia. }
   assert (Hst : forall s, s < n -> state_okC n nE (S (hi16 nE)) L (L - 1) ST [] zb spB (mapT cpairOf (pairsOfT nE P)) s = true <->
             (inDf n nf s = true -> forall p, In p (pairsOf nE P) -> pair_okF st s p = true)).
