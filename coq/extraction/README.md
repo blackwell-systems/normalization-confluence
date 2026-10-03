@@ -124,8 +124,14 @@ Both front ends validate input and exit 2 on anything malformed, because the ext
 only meaningful on well-formed values: integers must be decimal (no `0x`, `+` or `_`) and at most
 2^31-1 in magnitude; state ids, variable indices and domains must be non-negative; the tables
 file must hold exactly the entries its header announces, with `V >= 1`; declared pairs must name
-existing events; every domain is at least 1; the product of the domains (the number of states) is at most 2^24, 16 times gsm's largest machines; `mins` gives exactly one
-entry per variable; every variable index names a declared variable.
+existing events; every domain is at least 1; the product of the domains (the number of states)
+is at most 2^24, 16 times gsm's largest machines; `mins` gives exactly one entry per variable;
+every variable index names a declared variable.
+
+The 2^24 cap bounds how many states the rules oracle enumerates. It does not bound its memory:
+a machine at the cap is 16 times gsm's largest, and its tables can need several GB (for the
+rules oracle as of #14, at 16 times its 2^20 figures, about 8 GB in OCaml and over 20 GB in
+Go).
 
 ## Tests
 
