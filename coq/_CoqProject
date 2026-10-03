@@ -12,6 +12,7 @@ TableFast.v
 TableFn.v
 AstChecker.v
 AstTables.v
+AstCompact.v
 CRDT.v
 Categorical.v
 Cohomology.v

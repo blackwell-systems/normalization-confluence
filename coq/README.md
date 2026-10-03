@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 104 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 104 headline results (among them the single-registry
+Expected tail: `PASS: all 112 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 112 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -159,7 +159,7 @@ hypotheses; `Print Assumptions` on all four results is "Closed under the global 
 brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
 not mechanized; the disjointness path is the substantive one.
 
-## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `TableFast.v`, `TableFn.v`, `AstChecker.v`, `AstTables.v`, `extraction/`)
+## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `TableFast.v`, `TableFn.v`, `AstChecker.v`, `AstTables.v`, `AstCompact.v`, `extraction/`)
 
 Two independent, machine-checked checkers re-certify a gsm machine's convergence, each extracted
 to a runnable OCaml binary in `extraction/` and generated as Go in `goextract/` (gsm runs the Go
@@ -293,7 +293,7 @@ format and every digest over it are unchanged; without that file every pair is c
 
 `checkBuild` checks commutation pair by pair: for every state in the domain and every declared
 pair it evaluates the rules four times, each with a normalization, so its time grows with states
-times pairs. The extracted rules oracle runs `checkBuildT` (`AstTables.v`), which decides the same
+times pairs. `checkBuildT` (`AstTables.v`) decides the same
 property through step tables computed from the rules: it numbers the valuation box by a
 mixed-radix encoding (variable 0 the most significant digit; `boxT` lists the box in that order
 with tail-recursive loops), computes `NF[s]` from one normalization per state and `T[e][s]` as
@@ -315,6 +315,35 @@ events (a capped counter on two 1024-valued variables, or 20 Booleans) about 2 s
 took about 4 s (Apple M1 Pro, OCaml 5). The tables cost memory: about 280 to 480 MiB at 2^20 states
 in OCaml (one cell per state: its record, a list and 16-entry blocks), where `checkBuild` peaks at
 90 to 150 MiB.
+
+The extracted rules oracle runs `checkBuildC` (`AstCompact.v`), which decides the same property in
+about `checkBuildT`'s time and keeps only the tables, packed. It never lists the valuation box:
+`foldB` enumerates it on the fly (`foldD` over the leading variables, in descending order, so every
+list it builds comes out ascending; the box of the last variables, at most 4096 states, is listed
+once and shared as the valuations' tails). The table entries form one sequence: state `s`'s column
+`NF[s], T[0][s], ..., T[nE-1][s]` at positions `s*W .. s*W+W-1` (`W = nE + 1`), held as 16-entry
+blocks built 16 states at a time (16 columns are exactly `W` blocks, so only the last block is
+padded), and a 16-ary trie over the blocks' suffixes finds a state's column in one lookup. The scan
+checks what `ccA` checks: every declared pair commutes at every state that is valid or 0. The
+validity parts of the table check are implied by WFC (as `tables_fn_eq` shows), so they are not
+rechecked. As in `check_fast`, each step target's column is found once per state; it is realigned
+to a block boundary (`realign`, four comparisons against constants), so every pair reads it at a
+digit fixed by the pair. Every read compares and adds; nothing subtracts (nat subtraction extracts
+through OCaml's polymorphic `max`). Its theorems, all axiom-free: `foldD_eq` and `foldB_eq` (the
+enumeration is `fold_right` over `boxR`), `p2_inv` (the blocks read exactly the column sequence),
+`rdj_view` and `alignN_rdq` (a view and its realigned column read that sequence), `scanC_spec` (the
+scan decides commutation on the valid states and 0, read from the sequence), `checkBuildC_eq`
+(`checkBuildC m P = checkBuild m P` for every machine and declaration) and `checkBuildC_converges`.
+At 2^20 states (Apple M1 Pro; OCaml 5, and the generated Go with Go 1.26):
+
+| machine | `checkBuildC` OCaml | `checkBuild` OCaml | `checkBuildC` Go | `checkBuild` Go |
+|---|---|---|---|---|
+| two 1024-valued variables, 3 events | 2.0 s, 69 MiB | 4.0 s, 88 MiB | 4.9 s, 159 MiB | 9.8 s, 156 MiB |
+| 20 two-valued variables, 3 events | 1.5 s, 128 MiB | 3.6 s, 130 MiB | 5.5 s, 172 MiB | 12.6 s, 244 MiB |
+| 20 two-valued variables, 20 events, every pair (190) | 10.1 s, 443 MiB | 261 s, 149 MiB | 20.2 s, 701 MiB | not run |
+
+With 20 events the table itself is 22M entries (about 176 MB at 8 bytes each), so it outweighs the
+box list `checkBuild` holds; with few events the packed table is smaller than that list.
 
 ### What this does and does not require of you: no continuous porting to Coq
 
@@ -537,7 +566,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 104 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 112 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -545,7 +574,7 @@ module and passes the gate.
 ```
 make          # compiles every module (Newman, Governance, Defensibility, Gsm, Federation,
               # Chaotic, Checker, Trace, TableCheck, TableFast, TableFn, AstChecker,
-              # AstTables, CRDT, ...)
+              # AstTables, AstCompact, CRDT, ...)
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 

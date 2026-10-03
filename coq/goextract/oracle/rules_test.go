@@ -1,9 +1,11 @@
 package oracle
 
-// The generated checkBuildT (step tables from the rules, what rulecheck runs)
+// The generated checkBuildC (step tables from the rules packed in blocks,
+// what rulecheck runs) and checkBuildT (step tables in check_fast's cells)
 // against the generated checkBuild (the pairwise rules check), on random
-// machines. AstTables.v proves them equal on every machine and declaration
-// (checkBuildT_eq); this checks gogen's translation of both. The machines are
+// machines. AstCompact.v and AstTables.v prove them equal on every machine and
+// declaration (checkBuildC_eq, checkBuildT_eq); this checks gogen's
+// translation of all three. The machines are
 // not limited to what the front end admits: domains may be 0, variable
 // indices may name no variable, and declared pairs may name events past the
 // last. The test also requires both verdicts to occur, so the sweep covers
@@ -120,9 +122,9 @@ func TestCheckBuildTDifferential(t *testing.T) {
 		verdicts := map[bool]int{}
 		for i := 0; i < count; i++ {
 			m, p := g.machine()
-			old, tab := F_checkBuild(m, p), F_checkBuildT(m, p)
-			if old != tab {
-				t.Fatalf("seed %d machine %d: checkBuild=%v checkBuildT=%v", seed, i, old, tab)
+			old, tab, cmp := F_checkBuild(m, p), F_checkBuildT(m, p), F_checkBuildC(m, p)
+			if old != tab || old != cmp {
+				t.Fatalf("seed %d machine %d: checkBuild=%v checkBuildT=%v checkBuildC=%v", seed, i, old, tab, cmp)
 			}
 			verdicts[old]++
 		}

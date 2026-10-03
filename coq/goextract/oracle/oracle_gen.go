@@ -62,6 +62,21 @@ func K_Gt() *I_comparison {
 	return &I_comparison{tag: 2}
 }
 
+type I_cpair struct {
+	tag  uint8
+	f0_0 int64
+	f0_1 int64
+	f0_2 int64
+	f0_3 int64
+	f0_4 *I_split
+	f0_5 *I_split
+}
+
+// K_Build_cpair builds the constructor Build_cpair.
+func K_Build_cpair(a0 int64, a1 int64, a2 int64, a3 int64, a4 *I_split, a5 *I_split) *I_cpair {
+	return &I_cpair{tag: 0, f0_0: a0, f0_1: a1, f0_2: a2, f0_3: a3, f0_4: a4, f0_5: a5}
+}
+
 type I_expr struct {
 	tag  uint8
 	f0_0 int64
@@ -203,6 +218,17 @@ func K_Build_rpair(a0 int64, a1 int64, a2 int64, a3 int64) *I_rpair {
 	return &I_rpair{tag: 0, f0_0: a0, f0_1: a1, f0_2: a2, f0_3: a3}
 }
 
+type I_split struct {
+	tag  uint8
+	f0_0 int64
+	f0_1 int64
+}
+
+// K_Build_split builds the constructor Build_split.
+func K_Build_split(a0 int64, a1 int64) *I_split {
+	return &I_split{tag: 0, f0_0: a0, f0_1: a1}
+}
+
 type I_v16[P_A any] struct {
 	tag   uint8
 	f0_0  P_A
@@ -247,6 +273,17 @@ func K_VL[P_A any](a0 P_A, a1 P_A, a2 P_A, a3 P_A, a4 P_A, a5 P_A, a6 P_A, a7 P_
 // K_VN builds the constructor VN.
 func K_VN[P_A any](a0 *I_v16[P_A], a1 *I_v16[P_A], a2 *I_v16[P_A], a3 *I_v16[P_A], a4 *I_v16[P_A], a5 *I_v16[P_A], a6 *I_v16[P_A], a7 *I_v16[P_A], a8 *I_v16[P_A], a9 *I_v16[P_A], a10 *I_v16[P_A], a11 *I_v16[P_A], a12 *I_v16[P_A], a13 *I_v16[P_A], a14 *I_v16[P_A], a15 *I_v16[P_A]) *I_v16[P_A] {
 	return &I_v16[P_A]{tag: 1, f1_0: a0, f1_1: a1, f1_2: a2, f1_3: a3, f1_4: a4, f1_5: a5, f1_6: a6, f1_7: a7, f1_8: a8, f1_9: a9, f1_10: a10, f1_11: a11, f1_12: a12, f1_13: a13, f1_14: a14, f1_15: a15}
+}
+
+type I_view struct {
+	tag  uint8
+	f0_0 *I_list[*I_blk[int64]]
+	f0_1 int64
+}
+
+// K_Build_view builds the constructor Build_view.
+func K_Build_view(a0 *I_list[*I_blk[int64]], a1 int64) *I_view {
+	return &I_view{tag: 0, f0_0: a0, f0_1: a1}
 }
 
 type I_vt[P_A any] struct {
@@ -436,6 +473,80 @@ func F_add_carry(x_in int64, y_in int64) int64 {
 		default:
 			panic("gogen: no case matches")
 		}
+	}
+}
+
+func F_alignN(k_in int64, o_in int64, zk_in *I_blk[int64], t_in *I_list[*I_blk[int64]]) *I_list[*I_blk[int64]] {
+	for {
+		k_1 := k_in
+		_ = k_1
+		o_2 := o_in
+		_ = o_2
+		zk_3 := zk_in
+		_ = zk_3
+		t_4 := t_in
+		_ = t_4
+		if k_1 < 0 {
+			panic("gogen: not a nat")
+		}
+		switch {
+		case k_1 == 0:
+			t_5 := &I_list[*I_blk[int64]]{tag: 0}
+			return t_5
+		case k_1 > 0:
+			k_p_6 := k_1 - 1
+			_ = k_p_6
+			switch t_4.tag {
+			case 0:
+				t_7 := &I_list[*I_blk[int64]]{tag: 0}
+				return t_7
+			case 1:
+				b0_8 := t_4.f1_0
+				_ = b0_8
+				r_9 := t_4.f1_1
+				_ = r_9
+				t_10 := F_hd[*I_blk[int64]](zk_3, r_9)
+				t_11 := F_realign(o_2, b0_8, t_10)
+				t_12 := F_alignN(k_p_6, o_2, zk_3, r_9)
+				t_13 := &I_list[*I_blk[int64]]{tag: 1, f1_0: t_11, f1_1: t_12}
+				return t_13
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_alignV(k_in int64, zk_in *I_blk[int64], v_in *I_view) *I_list[*I_blk[int64]] {
+	for {
+		k_1 := k_in
+		_ = k_1
+		zk_2 := zk_in
+		_ = zk_2
+		v_3 := v_in
+		_ = v_3
+		var r_4 int64
+		switch v_3.tag {
+		case 0:
+			vof_5 := v_3.f0_1
+			_ = vof_5
+			r_4 = vof_5
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_6 *I_list[*I_blk[int64]]
+		switch v_3.tag {
+		case 0:
+			vtl_7 := v_3.f0_0
+			_ = vtl_7
+			r_6 = vtl_7
+		default:
+			panic("gogen: no case matches")
+		}
+		t_8 := F_alignN(k_1, r_4, zk_2, r_6)
+		return t_8
 	}
 }
 
@@ -1547,6 +1658,91 @@ func F_checkBuild(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]
 	}
 }
 
+func F_checkBuildC(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
+	for {
+		m_1 := m_in
+		_ = m_1
+		p_2 := p_in
+		_ = p_2
+		t_4 := F_bounded(m_1)
+		b_3 := t_4
+		if b_3 {
+			t_5 := F_signSafe(m_1)
+			b_3 = t_5
+		}
+		if !b_3 {
+			return false
+		}
+		var r_6 *I_list[int64]
+		switch m_1.tag {
+		case 0:
+			doms_7 := m_1.f0_0
+			_ = doms_7
+			r_6 = doms_7
+		default:
+			panic("gogen: no case matches")
+		}
+		ds_8 := r_6
+		_ = ds_8
+		t_9 := F_fuelOf(m_1)
+		t_12 := func(a_10 *I_list[int64]) func(*I_prod[bool, *I_list[int64]]) *I_prod[bool, *I_list[int64]] {
+			return func(a_11 *I_prod[bool, *I_list[int64]]) *I_prod[bool, *I_list[int64]] {
+				return F_p1(m_1, t_9, a_10, a_11)
+			}
+		}
+		t_13 := &I_list[int64]{tag: 0}
+		t_14 := &I_prod[bool, *I_list[int64]]{tag: 0, f0_0: true, f0_1: t_13}
+		t_15 := F_foldB[*I_prod[bool, *I_list[int64]]](ds_8, t_12, t_14)
+		r1_16 := t_15
+		_ = r1_16
+		t_17 := F_fst[bool, *I_list[int64]](r1_16)
+		if !t_17 {
+			return false
+		}
+		var r_18 *I_list[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]]
+		switch m_1.tag {
+		case 0:
+			evs_19 := m_1.f0_3
+			_ = evs_19
+			r_18 = evs_19
+		default:
+			panic("gogen: no case matches")
+		}
+		t_20 := F_lenT[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]](r_18, int64(0))
+		nE_21 := t_20
+		_ = nE_21
+		t_22 := F_pairs_okW(nE_21, p_2)
+		if !t_22 {
+			return false
+		}
+		t_23 := F_snd[bool, *I_list[int64]](r1_16)
+		t_24 := F_lenT[int64](t_23, int64(0))
+		n_25 := t_24
+		_ = n_25
+		t_26 := F_snd[bool, *I_list[int64]](r1_16)
+		t_27 := F_of_listV[int64](int64(0), t_26)
+		t_29 := func(a_28 int64) int64 {
+			return F_vlook[int64](int64(0), t_27, a_28)
+		}
+		look_30 := t_29
+		_ = look_30
+		t_33 := func(a_31 *I_list[int64]) func(*I_prod[*I_list[int64], *I_list[*I_blk[int64]]]) *I_prod[*I_list[int64], *I_list[*I_blk[int64]]] {
+			return func(a_32 *I_prod[*I_list[int64], *I_list[*I_blk[int64]]]) *I_prod[*I_list[int64], *I_list[*I_blk[int64]]] {
+				return F_p2(m_1, look_30, a_31, a_32)
+			}
+		}
+		t_34 := &I_list[int64]{tag: 0}
+		t_35 := &I_list[*I_blk[int64]]{tag: 0}
+		t_36 := &I_prod[*I_list[int64], *I_list[*I_blk[int64]]]{tag: 0, f0_0: t_34, f0_1: t_35}
+		t_37 := F_foldB[*I_prod[*I_list[int64], *I_list[*I_blk[int64]]]](ds_8, t_33, t_36)
+		t_38 := F_snd[*I_list[int64], *I_list[*I_blk[int64]]](t_37)
+		lb_39 := t_38
+		_ = lb_39
+		t_40 := F_scanC(n_25, nE_21, lb_39, p_2)
+		return t_40
+	}
+}
+
 func F_checkBuildT(m_in *I_machine, p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
 	for {
 		m_1 := m_in
@@ -1810,6 +2006,88 @@ func F_chunkH[T1 any, T2 any](f_in int64, mk_in func(T1) func(T1) func(T1) func(
 	}
 }
 
+func F_colOnto(m_in *I_machine, look_in func(int64) int64, v_in *I_list[int64], buf_in *I_list[int64]) *I_list[int64] {
+	for {
+		m_1 := m_in
+		_ = m_1
+		look_2 := look_in
+		_ = look_2
+		v_3 := v_in
+		_ = v_3
+		buf_4 := buf_in
+		_ = buf_4
+		var r_5 *I_list[int64]
+		switch m_1.tag {
+		case 0:
+			doms_6 := m_1.f0_0
+			_ = doms_6
+			r_5 = doms_6
+		default:
+			panic("gogen: no case matches")
+		}
+		t_7 := F_enc(r_5, v_3)
+		t_8 := look_2(t_7)
+		t_15 := func(ge_9 *I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]) int64 {
+			_ = ge_9
+			var r_10 *I_list[int64]
+			switch m_1.tag {
+			case 0:
+				doms_11 := m_1.f0_0
+				_ = doms_11
+				r_10 = doms_11
+			default:
+				panic("gogen: no case matches")
+			}
+			t_12 := F_gapp(m_1, ge_9, v_3)
+			t_13 := F_enc(r_10, t_12)
+			t_14 := look_2(t_13)
+			return t_14
+		}
+		var r_16 *I_list[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]]]
+		switch m_1.tag {
+		case 0:
+			evs_17 := m_1.f0_3
+			_ = evs_17
+			r_16 = evs_17
+		default:
+			panic("gogen: no case matches")
+		}
+		t_18 := &I_list[int64]{tag: 0}
+		t_19 := F_revMap[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]], int64](t_15, r_16, t_18)
+		t_20 := F_rev_append[int64](t_19, buf_4)
+		t_21 := &I_list[int64]{tag: 1, f1_0: t_8, f1_1: t_20}
+		return t_21
+	}
+}
+
+func F_commC(z_in *I_list[*I_blk[int64]], ls_in *I_list[*I_blk[*I_list[*I_blk[int64]]]], rp_in *I_list[*I_cpair]) bool {
+	for {
+		z_1 := z_in
+		_ = z_1
+		ls_2 := ls_in
+		_ = ls_2
+		rp_3 := rp_in
+		_ = rp_3
+		switch rp_3.tag {
+		case 0:
+			return true
+		case 1:
+			r_4 := rp_3.f1_0
+			_ = r_4
+			t_5 := rp_3.f1_1
+			_ = t_5
+			t_6 := F_pair_okC(z_1, ls_2, r_4)
+			if !t_6 {
+				return false
+			}
+			z_in, ls_in, rp_in = z_1, ls_2, t_5
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_commF(st_in func(int64) func(int64) int64, s_in int64, rp_in *I_list[*I_prod[int64, int64]]) bool {
 	for {
 		st_1 := st_in
@@ -1976,6 +2254,35 @@ func F_compensationFree(m_in *I_machine) bool {
 		t_6 := F_box(r_4)
 		t_7 := F_forallb[*I_list[int64]](t_3, t_6)
 		return t_7
+	}
+}
+
+func F_cpairOf(p_in *I_prod[int64, int64]) *I_cpair {
+	for {
+		p_1 := p_in
+		_ = p_1
+		t_2 := F_fst[int64, int64](p_1)
+		a_3 := t_2
+		_ = a_3
+		t_4 := F_snd[int64, int64](p_1)
+		b_5 := t_4
+		_ = b_5
+		t_6 := F_hi16(a_3)
+		ha_7 := t_6
+		_ = ha_7
+		t_8 := F_hi16(b_5)
+		hb_9 := t_8
+		_ = hb_9
+		t_10 := zMul(int64(16), ha_7)
+		t_11 := natSub(a_3, t_10)
+		t_12 := zMul(int64(16), hb_9)
+		t_13 := natSub(b_5, t_12)
+		t_14 := natSucc(a_3)
+		t_15 := F_splitJ(t_14)
+		t_16 := natSucc(b_5)
+		t_17 := F_splitJ(t_16)
+		t_18 := &I_cpair{tag: 0, f0_0: ha_7, f0_1: t_11, f0_2: hb_9, f0_3: t_13, f0_4: t_15, f0_5: t_17}
+		return t_18
 	}
 }
 
@@ -2184,6 +2491,173 @@ func F_dsel[T1 any](d_in int64, t_in *I_blk[T1]) T1 {
 						}
 					case !t_31:
 						t_33 := ltb(d_1, int64(15))
+						switch {
+						case t_33:
+							return x14_17
+						case !t_33:
+							return x15_18
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				default:
+					panic("gogen: no case matches")
+				}
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_dselH[T1 any](d_in int64, t_in *I_blk[T1]) T1 {
+	for {
+		d_1 := d_in
+		_ = d_1
+		t_2 := t_in
+		_ = t_2
+		switch t_2.tag {
+		case 0:
+			x0_3 := t_2.f0_0
+			_ = x0_3
+			x1_4 := t_2.f0_1
+			_ = x1_4
+			x2_5 := t_2.f0_2
+			_ = x2_5
+			x3_6 := t_2.f0_3
+			_ = x3_6
+			x4_7 := t_2.f0_4
+			_ = x4_7
+			x5_8 := t_2.f0_5
+			_ = x5_8
+			x6_9 := t_2.f0_6
+			_ = x6_9
+			x7_10 := t_2.f0_7
+			_ = x7_10
+			x8_11 := t_2.f0_8
+			_ = x8_11
+			x9_12 := t_2.f0_9
+			_ = x9_12
+			x10_13 := t_2.f0_10
+			_ = x10_13
+			x11_14 := t_2.f0_11
+			_ = x11_14
+			x12_15 := t_2.f0_12
+			_ = x12_15
+			x13_16 := t_2.f0_13
+			_ = x13_16
+			x14_17 := t_2.f0_14
+			_ = x14_17
+			x15_18 := t_2.f0_15
+			_ = x15_18
+			t_19 := ltb(d_1, int64(24))
+			switch {
+			case t_19:
+				t_20 := ltb(d_1, int64(20))
+				switch {
+				case t_20:
+					t_21 := ltb(d_1, int64(18))
+					switch {
+					case t_21:
+						t_22 := ltb(d_1, int64(17))
+						switch {
+						case t_22:
+							return x0_3
+						case !t_22:
+							return x1_4
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_21:
+						t_23 := ltb(d_1, int64(19))
+						switch {
+						case t_23:
+							return x2_5
+						case !t_23:
+							return x3_6
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				case !t_20:
+					t_24 := ltb(d_1, int64(22))
+					switch {
+					case t_24:
+						t_25 := ltb(d_1, int64(21))
+						switch {
+						case t_25:
+							return x4_7
+						case !t_25:
+							return x5_8
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_24:
+						t_26 := ltb(d_1, int64(23))
+						switch {
+						case t_26:
+							return x6_9
+						case !t_26:
+							return x7_10
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				default:
+					panic("gogen: no case matches")
+				}
+			case !t_19:
+				t_27 := ltb(d_1, int64(28))
+				switch {
+				case t_27:
+					t_28 := ltb(d_1, int64(26))
+					switch {
+					case t_28:
+						t_29 := ltb(d_1, int64(25))
+						switch {
+						case t_29:
+							return x8_11
+						case !t_29:
+							return x9_12
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_28:
+						t_30 := ltb(d_1, int64(27))
+						switch {
+						case t_30:
+							return x10_13
+						case !t_30:
+							return x11_14
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				case !t_27:
+					t_31 := ltb(d_1, int64(30))
+					switch {
+					case t_31:
+						t_32 := ltb(d_1, int64(29))
+						switch {
+						case t_32:
+							return x12_15
+						case !t_32:
+							return x13_16
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_31:
+						t_33 := ltb(d_1, int64(31))
 						switch {
 						case t_33:
 							return x14_17
@@ -2724,6 +3198,88 @@ func F_flat_map[T1 any, T2 any](f_in func(T1) *I_list[T2], l_in *I_list[T1]) *I_
 			t_7 := F_flat_map[T1, T2](f_1, l0_5)
 			t_8 := F_app[T2](t_6, t_7)
 			return t_8
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_foldB[T1 any](ds_in *I_list[int64], f_in func(*I_list[int64]) func(T1) T1, acc_in T1) T1 {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		f_2 := f_in
+		_ = f_2
+		acc_3 := acc_in
+		_ = acc_3
+		t_4 := zMul(int64(16), int64(16))
+		t_5 := zMul(t_4, int64(16))
+		t_6 := F_splitSuf(t_5, ds_1)
+		ps_7 := t_6
+		_ = ps_7
+		t_8 := F_snd[*I_list[int64], *I_list[int64]](ps_7)
+		t_9 := F_boxT(t_8)
+		t_10 := &I_list[*I_list[int64]]{tag: 0}
+		t_11 := F_rev_append[*I_list[int64]](t_9, t_10)
+		r_12 := t_11
+		_ = r_12
+		t_13 := F_fst[*I_list[int64], *I_list[int64]](ps_7)
+		t_22 := func(pv_14 *I_list[int64]) func(T1) T1 {
+			return func(a_15 T1) T1 {
+				_ = pv_14
+				_ = a_15
+				t_20 := func(a_p_16 T1) func(*I_list[int64]) T1 {
+					return func(w_17 *I_list[int64]) T1 {
+						_ = a_p_16
+						_ = w_17
+						t_18 := F_app[int64](pv_14, w_17)
+						t_19 := f_2(t_18)(a_p_16)
+						return t_19
+					}
+				}
+				t_21 := F_fold_left[T1, *I_list[int64]](t_20, r_12, a_15)
+				return t_21
+			}
+		}
+		t_23 := F_foldD[T1](t_13, t_22, acc_3)
+		return t_23
+	}
+}
+
+func F_foldD[T1 any](ds_in *I_list[int64], f_in func(*I_list[int64]) func(T1) T1, acc_in T1) T1 {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		f_2 := f_in
+		_ = f_2
+		acc_3 := acc_in
+		_ = acc_3
+		switch ds_1.tag {
+		case 0:
+			t_4 := &I_list[int64]{tag: 0}
+			t_5 := f_2(t_4)(acc_3)
+			return t_5
+		case 1:
+			d_6 := ds_1.f1_0
+			_ = d_6
+			rest_7 := ds_1.f1_1
+			_ = rest_7
+			t_15 := func(x_8 int64) func(T1) T1 {
+				return func(a_9 T1) T1 {
+					_ = x_8
+					_ = a_9
+					t_13 := func(w_10 *I_list[int64]) func(T1) T1 {
+						_ = w_10
+						t_11 := &I_list[int64]{tag: 1, f1_0: x_8, f1_1: w_10}
+						t_12 := f_2(t_11)
+						return t_12
+					}
+					t_14 := F_foldD[T1](rest_7, t_13, a_9)
+					return t_14
+				}
+			}
+			t_16 := F_loopD[T1](t_15, d_6, acc_3)
+			return t_16
 		default:
 			panic("gogen: no case matches")
 		}
@@ -3400,6 +3956,32 @@ func F_lo(m_in *I_machine, e_in *I_expr) int64 {
 	}
 }
 
+func F_loopD[T1 any](g_in func(int64) func(T1) T1, k_in int64, acc_in T1) T1 {
+	for {
+		g_1 := g_in
+		_ = g_1
+		k_2 := k_in
+		_ = k_2
+		acc_3 := acc_in
+		_ = acc_3
+		if k_2 < 0 {
+			panic("gogen: not a nat")
+		}
+		switch {
+		case k_2 == 0:
+			return acc_3
+		case k_2 > 0:
+			k_p_4 := k_2 - 1
+			_ = k_p_4
+			t_5 := g_1(k_p_4)(acc_3)
+			g_in, k_in, acc_in = g_1, k_p_4, t_5
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_ltb(x_in int64, y_in int64) bool {
 	for {
 		x_1 := x_in
@@ -3712,6 +4294,270 @@ func F_of_listV[T1 any](z_in T1, l_in *I_list[T1]) *I_vt[T1] {
 		t_12 := F_nth[*I_v16[T1]](int64(0), t_10, t_11)
 		t_13 := &I_vt[T1]{tag: 0, f0_0: p_8, f0_1: t_9, f0_2: t_12}
 		return t_13
+	}
+}
+
+func F_p1(m_in *I_machine, f_in int64, v_in *I_list[int64], st_in *I_prod[bool, *I_list[int64]]) *I_prod[bool, *I_list[int64]] {
+	for {
+		m_1 := m_in
+		_ = m_1
+		f_2 := f_in
+		_ = f_2
+		v_3 := v_in
+		_ = v_3
+		st_4 := st_in
+		_ = st_4
+		t_5 := F_fst[bool, *I_list[int64]](st_4)
+		switch {
+		case t_5:
+			t_6 := F_normalize(m_1, f_2, v_3)
+			w_7 := t_6
+			_ = w_7
+			t_8 := F_allValid(m_1, w_7)
+			var r_9 *I_list[int64]
+			switch m_1.tag {
+			case 0:
+				doms_10 := m_1.f0_0
+				_ = doms_10
+				r_9 = doms_10
+			default:
+				panic("gogen: no case matches")
+			}
+			t_11 := F_enc(r_9, w_7)
+			t_12 := F_snd[bool, *I_list[int64]](st_4)
+			t_13 := &I_list[int64]{tag: 1, f1_0: t_11, f1_1: t_12}
+			t_14 := &I_prod[bool, *I_list[int64]]{tag: 0, f0_0: t_8, f0_1: t_13}
+			return t_14
+		case !t_5:
+			return st_4
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_p2(m_in *I_machine, look_in func(int64) int64, v_in *I_list[int64], st_in *I_prod[*I_list[int64], *I_list[*I_blk[int64]]]) *I_prod[*I_list[int64], *I_list[*I_blk[int64]]] {
+	for {
+		m_1 := m_in
+		_ = m_1
+		look_2 := look_in
+		_ = look_2
+		v_3 := v_in
+		_ = v_3
+		st_4 := st_in
+		_ = st_4
+		t_5 := F_fst[*I_list[int64], *I_list[*I_blk[int64]]](st_4)
+		t_6 := F_colOnto(m_1, look_2, v_3, t_5)
+		buf_7 := t_6
+		_ = buf_7
+		var r_8 *I_list[int64]
+		switch m_1.tag {
+		case 0:
+			doms_9 := m_1.f0_0
+			_ = doms_9
+			r_8 = doms_9
+		default:
+			panic("gogen: no case matches")
+		}
+		t_10 := F_enc(r_8, v_3)
+		i_11 := t_10
+		_ = i_11
+		t_12 := F_hi16(i_11)
+		t_13 := zMul(int64(16), t_12)
+		t_14 := natSub(i_11, t_13)
+		t_15 := eqb(t_14, int64(0))
+		switch {
+		case t_15:
+			t_16 := &I_list[int64]{tag: 0}
+			t_34 := func(x_17 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+				return func(x0_18 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+					return func(x1_19 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+						return func(x2_20 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+							return func(x3_21 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+								return func(x4_22 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+									return func(x5_23 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+										return func(x6_24 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+											return func(x7_25 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+												return func(x8_26 int64) func(int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+													return func(x9_27 int64) func(int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+														return func(x10_28 int64) func(int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+															return func(x11_29 int64) func(int64) func(int64) func(int64) *I_blk[int64] {
+																return func(x12_30 int64) func(int64) func(int64) *I_blk[int64] {
+																	return func(x13_31 int64) func(int64) *I_blk[int64] {
+																		return func(x14_32 int64) *I_blk[int64] {
+																			_ = x_17
+																			_ = x0_18
+																			_ = x1_19
+																			_ = x2_20
+																			_ = x3_21
+																			_ = x4_22
+																			_ = x5_23
+																			_ = x6_24
+																			_ = x7_25
+																			_ = x8_26
+																			_ = x9_27
+																			_ = x10_28
+																			_ = x11_29
+																			_ = x12_30
+																			_ = x13_31
+																			_ = x14_32
+																			t_33 := &I_blk[int64]{tag: 0, f0_0: x_17, f0_1: x0_18, f0_2: x1_19, f0_3: x2_20, f0_4: x3_21, f0_5: x4_22, f0_6: x5_23, f0_7: x6_24, f0_8: x7_25, f0_9: x8_26, f0_10: x9_27, f0_11: x10_28, f0_12: x11_29, f0_13: x12_30, f0_14: x13_31, f0_15: x14_32}
+																			return t_33
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			t_35 := F_chunk[int64, *I_blk[int64]](t_34, int64(0), buf_7)
+			t_36 := &I_list[*I_blk[int64]]{tag: 0}
+			t_37 := F_rev_append[*I_blk[int64]](t_35, t_36)
+			t_38 := F_snd[*I_list[int64], *I_list[*I_blk[int64]]](st_4)
+			t_39 := F_rev_append[*I_blk[int64]](t_37, t_38)
+			t_40 := &I_prod[*I_list[int64], *I_list[*I_blk[int64]]]{tag: 0, f0_0: t_16, f0_1: t_39}
+			return t_40
+		case !t_15:
+			t_41 := F_snd[*I_list[int64], *I_list[*I_blk[int64]]](st_4)
+			t_42 := &I_prod[*I_list[int64], *I_list[*I_blk[int64]]]{tag: 0, f0_0: buf_7, f0_1: t_41}
+			return t_42
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_pair_okC(z_in *I_list[*I_blk[int64]], ls_in *I_list[*I_blk[*I_list[*I_blk[int64]]]], r_in *I_cpair) bool {
+	for {
+		z_1 := z_in
+		_ = z_1
+		ls_2 := ls_in
+		_ = ls_2
+		r_3 := r_in
+		_ = r_3
+		var r_4 int64
+		switch r_3.tag {
+		case 0:
+			cqb_5 := r_3.f0_2
+			_ = cqb_5
+			r_4 = cqb_5
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_6 int64
+		switch r_3.tag {
+		case 0:
+			cdb_7 := r_3.f0_3
+			_ = cdb_7
+			r_6 = cdb_7
+		default:
+			panic("gogen: no case matches")
+		}
+		t_8 := F_qget[*I_list[*I_blk[int64]]](z_1, ls_2, r_4, r_6)
+		var r_9 int64
+		var r_10 *I_split
+		switch r_3.tag {
+		case 0:
+			csa_11 := r_3.f0_4
+			_ = csa_11
+			r_10 = csa_11
+		default:
+			panic("gogen: no case matches")
+		}
+		switch r_10.tag {
+		case 0:
+			sq_12 := r_10.f0_0
+			_ = sq_12
+			r_9 = sq_12
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_13 int64
+		var r_14 *I_split
+		switch r_3.tag {
+		case 0:
+			csa_15 := r_3.f0_4
+			_ = csa_15
+			r_14 = csa_15
+		default:
+			panic("gogen: no case matches")
+		}
+		switch r_14.tag {
+		case 0:
+			sd_16 := r_14.f0_1
+			_ = sd_16
+			r_13 = sd_16
+		default:
+			panic("gogen: no case matches")
+		}
+		t_17 := F_qget[int64](int64(0), t_8, r_9, r_13)
+		var r_18 int64
+		switch r_3.tag {
+		case 0:
+			cqa_19 := r_3.f0_0
+			_ = cqa_19
+			r_18 = cqa_19
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_20 int64
+		switch r_3.tag {
+		case 0:
+			cda_21 := r_3.f0_1
+			_ = cda_21
+			r_20 = cda_21
+		default:
+			panic("gogen: no case matches")
+		}
+		t_22 := F_qget[*I_list[*I_blk[int64]]](z_1, ls_2, r_18, r_20)
+		var r_23 int64
+		var r_24 *I_split
+		switch r_3.tag {
+		case 0:
+			csb_25 := r_3.f0_5
+			_ = csb_25
+			r_24 = csb_25
+		default:
+			panic("gogen: no case matches")
+		}
+		switch r_24.tag {
+		case 0:
+			sq_26 := r_24.f0_0
+			_ = sq_26
+			r_23 = sq_26
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_27 int64
+		var r_28 *I_split
+		switch r_3.tag {
+		case 0:
+			csb_29 := r_3.f0_5
+			_ = csb_29
+			r_28 = csb_29
+		default:
+			panic("gogen: no case matches")
+		}
+		switch r_28.tag {
+		case 0:
+			sd_30 := r_28.f0_1
+			_ = sd_30
+			r_27 = sd_30
+		default:
+			panic("gogen: no case matches")
+		}
+		t_31 := F_qget[int64](int64(0), t_22, r_23, r_27)
+		t_32 := eqb(t_17, t_31)
+		return t_32
 	}
 }
 
@@ -4241,6 +5087,20 @@ func F_prependAll(x_in int64, ws_in *I_list[*I_list[int64]], acc_in *I_list[*I_l
 	}
 }
 
+func F_prodL(ds_in *I_list[int64]) int64 {
+	for {
+		ds_1 := ds_in
+		_ = ds_1
+		t_4 := func(a_2 int64) func(int64) int64 {
+			return func(a_3 int64) int64 {
+				return zMul(a_2, a_3)
+			}
+		}
+		t_5 := F_fold_left[int64, int64](t_4, ds_1, int64(1))
+		return t_5
+	}
+}
+
 func F_qget[T1 any](z_in T1, bs_in *I_list[*I_blk[T1]], q_in int64, d_in int64) T1 {
 	for {
 		z_1 := z_in
@@ -4305,6 +5165,329 @@ func F_rd(i_in int64, s_in *I_list[int64]) int64 {
 				_ = i_p_5
 				i_in, s_in = i_p_5, t_4
 				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_rdj(v_in *I_view, qd_in *I_split) int64 {
+	for {
+		v_1 := v_in
+		_ = v_1
+		qd_2 := qd_in
+		_ = qd_2
+		var r_3 *I_list[*I_blk[int64]]
+		switch v_1.tag {
+		case 0:
+			vtl_4 := v_1.f0_0
+			_ = vtl_4
+			r_3 = vtl_4
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_5 int64
+		switch qd_2.tag {
+		case 0:
+			sq_6 := qd_2.f0_0
+			_ = sq_6
+			r_5 = sq_6
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_7 int64
+		switch v_1.tag {
+		case 0:
+			vof_8 := v_1.f0_1
+			_ = vof_8
+			r_7 = vof_8
+		default:
+			panic("gogen: no case matches")
+		}
+		var r_9 int64
+		switch qd_2.tag {
+		case 0:
+			sd_10 := qd_2.f0_1
+			_ = sd_10
+			r_9 = sd_10
+		default:
+			panic("gogen: no case matches")
+		}
+		t_11 := zAdd(r_7, r_9)
+		t_12 := F_rdq(r_3, r_5, t_11)
+		return t_12
+	}
+}
+
+func F_rdq(t_in *I_list[*I_blk[int64]], q_in int64, s_in int64) int64 {
+	for {
+		t_1 := t_in
+		_ = t_1
+		q_2 := q_in
+		_ = q_2
+		s_3 := s_in
+		_ = s_3
+		switch t_1.tag {
+		case 0:
+			return int64(0)
+		case 1:
+			b_4 := t_1.f1_0
+			_ = b_4
+			r_5 := t_1.f1_1
+			_ = r_5
+			if q_2 < 0 {
+				panic("gogen: not a nat")
+			}
+			switch {
+			case q_2 == 0:
+				t_6 := ltb(s_3, int64(16))
+				switch {
+				case t_6:
+					t_7 := F_dsel[int64](s_3, b_4)
+					return t_7
+				case !t_6:
+					switch r_5.tag {
+					case 0:
+						return int64(0)
+					case 1:
+						b_p_8 := r_5.f1_0
+						_ = b_p_8
+						t_9 := F_dselH[int64](s_3, b_p_8)
+						return t_9
+					default:
+						panic("gogen: no case matches")
+					}
+				default:
+					panic("gogen: no case matches")
+				}
+			case q_2 > 0:
+				q_p_10 := q_2 - 1
+				_ = q_p_10
+				t_in, q_in, s_in = r_5, q_p_10, s_3
+				continue
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_realign(o_in int64, b0_in *I_blk[int64], b1_in *I_blk[int64]) *I_blk[int64] {
+	for {
+		o_1 := o_in
+		_ = o_1
+		b0_2 := b0_in
+		_ = b0_2
+		b1_3 := b1_in
+		_ = b1_3
+		switch b0_2.tag {
+		case 0:
+			x0_4 := b0_2.f0_0
+			_ = x0_4
+			x1_5 := b0_2.f0_1
+			_ = x1_5
+			x2_6 := b0_2.f0_2
+			_ = x2_6
+			x3_7 := b0_2.f0_3
+			_ = x3_7
+			x4_8 := b0_2.f0_4
+			_ = x4_8
+			x5_9 := b0_2.f0_5
+			_ = x5_9
+			x6_10 := b0_2.f0_6
+			_ = x6_10
+			x7_11 := b0_2.f0_7
+			_ = x7_11
+			x8_12 := b0_2.f0_8
+			_ = x8_12
+			x9_13 := b0_2.f0_9
+			_ = x9_13
+			x10_14 := b0_2.f0_10
+			_ = x10_14
+			x11_15 := b0_2.f0_11
+			_ = x11_15
+			x12_16 := b0_2.f0_12
+			_ = x12_16
+			x13_17 := b0_2.f0_13
+			_ = x13_17
+			x14_18 := b0_2.f0_14
+			_ = x14_18
+			x15_19 := b0_2.f0_15
+			_ = x15_19
+			switch b1_3.tag {
+			case 0:
+				y0_20 := b1_3.f0_0
+				_ = y0_20
+				y1_21 := b1_3.f0_1
+				_ = y1_21
+				y2_22 := b1_3.f0_2
+				_ = y2_22
+				y3_23 := b1_3.f0_3
+				_ = y3_23
+				y4_24 := b1_3.f0_4
+				_ = y4_24
+				y5_25 := b1_3.f0_5
+				_ = y5_25
+				y6_26 := b1_3.f0_6
+				_ = y6_26
+				y7_27 := b1_3.f0_7
+				_ = y7_27
+				y8_28 := b1_3.f0_8
+				_ = y8_28
+				y9_29 := b1_3.f0_9
+				_ = y9_29
+				y10_30 := b1_3.f0_10
+				_ = y10_30
+				y11_31 := b1_3.f0_11
+				_ = y11_31
+				y12_32 := b1_3.f0_12
+				_ = y12_32
+				y13_33 := b1_3.f0_13
+				_ = y13_33
+				y14_34 := b1_3.f0_14
+				_ = y14_34
+				t_35 := ltb(o_1, int64(8))
+				switch {
+				case t_35:
+					t_36 := ltb(o_1, int64(4))
+					switch {
+					case t_36:
+						t_37 := ltb(o_1, int64(2))
+						switch {
+						case t_37:
+							t_38 := ltb(o_1, int64(1))
+							switch {
+							case t_38:
+								t_39 := &I_blk[int64]{tag: 0, f0_0: x0_4, f0_1: x1_5, f0_2: x2_6, f0_3: x3_7, f0_4: x4_8, f0_5: x5_9, f0_6: x6_10, f0_7: x7_11, f0_8: x8_12, f0_9: x9_13, f0_10: x10_14, f0_11: x11_15, f0_12: x12_16, f0_13: x13_17, f0_14: x14_18, f0_15: x15_19}
+								return t_39
+							case !t_38:
+								t_40 := &I_blk[int64]{tag: 0, f0_0: x1_5, f0_1: x2_6, f0_2: x3_7, f0_3: x4_8, f0_4: x5_9, f0_5: x6_10, f0_6: x7_11, f0_7: x8_12, f0_8: x9_13, f0_9: x10_14, f0_10: x11_15, f0_11: x12_16, f0_12: x13_17, f0_13: x14_18, f0_14: x15_19, f0_15: y0_20}
+								return t_40
+							default:
+								panic("gogen: no case matches")
+							}
+						case !t_37:
+							t_41 := ltb(o_1, int64(3))
+							switch {
+							case t_41:
+								t_42 := &I_blk[int64]{tag: 0, f0_0: x2_6, f0_1: x3_7, f0_2: x4_8, f0_3: x5_9, f0_4: x6_10, f0_5: x7_11, f0_6: x8_12, f0_7: x9_13, f0_8: x10_14, f0_9: x11_15, f0_10: x12_16, f0_11: x13_17, f0_12: x14_18, f0_13: x15_19, f0_14: y0_20, f0_15: y1_21}
+								return t_42
+							case !t_41:
+								t_43 := &I_blk[int64]{tag: 0, f0_0: x3_7, f0_1: x4_8, f0_2: x5_9, f0_3: x6_10, f0_4: x7_11, f0_5: x8_12, f0_6: x9_13, f0_7: x10_14, f0_8: x11_15, f0_9: x12_16, f0_10: x13_17, f0_11: x14_18, f0_12: x15_19, f0_13: y0_20, f0_14: y1_21, f0_15: y2_22}
+								return t_43
+							default:
+								panic("gogen: no case matches")
+							}
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_36:
+						t_44 := ltb(o_1, int64(6))
+						switch {
+						case t_44:
+							t_45 := ltb(o_1, int64(5))
+							switch {
+							case t_45:
+								t_46 := &I_blk[int64]{tag: 0, f0_0: x4_8, f0_1: x5_9, f0_2: x6_10, f0_3: x7_11, f0_4: x8_12, f0_5: x9_13, f0_6: x10_14, f0_7: x11_15, f0_8: x12_16, f0_9: x13_17, f0_10: x14_18, f0_11: x15_19, f0_12: y0_20, f0_13: y1_21, f0_14: y2_22, f0_15: y3_23}
+								return t_46
+							case !t_45:
+								t_47 := &I_blk[int64]{tag: 0, f0_0: x5_9, f0_1: x6_10, f0_2: x7_11, f0_3: x8_12, f0_4: x9_13, f0_5: x10_14, f0_6: x11_15, f0_7: x12_16, f0_8: x13_17, f0_9: x14_18, f0_10: x15_19, f0_11: y0_20, f0_12: y1_21, f0_13: y2_22, f0_14: y3_23, f0_15: y4_24}
+								return t_47
+							default:
+								panic("gogen: no case matches")
+							}
+						case !t_44:
+							t_48 := ltb(o_1, int64(7))
+							switch {
+							case t_48:
+								t_49 := &I_blk[int64]{tag: 0, f0_0: x6_10, f0_1: x7_11, f0_2: x8_12, f0_3: x9_13, f0_4: x10_14, f0_5: x11_15, f0_6: x12_16, f0_7: x13_17, f0_8: x14_18, f0_9: x15_19, f0_10: y0_20, f0_11: y1_21, f0_12: y2_22, f0_13: y3_23, f0_14: y4_24, f0_15: y5_25}
+								return t_49
+							case !t_48:
+								t_50 := &I_blk[int64]{tag: 0, f0_0: x7_11, f0_1: x8_12, f0_2: x9_13, f0_3: x10_14, f0_4: x11_15, f0_5: x12_16, f0_6: x13_17, f0_7: x14_18, f0_8: x15_19, f0_9: y0_20, f0_10: y1_21, f0_11: y2_22, f0_12: y3_23, f0_13: y4_24, f0_14: y5_25, f0_15: y6_26}
+								return t_50
+							default:
+								panic("gogen: no case matches")
+							}
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				case !t_35:
+					t_51 := ltb(o_1, int64(12))
+					switch {
+					case t_51:
+						t_52 := ltb(o_1, int64(10))
+						switch {
+						case t_52:
+							t_53 := ltb(o_1, int64(9))
+							switch {
+							case t_53:
+								t_54 := &I_blk[int64]{tag: 0, f0_0: x8_12, f0_1: x9_13, f0_2: x10_14, f0_3: x11_15, f0_4: x12_16, f0_5: x13_17, f0_6: x14_18, f0_7: x15_19, f0_8: y0_20, f0_9: y1_21, f0_10: y2_22, f0_11: y3_23, f0_12: y4_24, f0_13: y5_25, f0_14: y6_26, f0_15: y7_27}
+								return t_54
+							case !t_53:
+								t_55 := &I_blk[int64]{tag: 0, f0_0: x9_13, f0_1: x10_14, f0_2: x11_15, f0_3: x12_16, f0_4: x13_17, f0_5: x14_18, f0_6: x15_19, f0_7: y0_20, f0_8: y1_21, f0_9: y2_22, f0_10: y3_23, f0_11: y4_24, f0_12: y5_25, f0_13: y6_26, f0_14: y7_27, f0_15: y8_28}
+								return t_55
+							default:
+								panic("gogen: no case matches")
+							}
+						case !t_52:
+							t_56 := ltb(o_1, int64(11))
+							switch {
+							case t_56:
+								t_57 := &I_blk[int64]{tag: 0, f0_0: x10_14, f0_1: x11_15, f0_2: x12_16, f0_3: x13_17, f0_4: x14_18, f0_5: x15_19, f0_6: y0_20, f0_7: y1_21, f0_8: y2_22, f0_9: y3_23, f0_10: y4_24, f0_11: y5_25, f0_12: y6_26, f0_13: y7_27, f0_14: y8_28, f0_15: y9_29}
+								return t_57
+							case !t_56:
+								t_58 := &I_blk[int64]{tag: 0, f0_0: x11_15, f0_1: x12_16, f0_2: x13_17, f0_3: x14_18, f0_4: x15_19, f0_5: y0_20, f0_6: y1_21, f0_7: y2_22, f0_8: y3_23, f0_9: y4_24, f0_10: y5_25, f0_11: y6_26, f0_12: y7_27, f0_13: y8_28, f0_14: y9_29, f0_15: y10_30}
+								return t_58
+							default:
+								panic("gogen: no case matches")
+							}
+						default:
+							panic("gogen: no case matches")
+						}
+					case !t_51:
+						t_59 := ltb(o_1, int64(14))
+						switch {
+						case t_59:
+							t_60 := ltb(o_1, int64(13))
+							switch {
+							case t_60:
+								t_61 := &I_blk[int64]{tag: 0, f0_0: x12_16, f0_1: x13_17, f0_2: x14_18, f0_3: x15_19, f0_4: y0_20, f0_5: y1_21, f0_6: y2_22, f0_7: y3_23, f0_8: y4_24, f0_9: y5_25, f0_10: y6_26, f0_11: y7_27, f0_12: y8_28, f0_13: y9_29, f0_14: y10_30, f0_15: y11_31}
+								return t_61
+							case !t_60:
+								t_62 := &I_blk[int64]{tag: 0, f0_0: x13_17, f0_1: x14_18, f0_2: x15_19, f0_3: y0_20, f0_4: y1_21, f0_5: y2_22, f0_6: y3_23, f0_7: y4_24, f0_8: y5_25, f0_9: y6_26, f0_10: y7_27, f0_11: y8_28, f0_12: y9_29, f0_13: y10_30, f0_14: y11_31, f0_15: y12_32}
+								return t_62
+							default:
+								panic("gogen: no case matches")
+							}
+						case !t_59:
+							t_63 := ltb(o_1, int64(15))
+							switch {
+							case t_63:
+								t_64 := &I_blk[int64]{tag: 0, f0_0: x14_18, f0_1: x15_19, f0_2: y0_20, f0_3: y1_21, f0_4: y2_22, f0_5: y3_23, f0_6: y4_24, f0_7: y5_25, f0_8: y6_26, f0_9: y7_27, f0_10: y8_28, f0_11: y9_29, f0_12: y10_30, f0_13: y11_31, f0_14: y12_32, f0_15: y13_33}
+								return t_64
+							case !t_63:
+								t_65 := &I_blk[int64]{tag: 0, f0_0: x15_19, f0_1: y0_20, f0_2: y1_21, f0_3: y2_22, f0_4: y3_23, f0_5: y4_24, f0_6: y5_25, f0_7: y6_26, f0_8: y7_27, f0_9: y8_28, f0_10: y9_29, f0_11: y10_30, f0_12: y11_31, f0_13: y12_32, f0_14: y13_33, f0_15: y14_34}
+								return t_65
+							default:
+								panic("gogen: no case matches")
+							}
+						default:
+							panic("gogen: no case matches")
+						}
+					default:
+						panic("gogen: no case matches")
+					}
+				default:
+					panic("gogen: no case matches")
+				}
 			default:
 				panic("gogen: no case matches")
 			}
@@ -4386,6 +5569,32 @@ func F_repeat[T1 any](x_in T1, n_in int64) *I_list[T1] {
 	}
 }
 
+func F_revMap[T1 any, T2 any](f_in func(T1) T2, l_in *I_list[T1], acc_in *I_list[T2]) *I_list[T2] {
+	for {
+		f_1 := f_in
+		_ = f_1
+		l_2 := l_in
+		_ = l_2
+		acc_3 := acc_in
+		_ = acc_3
+		switch l_2.tag {
+		case 0:
+			return acc_3
+		case 1:
+			x_4 := l_2.f1_0
+			_ = x_4
+			t_5 := l_2.f1_1
+			_ = t_5
+			t_6 := f_1(x_4)
+			t_7 := &I_list[T2]{tag: 1, f1_0: t_6, f1_1: acc_3}
+			f_in, l_in, acc_in = f_1, t_5, t_7
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_rev_append[T1 any](l_in *I_list[T1], l_p_in *I_list[T1]) *I_list[T1] {
 	for {
 		l_1 := l_in
@@ -4431,6 +5640,103 @@ func F_rpairOf(p_in *I_prod[int64, int64]) *I_rpair {
 		t_13 := natSub(b_5, t_12)
 		t_14 := &I_rpair{tag: 0, f0_0: ha_7, f0_1: t_11, f0_2: hb_9, f0_3: t_13}
 		return t_14
+	}
+}
+
+func F_scanC(n_in int64, nE_in int64, lb_in *I_list[*I_blk[int64]], p_in *I_option[*I_list[*I_prod[int64, int64]]]) bool {
+	for {
+		n_1 := n_in
+		_ = n_1
+		nE_2 := nE_in
+		_ = nE_2
+		lb_3 := lb_in
+		_ = lb_3
+		p_4 := p_in
+		_ = p_4
+		t_5 := F_lenT[*I_blk[int64]](lb_3, int64(0))
+		l_6 := t_5
+		_ = l_6
+		t_7 := F_splitJ(int64(0))
+		zs_8 := t_7
+		_ = zs_8
+		t_9 := F_hi16(nE_2)
+		t_10 := natSucc(t_9)
+		t_11 := natSub(l_6, int64(1))
+		t_12 := &I_list[*I_blk[int64]]{tag: 0}
+		t_13 := &I_list[*I_list[*I_blk[int64]]]{tag: 0}
+		t_14 := F_sfx[*I_blk[int64]](lb_3, t_13)
+		t_15 := F_of_listV[*I_list[*I_blk[int64]]](t_12, t_14)
+		t_16 := &I_list[*I_blk[int64]]{tag: 0}
+		t_17 := F_zb()
+		t_35 := func(x_18 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+			return func(x0_19 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+				return func(x1_20 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+					return func(x2_21 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+						return func(x3_22 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+							return func(x4_23 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+								return func(x5_24 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+									return func(x6_25 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+										return func(x7_26 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+											return func(x8_27 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+												return func(x9_28 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+													return func(x10_29 *I_split) func(*I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+														return func(x11_30 *I_split) func(*I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+															return func(x12_31 *I_split) func(*I_split) func(*I_split) *I_blk[*I_split] {
+																return func(x13_32 *I_split) func(*I_split) *I_blk[*I_split] {
+																	return func(x14_33 *I_split) *I_blk[*I_split] {
+																		_ = x_18
+																		_ = x0_19
+																		_ = x1_20
+																		_ = x2_21
+																		_ = x3_22
+																		_ = x4_23
+																		_ = x5_24
+																		_ = x6_25
+																		_ = x7_26
+																		_ = x8_27
+																		_ = x9_28
+																		_ = x10_29
+																		_ = x11_30
+																		_ = x12_31
+																		_ = x13_32
+																		_ = x14_33
+																		t_34 := &I_blk[*I_split]{tag: 0, f0_0: x_18, f0_1: x0_19, f0_2: x1_20, f0_3: x2_21, f0_4: x3_22, f0_5: x4_23, f0_6: x5_24, f0_7: x6_25, f0_8: x7_26, f0_9: x8_27, f0_10: x9_28, f0_11: x10_29, f0_12: x11_30, f0_13: x12_31, f0_14: x13_32, f0_15: x14_33}
+																		return t_34
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		t_39 := func(e_36 int64) *I_split {
+			_ = e_36
+			t_37 := natSucc(e_36)
+			t_38 := F_splitJ(t_37)
+			return t_38
+		}
+		t_40 := &I_list[*I_split]{tag: 0}
+		t_41 := F_upto[*I_split](t_39, int64(0), nE_2, t_40)
+		t_42 := F_chunk[*I_split, *I_blk[*I_split]](t_35, zs_8, t_41)
+		t_44 := func(a_43 *I_prod[int64, int64]) *I_cpair {
+			return F_cpairOf(a_43)
+		}
+		t_45 := F_pairsOfT(nE_2, p_4)
+		t_46 := F_mapT[*I_prod[int64, int64], *I_cpair](t_44, t_45)
+		t_48 := func(a_47 int64) bool {
+			return F_state_okC(n_1, nE_2, t_10, l_6, t_11, t_15, t_16, t_17, t_42, t_46, a_47)
+		}
+		t_49 := F_allK(t_48, int64(0), n_1)
+		return t_49
 	}
 }
 
@@ -4534,6 +5840,27 @@ func F_setClamped(m_in *I_machine, i_in int64, v_in int64, s_in *I_list[int64]) 
 	}
 }
 
+func F_sfx[T1 any](l_in *I_list[T1], acc_in *I_list[*I_list[T1]]) *I_list[*I_list[T1]] {
+	for {
+		l_1 := l_in
+		_ = l_1
+		acc_2 := acc_in
+		_ = acc_2
+		switch l_1.tag {
+		case 0:
+			return acc_2
+		case 1:
+			t_3 := l_1.f1_1
+			_ = t_3
+			t_4 := &I_list[*I_list[T1]]{tag: 1, f1_0: l_1, f1_1: acc_2}
+			l_in, acc_in = t_3, t_4
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
 func F_signSafe(m_in *I_machine) bool {
 	for {
 		m_1 := m_in
@@ -4577,6 +5904,176 @@ func F_snd[T1 any, T2 any](p_in *I_prod[T1, T2]) T2 {
 			y_2 := p_1.f0_1
 			_ = y_2
 			return y_2
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_splitJ(j_in int64) *I_split {
+	for {
+		j_1 := j_in
+		_ = j_1
+		t_2 := F_hi16(j_1)
+		h_3 := t_2
+		_ = h_3
+		t_4 := zMul(int64(16), h_3)
+		t_5 := natSub(j_1, t_4)
+		t_6 := &I_split{tag: 0, f0_0: h_3, f0_1: t_5}
+		return t_6
+	}
+}
+
+func F_splitSuf(bound_in int64, ds_in *I_list[int64]) *I_prod[*I_list[int64], *I_list[int64]] {
+	for {
+		bound_1 := bound_in
+		_ = bound_1
+		ds_2 := ds_in
+		_ = ds_2
+		switch ds_2.tag {
+		case 0:
+			t_3 := &I_list[int64]{tag: 0}
+			t_4 := &I_list[int64]{tag: 0}
+			t_5 := &I_prod[*I_list[int64], *I_list[int64]]{tag: 0, f0_0: t_3, f0_1: t_4}
+			return t_5
+		case 1:
+			d_6 := ds_2.f1_0
+			_ = d_6
+			rest_7 := ds_2.f1_1
+			_ = rest_7
+			t_8 := F_splitSuf(bound_1, rest_7)
+			ps_9 := t_8
+			_ = ps_9
+			t_10 := F_fst[*I_list[int64], *I_list[int64]](ps_9)
+			switch t_10.tag {
+			case 0:
+				t_11 := F_snd[*I_list[int64], *I_list[int64]](ps_9)
+				t_12 := F_prodL(t_11)
+				t_13 := zMul(d_6, t_12)
+				t_14 := natSucc(bound_1)
+				t_15 := ltb(t_13, t_14)
+				switch {
+				case t_15:
+					t_16 := &I_list[int64]{tag: 0}
+					t_17 := F_snd[*I_list[int64], *I_list[int64]](ps_9)
+					t_18 := &I_list[int64]{tag: 1, f1_0: d_6, f1_1: t_17}
+					t_19 := &I_prod[*I_list[int64], *I_list[int64]]{tag: 0, f0_0: t_16, f0_1: t_18}
+					return t_19
+				case !t_15:
+					t_20 := &I_list[int64]{tag: 0}
+					t_21 := &I_list[int64]{tag: 1, f1_0: d_6, f1_1: t_20}
+					t_22 := F_snd[*I_list[int64], *I_list[int64]](ps_9)
+					t_23 := &I_prod[*I_list[int64], *I_list[int64]]{tag: 0, f0_0: t_21, f0_1: t_22}
+					return t_23
+				default:
+					panic("gogen: no case matches")
+				}
+			case 1:
+				t_24 := F_fst[*I_list[int64], *I_list[int64]](ps_9)
+				t_25 := &I_list[int64]{tag: 1, f1_0: d_6, f1_1: t_24}
+				t_26 := F_snd[*I_list[int64], *I_list[int64]](ps_9)
+				t_27 := &I_prod[*I_list[int64], *I_list[int64]]{tag: 0, f0_0: t_25, f0_1: t_26}
+				return t_27
+			default:
+				panic("gogen: no case matches")
+			}
+		default:
+			panic("gogen: no case matches")
+		}
+	}
+}
+
+func F_state_okC(n_in int64, nE_in int64, k_in int64, l_in int64, l1_in int64, sT_in *I_vt[*I_list[*I_blk[int64]]], z_in *I_list[*I_blk[int64]], zk_in *I_blk[int64], spB_in *I_list[*I_blk[*I_split]], rp_in *I_list[*I_cpair], s_in int64) bool {
+	for {
+		n_1 := n_in
+		_ = n_1
+		nE_2 := nE_in
+		_ = nE_2
+		k_3 := k_in
+		_ = k_3
+		l_4 := l_in
+		_ = l_4
+		l1_5 := l1_in
+		_ = l1_5
+		sT_6 := sT_in
+		_ = sT_6
+		z_7 := z_in
+		_ = z_7
+		zk_8 := zk_in
+		_ = zk_8
+		spB_9 := spB_in
+		_ = spB_9
+		rp_10 := rp_in
+		_ = rp_10
+		s_11 := s_in
+		_ = s_11
+		t_12 := natSucc(nE_2)
+		w_13 := t_12
+		_ = w_13
+		t_14 := F_viewOf(w_13, l_4, l1_5, sT_6, z_7, s_11)
+		vs_15 := t_14
+		_ = vs_15
+		var r_17 bool
+		t_18 := ltb(s_11, n_1)
+		switch {
+		case t_18:
+			r_17 = true
+		case !t_18:
+			r_17 = false
+		default:
+			panic("gogen: no case matches")
+		}
+		b_16 := r_17
+		if b_16 {
+			var r_19 bool
+			var r_20 *I_list[*I_blk[int64]]
+			switch vs_15.tag {
+			case 0:
+				vtl_21 := vs_15.f0_0
+				_ = vtl_21
+				r_20 = vtl_21
+			default:
+				panic("gogen: no case matches")
+			}
+			var r_22 int64
+			switch vs_15.tag {
+			case 0:
+				vof_23 := vs_15.f0_1
+				_ = vof_23
+				r_22 = vof_23
+			default:
+				panic("gogen: no case matches")
+			}
+			t_24 := F_rdq(r_20, int64(0), r_22)
+			t_25 := eqb(t_24, s_11)
+			switch {
+			case t_25:
+				r_19 = true
+			case !t_25:
+				t_26 := eqb(s_11, int64(0))
+				r_19 = t_26
+			default:
+				panic("gogen: no case matches")
+			}
+			b_16 = r_19
+		}
+		switch {
+		case b_16:
+			t_31 := func(qd_27 *I_split) *I_list[*I_blk[int64]] {
+				_ = qd_27
+				t_28 := F_rdj(vs_15, qd_27)
+				t_29 := F_viewOf(w_13, l_4, l1_5, sT_6, z_7, t_28)
+				t_30 := F_alignV(k_3, zk_8, t_29)
+				return t_30
+			}
+			t_33 := func(a_32 *I_blk[*I_split]) *I_blk[*I_list[*I_blk[int64]]] {
+				return F_bmap[*I_split, *I_list[*I_blk[int64]]](t_31, a_32)
+			}
+			t_34 := F_mapT[*I_blk[*I_split], *I_blk[*I_list[*I_blk[int64]]]](t_33, spB_9)
+			t_35 := F_commC(z_7, t_34, rp_10)
+			return t_35
+		case !b_16:
+			return true
 		default:
 			panic("gogen: no case matches")
 		}
@@ -4905,6 +6402,36 @@ func F_transformsM(m_in *I_machine) *I_list[*I_list[*I_prod[int64, *I_expr]]] {
 		t_11 := F_map[*I_prod[*I_pred, *I_list[*I_prod[int64, *I_expr]]], *I_list[*I_prod[int64, *I_expr]]](t_8, r_9)
 		t_12 := F_app[*I_list[*I_prod[int64, *I_expr]]](t_6, t_11)
 		return t_12
+	}
+}
+
+func F_upto[T1 any](f_in func(int64) T1, i_in int64, k_in int64, acc_in *I_list[T1]) *I_list[T1] {
+	for {
+		f_1 := f_in
+		_ = f_1
+		i_2 := i_in
+		_ = i_2
+		k_3 := k_in
+		_ = k_3
+		acc_4 := acc_in
+		_ = acc_4
+		if k_3 < 0 {
+			panic("gogen: not a nat")
+		}
+		switch {
+		case k_3 == 0:
+			return acc_4
+		case k_3 > 0:
+			k_p_5 := k_3 - 1
+			_ = k_p_5
+			t_6 := zAdd(i_2, k_p_5)
+			t_7 := f_1(t_6)
+			t_8 := &I_list[T1]{tag: 1, f1_0: t_7, f1_1: acc_4}
+			f_in, i_in, k_in, acc_in = f_1, i_2, k_p_5, t_8
+			continue
+		default:
+			panic("gogen: no case matches")
+		}
 	}
 }
 
@@ -5248,9 +6775,9 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 			q_86 := t_85
 			_ = q_86
 			t_87 := zAdd(p_1, p_1)
-			p2_88 := t_87
-			_ = p2_88
-			t_89 := zAdd(p2_88, p2_88)
+			p3_88 := t_87
+			_ = p3_88
+			t_89 := zAdd(p3_88, p3_88)
 			p4_90 := t_89
 			_ = p4_90
 			t_91 := zAdd(p4_90, p4_90)
@@ -5268,7 +6795,7 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 				t_98 := ltb(k_4, t4_4_97)
 				switch {
 				case t_98:
-					t_99 := zAdd(b_2, p2_88)
+					t_99 := zAdd(b_2, p3_88)
 					t2_2_100 := t_99
 					_ = t2_2_100
 					t_101 := ltb(k_4, t2_2_100)
@@ -5307,7 +6834,7 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 						panic("gogen: no case matches")
 					}
 				case !t_98:
-					t_108 := zAdd(t4_4_97, p2_88)
+					t_108 := zAdd(t4_4_97, p3_88)
 					t6_2_109 := t_108
 					_ = t6_2_109
 					t_110 := ltb(k_4, t6_2_109)
@@ -5355,7 +6882,7 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 				t_119 := ltb(k_4, t12_4_118)
 				switch {
 				case t_119:
-					t_120 := zAdd(t8_8_94, p2_88)
+					t_120 := zAdd(t8_8_94, p3_88)
 					t10_2_121 := t_120
 					_ = t10_2_121
 					t_122 := ltb(k_4, t10_2_121)
@@ -5394,7 +6921,7 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 						panic("gogen: no case matches")
 					}
 				case !t_119:
-					t_129 := zAdd(t12_4_118, p2_88)
+					t_129 := zAdd(t12_4_118, p3_88)
 					t14_2_130 := t_129
 					_ = t14_2_130
 					t_131 := ltb(k_4, t14_2_130)
@@ -5441,6 +6968,45 @@ func F_vget[T1 any](p_in int64, b_in int64, t_in *I_v16[T1], k_in int64) T1 {
 		default:
 			panic("gogen: no case matches")
 		}
+	}
+}
+
+func F_viewOf(w_in int64, l_in int64, l1_in int64, sT_in *I_vt[*I_list[*I_blk[int64]]], zl_in *I_list[*I_blk[int64]], x_in int64) *I_view {
+	for {
+		w_1 := w_in
+		_ = w_1
+		l_2 := l_in
+		_ = l_2
+		l1_3 := l1_in
+		_ = l1_3
+		sT_4 := sT_in
+		_ = sT_4
+		zl_5 := zl_in
+		_ = zl_5
+		x_6 := x_in
+		_ = x_6
+		t_7 := zMul(x_6, w_1)
+		k_8 := t_7
+		_ = k_8
+		t_9 := F_hi16(k_8)
+		q_10 := t_9
+		_ = q_10
+		var r_11 *I_list[*I_blk[int64]]
+		t_12 := ltb(q_10, l_2)
+		switch {
+		case t_12:
+			t_13 := natSub(l1_3, q_10)
+			t_14 := F_vlook[*I_list[*I_blk[int64]]](zl_5, sT_4, t_13)
+			r_11 = t_14
+		case !t_12:
+			r_11 = zl_5
+		default:
+			panic("gogen: no case matches")
+		}
+		t_15 := zMul(int64(16), q_10)
+		t_16 := natSub(k_8, t_15)
+		t_17 := &I_view{tag: 0, f0_0: r_11, f0_1: t_16}
+		return t_17
 	}
 }
 

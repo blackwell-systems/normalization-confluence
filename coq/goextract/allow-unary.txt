@@ -42,3 +42,7 @@ oracle_core.json chunkH      fuel = list length; tail call (accumulator)
 oracle_core.json levelsV     trie depth, at most 5 at 2^20 keys
 oracle_core.json qget        block index of an event, below nE / 16; tail call
 oracle_core.json ztV         trie depth, at most 5 at 2^20 keys
+oracle_core.json loopD       one variable's domain size (foldD, checkBuildC); tail call
+oracle_core.json upto        number of events (checkBuildC's offsets 1 .. nE); tail call (accumulator)
+oracle_core.json rdq         block index within a column, at most (events + 16) / 16; tail call
+oracle_core.json alignN      blocks per aligned column, at most events / 16 + 1; not tail, depth = that count

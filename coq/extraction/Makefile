@@ -31,8 +31,11 @@ all: $(CHECKER) $(ASTCHECKER)
 ../AstTables.vo: ../AstTables.v ../AstChecker.vo ../TableFn.vo ../TableFast.vo ../TableCheck.vo ../Trace.vo
 	cd .. && coqc -Q . NC AstTables.v
 
+../AstCompact.vo: ../AstCompact.v ../AstTables.vo
+	cd .. && coqc -Q . NC AstCompact.v
+
 # Both checkers extract from one Extract.v into the shared checker_core module.
-checker_core.ml: Extract.v ../TableFast.vo ../TableFn.vo ../AstChecker.vo ../AstTables.vo
+checker_core.ml: Extract.v ../TableFast.vo ../TableFn.vo ../AstChecker.vo ../AstTables.vo ../AstCompact.vo
 	cd .. && coqc -Q . NC extraction/Extract.v
 
 $(CHECKER): checker_core.ml main.ml
