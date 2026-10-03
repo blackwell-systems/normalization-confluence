@@ -3,7 +3,7 @@
 #   tests/run.sh [<dir with the OCaml checker and astchecker>]
 # 1. Every case of ../extraction/tests/cases.tsv gives its expected exit code
 #    from bin/tablecheck or bin/rulecheck (and, with the OCaml checkers, the
-#    same stdout as they do).
+#    same stdout as they do, and for input errors (exit 2) the same stderr).
 # 2. Large inputs: 2^20 states, and many events or declared pairs, run at an
 #    8 MiB stack limit; they must be accepted.
 # 3. With the OCaml checkers: the differential tests (random tables and rules).
@@ -29,6 +29,11 @@ while IFS=$'\t' read -r want tool file why; do
   if [ -n "$oc" ]; then
     oout="$("$oc" "${args[@]}" 2>/dev/null)"
     if [ "$out" != "$oout" ]; then bad "$tool $file: stdout differs from the OCaml checker"; continue; fi
+    # An input error (exit 2) is reported on stderr: the message must match too.
+    if [ "$want" = 2 ]; then
+      gerr="$("$go" "${args[@]}" 2>&1 >/dev/null)"; oerr="$("$oc" "${args[@]}" 2>&1 >/dev/null)"
+      if [ "$gerr" != "$oerr" ]; then bad "$tool $file: stderr differs from the OCaml checker"; echo "     go:    $gerr"; echo "     ocaml: $oerr"; continue; fi
+    fi
   fi
   ok "$tool $file (exit $got)"
 done < "$cases/cases.tsv"

@@ -19,6 +19,8 @@
 2	astchecker	ast-mins-length.machine	mins must give one minimum per variable
 2	astchecker	ast-hex-literal.machine	only decimal integers are accepted
 2	astchecker	ast-empty-domain.machine	every domain must have at least one value
+2	astchecker	ast-state-space-cap.machine	more than 2^24 states is refused up front
+2	astchecker	ast-state-space-huge.machine	a product past 2^63 is refused, not wrapped
 1	astchecker	ast-literal-range.machine	a literal above 2^31-1 in magnitude is outside the certified fragment (gsm's Go int could wrap), not input error
 0	checker	tables2-declared-pairs.tables	v2: only declared pairs are checked; e0 and e1 do not commute but are not declared independent
 1	checker	tables2-declared-pair-fails.tables	v2: a declared pair that does not commute is rejected

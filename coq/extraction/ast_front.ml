@@ -54,6 +54,10 @@ let parse_all (toks : string list) : sexp list =
 
 let max_abs = 2147483647
 
+(* The largest valuation box the front end accepts: 2^24 states, 16 times
+   gsm's largest machines (2^20). *)
+let max_states = 16777216
+
 (* A decimal integer: optional '-', then 1 to 10 digits, magnitude <= 2^31-1. No
    '+', no '_', no 0x/0o/0b prefixes (int_of_string accepts all of those). *)
 let int_of s =
@@ -139,6 +143,13 @@ let build_machine (forms : sexp list) : machine =
     | List (Atom "doms" :: ds) ->
       let ds = build_ints nat_of ds in
       List.iter (fun d -> if d < 1 then failwith "every domain must be at least 1") ds;
+      (* The checker enumerates every state, so refuse a box above max_states
+         up front rather than run out of time or memory. Each partial product
+         is at most max_states * (2^31 - 1) < 2^55, so it cannot overflow. *)
+      ignore (List.fold_left (fun acc d ->
+        let p = acc * d in
+        if p > max_states then failwith (Printf.sprintf "the state space (product of domains) exceeds %d" max_states);
+        p) 1 ds);
       once doms ds "doms"; nvars := List.length ds
     | List (Atom "mins" :: ms) -> once mins (build_ints value_of ms) "mins"
     | List [Atom "inv"; p; t] -> invs := (build_pred p, build_transform t) :: !invs

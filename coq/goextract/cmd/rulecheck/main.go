@@ -19,6 +19,10 @@ import (
 
 const maxAbs = 2147483647
 
+// maxStates is the largest valuation box accepted: 2^24 states, 16 times
+// gsm's largest machines (2^20).
+const maxStates = 16777216
+
 type sexp struct {
 	atom   string
 	list   []sexp
@@ -252,6 +256,16 @@ func buildMachine(forms []sexp) (m *oracle.I_machine, nv, ni, ne int) {
 			for _, d := range ds {
 				if d < 1 {
 					failf("every domain must be at least 1")
+				}
+			}
+			// The checker enumerates every state, so refuse a box above
+			// maxStates up front. Each partial product is at most
+			// maxStates * (2^31 - 1) < 2^55, so it cannot overflow.
+			states := int64(1)
+			for _, d := range ds {
+				states *= d
+				if states > maxStates {
+					failf("the state space (product of domains) exceeds %d", maxStates)
 				}
 			}
 			if haveDoms {
