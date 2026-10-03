@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 96 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 96 headline results (among them the single-registry
+Expected tail: `PASS: all 104 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 104 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -159,7 +159,7 @@ hypotheses; `Print Assumptions` on all four results is "Closed under the global 
 brute-force CC path is a finite decidable enumeration whose soundness is definitional, so it is
 not mechanized; the disjointness path is the substantive one.
 
-## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `TableFast.v`, `AstChecker.v`, `extraction/`)
+## Verified checkers: two differential oracles for gsm (`Checker.v`, `Trace.v`, `TableCheck.v`, `TableFast.v`, `TableFn.v`, `AstChecker.v`, `AstTables.v`, `extraction/`)
 
 Two independent, machine-checked checkers re-certify a gsm machine's convergence, each extracted
 to a runnable OCaml binary in `extraction/` and generated as Go in `goextract/` (gsm runs the Go
@@ -290,6 +290,31 @@ invalid state strictly decreases the repair depth: the potential `Governance.wfc
 (`stepG`) equals `stepAst` on valid states, so the two differ only at an invalid zero state. The
 declared pairs travel in a separate pairs file (`Registry.WriteDeclaredPairs`), so the rules
 format and every digest over it are unchanged; without that file every pair is checked.
+
+`checkBuild` checks commutation pair by pair: for every state in the domain and every declared
+pair it evaluates the rules four times, each with a normalization, so its time grows with states
+times pairs. The extracted rules oracle runs `checkBuildT` (`AstTables.v`), which decides the same
+property through step tables computed from the rules: it numbers the valuation box by a
+mixed-radix encoding (variable 0 the most significant digit; `boxT` lists the box in that order
+with tail-recursive loops), computes `NF[s]` from one normalization per state and `T[e][s]` as
+`NF` of the state event `e`'s guarded effect reaches from `s`, builds `check_fast`'s cells state
+by state (no table lists, no transposition), and runs `check_fast`'s scan. WFC stays on the rules
+side, as in `checkBuild`: a repair cycle whose length divides the fuel can make the normal-form
+table look like a retraction while WFC fails. Its theorems, all axiom-free: `scan_cells_fn`
+(`TableFn.v`: the scan over any cells holding `x`, `nf x` and the column `st 0 x ... st (nE-1) x`
+decides `check_fn` on `nf` and `st`), `boxT_eq`, `enc_box` and `box_enc` (the numbering is a
+bijection between the box and `0 .. n-1`), `tables_fn_eq` (under WFC, `check_fn` on these
+tables is `pairsOkA && ccA`: a state's number is a fixed point of `NF` exactly when the state is
+valid, 0 is the zero state's number, and equal numbers are equal states), `cells_ok`, and
+`checkBuildT_eq`: `checkBuildT m P = checkBuild m P` for every machine and declaration, so every
+`checkBuild` theorem above holds for it (`checkBuildT_converges` states the runtime guarantee as
+an example). It evaluates the rules once per state and event, and its scan costs states times
+(events + pairs) table reads. On 20 two-valued variables (2^20 states) with 20 events and every
+pair declared (190 pairs), `astchecker` takes about 10 s where `checkBuild` took about 260 s; with 3
+events (a capped counter on two 1024-valued variables, or 20 Booleans) about 2 s where `checkBuild`
+took about 4 s (Apple M1 Pro, OCaml 5). The tables cost memory: about 280 to 480 MB at 2^20 states
+in OCaml (one cell per state: its record, a list and 16-entry blocks), where `checkBuild` peaks at
+90 to 150 MB.
 
 ### What this does and does not require of you: no continuous porting to Coq
 
@@ -512,14 +537,15 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 96 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 104 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
 
 ```
 make          # compiles every module (Newman, Governance, Defensibility, Gsm, Federation,
-              # Chaotic, Checker, Trace, TableCheck, TableFast, AstChecker, CRDT, ...)
+              # Chaotic, Checker, Trace, TableCheck, TableFast, TableFn, AstChecker,
+              # AstTables, CRDT, ...)
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 

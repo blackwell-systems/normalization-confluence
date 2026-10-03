@@ -17,12 +17,17 @@
        check_tables (TableCheck.v), so check_tables_converges holds for it
        (check_fast_converges). It builds its own cells and lookup trie from the
        lists.
-     - checkBuild (AstChecker.v): certify a combinator machine straight from its
-       RULES against Build's property (the rules oracle): repair terminates from
-       every state, and every declared pair commutes on the valid states and the
-       zero state under gsm's step (checkBuild_converges). It recomputes each
-       event's step function by evaluating the expression trees, so it does not
-       trust gsm to have produced correct tables at all.
+     - checkBuildT (AstTables.v): certify a combinator machine straight from
+       its RULES against Build's property (the rules oracle): repair terminates
+       from every state, and every declared pair commutes on the valid states
+       and the zero state under gsm's step. It evaluates the expression trees
+       once per state and event into step tables and scans them as check_fast
+       does, so it does not trust gsm to have produced correct tables at all.
+       checkBuildT_eq proves it equal to checkBuild, so checkBuild_converges
+       and the rest hold for it. The front end (ast_main.ml) uses it.
+     - checkBuild (AstChecker.v): the same property, checked pair by pair (four
+       rule evaluations per state and pair). Extracted for the differential
+       test ast_diff.ml.
      - wfc, bounded, signSafe (AstChecker.v): parts of checkBuild, extracted so
        the front end can name the reason for a rejection.
      - compensationFree (AstChecker.v): certify that a machine is in the CRDT
