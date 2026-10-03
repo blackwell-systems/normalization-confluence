@@ -54,6 +54,15 @@ for f in sq10 bool10 many10 many10-bad; do
   fi
 done
 rm -rf "$shapes"
+# Wide machines: 16 to 20 events (a second 16-entry column block per cell)
+# and 256 to about 2000 states (a cell trie at least two levels deep).
+for seed in 1 2; do
+  if out="$("$bin/astdiff" --wide 200 "$seed" 2>&1)"; then
+    pass=$((pass + 1)); echo "ok   astdiff --wide 200 $seed ($out)"
+  else
+    fail=$((fail + 1)); echo "FAIL astdiff --wide 200 $seed: the rules oracles disagree"; echo "$out" | sed 's/^/     /'
+  fi
+done
 for seed in 1 2 3; do
   if out="$("$bin/astdiff" --random 20000 "$seed" 2>&1)"; then
     pass=$((pass + 1)); echo "ok   astdiff --random 20000 $seed ($out)"

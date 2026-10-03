@@ -6,6 +6,8 @@
    Usage:
      astdiff <machine-file> [<pairs-file>]   one machine, read as astchecker reads it
      astdiff --random <count> <seed>         random machines, built directly
+     astdiff --wide <count> <seed>           random machines with 16 to 20 events
+                                             and 256 to about 2000 states
 
    The random machines are not limited to what the front end admits: domains
    may be 0, variable indices may name no variable, and declared pairs may name
@@ -79,6 +81,32 @@ let rmachine () =
     else Some (List.init (Random.int 4) (fun _ -> (Random.int (ne + (if Random.int 10 = 0 then 1 else 0)), Random.int ne))) in
   { doms; mins; invs; evs }, p
 
+(* Wide machines: 16 to 20 events (so each cell has a second 16-entry column
+   block) over 8 to 10 variables of domain 2 or 3 (256 to about 2000 states,
+   so the cell trie is at least two levels deep), with declared pairs half the
+   time. The events mostly set or bump one variable, so some machines converge
+   and some do not. *)
+let rmachine_wide () =
+  let nv = 8 + Random.int 3 in
+  let doms = List.init nv (fun i -> if i < 2 && Random.bool () then 3 else 2) in
+  let mins = List.init nv (fun _ -> 0) in
+  let lit () = ELit (Random.int 2) in
+  let invs = List.init (Random.int 3) (fun _ ->
+    let a = Random.int nv and b = Random.int nv in
+    (PLe (EVar a, EVar b), [(b, EVar a)])) in
+  let ev () =
+    let i = Random.int nv in
+    let eff = match Random.int 4 with
+      | 0 -> [(i, EAdd (EVar i, ELit 1))]
+      | 1 -> [(i, EVar (Random.int nv))]
+      | _ -> [(i, lit ())] in
+    ((if Random.int 4 = 0 then PEq (EVar (Random.int nv), lit ()) else PAnd []), eff) in
+  let evs = List.init (16 + Random.int 5) (fun _ -> ev ()) in
+  let ne = List.length evs in
+  let p = if Random.bool () then None
+    else Some (List.init (1 + Random.int 40) (fun _ -> (Random.int ne, Random.int ne))) in
+  { doms; mins; invs; evs }, p
+
 (* ---- main ---- *)
 
 let counts = Hashtbl.create 8
@@ -101,6 +129,10 @@ let () =
     Random.init (int_of_string seed);
     for _ = 1 to int_of_string count do let m, p = rmachine () in compare_one m p done;
     report ()
+  | [_; "--wide"; count; seed] ->
+    Random.init (int_of_string seed);
+    for _ = 1 to int_of_string count do let m, p = rmachine_wide () in compare_one m p done;
+    report ()
   | _ :: file :: rest when List.length rest <= 1 ->
     let m =
       try build_machine (parse_all (tokenize (read_all file)))
@@ -109,4 +141,4 @@ let () =
       | [pf] -> (try read_pairs pf (List.length m.evs) with Failure msg -> (prerr_endline ("pairs file error: " ^ msg); exit 2))
       | _ -> None in
     compare_one m p; report ()
-  | _ -> prerr_endline "usage: astdiff <machine-file> [<pairs-file>] | astdiff --random <count> <seed>"; exit 2
+  | _ -> prerr_endline "usage: astdiff <machine-file> [<pairs-file>] | astdiff --random|--wide <count> <seed>"; exit 2

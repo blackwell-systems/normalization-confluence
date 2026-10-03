@@ -312,9 +312,9 @@ an example). It evaluates the rules once per state and event, and its scan costs
 (events + pairs) table reads. On 20 two-valued variables (2^20 states) with 20 events and every
 pair declared (190 pairs), `astchecker` takes about 10 s where `checkBuild` took about 260 s; with 3
 events (a capped counter on two 1024-valued variables, or 20 Booleans) about 2 s where `checkBuild`
-took about 4 s (Apple M1 Pro, OCaml 5). The tables cost memory: about 280 to 480 MB at 2^20 states
+took about 4 s (Apple M1 Pro, OCaml 5). The tables cost memory: about 280 to 480 MiB at 2^20 states
 in OCaml (one cell per state: its record, a list and 16-entry blocks), where `checkBuild` peaks at
-90 to 150 MB.
+90 to 150 MiB.
 
 ### What this does and does not require of you: no continuous porting to Coq
 

@@ -32,7 +32,7 @@ machine pass here.
   It evaluates the rules once per state and event into step tables and scans them as `check_fast`
   does, so its time grows with the states times (events + declared pairs): on 2^20 states, 20
   events and every pair declared it takes about 10 s (`checkBuild`, pair by pair, took about
-  260 s; `tests/run.sh` fails above 30 s) and peaks at about 480 MB (Apple M1 Pro, OCaml 5).
+  260 s; `tests/run.sh` fails above 30 s) and peaks at about 480 MiB (Apple M1 Pro, OCaml 5).
   Arithmetic is gsm's: signed integers, with `check_no_overflow` proving
   that a certified machine never leaves 32-bit range, so Go's `int` never wraps. It also prints a `compensation_free=<bool>` line: the machine-checked
   CRDT-fragment classification (no in-domain valuation ever needs repair, the AST analogue of
@@ -136,7 +136,7 @@ the zero state, invalid states, repair termination from every state) and the inp
 above. It then runs the large inputs at an 8 MiB stack, with time budgets for both oracles at
 2^20 states, and `astdiff`, a test tool (`ast_diff.ml`) that compares the two rules oracles,
 `checkBuildT` (what `astchecker` runs) and `checkBuild`, on every well-formed machine case, on
-the profiled machine shapes and on 60000 random machines, accepted and rejected ones, including
+the profiled machine shapes, on 60000 small random machines and on 400 with 16 to 20 events and 256 to about 2000 states, accepted and rejected ones, including
 machines the front end refuses (domains of 0, variable indices and declared pairs out of range).
 `ast_front.ml` holds the reader that `astchecker` and `astdiff` share. CI runs them on every push.
 
