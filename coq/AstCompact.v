@@ -528,6 +528,15 @@ Lemma flat_map_length_u : forall {A} (f : A -> list nat) W l, (forall v, length 
   length (flat_map f l) = length l * W.
 Proof. intros A f W l H. induction l as [| x t IH]; cbn; [reflexivity | rewrite app_length, H, IH; lia]. Qed.
 
+(* List.nth_firstn, which Coq 8.18's standard library does not have. *)
+Lemma nth_firstn_c : forall {A} (l : list A) i j d, nth i (firstn j l) d = if Nat.ltb i j then nth i l d else d.
+Proof.
+  intros A l. induction l as [| x t IH]; intros i j d.
+  - assert (E : firstn j (@nil A) = []) by (destruct j; reflexivity). rewrite E.
+    destruct (Nat.ltb i j); destruct i; reflexivity.
+  - destruct j as [| j]; [destruct i; reflexivity |]. destruct i as [| i]; [reflexivity |]. cbn. apply IH.
+Qed.
+
 Lemma nth_app_ge : forall {A} (l1 l2 : list A) k d, length l1 <= k -> nth k (l1 ++ l2) d = nth (k - length l1) l2 d.
 Proof. intros. apply app_nth2. exact H. Qed.
 
@@ -578,7 +587,7 @@ Proof.
         assert (Lc : length (chunk B16 0 G : list (blk nat)) = W) by (apply chunk_exact; rewrite HG, H15; lia).
         rewrite bget_app by lia. rewrite Lc.
         destruct (Compare_dec.lt_dec k (0 + 16 * W)) as [Hk | Hk]; cbv beta iota.
-        -- rewrite bget_chunk. unfold G. rewrite nth_firstn. destruct (Compare_dec.lt_dec k ((1 + h') * W)) as [H | H].
+        -- rewrite bget_chunk. unfold G. rewrite nth_firstn_c. destruct (Compare_dec.lt_dec k ((1 + h') * W)) as [H | H].
            ++ apply Nat.ltb_lt in H. rewrite H. reflexivity.
            ++ rewrite H15 in H. lia.
         -- replace k with (k - 16 * W + (0 + 16 * W)) at 1 by lia. rewrite bget_shift by lia.
