@@ -47,7 +47,8 @@
    integers are decimal with an optional leading '-'; indices, domains and
    pair entries are at most 2^31-1; a literal or minimum beyond that (up to 19
    digits) is refused as outside the certified fragment (exit 1), not rejected;
-   indices and domains are non-negative; every domain is at least 1; mins gives
+   indices and domains are non-negative; every domain is at least 1; the
+   product of the domains (the number of states) is at most 2^24; mins gives
    exactly one entry per variable; every variable index names a declared variable;
    doms and mins appear at most once and doms appears before any rule; the file is
    at most 64 MiB; the pairs file is well formed and names existing events. Exit
