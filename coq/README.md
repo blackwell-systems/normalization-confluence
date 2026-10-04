@@ -24,7 +24,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
 ```
 
 Expected tail: `PASS: all 254 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 158 headline results (among them the single-registry
+The gate runs `Print Assumptions` on all 254 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -36,7 +36,10 @@ fold-append theorem, and the four cohomological-layer results: the gluing counte
 completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
 identity-settles and negation-orbits witnesses, plus the ten cross-registry event-interleaving results
 of `FederationEvents.v`, the twelve monotone-cycle results of `FederationEventsCycles.v` and the eleven
-exactness results of `FederationEventsConverse.v`) and fails if any of them depends on an axiom or an
+exactness results of `FederationEventsConverse.v`, the fourteen well-founded-governance results of
+`GovernanceWF.v`, the seventeen ACC chaotic-iteration results of `ChaoticACC.v`, the sixteen
+at-least-once results of `AtLeastOnce.v`, the twenty-seven converse results of
+`GovernanceConverse.v` and the twenty-two coordinated-cycle results of `CoordinatedCycles.v`) and fails if any of them depends on an axiom or an
 admitted lemma.
 
 ## What is proven
@@ -957,7 +960,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 158
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 254
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
