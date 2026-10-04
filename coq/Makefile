@@ -105,3 +105,9 @@ all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
+
+# General-map cohomology (CohomologyGeneral.v).
+all: CohomologyGeneral.vo
+
+CohomologyGeneral.vo: CohomologyGeneral.v Cohomology.vo CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo
+	coqc -Q . NC CohomologyGeneral.v

@@ -909,6 +909,67 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## General transport maps: the obstruction, the diagnostic, and coordination bounds (`CohomologyGeneral.v`)
+
+The general-map content of the companion paper's sections 6 to 8 (work package WP9 of
+`PAPER-MAP.md`), axiom-free. Where a paper statement is false or imprecise, the counterexample is a
+theorem and the strongest true form is proven next to it.
+
+**The obstruction theorem (`thm:obstruction`).** A cycle carries edge maps `f_0, ..., f_{n-1}`
+(any maps on any fiber `V`, no invertibility); a section is `s 0, ..., s n` with
+`s (i+1) = f_i (s i)` and `s n = s 0` (`cycle_section`). "Reachable fixed point", which the paper
+does not define, is made precise as `reaches_fixed g x0`: some iterate `g^n x0` is fixed by `g`.
+
+- `thm_obstruction_general`: a section exists iff the loop composite has a fixed point.
+  `sections_are_fixed_points`: restriction to vertex 0 is a bijection from sections onto `Fix(g)`,
+  so the witness lives on the shared fiber alone.
+- `reaches_fixed_iff_section`: a fixed point is reachable from `x0` iff some section has its vertex-0
+  value on the forward orbit of `x0`. `thm_obstruction_reachable`: the paper's statement, with
+  "reachable" meaning "reachable from some seed".
+- gsm's `DiagnoseCycle`, on a finite fiber with decidable equality (`N` = its size):
+  `diagnose_bounded` (the seed reaches a fixed point iff `g^N x0` is fixed), `diagnose_orbit_witness`
+  (the orbit repeats within `N` steps), `diagnose_dichotomy` (exactly one of the two outcomes).
+
+**Reading the diagnostic (section 7).** "A non-convergent result is definitive" is false:
+`c15_definitive_claim_false`, with the loop copy-then-swap on `{t0, t1, t2}` (swap `t0, t1`, fix
+`t2`): seed `t0` orbits (`c15_seed_orbits`) while `t2` is a section (`c15_tri_section`). Corrected
+forms: `c15_exact_refuter` (no section iff no seed reaches a fixed point), `c15_free_definitive`
+(one seed is definitive when the fixed points of `g` are all-or-nothing),
+`c15_injective_reaches_iff_fixed` (for an invertible composite a seed reaches a fixed point iff it
+is fixed), `c15_regular_definitive` and `c15_regular_is_free` (translation by the holonomy: from any
+seed, reaches iff `h = e`). `c15_convergent_result_sound`: a settling seed proves a section exists;
+`c15_convergent_result_not_global`: it does not prove every seed settles.
+
+**Minimal coordination with its qualifiers (`prop:minimal`).** `prop_minimal_qualified_iff`: in the
+regular action with an authority root `r` and spanning tree `T`, the labeling `T ++ X` is a
+coboundary (`H^1 = 0`) iff for every authority value the uncoordinated network (tree drives, every
+non-tree edge kept as a checked constraint) has a consistent state that is the unique one with that
+root value and that every propagation order reaches. `prop_minimal_qualifiers_needed`: Z/2 acting on
+`{t0, t1, t2}` by the swap gives a non-coboundary with a section (the regular action is needed), and
+`nonfree_holonomy_counterexample`, `copyback_without_authority` (the authority root is needed).
+
+**Coordination as edge deletion (section 8).** `feasible Es D`: some state satisfies every edge of
+`Es` outside `D`.
+
+- Edge-disjoint obstructions: `edge_disjoint_lower_bound` (`k` pairwise edge-disjoint cycles with no
+  section force at least `k` deleted edges, for any labels) and `edge_disjoint_min` (with a spanning
+  tree whose unbalanced non-tree edges number `k`, the minimum is exactly `k`); instance
+  `bowtie_min_two`.
+- `min_G >= min_{G^ab}` in general: `section_pushforward`, `feasible_pushforward` and
+  `min_G_ge_min_image` push sections and feasible coordinations along any homomorphism, any graph;
+  instance `klein_min_ge_1`.
+- The non-invertible case, "a cycle basis still suffices", is false: `c22_cycle_basis_fails` is a
+  tree (empty cycle basis) with constant maps 0 and 1 into one vertex, which has no section; one
+  deletion restores one. Corrected for root-oriented trees (`otree`, every edge pointing away from the
+  authority root): `out_tree_section`, `out_tree_unique`, `rooted_criterion` (a section with the
+  tree-driven root value exists iff the driven state satisfies every non-tree edge),
+  `rooted_coordination_suffices`; instance `c22_rooted_instance`.
+
+**Two regimes, not exhaustive (section 6).** `c13_two_ways_not_exhaustive`: a cyclic loop of two
+negations (trivial holonomy, non-monotone edges) and copy-then-swap on `nat` (non-trivial holonomy,
+non-monotone composite) both have sections, so acyclicity and monotonicity are two sufficient
+conditions, not the only ones.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural
