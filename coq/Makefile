@@ -105,3 +105,9 @@ all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
+
+# The papers' concrete examples (PaperInstances.v).
+all: PaperInstances.vo
+
+PaperInstances.vo: PaperInstances.v Newman.vo Governance.vo GovernanceConverse.vo FederationEvents.vo Trace.vo
+	coqc -Q . NC PaperInstances.v
