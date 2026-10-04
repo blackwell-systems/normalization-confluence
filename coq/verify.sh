@@ -268,6 +268,80 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require Import NC.Stream.
+Print Assumptions stream_star_inv.
+Print Assumptions stream_star_sub.
+Print Assumptions stream_SN_sub.
+Print Assumptions st_rm_head.
+Print Assumptions st_rm_notin.
+Print Assumptions st_rm_perm_cons.
+Print Assumptions st_rm_perm.
+Print Assumptions st_in_rm_neq.
+Print Assumptions st_rm_app.
+Print Assumptions prstep_cstep.
+Print Assumptions star_prstep_cstep.
+Print Assumptions nf_prstep_cstep.
+Print Assumptions nf_cstep_prstep.
+Print Assumptions st_SN_cstep.
+Print Assumptions st_SN_prstep.
+Print Assumptions st_cstep_unique_nf.
+Print Assumptions st_cstep_perm.
+Print Assumptions st_star_cstep_perm.
+Print Assumptions st_nf_cstep_perm.
+Print Assumptions st_find_enabled.
+Print Assumptions st_nf_or_step.
+Print Assumptions st_pnf_exists.
+Print Assumptions st_nf_valid.
+Print Assumptions comp_phase_terminates.
+Print Assumptions comp_phase_done_valid.
+Print Assumptions stream_validity.
+Print Assumptions settled_empty_buffer.
+Print Assumptions stream_order_independence.
+Print Assumptions st_feasible_reach.
+Print Assumptions st_feasible_nil_buffer.
+Print Assumptions prun_valid.
+Print Assumptions st_valid_empty_nf.
+Print Assumptions stream_orders_agree.
+Print Assumptions st_same_set_perm.
+Print Assumptions stream_agreement.
+Print Assumptions base_thm_convergence_c.
+Print Assumptions stream_convergence.
+Print Assumptions base_rem_set_function.
+Print Assumptions stream_settle.
+Print Assumptions stream_all_received.
+Print Assumptions st_nodup_app_covered.
+Print Assumptions base_cor_quiescent.
+Print Assumptions star_prstep_app.
+Print Assumptions incremental_computes.
+Print Assumptions base_thm_convergence.
+Print Assumptions base_cor_quiescent_nat.
+Print Assumptions ct_registry.
+Print Assumptions ct_nf_empty.
+Print Assumptions ct_run.
+Print Assumptions ct_one_step.
+Print Assumptions base_thm_convergence_c_counterexample.
+Print Assumptions ct_seq_snoc.
+Print Assumptions ct_seq_len.
+Print Assumptions base_thm_convergence_transient_counterexample.
+Print Assumptions zc_rho_star_reach.
+Print Assumptions zw_stream_registry.
+Print Assumptions zc_apply.
+Print Assumptions zc_comp.
+Print Assumptions zc_rm1.
+Print Assumptions zc_rm2.
+Print Assumptions zc_nf_empty.
+Print Assumptions zp_run12.
+Print Assumptions zp_run21.
+Print Assumptions zp_run1.
+Print Assumptions zp_run2.
+Print Assumptions zw_processors.
+Print Assumptions zw_stream_agree.
+Print Assumptions zw_stream_quiescent.
+Print Assumptions zw_stream_quiescent_nat.
+Print Assumptions zw_stream_convergence_nat.
+Print Assumptions zw_incremental.
+Print Assumptions base_cor_infinite.
+Print Assumptions base_cor_infinite_quiescent.
 Require Import NC.PaperInstances.
 Print Assumptions rho_star_one_step.
 Print Assumptions no_SN_of_total.
@@ -441,8 +515,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 413 ]; then
-  echo "FAIL: expected 413 axiom-free results, got $N"
+if [ "$N" -lt 486 ]; then
+  echo "FAIL: expected 486 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

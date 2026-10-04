@@ -106,6 +106,12 @@ all: CoordinatedCycles.vo
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
 
+# Stream processors and the Stream Convergence Theorem (Stream.v).
+all: Stream.vo
+
+Stream.vo: Stream.v Newman.vo GovernanceCausal.vo GovernanceWF.vo
+	coqc -Q . NC Stream.v
+
 # The papers' concrete examples (PaperInstances.v).
 all: PaperInstances.vo
 
