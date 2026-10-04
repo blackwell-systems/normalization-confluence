@@ -4,7 +4,7 @@
 
 A machine-checked proof of the paper's Convergence Theorem: under the paper's stated conditions,
 the governance rewrite system is confluent and every configuration has a unique normal form.
-CI compiles it on Coq 8.18 and 8.20 (also builds on Rocq 9.3) and gates on it being **axiom-free**:
+CI compiles it on Coq 8.18, Coq 8.20 and Rocq 9.3 and gates on it being **axiom-free**:
 every key theorem is "Closed under the global context", no `Admitted`, no added axioms. The badge
 is green only when that gate passes.
 
@@ -588,7 +588,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 96
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 112
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
