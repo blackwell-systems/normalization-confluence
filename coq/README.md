@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 189 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 205 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 158 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -420,6 +420,46 @@ need to commute. Axiom-free:
 Each ordering proof bubbles an event to the front past concurrent events, so the connectivity of
 linear extensions is never assumed.
 
+## At-least-once delivery (`AtLeastOnce.v`)
+
+The results above assume each replica sees each event exactly once. Transports usually promise
+at-least-once delivery, so an event can be redelivered, possibly much later. `AtLeastOnce.v` makes
+exactly-once a checked property: it proves when a duplicate is absorbed and gives a divergence
+witness when it is not. A delivery is a list of events with duplicates; its exactly-once projection
+`dedup` keeps the first delivery of each event. The governed step (apply, then repair to a normal
+form) ranges over an invariant domain `D` it preserves. Axiom-free:
+
+- `alo_absorbed`: the general, local form. A delivery reaches the same state as its exactly-once
+  projection when every redelivered event is idempotent (`step a (step a s) = step a s` on `D`) and
+  commutes with each event delivered between the redelivery and the previous copy.
+- `alo_commuting_exactly_once`, `alo_commuting_converges`: the all-orders case. If all delivered
+  events commute and every duplicated event is idempotent, an at-least-once delivery reaches the
+  same state as every exactly-once delivery of the same events in any order, and any two
+  at-least-once deliveries of the same events agree. Built on `Trace.v`'s `run_tequiv`.
+- `causal_alo_exactly_once`, `causal_alo_converges`: the causal case. Only concurrent events need to
+  commute (as in `causal_convergence`), happens-before is irreflexive, and redelivery is itself
+  causally consistent (`causal_alo`: no copy of a cause is delivered after any copy of its effect).
+  Then every duplicate is absorbed and the run equals every causally consistent exactly-once run.
+  `causal_alo_absorbs` and `causal_alo_dedup_causal` are the two steps; the order argument reuses
+  `causal_tequiv` and `run_tequiv`.
+- `non_idempotent_diverges`: for any event whose governed step is not idempotent at some state,
+  delivering it twice from that state diverges from delivering it once. `inc_not_idempotent` /
+  `inc_duplicate_diverges` instantiate it with a counter increment clamped to a cap: from `0`,
+  duplicate delivery ends at `2`, exactly-once at `1`.
+- `late_duplicate_diverges`: the naive causal statement (idempotent duplicates are absorbed whenever
+  the first deliveries are causal) is false. On `CausalReplay.v`'s flag machine, `Add` and `Remove`
+  are idempotent and every concurrent pair commutes, yet redelivering `Add` after its causal
+  successor `Remove` leaves the flag set, while exactly-once delivery clears it. That delivery is not
+  `causal_alo`, which is why the causal theorem requires it.
+- `mx_alo_converges` (a max-register clamped to a cap, all-orders case) and
+  `fl_causal_alo_converges` (a flag with add and causally later remove next to a clamped
+  max-register; `fl_not_all_commute` shows the all-orders theorem does not apply): non-vacuity
+  instances discharging every hypothesis.
+
+In short, deduplication is needed only for an event whose governed step is not idempotent, or whose
+redelivered copy can overtake an event it does not commute with. The first always diverges at a
+witness state (`non_idempotent_diverges`); the second can (`late_duplicate_diverges`).
+
 ## Event interleavings across registries (`FederationEvents.v`)
 
 The federated results above fix the order in which the normalizer visits registries. They do not
@@ -761,7 +801,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 189 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 205 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
