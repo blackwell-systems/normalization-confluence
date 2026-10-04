@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 314 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 375 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 304 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -789,6 +789,51 @@ Computing the Kleene limit needs the stabilization test to be decidable; without
 development proves only the double-negated existence, which is the constructive limit (deciding
 `f x = x` in general is not possible).
 
+## rho* constructed from WFC (`RhoStar.v`)
+
+The modules above take iterated compensation `rho_star` as a parameter, with the hypotheses
+`rho_star_reach` (and `rho_star_valid` in `GovernanceConverse.v`). The paper defines it instead
+(Base, Def. "Iterated Compensation"): `rho*(s) = rho^m(s)` for the least `m` with `V(rho^m(s))`.
+`RhoStar.v` constructs that operator from WFC (and a decidable validity test, which the paper's
+Boolean `V_R` is) and proves every base fact that rests on it, axiom-free (61 gated results):
+
+- Construction: `rho_star` (nat measure, computable by fuel) and `rho_star_wf` (any well-founded
+  order, by well-founded recursion). `base_def_rhostar` and `base_def_rhostar_least_unique` are the
+  paper's definition exactly (the least `m` exists and determines `rho*`); `rho_star_canonical`
+  shows the operator does not depend on the measure. Notation (i) to (iii) of Base section
+  "Calculus": `rho_star_valid`, `rho_star_fix`, `rho_star_idem`; `rho_star_rho` (rho(s) lies on
+  the chain of an invalid s).
+- Headline theorems with no rho* hypothesis: `wfc_governance_confluent`,
+  `wfc_governance_unique_normal_forms`, `wfc_causal_governance_confluent`,
+  `wfc_causal_governance_unique_normal_forms`, `wfc_governance_wf_confluent`,
+  `wfc_causal_governance_wf_confluent`, `wfc_cc_exact_from` (both rho* hypotheses discharged).
+- Deps-based enabledness (Base def:config: `e` in `B` is enabled iff `deps(e)` is disjoint from
+  `B`) discharges `enabled_after_remove` and `enabled_after_comp` in both rewrite systems
+  (`deps_enabled_after_remove`, `deps_enabled_after_comp`, `deps_causal_enabled_after_remove`,
+  `deps_causal_enabled_after_comp`), and co-enabled events are causally independent
+  (`deps_coenabled_independent`). So Base cor:unique-nf holds in the paper's own terms with only
+  WFC, CC1 and CC2 as hypotheses: `paper_causal_governance_confluent`,
+  `paper_causal_governance_unique_normal_forms` (CC1 on distinct, independent, co-enabled pairs),
+  and the all-pairs versions `paper_governance_confluent`, `paper_governance_unique_normal_forms`.
+- Absorption: `base_rem_absorption` (CC2 lifts to `rho*(apply(e, s)) = rho*(apply(e, rho*(s)))`),
+  `base_rem_absorption_enabled` (CC2 for enabled events only), `base_thm_strong_absorption` (strong
+  absorption implies CC2), and the equivalence `strong_absorption_iff_cc2`.
+- UBC: `base_lem_finite_implies_ubc` (a listed state space gives `M = max Phi`, attained when there
+  is a state); the step bound of Lemma "Termination", every reduction from `(s, E)` has at most
+  `|E| + (|E| + 1) M` steps (`base_lem_termination_bound`, `causal_lem_termination_bound`), attained
+  (`lv_termination_bound_tight`); the model-level part of Theorem "Convergence Complexity": at most
+  `M` compensation steps per applied event plus `M` before the first
+  (`base_thm_complexity_comp_total`, `base_thm_complexity_per_event`, `rho_star_steps_le_measure`).
+- Cat section 3 background: WFC makes the normalizer idempotent (`cat_bg_rho_idempotent`), reaches
+  a valid state from any state (`cat_bg_valid_from_any_state`), and Lemma 0 holds for it with the
+  idempotence hypothesis of `Categorical.v` discharged (`cat_bg_lemma_zero`). The unqualified
+  "its valid set is non-empty" needs a state: the empty registry satisfies WFC with an empty valid
+  set (`cat_bg_nonempty_needs_a_state`).
+- Non-vacuity: a four-level saturating counter (`lv_*`: finite, WFC, UBC with `M = 1`, CC1, CC2,
+  strong absorption, deps-based enabledness for any dependency map) discharges every hypothesis
+  set; the unbounded withdrawal registry of `GovernanceWF.v` gets its rho* constructed
+  (`zw_rho_star_built`, `zw_confluent_built`).
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the
@@ -1086,7 +1131,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 314 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 375 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
