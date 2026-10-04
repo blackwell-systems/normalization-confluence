@@ -214,7 +214,9 @@ often conflated are orthogonal:
 
 Universality of the *merge* is therefore independent of the state space being a *limit*.
 State-based CRDTs are the compensation-free special case of the monotone regime (join-semilattice
-objects, monotone maps), consistent with `CRDT.v` / `SUBSUMPTION.md`.
+objects, monotone maps), consistent with `CRDT.v` / `SUBSUMPTION.md`. On the op-based side, under
+causal delivery the compensation-free fragment is exactly the op-based CRDTs, in both directions
+(`compensation_free_exact`, `CausalReplay.v`).
 
 ## 7. Duality note (why "gluing is a colimit" is not a contradiction)
 
@@ -244,7 +246,10 @@ equally," i.e. this descent. CC (local confluence of the per-event repairs, on n
 
 So order-independent replay is CC read through the universal property of the free commutative monoid:
 an event-sourced log is a fold over the free monoid, and CC is precisely when it descends to the
-commutative monoid.
+commutative monoid. Under causal delivery only concurrent pairs need commute, so the fold need only
+descend to the partially commutative (trace) quotient: `causal_convergence` and `causal_tequiv`
+(`CausalReplay.v`, bridging to `Trace.v`'s `run_tequiv`), and `causal_governance_confluent`
+(`GovernanceCausal.v`) for the rewrite system with CC1 only on co-enabled distinct events.
 
 ## 9. Scope
 
@@ -440,7 +445,10 @@ its scope are in [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-cohomological-
 NC's convergence is strong eventual consistency (SEC): replicas consuming the same events reach the
 same valid state regardless of order. CC is the order-independence SEC names, the monotone regime is
 exactly the CRDT / join-semilattice case (machine-checked in `CRDT.v`), and the well-founded regime
-(WFC + CC with compensation) is a strictly broader coordination-free class than CRDTs. So the
+(WFC + CC with compensation) is a strictly broader coordination-free class than CRDTs. This holds
+against the literature's causal-delivery definition too: the compensation-free fragment is exactly
+the op-based CRDTs (`compensation_free_exact`), and `witness_causal_not_cmrdt` keeps the inclusion
+strict (`CausalReplay.v`). So the
 convergence question is the coordination question: a coordination-free (eventually consistent)
 convergent implementation exists exactly when `H^0` is non-empty, and the obstruction to it is the
 `H^1` class of the completion. This is the CALM boundary (monotone implies coordination-free) and

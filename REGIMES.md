@@ -31,10 +31,25 @@ needed.
 | You have | You need | Converges? | Proof |
 |---|---|---|---|
 | One registry | **WFC** (repair terminates) + **CC** (repaired results are order-independent) | **Yes**, unique normal form | Convergence Theorem (`cor:unique-nf`) |
+| One registry, **causal delivery** (an event is applied only after the events it depends on) | **WFC** + **CC2** + **CC1 only for concurrent pairs** (distinct events enabled together); causally ordered pairs need not commute | **Yes**, unique normal form | `causal_governance_confluent`, `causal_convergence` |
 
 WFC = every compensation chain is finite. CC = two independent events, each followed by repair,
 commute (CC1), and repairing before vs after an event gives the same result (CC2). This is the
 core theorem; everything below reduces to it. Mechanized in `coq/Governance.v` (axiom-free).
+
+**Causal variant.** The base theorem asks CC1 of every pair of events, so every replay order must
+agree. Real replicated systems usually promise only causal delivery, under which two causally
+ordered events are never enabled at the same time and only *concurrent* events can arrive in
+either order. CC1 is then needed only for those concurrent pairs. `coq/GovernanceCausal.v` proves
+the full rewrite-system Convergence Theorem under that weaker hypothesis
+(`causal_governance_confluent`; the witness `cw_confluent` / `cw_violates_all_pairs_cc1` meets it
+while violating all-pairs CC1). `coq/CausalReplay.v` proves the replay form for governed steps
+(apply, then normalize): if they commute on every concurrent pair, any two causally consistent
+delivery orders reach the same state (`causal_convergence`). This is also how gsm's declared
+`Independent` pairs read: `causal_tequiv` shows any two causally consistent orders are
+trace-equivalent under concurrency, and `Trace.v`'s `run_tequiv` shows trace-equivalent sequences
+reach the same state. So when the declared-independent pairs cover the concurrent ones, gsm's check
+of only those pairs is the causal-delivery form of CC1. All axiom-free.
 
 ## Networks of registries (federation)
 
@@ -62,7 +77,9 @@ flowchart TD
   A[Governed system] --> B{Single registry?}
   B -- yes --> C{WFC and CC hold?}
   C -- yes --> C1[Converges: unique normal form]
-  C -- no --> C2[No guarantee]
+  C -- no --> C0{Causal delivery, and CC1 holds for concurrent pairs?}
+  C0 -- yes --> C1
+  C0 -- no --> C2[No guarantee]
   B -- no, a network --> D{Repair monotone on a lattice?}
   D -- yes --> D1[Converges on ANY topology, cycles included<br/>least fixed point by Kleene iteration]
   D -- no --> E{Network acyclic?}
@@ -85,13 +102,20 @@ flowchart TD
   the same convergence.
 - **Why CRDTs are the easy corner.** A join-semilattice whose merge is its join is monotone and
   never needs to repair an invariant, so a state-based CRDT is exactly the monotone-cycles case
-  with compensation switched off. Normalization confluence adds business invariants on top.
+  with compensation switched off. The op-based side is sharper still: under causal delivery, the
+  compensation-free fragment (normalization is the identity) is *exactly* the op-based CRDTs, in
+  both directions (`compensation_free_exact`), and standard op-based CRDTs converge as an instance
+  (`causal_cmrdt_SEC`). Normalization confluence adds business invariants on top, and that is
+  strictly more: `witness_causal_not_cmrdt` converges causally without being a CRDT, and
+  `witness_beyond_all_pairs` (an add, a causally later remove, an independent counter) converges
+  although its operations do not all commute.
 
 ## Where each regime lives in the code and proofs
 
 | Regime | gsm API | Mechanized |
 |---|---|---|
 | Single registry | `Registry.Build` (verifies WFC + CC) | `coq/Governance.v`, `coq/Gsm.v` |
+| Single registry, causal delivery | declared `Independent` pairs (CC1 checked only on those) | `coq/GovernanceCausal.v`, `coq/CausalReplay.v`, `coq/Trace.v` (`run_tequiv`, bridged by `causal_tequiv`) |
 | Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | (paper) |
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core) |
 | Compositional collapse | `Federation.Embed` | (paper) |

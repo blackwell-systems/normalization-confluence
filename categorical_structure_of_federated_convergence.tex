@@ -213,7 +213,15 @@ Conflict-free replicated data types achieve convergence by restricting to operat
 repair; a state-based CRDT is the join-semilattice special case~\cite{shapiro2011crdt}, and the
 monotone regime here coincides with it (this correspondence is machine-checked in the base
 development). The well-founded-compensation regime is strictly broader, since it admits operations
-that violate invariants and are repaired. Category-theoretic accounts of CRDT convergence exist at
+that violate invariants and are repaired. The correspondence also holds against the literature's
+op-based definition, where only concurrent operations commute under causal delivery: the base
+development proves convergence when governed steps commute on concurrent pairs only
+(\texttt{causal\_convergence}, with standard op-based CRDTs as the instance
+\texttt{causal\_cmrdt\_SEC}), shows the compensation-free fragment is exactly the op-based CRDTs
+(\texttt{compensation\_free\_exact}, both directions), keeps the inclusion strict
+(\texttt{witness\_causal\_not\_cmrdt}), and proves the rewrite-system convergence theorem
+\texttt{causal\_governance\_confluent} with the critical-pair condition required only for
+co-enabled distinct events, all axiom-free. Category-theoretic accounts of CRDT convergence exist at
 the level of the merge algebra; they do not give a cohomological obstruction or a
 coordination-minimality theorem. The lattice-theoretic and chaotic-iteration machinery behind the
 monotone regime is classical~\cite{tarski1955, cousot1977}, as is the confluence core~\cite{newman1942}.
