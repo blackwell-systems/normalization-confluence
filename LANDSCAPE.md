@@ -96,10 +96,15 @@ commutes (CC). Neither prior characterization reaches it. CALM-monotonicity cann
 divergence counterexample, antitone negation, is exactly non-monotone), and I-confluence excludes
 invariant-violating operations by definition. NC reaches it by two routes that match its topology
 results: monotone repair converges on any graph (the CALM overlap), and non-monotone but compensable
-repair converges on acyclic networks with resolvers. The price of leaving the characterized floor is
-that WFC + CC is a *sufficient* mechanism, not an iff: its boundary is CC-satisfiability, decided
-constructively by `Registry.Synthesize` (the impossibility witness), rather than a closed-form
-logical property like monotonicity or I-confluence.
+repair converges on acyclic networks with resolvers, and on cycles under a computed coordination
+(unique given an authority root, `coq/CoordinatedCycles.v`). The condition is exact, with a cost:
+with canonical repair, unique normal forms from a start hold iff CC holds on the states reachable
+from it (`cc_exact_from`), and for any enabledness iff critical pairs are joinable at reachable
+configurations (`jc_exact`, `coq/GovernanceConverse.v`). These exact conditions quantify over
+reachable states; the per-state CC that gsm checks is the cheap sufficient form. Whether some
+compensation satisfies CC at all is CC-satisfiability, decided constructively by
+`Registry.Synthesize` (the impossibility witness), rather than a closed-form logical property like
+monotonicity or I-confluence.
 
 **One-line placement.** Coordination-free convergence is achievable by monotonicity (CALM), by
 invariant preservation (I-confluence), or by compensable repair (this work). The first two are the
@@ -177,15 +182,17 @@ set's application, a confluence property over orderings. So the precise placemen
 its confluence method from rewriting logic and its repair intuition from self-stabilization, and its
 own contribution is the specialization: that method applied to coordination-free replicated
 convergence with non-commutative compensation, through the new conditions WFC and CC, with CC shown
-necessary by counterexample; a verification calculus that reduces CC to per-event-pair checks;
+necessary by counterexample and exact on reachable states; a verification calculus that reduces CC to per-event-pair checks;
 CRDTs and I-confluence subsumed as the compensation-free floor; federation (the authority argument,
 resolution operators on acyclic networks, monotone repair on any topology, and the necessity of
 acyclicity and M1); the federation's normal forms as a limit, with compositionality as a corollary;
 the federated cohomological obstruction; and minimal coordination, where a cycle basis suffices (invertible fragment)
 and the exact minimum is a group feedback edge set number. The base theorem, the CRDT subsumption, the
-limit and compositionality core, and the cohomological criterion in the invertible fragment are
-mechanized end to end; the necessity results, the calculus beyond footprint disjointness, and the
-minimal-coordination complexity are paper-level.
+limit and compositionality core, the cohomological criterion in the invertible fragment, the exact
+converses (CC, causal delivery, and C1/C2 for event interleavings), at-least-once delivery, and the
+soundness of coordinating non-monotone cycles from an authority root are mechanized end to end; the
+paper's necessity counterexamples for acyclicity and M1, the calculus beyond footprint disjointness,
+and the minimal-coordination complexity are paper-level.
 
 ## Related work for the cohomological layer
 
@@ -265,7 +272,10 @@ following. Labels refer to the companion paper,
    convergent implementation that stays coordination-free everywhere else (`prop:minimal`), and the
    exact minimum is the group feedback edge set number of the holonomy-labeled nerve (its complexity
    results are cited from the literature). The companion paper reports finding no prior work that
-   localizes the coordination requirement to a cycle basis.
+   localizes the coordination requirement to a cycle basis. Soundness of the holonomy-minimal plan
+   (drive along a spanning tree from an authority root, keep balanced non-tree edges as checks,
+   coordinate the unbalanced ones) is mechanized: a unique normal form given the root
+   (`coordinated_sound`, `coq/CoordinatedCycles.v`).
 4. **The `S_3` separation.** On the theta graph the non-abelian minimum is 2 and the abelianized
    minimum is 1, so sizing coordination by an abelianized invariant is unsound: it under-provisions.
    Mechanized end to end (`theta_separation`, `coq/CohomologyMin.v`).
@@ -311,7 +321,8 @@ complexity results.
    abstract-interpretation fixpoints are shown to be the same phenomenon under different names.
 3. **Where to coordinate: a cycle basis, not a global yes/no.** When a federation cannot converge
    coordination-free, coordinating a cycle basis of its morphism network suffices (proved in the
-   invertible fragment), refining CALM and I-confluence from a global verdict into a localized one.
+   invertible fragment, with the authority-rooted plan's soundness mechanized), refining CALM and
+   I-confluence from a global yes-or-no into a localized one.
 4. **From folklore to guarantee.** Saga-style compensation gains a checkable condition (WFC + CC)
    and a machine-checked proof, so "our compensations converge" becomes something you verify at
    build time rather than hope for.

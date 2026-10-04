@@ -154,6 +154,13 @@ canonical CALM (CACM 2020), I-confluence (Bailis 2014), CRDTs (Shapiro 2011), an
 Herlihy-Shavit-Rajsbaum.
 
 ## Mechanization status (coq/, axiom-free gate)
+
+Snapshot from the outline stage (gate at 29 to 33 theorems). Since then the items listed below as
+paper-level have been mechanized: `H^1` as a quotient with cycle-basis generators and rank
+`|E| - |V| + 1`, non-abelian included (`CohomologyGraph.v`, `CohomologyMin.v`), and full
+order-independence over all topological orders (`FederationOrder.v`, by bubbling, without
+linear-extension connectivity). The gate is now at 254 theorems; `coq/README.md` is the current
+status.
 The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theorems):
 - Lemma 0: image = fixed-point set = equalizer of (id, rho).
 - Proposition 1: the consistent set is the equalizer of the shared-component and resolver-value maps

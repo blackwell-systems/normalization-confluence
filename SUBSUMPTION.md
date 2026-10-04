@@ -49,7 +49,10 @@ commuting. Convergence follows from the same order-independence lemma. So a CmRD
 Model a CvRDT by a join that is commutative, associative, and idempotent. Merging received states
 is then order-independent (again the same lemma) and absorbs duplicate delivery (merging the same
 state twice equals once). Idempotence is the one extra property a CvRDT bundles in, to tolerate
-at-least-once delivery; normalization confluence does not require it in general. The join order is
+at-least-once delivery; normalization confluence does not require it in general. Where duplicates
+can occur, `coq/AtLeastOnce.v` gives the governed counterpart: duplicates of an event whose governed
+step is idempotent are absorbed (`alo_commuting_converges`, and `causal_alo_converges` under causal
+delivery), and a duplicated non-idempotent event diverges (`non_idempotent_diverges`). The join order is
 a semilattice and merge is monotone in it, which is the monotone regime already mechanized for
 federated networks in `coq/Federation.v` and `coq/Chaotic.v`.
 
@@ -102,13 +105,20 @@ gap.
 All of these use the bubbling argument (an event is moved to the front past concurrent events), so
 the connectivity of linear extensions is never assumed.
 
+The causal condition is also exact. `causal_exact` (`GovernanceConverse.v`): causal convergence
+from `s0` holds iff every concurrent pair commutes after every causally consistent prefix that can
+deliver it, and `causal_convergence_exact` (with happens-before irreflexive) is the converse of
+`causal_convergence` over all starts. Reachability of the state alone is not enough
+(`naive_causal_converse_fails`).
+
 ## What this claim does not say
 
 The result is about the convergence principle, not about CRDT engineering as a whole. CRDTs also
 address concerns this theorem does not subsume:
 
 - duplicate delivery via idempotence (captured for the CvRDT case as
-  `cvrdt_absorbs_duplicates`, not assumed in general),
+  `cvrdt_absorbs_duplicates`, and for governed machines by `AtLeastOnce.v` when the duplicated
+  governed steps are idempotent; not assumed in general),
 - the metadata that enforces causal delivery (version vectors, dotted contexts). The convergence
   principle *under* causal delivery is covered (`CausalReplay.v`); how a system achieves causal
   delivery is not,
@@ -125,4 +135,6 @@ convergent governed machines that are no CRDT. "CRDTs are obsolete" is neither c
 - `coq/CausalReplay.v`: causal convergence, standard op-based CRDTs, exactness, the causal
   witnesses, and the bridge to trace equivalence.
 - `coq/GovernanceCausal.v`: the rewrite-system Convergence Theorem under causal delivery.
+- `coq/GovernanceConverse.v`: the converse (exactness) of causal convergence.
+- `coq/AtLeastOnce.v`: duplicate delivery for governed machines.
 - `coq/verify.sh`: gates on all of the above being `Closed under the global context`.

@@ -5,7 +5,9 @@ retraction for arbitrary acyclic federations, and compositionality (`coq/Categor
 order-independence over arbitrary acyclic federations (`coq/FederationOrder.v`); and the completion on
 an arbitrary graph, the cycle-basis criterion, `H^1` as a quotient (tuples of fundamental holonomies
 modulo simultaneous conjugation) with its rank `|E| - |V| + 1`, and the `S_3` separation
-(`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`). Still paper-level: the rank on
+(`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`); chaotic iteration under the
+ascending chain condition rather than finite height (`coq/ChaoticACC.v`); and soundness of
+coordinating a non-monotone cycle from an authority root (`coq/CoordinatedCycles.v`). Still paper-level: the rank on
 the nerve as a 2-complex (the triangle relations), the non-invertible case (a dynamical fixed-point
 condition rather than group cohomology), and the cited complexity results. The convergence
 facts this builds on (Newman, WFC/CC, federation M1, resolver R1/R2, monotone convergence,
@@ -126,7 +128,13 @@ for monotone operators on a complete lattice). ∎
 
 A non-monotone cycle (for instance a negation cycle) admits no closure operator, hence no reflector,
 which is exactly why gsm rejects it. The categorical obstruction and the operational rejection
-coincide.
+coincide. With a computed coordination it converges: driving values along a spanning tree from an
+authority root, keeping balanced non-tree edges as checks and coordinating the unbalanced ones gives
+a unique normal form given the root (`coordinated_sound`, `coq/CoordinatedCycles.v`, section 10.2).
+
+The finite-lattice hypothesis is only for the Kleene termination argument as stated here: the
+least fixed point is reached by chaotic and Kleene iteration whenever there is no infinite strictly
+ascending chain below it (`chaotic_acc_reaches_lfp`, `kleene_acc_lfp`, `coq/ChaoticACC.v`).
 
 ## 5. Compositionality (the payoff)
 
@@ -243,6 +251,11 @@ monoid map out of `E*` descends to `ℕ^E` iff it identifies `ef` with `fe`, i.e
 `α_e∘α_f = α_f∘α_e`. Order-independent replay is exactly "sequences with the same multiset act
 equally," i.e. this descent. CC (local confluence of the per-event repairs, on normal forms) states
 `ρ(apply_e(apply_f(x))) = ρ(apply_f(apply_e(x)))` on `Φ_R`, which is `α_e∘α_f = α_f∘α_e`. ∎
+
+The lemma asks for commutation on all of `Φ_R`. Restricted to the normal forms reachable from a
+start, commutation is exactly what order-independent replay from that start needs: with canonical
+repair, unique normal forms from `s0` hold iff CC holds on the states reachable from `s0`
+(`cc_exact_from`, `coq/GovernanceConverse.v`).
 
 So order-independent replay is CC read through the universal property of the free commutative monoid:
 an event-sourced log is a fold over the free monoid, and CC is precisely when it descends to the
@@ -471,6 +484,14 @@ coboundary and its holonomy generator dies. Killing a generating set of `H^1` le
 class, so `H^0` becomes non-empty by the completion theorem, while off the coordinated loops the
 transitions are unchanged and stay coordination-free. ∎
 
+Mechanized (`coq/CoordinatedCycles.v`): with an authority root `r` and a spanning tree `T` that
+drives values from it, balanced non-tree edges kept as checked constraints and the rest coordinated,
+every topological order of the driving network reaches the unique state satisfying the kept edges
+with root value `s0 r` (`coordinated_sound`, `coordinated_unique_nf`); a kept set has a consistent
+state iff it avoids the unbalanced edges (`plan_exact`). Uniqueness is relative to the root
+(`root_choice_matters`); without an authority, two orders reach different consistent states
+(`copyback_without_authority`).
+
 So a federation decomposes into a coordination-free majority (eventual consistency) and a coordinated
 core (strong consistency), a cycle basis of the obstruction rather than the whole network. For a
 distributed deployment this reads: put consensus only on the obstructing cycles, run everything else
@@ -621,6 +642,7 @@ level.
    cycle basis suffices to coordinate. The exact minimum is the group feedback edge set number (10.3:
    NP-hard even abelian, FPT in the core size, polynomial on planar or edge-disjoint nerves). The
    practical loop-composite diagnostic is implemented in gsm (`Federation.DiagnoseCycle`); the
-   cohomology-proper `H^1` classification is open.
+   cohomology-proper `H^1` classification is mechanized in the invertible fragment
+   (`coq/CohomologyGraph.v`), and the non-invertible case is open.
 4. **Squier / higher-dimensional rewriting (§11)**: reframes confluence as coherence; strong for the
    single-registry paper's credibility.

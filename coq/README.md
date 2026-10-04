@@ -639,9 +639,10 @@ values). Results:
   single pair `(z, b)`, and the converse applies whenever some valid consistent state realizes it
   (for example in a two-registry federation whose source has no repair).
 
-**Not covered.** Non-monotone cycles remain excluded by design: their repair has no unique normal
-form reached from bottom, so there is nothing for events to commute after; gsm routes them to
-coordination. The distributed model (explicit propagation steps) is not extended to cycles. The
+**Not covered here.** Non-monotone cycles have no coordination-free normal form: their repair has no
+unique normal form reached from bottom, so there is nothing for events to commute after; gsm routes
+them to coordination. Under a computed coordination they converge, to a normal form unique given an
+authority root (`CoordinatedCycles.v`, below). The distributed model (explicit propagation steps) is not extended to cycles. The
 global condition is exact but semantic: on a cycle there is no per-edge reduction, so checking it
 means enumerating reachable normal forms (or the image of `N`) and testing every independent pair,
 not the per-edge C1/C2 enumeration gsm runs for acyclic networks. Static C1 and C2 remain
