@@ -466,6 +466,49 @@ Results:
 
 Cyclic (`AllowMonotoneCycles`) networks are out of scope: the proof uses the topological order.
 
+## Finiteness only for checking (`GovernanceWF.v`, `ChaoticACC.v`)
+
+The convergence theorems above never needed a finite state space, but two of them used a
+natural-number measure: the WFC potential (`Governance.v`) and the rank of finite height
+(`Chaotic.v`). These modules remove both, axiom-free:
+
+- `governance_wf_confluent`, `governance_wf_unique_normal_forms` (`GovernanceWF.v`): the
+  Convergence Theorem with WFC over an **arbitrary well-founded order**: the potential
+  `Phi : State -> P` takes values in any type `P` with any well-founded strict order `ltP`, and
+  compensation lowers it (`ltP (Phi (rho s)) (Phi s)` for invalid `s`). Termination is
+  lexicographic on `(|B|, Phi s)` (`wf_lex2`, `governance_wf_terminating`); local confluence is
+  `Governance.v`'s lemma unchanged. The causal theorem generalizes the same way
+  (`causal_governance_wf_confluent`). Corollaries: the nat-valued theorems of `Governance.v` and
+  `GovernanceCausal.v` with identical statements (`governance_confluent_from_wf`,
+  `causal_governance_confluent_from_wf`), a potential into a lexicographic product
+  (`governance_lex_confluent`), and no potential at all, only well-founded compensation
+  (`governance_comp_wf_confluent`).
+- Non-vacuity on an infinite domain: a withdrawal registry on `Z` (any balance, overdrafts of any
+  depth; repair adds 1 up to the floor 0; potential `-s` under `Zwf 0`) discharges every
+  hypothesis (`zw_confluent`, `zw_unique_normal_forms`, `zw_any_overdraft_repairs`).
+- `chaotic_acc_reaches_lfp`, `chaotic_acc_terminates` (`ChaoticACC.v`): chaotic iteration reaches
+  the least fixed point under the **ascending chain condition below the least fixed point**
+  (well-foundedness of the converse of the strict order there), with no rank into `nat`.
+  `chaotic_reaches_lfp_from_acc` recovers `Chaotic.chaotic_reaches_lfp` with an identical
+  statement.
+- Kleene iteration under ACC: `kleene_acc_not_forever` (constructive, no extra assumption: the
+  iteration from bottom cannot strictly ascend forever) and `kleene_acc_lfp_nn` (a least fixed
+  point cannot fail to exist); with the stabilization test `f x = x` decidable,
+  `kleene_acc_stabilizes` and `kleene_acc_lfp` compute the stabilizing index and the least fixed
+  point. `finite_height_acc` and `kleene_finite_height_lfp` recover the finite-lattice reading.
+- Non-vacuity: `option nat` with `None` at the bottom and `Some n` in reverse order satisfies ACC
+  (`ole_acc`) but has ascending chains of every length and admits no strictly increasing rank
+  (`ole_no_rank`), so `Chaotic.v`'s hypotheses cannot be met on it. On its square with a monotone
+  two-component operator, chaotic iteration and Kleene iteration both reach the least fixed point
+  (`ple_acc`, `ple_no_rank`, `pl_chaotic_reaches_lfp`, `pl_chaotic_from_bot`,
+  `pl_kleene_lfp_value`).
+
+What still uses finiteness: deciding the hypotheses. Exhaustive checking (gsm, the table and
+rules oracles) needs a finite state space to be a decision procedure; the theorems do not.
+Computing the Kleene limit needs the stabilization test to be decidable; without it the
+development proves only the double-negated existence, which is the constructive limit (deciding
+`f x = x` in general is not possible).
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the

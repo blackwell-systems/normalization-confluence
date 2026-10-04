@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents NC.GovernanceWF NC.ChaoticACC.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -147,6 +147,37 @@ Print Assumptions supply_instance.
 Print Assumptions supply_converges.
 Print Assumptions audit_counterexample.
 Print Assumptions c2_counterexample.
+Print Assumptions wf_lex2.
+Print Assumptions governance_wf_terminating.
+Print Assumptions governance_wf_confluent.
+Print Assumptions governance_wf_unique_normal_forms.
+Print Assumptions causal_governance_wf_terminating.
+Print Assumptions causal_governance_wf_confluent.
+Print Assumptions causal_governance_wf_unique_normal_forms.
+Print Assumptions governance_confluent_from_wf.
+Print Assumptions causal_governance_confluent_from_wf.
+Print Assumptions governance_comp_wf_confluent.
+Print Assumptions governance_lex_confluent.
+Print Assumptions zw_confluent.
+Print Assumptions zw_unique_normal_forms.
+Print Assumptions zw_any_overdraft_repairs.
+Print Assumptions kleene_acc_not_forever.
+Print Assumptions kleene_acc_lfp_nn.
+Print Assumptions kleene_acc_stabilizes.
+Print Assumptions kleene_acc_lfp.
+Print Assumptions finite_height_acc.
+Print Assumptions kleene_finite_height_lfp.
+Print Assumptions chaotic_acc_terminates.
+Print Assumptions chaotic_acc_reaches_lfp.
+Print Assumptions chaotic_acc_from_bot.
+Print Assumptions chaotic_reaches_lfp_from_acc.
+Print Assumptions ole_acc.
+Print Assumptions ole_no_rank.
+Print Assumptions ple_acc.
+Print Assumptions ple_no_rank.
+Print Assumptions pl_chaotic_reaches_lfp.
+Print Assumptions pl_chaotic_from_bot.
+Print Assumptions pl_kleene_lfp_value.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -157,8 +188,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 135 ]; then
-  echo "FAIL: expected 135 axiom-free results, got $N"
+if [ "$N" -lt 166 ]; then
+  echo "FAIL: expected 166 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
