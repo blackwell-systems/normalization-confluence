@@ -245,6 +245,29 @@ Print Assumptions causal_exact.
 Print Assumptions causal_convergence_exact.
 Print Assumptions n_ccr.
 Print Assumptions naive_causal_converse_fails.
+Require Import NC.CoordinatedCycles.
+Print Assumptions topo_topoF.
+Print Assumptions frun_run.
+Print Assumptions rule_some.
+Print Assumptions root_none.
+Print Assumptions driven.
+Print Assumptions cons_section.
+Print Assumptions drive_order_exists.
+Print Assumptions drive_common.
+Print Assumptions drive_consistent.
+Print Assumptions balanced_any_section.
+Print Assumptions kept_section.
+Print Assumptions coordinated_sound.
+Print Assumptions coordinated_unique_nf.
+Print Assumptions coordination_needed.
+Print Assumptions plan_exact.
+Print Assumptions coordinated_events_converge.
+Print Assumptions copyback_zero_coordination.
+Print Assumptions negation_one_coordinated.
+Print Assumptions copyback_without_authority.
+Print Assumptions root_choice_matters.
+Print Assumptions noninvertible_balance_not_static.
+Print Assumptions nonfree_holonomy_counterexample.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -255,8 +278,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 232 ]; then
-  echo "FAIL: expected 232 axiom-free results, got $N"
+if [ "$N" -lt 254 ]; then
+  echo "FAIL: expected 254 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

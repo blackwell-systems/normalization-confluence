@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 232 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 158 headline results (among them the single-registry
+Expected tail: `PASS: all 254 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 254 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -36,7 +36,10 @@ fold-append theorem, and the four cohomological-layer results: the gluing counte
 completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
 identity-settles and negation-orbits witnesses, plus the ten cross-registry event-interleaving results
 of `FederationEvents.v`, the twelve monotone-cycle results of `FederationEventsCycles.v` and the eleven
-exactness results of `FederationEventsConverse.v`) and fails if any of them depends on an axiom or an
+exactness results of `FederationEventsConverse.v`, the fourteen well-founded-governance results of
+`GovernanceWF.v`, the seventeen ACC chaotic-iteration results of `ChaoticACC.v`, the sixteen
+at-least-once results of `AtLeastOnce.v`, the twenty-seven converse results of
+`GovernanceConverse.v` and the twenty-two coordinated-cycle results of `CoordinatedCycles.v`) and fails if any of them depends on an axiom or an
 admitted lemma.
 
 ## What is proven
@@ -827,6 +830,84 @@ Paper-level (not mechanized): the rank on the nerve as a 2-complex (the triangle
 complexity of choosing the spanning tree that minimizes the coordinated set (the group feedback edge
 set results, cited from the literature).
 
+## Non-monotone cycles under a computed coordination (`CoordinatedCycles.v`)
+
+Soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`, mechanized
+axiom-free by composing the acyclic federation results (`FederationOrder.v`, `FederationEvents.v`)
+with `CohomologyGraph.v`.
+
+**Model of the plan.** The network is a group-labeled graph as in `CohomologyGraph.v` (the
+invertible fragment: the shared fiber of every registry is the group `G`, an edge `(u, v, g)`
+transports `s(u)` to `g * s(u)`). Relative to a designated authority root `r`, a plan splits the
+edges into three lists:
+
+- `T`, a spanning tree grown from `r` (`tree r T`). Tree edges **drive** values: the root keeps its
+  own value, and every other tree registry reads only its tree parent and takes the transported
+  value (`g * s(p)`, or `g^-1 * s(p)` when the tree edge points toward the root). The network
+  (`dsrc`, `dfun`) is computed from `T`; it is acyclic, so it is an acyclic federation in the sense
+  of `FederationOrder.v` and `FederationEvents.v` (`drive_common` discharges `Common`).
+- `B`, balanced non-tree edges. They are **demoted to checked constraints**: they never write, and
+  a state is accepted only if it satisfies them.
+- `C`, coordinated non-tree edges. They are **removed from the federation**: neither a writer nor a
+  constraint inside it. Whatever the external coordinator does with them (serialize them through a
+  single authority, or reject the writes they would make) happens outside the propagation graph,
+  and the normal form is not required to satisfy them.
+
+**Results.**
+
+- `drive_order_exists`: the driving network has a topological order over exactly the tree's
+  vertices, so a normal form exists. `drive_consistent`: running any such order leaves every tree
+  registry equal to its driven value, keeps the authority value at the root, and leaves off-tree
+  registries untouched (through `FederationEvents.frun_solves`; `topo_topoF` and `frun_run` bridge
+  the two acyclic-federation files). `cons_section`: such a state is a section of the tree.
+- `balanced_any_section`: balance against one tree section implies balance against every tree
+  section (the right constant of `tree_unique` cancels), so "balanced" is a static property of the
+  edge.
+- **`coordinated_sound` (the soundness theorem).** If `T` is a spanning tree from `r` and every edge
+  of `B` (among the tree's vertices) is balanced, then for every initial state `s0` and every
+  topological order `o` of the driving network, the normal form `drive r T o s0` satisfies every
+  edge of `T ++ B`, has the authority value `s0 r` at the root, leaves off-tree registries at `s0`,
+  is the **unique** state satisfying `T ++ B` with root value `s0 r` on the tree (`tree_unique`: the
+  root fixes the constant), and every other topological order reaches the same state pointwise
+  (`FederationOrder.order_independent`). `coordinated_unique_nf` states the same as existence and
+  uniqueness.
+- `coordination_needed` (via `unbalanced_blocks`): keeping any unbalanced edge of `C`, as a writer
+  or as a constraint, leaves no consistent state at all, so the normal form is lost.
+  `plan_exact` (via `cycle_basis_criterion`): with `B` balanced and `C` unbalanced, a set of
+  non-tree edges can be kept with a consistent state iff it avoids `C`. The coordinated set is
+  exactly the unbalanced edges, relative to the tree.
+- `coordinated_events_converge`: composed with `fed_permutations_converge`, any two permutations of
+  local events (on any tree registries) converge under the plan when the authority root's own
+  events commute, and the result satisfies `T ++ B`. Events on non-root registries are overwritten
+  by the drive: a demoted edge no longer propagates a local write backward, as the design note
+  warns.
+
+**Instances** (Z/2 as `(bool, xor)`, gsm's two 2-cycles from `diagnose_test.go`, every hypothesis
+discharged). `copyback_zero_coordination`: A -> B copy and B -> A copy, rooted at A; the back edge
+is balanced and kept as a constraint, nothing is coordinated, and the normal form is `A = B = s0(A)`.
+`negation_one_coordinated`: A -> B copy and B -> A `1 - x`, rooted at A; one edge is coordinated, the
+rest has a unique normal form, and keeping the coordinated edge leaves no consistent state.
+
+**Where the naive statement fails** (recorded as theorems).
+
+- `copyback_without_authority`: with no root (both copy-back edges kept as writers), two
+  propagation orders from `A = 0, B = 1` reach `(1, 1)` and `(0, 0)`, both consistent. Trivial
+  holonomy gives existence, not uniqueness; the authority root is what makes the normal form unique.
+- `root_choice_matters`: the normal form is unique given the root, but depends on the root. Rooted
+  at A versus at B, the same edges and the same initial state reach `(0, 0)` versus `(1, 1)`. The
+  plan must report its root ("coordination-free given the reported authority root").
+- `noninvertible_balance_not_static`: with a non-invertible transport (B -> A the constant 0), the
+  back edge holds at the normal form from authority value 0 and fails from 1. Without the group
+  laws, whether an edge needs coordination depends on the authority value, not on the cycle.
+- `nonfree_holonomy_counterexample`: with bijections acting on a fiber that is not the group itself
+  (a swap of `{0, 1}` acting on `{0, 1, 2}`), a non-identity holonomy still admits a consistent state
+  (value 2), so "keeping an unbalanced edge destroys every consistent state" needs the regular
+  action. The edge is still violated from authority value 0, so a plan that must be sound for every
+  root value still coordinates it.
+
+Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
+that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural
@@ -867,7 +948,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 232 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 254 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -879,7 +960,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 158
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 254
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
