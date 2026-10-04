@@ -105,3 +105,9 @@ all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
+
+# Event order on monotone cycles, checked per event (FederationEventsCyclesCheck.v).
+all: FederationEventsCyclesCheck.vo
+
+FederationEventsCyclesCheck.vo: FederationEventsCyclesCheck.v FederationEventsCycles.vo Federation.vo Trace.vo
+	coqc -Q . NC FederationEventsCyclesCheck.v
