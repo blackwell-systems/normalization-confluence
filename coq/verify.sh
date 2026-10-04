@@ -201,6 +201,23 @@ Print Assumptions fed_exact.
 Print Assumptions fed_exact_full.
 Print Assumptions static_c1_c2_gc.
 Print Assumptions naive_converse_fails.
+Require Import NC.AtLeastOnce.
+Print Assumptions dedup_In.
+Print Assumptions dedup_NoDup.
+Print Assumptions alo_absorbed.
+Print Assumptions alo_commuting_exactly_once.
+Print Assumptions alo_commuting_converges.
+Print Assumptions causal_alo_absorbs.
+Print Assumptions causal_alo_dedup_causal.
+Print Assumptions causal_alo_exactly_once.
+Print Assumptions causal_alo_converges.
+Print Assumptions non_idempotent_diverges.
+Print Assumptions inc_not_idempotent.
+Print Assumptions inc_duplicate_diverges.
+Print Assumptions late_duplicate_diverges.
+Print Assumptions mx_alo_converges.
+Print Assumptions fl_not_all_commute.
+Print Assumptions fl_causal_alo_converges.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -211,8 +228,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 189 ]; then
-  echo "FAIL: expected 189 axiom-free results, got $N"
+if [ "$N" -lt 205 ]; then
+  echo "FAIL: expected 205 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

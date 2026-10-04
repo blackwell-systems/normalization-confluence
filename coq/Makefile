@@ -90,3 +90,9 @@ check: all
 
 clean:
 	rm -f *.vo *.vok *.vos *.glob .*.aux _check.v
+
+# At-least-once delivery (AtLeastOnce.v).
+all: AtLeastOnce.vo
+
+AtLeastOnce.vo: AtLeastOnce.v Trace.vo CausalReplay.vo
+	coqc -Q . NC AtLeastOnce.v
