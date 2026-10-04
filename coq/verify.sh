@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -137,6 +137,16 @@ Print Assumptions causal_governance_confluent.
 Print Assumptions causal_governance_unique_normal_forms.
 Print Assumptions cw_confluent.
 Print Assumptions cw_violates_all_pairs_cc1.
+Print Assumptions fed_events_commute.
+Print Assumptions fed_interleavings_converge.
+Print Assumptions fed_permutations_converge.
+Print Assumptions propagation_flush.
+Print Assumptions dist_interleavings_converge.
+Print Assumptions xu_implies_c1_c2.
+Print Assumptions supply_instance.
+Print Assumptions supply_converges.
+Print Assumptions audit_counterexample.
+Print Assumptions c2_counterexample.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -147,8 +157,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 125 ]; then
-  echo "FAIL: expected 125 axiom-free results, got $N"
+if [ "$N" -lt 135 ]; then
+  echo "FAIL: expected 135 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
