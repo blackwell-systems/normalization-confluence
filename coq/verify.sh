@@ -268,6 +268,45 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require Import NC.PaperInstances.
+Print Assumptions rho_star_one_step.
+Print Assumptions no_SN_of_total.
+Print Assumptions cred_star.
+Print Assumptions star_cred.
+Print Assumptions of_registry.
+Print Assumptions of_valid_paper.
+Print Assumptions of_rho_star_iterated.
+Print Assumptions of_cc1.
+Print Assumptions of_cc2.
+Print Assumptions of_paper_traces.
+Print Assumptions of_unique_normal_forms.
+Print Assumptions of_processors.
+Print Assumptions naive_registry.
+Print Assumptions naive_cc2_fails.
+Print Assumptions naive_paper_witness_fails.
+Print Assumptions naive_cc1_fails.
+Print Assumptions naive_stream_diverges.
+Print Assumptions ri_registry.
+Print Assumptions ri_rho_star_iterated.
+Print Assumptions ri_depth.
+Print Assumptions thm_necessity.
+Print Assumptions ri_depth_exact.
+Print Assumptions ri_no_ubc.
+Print Assumptions ri_cc_any_extension.
+Print Assumptions ri_what_fails.
+Print Assumptions four_registry.
+Print Assumptions four_paths.
+Print Assumptions prop_cc_necessary.
+Print Assumptions cycle_paper_trace.
+Print Assumptions prop_cycle_necessary.
+Print Assumptions m1_paper_trace.
+Print Assumptions prop_m1_necessary.
+Print Assumptions m1_single_round_fails.
+Print Assumptions r2_necessary.
+Print Assumptions r1_necessary.
+Print Assumptions ms_instance.
+Print Assumptions ms_paper_traces.
+Print Assumptions ms_converges.
 Require Import NC.RhoStar.
 Print Assumptions base_def_rhostar.
 Print Assumptions base_def_rhostar_least_unique.
@@ -402,8 +441,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 375 ]; then
-  echo "FAIL: expected 375 axiom-free results, got $N"
+if [ "$N" -lt 413 ]; then
+  echo "FAIL: expected 413 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

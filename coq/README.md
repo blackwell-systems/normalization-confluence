@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 375 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 413 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 304 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -1091,6 +1091,54 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## The papers' concrete examples (`PaperInstances.v`)
+
+Every worked example and counterexample in the two normalization-confluence papers, on the paper's
+own data, with every property the paper claims for it as a theorem (work package WP2 of
+`PAPER-MAP.md`). Where the paper's text is wrong, a theorem refutes it and a second one proves the
+corrected claim.
+
+- **Order fulfillment (Base section 4, row B17).** `of_registry` (rho fixes valid states, WFC, UBC
+  with `M = 1`, the invalid states are exactly `(approved, 0)` and `(approved, 1)`),
+  `of_valid_paper`, `of_rho_star_iterated` (`rho* = rho` is the iterated compensation of the
+  paper's definition), `of_cc1` (CC1 for every pair of events at all 12 states), `of_cc2`,
+  `of_paper_traces` (the displayed CC1 and CC2 traces, state by state), `of_unique_normal_forms`
+  (through `cc_exact_global`), `of_processors` (P1 and P2 are runs of the rewrite system to
+  `((approved, 2), [])`, and every normal form of the paper's stream is that one).
+  The naive revert `rho(approved, b) = (pending, b)`: `naive_registry` (WFC, UBC),
+  `naive_paper_witness_fails` (the paper's witness is wrong: at `(pending, 0)` both orders give
+  `(pending, 1)`), `naive_cc1_fails` (the corrected witness `(pending, 1)`: `(pending, 2)` versus
+  `(approved, 2)`), `naive_stream_diverges` (the paper's own stream reaches two normal forms),
+  `naive_cc2_fails` (it also violates CC2, at `(approved, 1)` with credit).
+- **`R_infinity` (Base `thm:necessity` and the remark "What Fails", rows B25, B26).** On `Z` with
+  `apply(e_n, s) = s - n`. `thm_necessity` (for every `M`, a reduction to normal form with more than
+  `M` compensation steps, counted by the relation `cred`), `ri_depth_exact` (every reduction from
+  `(0, [e_n])` to a normal form has exactly `n`), `ri_no_ubc` (no WFC measure is bounded),
+  `ri_cc_any_extension` (CC1 at every state for every pair and CC2 hold for every total extension
+  of `apply(e_n, -)`: `rho*` is constant 0), `ri_what_fails` (WFC, CC, unique normal forms, not
+  UBC), `ri_rho_star_iterated`.
+- **Four-state CC counterexample (Base `prop:cc-necessary`, row B27).** `four_registry`,
+  `four_paths`, `prop_cc_necessary`: two runs from `(A, [e1; e2])` reach the distinct valid normal
+  forms `(B, [])` and `(A, [])`.
+- **Cyclic network (Fed `prop:cycle-necessary`, row F13).** `cycle_paper_trace` (the paper's four
+  repairs back to `(0, 0)`), `prop_cycle_necessary` (components valid everywhere, both morphisms
+  M1, federated compensation deterministic, no federally valid state, no state terminates).
+- **M1 counterexample (Fed `prop:m1-necessary`, row F14).** `m1_paper_trace`, `prop_m1_necessary`
+  (M1 fails, deterministic oscillation, never terminates), `m1_single_round_fails` (one application
+  of `rho_Fed` returns a federally invalid state: single-round termination needs M1).
+- **Resolution conditions (Fed remark after `thm:resolved-convergence`, row F21).**
+  `r2_necessary` (a two-source resolver with R1 and without R2 oscillates forever), `r1_necessary`
+  (a resolver that reads the target's local component, with R2 and component WFC, on an acyclic
+  network: two federally valid normal forms whose shared components differ).
+- **Manufacturer-supplier federation (Fed section 6, row F32)**, in `FederationEvents.v`'s model:
+  `ms_instance` (`Common`, C1, C2, each registry's own CC, the paper's M1, the supplier's WFC, a
+  valid consistent start), `ms_paper_traces` (both orders, state by state, end in
+  `(active, listed)`), `ms_converges` (every permutation of any event list converges, through
+  `fed_permutations_converge`).
+
+Encodings: the federated examples' `{0, 1}` is `bool`; events in these examples have no causal
+dependencies, so enabledness is `free_enabled`.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural
@@ -1131,7 +1179,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 375 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 413 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
