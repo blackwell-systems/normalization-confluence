@@ -424,8 +424,16 @@ relations) and the non-invertible case.
 signed graphs (Harary, 1953); cohomology of global-section obstructions (Abramsky and Brandenburger,
 2011; Abramsky, Mansfield and Barbosa, 2012); topology in distributed computing (Herlihy and Shavit,
 1999); cycle consistency and group synchronization (Singer, 2011); and applied sheaf theory (Goguen,
-1992; Ghrist, 2014; Robinson, 2017). Full citations, and related formalizations in Lean, are in
-[LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-cohomological-layer).
+1992; Ghrist, 2014; Robinson, 2017). The graph topology and the balance criterion are classical
+(Hatcher; Harary; Zaslavsky). What this note contributes on that base: sections as convergence
+certificates of normalizers, with the resolver conditions R1/R2 as the gluing axiom (section 10; the
+gluing counterexample is mechanized); the obstruction theorem for cyclic federations, a loop
+composite with a reachable fixed point (section 10, implemented as gsm's `Federation.DiagnoseCycle`);
+minimal coordination, where a cycle basis suffices and the exact minimum is a group feedback edge
+set number (10.2, 10.3); the `S_3` separation showing that abelianized sizing is unsound (10.3,
+mechanized); and the axiom-free mechanization of the criterion and the classification in the
+invertible fragment. Full citations, related formalizations in Lean, and the contribution list with
+its scope are in [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-cohomological-layer).
 
 ### 10.2 Minimal coordination: eventual versus strong consistency
 

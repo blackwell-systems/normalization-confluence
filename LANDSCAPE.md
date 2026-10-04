@@ -233,6 +233,42 @@ work uses the same mathematics or studies related objects.
   the gain-graph balance criterion or of `H^1` as tuples of fundamental holonomies modulo
   simultaneous conjugation (a search result, not a proof of absence).
 
+**What the cohomological layer contributes.** The topology underneath is classical and credited as
+such: `π_1` of a connected graph is free of rank `|E| - |V| + 1` (Hatcher), and a group-labeled graph
+is balanced, switching-equivalent to the identity labeling, iff every cycle has trivial holonomy
+(Harary for `Z/2`; Zaslavsky for an arbitrary gain group). On that base, this work contributes the
+following. Labels refer to the companion paper,
+[`categorical_structure_of_federated_convergence.tex`](categorical_structure_of_federated_convergence.tex).
+
+1. **The application to federated convergence.** Sections are convergence certificates of
+   normalizers over subsystem overlaps, and the sheaf's gluing axiom is exactly the resolver
+   conditions R1 (source-determinacy) and R2 (validity preservation) (`prop:gluing`). The
+   counterexample showing that agreement on valid values does not suffice is mechanized
+   (`gluing_order_dependent`, `coq/Cohomology.v`).
+2. **The obstruction theorem for cyclic federations.** A global convergent section around a cycle
+   exists iff the cycle's loop composite has a reachable fixed point, and the composite is the
+   witness when it does not (`thm:obstruction`). gsm implements it as `Federation.DiagnoseCycle`.
+3. **Minimal coordination.** In the invertible fragment, coordinating a cycle basis suffices for a
+   convergent implementation that stays coordination-free everywhere else (`prop:minimal`), and the
+   exact minimum is the group feedback edge set number of the holonomy-labeled nerve (its complexity
+   results are cited from the literature). The companion paper reports finding no prior work that
+   localizes the coordination requirement to a cycle basis.
+4. **The `S_3` separation.** On the theta graph the non-abelian minimum is 2 and the abelianized
+   minimum is 1, so sizing coordination by an abelianized invariant is unsound: it under-provisions.
+   Mechanized end to end (`theta_separation`, `coq/CohomologyMin.v`).
+5. **Axiom-free mechanization in the invertible fragment.** The criterion and the classification
+   are machine-checked on an arbitrary finite group-labeled graph, abelian or not: a section exists
+   iff the labeling is a coboundary, iff every fundamental cycle has trivial holonomy; `H^1` is the
+   tuples of fundamental holonomies modulo simultaneous conjugation, with `|E| - |V| + 1`
+   generators (`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`).
+
+These results sit on a convergence framework whose extracted, axiom-free checker re-certifies every
+machine gsm returns, in process. Scope: the cohomological classification is for the invertible
+fragment. At the paper level are `prop:gluing` itself and the sheaf assembly over the full cover,
+the rank on the nerve as a 2-complex (the triangle relations), the non-invertible case (where
+`thm:obstruction` is a fixed-point condition rather than group cohomology), and the cited
+complexity results.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite
