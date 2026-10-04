@@ -70,8 +70,8 @@ Section Dedup.
   Proof.
     induction d as [| a p IH] using rev_ind; [constructor |].
     rewrite dedup_snoc. destruct (in_dec dec a (dedup p)) as [Ha | Ha]; [exact IH |].
-    apply NoDup_app; [exact IH | repeat constructor; intros [] |].
-    intros x Hx [Hy | []]. subst. contradiction.
+    apply (Permutation_NoDup (Permutation_cons_append (dedup p) a)).
+    constructor; [exact Ha | exact IH].
   Qed.
 
   (* A delivery with no duplicates is its own exactly-once projection. *)
