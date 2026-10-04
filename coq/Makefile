@@ -1,5 +1,5 @@
 # Build the mechanized confluence proof. Requires coqc (Rocq/Coq >= 8.18; tested on Rocq 9.3).
-all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo TableFast.vo TableFn.vo AstChecker.vo AstTables.vo AstCompact.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo CausalReplay.vo GovernanceCausal.vo FederationEvents.vo GovernanceWF.vo ChaoticACC.vo
+all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo TableFast.vo TableFn.vo AstChecker.vo AstTables.vo AstCompact.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo CausalReplay.vo GovernanceCausal.vo FederationEvents.vo GovernanceWF.vo ChaoticACC.vo FederationEventsCycles.vo FederationEventsConverse.vo
 
 Newman.vo: Newman.v
 	coqc -Q . NC Newman.v
@@ -75,6 +75,12 @@ GovernanceWF.vo: GovernanceWF.v Newman.vo Governance.vo GovernanceCausal.vo
 
 ChaoticACC.vo: ChaoticACC.v Newman.vo Federation.vo Chaotic.vo
 	coqc -Q . NC ChaoticACC.v
+
+FederationEventsCycles.vo: FederationEventsCycles.v Trace.vo Federation.vo
+	coqc -Q . NC FederationEventsCycles.v
+
+FederationEventsConverse.vo: FederationEventsConverse.v FederationEvents.vo Trace.vo
+	coqc -Q . NC FederationEventsConverse.v
 
 # Print the assumption base of the main results (expect: "Closed under the global context").
 check: all
