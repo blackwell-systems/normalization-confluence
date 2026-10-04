@@ -334,16 +334,26 @@ enumeration is `fold_right` over `boxR`), `p2_inv` (the blocks read exactly the 
 `rdj_view` and `alignN_rdq` (a view and its realigned column read that sequence), `scanC_spec` (the
 scan decides commutation on the valid states and 0, read from the sequence), `checkBuildC_eq`
 (`checkBuildC m P = checkBuild m P` for every machine and declaration) and `checkBuildC_converges`.
-At 2^20 states (Apple M1 Pro; OCaml 5, and the generated Go with Go 1.26):
+At 2^20 states (Apple M1 Pro; OCaml 5, and the generated Go with Go 1.26; time and peak RSS,
+minimum of interleaved runs on a shared machine):
 
-| machine | `checkBuildC` OCaml | `checkBuild` OCaml | `checkBuildC` Go | `checkBuild` Go |
-|---|---|---|---|---|
-| two 1024-valued variables, 3 events | 2.0 s, 69 MiB | 4.0 s, 88 MiB | 4.9 s, 159 MiB | 9.8 s, 156 MiB |
-| 20 two-valued variables, 3 events | 1.5 s, 128 MiB | 3.6 s, 130 MiB | 5.5 s, 172 MiB | 12.6 s, 244 MiB |
-| 20 two-valued variables, 20 events, every pair (190) | 10.1 s, 443 MiB | 261 s, 149 MiB | 20.2 s, 701 MiB | not run |
+| machine | OCaml `checkBuildC` | OCaml `checkBuildT` | OCaml `checkBuild` |
+|---|---|---|---|
+| two 1024-valued variables, 3 events | 2.0 s, 69 MiB | 1.9 s, 281 MiB | 4.0 s, 88 MiB |
+| 20 two-valued variables, 3 events | 1.5 s, 128 MiB | 1.6 s, 295 MiB | 3.6 s, 130 MiB |
+| 20 two-valued variables, 20 events, every pair (190) | 10.1 s, 443 MiB | 9.7 s, 479 MiB | 261 s, 149 MiB |
 
-With 20 events the table itself is 22M entries (about 176 MB at 8 bytes each), so it outweighs the
-box list `checkBuild` holds; with few events the packed table is smaller than that list.
+| machine | Go `checkBuildC` | Go `checkBuildT` | Go `checkBuild` |
+|---|---|---|---|
+| two 1024-valued variables, 3 events | 4.9 s, 159 MiB | 4.5 s, 689 MiB | 9.8 s, 156 MiB |
+| 20 two-valued variables, 3 events | 5.5 s, 172 MiB | 4.3 s, 658 MiB | 12.6 s, 244 MiB |
+| 20 two-valued variables, 20 events, every pair (190) | 20.2 s, 701 MiB | 18.6 s, 1560 MiB | over 600 s (367 MiB when stopped) |
+
+With 3 events `checkBuildC` holds about as much as `checkBuild` or less: below it in OCaml and for
+Booleans in Go, at parity for the counter in Go (about 150 to 160 MiB against 156). With 20 events
+the table itself is 22M entries (about 168 MiB at 8 bytes each), so it outweighs the box list
+`checkBuild` holds: `checkBuildC` peaks at about 2.6 times that floor in OCaml (the blocks, their
+list cells and the trie, plus the garbage collector's headroom).
 
 ### What this does and does not require of you: no continuous porting to Coq
 
