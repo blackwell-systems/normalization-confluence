@@ -32,3 +32,4 @@ CoordinatedCycles.v
 RhoStar.v
 CategoricalBridge.v
 FederationEventsCyclesCheck.v
+FederationGRS.v

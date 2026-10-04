@@ -1091,6 +1091,91 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## The federated theorems in corrected form (`FederationGRS.v`)
+
+ROADMAP item 7, work package WP5 (rows F6 to F10 and F17 to F19 of `PAPER-MAP.md`). The federation
+paper's Section "Federated Convergence" states its results for the federated rewrite system
+`G_Fed`: apply steps run an event on its registry, and the compensation step is `rho_Fed` (phase 1:
+`rho^*` on every component; phase 2: in topological order, overwrite each target's shared component
+with its morphism image or resolver value). `FederationGRS.v` builds `G_Fed` as an instance of
+`Governance.step` (federated states as lists, so Leibniz equality is the paper's state equality),
+states the paper's hypotheses as a record, and mechanizes each result by label. Axiom-free.
+
+The model:
+
+- `PaperNet` (Part B) is the hypothesis set of `thm:resolved-convergence`: a shared/local
+  decomposition of every state space (`mk`, `sh`, `lc`, Def. "Registry Morphism"), an acyclic network
+  with a resolver `Gam j` per target reading only its sources (R1) and preserving validity (R2; M1
+  for a single source), component WFC (`cj`, `Phij`, with `rho j` the iterate to validity) and
+  component CC (CC1 on every same-registry pair, CC2 with the one-step compensation).
+  `PaperTree` adds "each non-source has one incoming edge" (`thm:fed-cc`, `thm:fed-convergence`).
+  `paper_common` derives the `Common` conditions of `FederationEvents.v` from them.
+- `gapply`, `grho`, `gvalid` (Part A) are the apply step, `rho_Fed` and federal validity on list
+  states; `gov e = grho o gapply e` is the governed step, and `gov_eq` shows it is
+  `FedMachine.Apply`. The GUARDED system (`genab`: an event fires only at a federally valid state,
+  compensation first) is `FedMachine.Apply` semantics as a rewrite system.
+- `XU` is C1 for every valid target state, not only consistent ones (`FederationEvents.v`).
+
+Results, by paper label:
+
+| Label | Status | Coq |
+|---|---|---|
+| `lem:authority` (a) | exact (at every normal form) | `fed_lem_authority_a` (non-vacuity `fed_lem_authority_a_instance`); generic `source_projection`, `fed_authority_a_gen` |
+| `lem:authority` (b) | exact | `fed_lem_authority_b` |
+| `lem:authority` (c) | first clause exact; convergence clause refuted, corrected | `fed_lem_authority_c_local`; `fed_lem_authority_c_refuted`; `fed_lem_authority_c_corrected` |
+| `lem:fed-termination` | exact, from ANY state | `fed_lem_fed_termination`, `single_round`, `phase2_invariant`, `fed_phase1_bound`, `grho_valid` |
+| `lem:resolved-termination` | exact, from ANY state | `fed_lem_resolved_termination` |
+| `thm:fed-cc` | refuted; corrected | `fed_thm_fed_cc_refuted`; `fed_thm_fed_cc_corrected` (XU), `fed_thm_fed_cc_corrected_machine` (C1 + C2, at valid states) |
+| `thm:fed-convergence` | refuted; corrected; exact | `fed_thm_fed_convergence_refuted`, `fed_c2_paper_counterexample`; `fed_thm_fed_convergence_corrected` (XU), `fed_thm_fed_convergence_guarded` (C1 + C2); `fed_thm_fed_convergence_exact` |
+| `thm:resolved-convergence` | refuted; corrected; exact | `fed_thm_resolved_convergence_refuted`; `fed_thm_resolved_convergence_corrected`, `fed_thm_resolved_convergence_guarded`; `fed_thm_resolved_convergence_exact` |
+| `cor:fed-nf` | refuted; corrected | `fed_cor_fed_nf_refuted`; `fed_cor_fed_nf_corrected` (generic `fed_nf_constructive`, `fed_nf_recipe_xu`) |
+| `cor:resolved-nf` | corrected (refuted by the tree case) | `fed_cor_resolved_nf_corrected` |
+
+The bridge to `Governance.step`: `fed_grs_exact` (an instance of `cc_exact_from`: `G_Fed` has unique
+normal forms from `s0` for every buffer iff its CC1 and CC2 hold on the states reachable from
+`s0`), `fed_grs_un_c1_c2` (unique normal forms imply C1 and C2 at the reachable witnesses of
+`fed_exact`), `grs_unique_nf` (XU and component CC give CC1 and CC2 everywhere, then
+`governance_unique_normal_forms`, the paper's proof route), and `fed_guarded_exact` (the guarded
+system has unique normal forms from a federally valid `s0` for every buffer iff C1 and C2 hold at
+the reachable witnesses, via `jc_unique_normal_forms` and `fed_exact`).
+
+Corrected statements (the network hypotheses H are those of the paper: a tree, or an acyclic
+resolved network, with M1 or R1 and R2, component WFC and component CC):
+
+- `thm:fed-cc`: H and XU imply that `G_Fed` satisfies CC1 and CC2 at every federated state. H, C1
+  and C2 imply CC1 at every federally valid state. H, C1 and C2 do not imply CC2 of `G_Fed`
+  (`fed_grs_c1_c2_insufficient`).
+- `thm:fed-convergence`, `thm:resolved-convergence`: H and XU imply unique normal forms of `G_Fed`
+  from every configuration, and every configuration reaches a federally valid one. H, C1 and C2
+  imply unique normal forms of the guarded system from every federally valid start. Exactly: the
+  guarded system converges from `s0` iff C1 and C2 hold at the witnesses reachable from `s0`.
+- `cor:fed-nf`, `cor:resolved-nf`: under C1 and C2, the normal form `Z` of any event sequence from a
+  federally valid start is the unique solution, in topological order, of
+  `Z_j = ow_Z(x_m)`, `x_0 = ow_Z(s_j)`, `x_t = ow_Z(sig_{e_t}(x_{t-1}))` over the events of `j`
+  in order, where `ow_Z` overwrites the shared component from the FINALIZED sources. Under XU this
+  collapses to the paper's recipe `Z_j = ow_Z(sig_{e_m}(...sig_{e_1}(s_j)))`.
+
+Counterexamples, each discharging every paper hypothesis (`au_paper`, `cw_paper`, `gg_paper`):
+
+- `fed_thm_fed_cc_refuted`, `fed_thm_fed_convergence_refuted`, `fed_thm_resolved_convergence_refuted`,
+  `fed_lem_authority_c_refuted`: the audit federation (`audit_counterexample` as a paper network).
+  From one federally valid state and the buffer `[recall; sell]`, `G_Fed` reaches two federally
+  valid normal forms; they agree on the source and on the target's shared flag and differ in the
+  target's local `sold` (0 versus 1).
+- `fed_c2_paper_counterexample`: C1 holds as well (the `c2_counterexample` as a paper network,
+  with the source's compensation made WFC); `G_Fed` still diverges.
+- `fed_grs_c1_c2_insufficient`: C1 and C2 hold, every FedMachine permutation converges and the
+  guarded system has unique normal forms, but the unrestricted `G_Fed` has two normal forms: two
+  target events applied before compensation, the second reading the shared value the first wrote.
+- `fed_cor_fed_nf_refuted`: in the same federation the paper's recipe gives `(false, true)`, every
+  event order gives `(false, false)`, and the corrected recipe `Gc` gives `(false, false)`.
+
+Non-vacuity: `fed_supply_paper_instance` (the supply chain as a paper network: H, XU, C1, C2, and
+the unique-normal-form conclusion instantiated) and `fed_grs_c1_c2_insufficient` (H, C1 and C2
+without XU). The list encoding adds bookkeeping hypotheses only: registries are `0 .. n-1`, indices
+outside the network are unconstrained, validity and state equality are decidable (the paper's state
+spaces are finite).
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural
