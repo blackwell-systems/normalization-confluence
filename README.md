@@ -20,7 +20,7 @@ This repository contains theoretical foundations, proofs, and companion verifica
 
 New here? A few pointers orient you:
 - [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
-- [SUBSUMPTION.md](SUBSUMPTION.md): the machine-checked proof that CRDTs are exactly the compensation-free fragment of normalization confluence, and that the inclusion is strict.
+- [SUBSUMPTION.md](SUBSUMPTION.md): the machine-checked proof that, under causal delivery, op-based CRDTs are exactly the compensation-free fragment of normalization confluence, that state-based CRDTs embed as the semilattice case, and that the inclusion is strict.
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
 - [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md): a forward-looking research note (nothing proven) mapping the discrete conditions to a continuous state space, WFC as a Lyapunov function and CC as contraction, with the convex-gradient sweet spot where the collapse survives and the multi-basin boundary where it provably does not.
 - [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm runs as an in-process, fail-closed gate: a checker over emitted step tables and a checker over the rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification. See [coq/extraction/](coq/extraction).
@@ -38,10 +38,14 @@ exact split.
    from compensation. Two new conditions, WFC and CC; CC is strictly weaker than operation
    commutativity and shown necessary by counterexample. Together they give convergence via Newman's
    lemma, with a complexity bound and a verification calculus that reduces CC to per-pair checks.
-   CRDTs embed as its compensation-free case, and the inclusion is strict.
+   CRDTs embed as its compensation-free case, and the inclusion is strict. Under causal delivery,
+   where only concurrent events must commute, convergence still holds and the compensation-free
+   fragment is exactly the op-based CRDTs.
    - [mechanized] Newman's lemma and the convergence theorem, with a non-vacuity instance
      (`Newman.v`, `Governance.v`, `Defensibility.v`); the calculus's footprint-disjointness path
-     (`Gsm.v`); the strict CRDT embedding (`CRDT.v`).
+     (`Gsm.v`); the strict CRDT embedding (`CRDT.v`); convergence under causal delivery, standard
+     op-based CRDTs, and the exactness theorem (`CausalReplay.v`), and the rewrite-system theorem
+     with CC1 only for co-enabled events (`GovernanceCausal.v`).
    - [paper] The necessity counterexamples, the complexity bound, and the rest of the calculus
      (strong absorption, decomposable repair, product composition).
 2. **Federations.** An authority argument and resolution operators give convergence on any acyclic
@@ -234,7 +238,7 @@ Repository: [github.com/blackwell-systems/nccheck](https://github.com/blackwell-
 
 Normalization confluence occupies the gap between CRDTs (requires commutativity) and I-confluence (requires invariant preservation). It permits operations that satisfy neither, provided compensation commutes.
 
-These regimes are **nested, not merely adjacent**. CRDTs are the *compensation-free* corner: operations designed so repair is never needed. Drop that restriction, keep the convergence guarantee, and you have normalization confluence, so every CRDT is a governed machine whose max repair depth is zero, and the inclusion is **strict** (governed machines exist that no CRDT can express). This is not informal: it is machine-checked, axiom-free, in [`coq/CRDT.v`](coq/CRDT.v) (`cmrdt_SEC`, `cvrdt_SEC`, and the witnesses `witness_not_cmrdt` / `witness_leaves_valid_space`), and stated in full in [SUBSUMPTION.md](SUBSUMPTION.md). So "a third regime alongside CRDTs" is the entry framing; the sharper claim the proofs support is that normalization confluence is the general regime and CRDTs are its degenerate, compensation-free fragment.
+These regimes are **nested, not merely adjacent**. CRDTs are the *compensation-free* corner: operations designed so repair is never needed. Drop that restriction, keep the convergence guarantee, and you have normalization confluence, so every CRDT is a governed machine whose max repair depth is zero, and the inclusion is **strict** (governed machines exist that no CRDT can express). This is not informal: it is machine-checked, axiom-free, in [`coq/CRDT.v`](coq/CRDT.v) (`cmrdt_SEC`, `cvrdt_SEC`, and the witnesses `witness_not_cmrdt` / `witness_leaves_valid_space`), and stated in full in [SUBSUMPTION.md](SUBSUMPTION.md). The relationship also holds under causal delivery, where only concurrent operations must commute: standard op-based CRDTs converge as an instance, and the compensation-free fragment is *exactly* the op-based CRDTs ([`coq/CausalReplay.v`](coq/CausalReplay.v): `causal_cmrdt_SEC`, `compensation_free_exact`), with the full rewrite-system theorem in [`coq/GovernanceCausal.v`](coq/GovernanceCausal.v). So "a third regime alongside CRDTs" is the entry framing; the sharper claim the proofs support is that normalization confluence is the general regime and CRDTs are its compensation-free fragment.
 
 ---
 

@@ -19,3 +19,5 @@ Cohomology.v
 CohomologyMin.v
 CohomologyGraph.v
 FederationOrder.v
+CausalReplay.v
+GovernanceCausal.v
