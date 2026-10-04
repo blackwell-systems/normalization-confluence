@@ -84,3 +84,8 @@ check: all
 
 clean:
 	rm -f *.vo *.vok *.vos *.glob .*.aux _check.v
+
+all: CoordinatedCycles.vo
+
+CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
+	coqc -Q . NC CoordinatedCycles.v

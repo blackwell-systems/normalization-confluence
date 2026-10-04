@@ -178,6 +178,29 @@ Print Assumptions ple_no_rank.
 Print Assumptions pl_chaotic_reaches_lfp.
 Print Assumptions pl_chaotic_from_bot.
 Print Assumptions pl_kleene_lfp_value.
+Require Import NC.CoordinatedCycles.
+Print Assumptions topo_topoF.
+Print Assumptions frun_run.
+Print Assumptions rule_some.
+Print Assumptions root_none.
+Print Assumptions driven.
+Print Assumptions cons_section.
+Print Assumptions drive_order_exists.
+Print Assumptions drive_common.
+Print Assumptions drive_consistent.
+Print Assumptions balanced_any_section.
+Print Assumptions kept_section.
+Print Assumptions coordinated_sound.
+Print Assumptions coordinated_unique_nf.
+Print Assumptions coordination_needed.
+Print Assumptions plan_exact.
+Print Assumptions coordinated_events_converge.
+Print Assumptions copyback_zero_coordination.
+Print Assumptions negation_one_coordinated.
+Print Assumptions copyback_without_authority.
+Print Assumptions root_choice_matters.
+Print Assumptions noninvertible_balance_not_static.
+Print Assumptions nonfree_holonomy_counterexample.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
