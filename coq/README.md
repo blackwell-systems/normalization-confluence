@@ -909,6 +909,59 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## Verification calculus for CC (`Calculus.v`)
+
+The Base paper's section "Verification Calculus for CC" (`sec:calculus`), its "Practical import"
+remark, pattern 1 of section 8.2 and product composition (PAPER-MAP rows B31, B33, B35 to B40).
+A registry has invariants `psi i` indexed by a list `all`, validity is their conjunction, `rho`
+fixes valid states and decreases a measure on invalid ones, and `N = rho*` (`IsRegistry`).
+Per-invariant repairs (`PerInv`: R1 to R3), `Decomposable`, `IsFootprint`, `RepairLocal` and
+`DisjointFP` are the paper's definitions.
+
+Exact: `base_lem_repair_commute` (`lem:repair-commute`), `base_lem_repair_idempotent`
+(`lem:repair-idempotent`), `calc_decomp_normalizer` (the Notation facts (i) to (iii) for a
+decomposable normalizer), `base_thm_product` (`thm:product`: WFC, `rho*`, CC1 and CC2 lift; CC1
+for a product pair holds iff it holds in both components) and `base_thm_product_decomposable`
+(repairs, footprints composed by union, repair locality and disjointness lift).
+
+Refuted. `thm:footprint-cc1` is false as stated: `base_thm_footprint_cc1_refuted` (no
+invariants, `x := 1` and `x := 2`) and `base_thm_footprint_cc1_raw_refuted` (four states, raw
+events commute, CC1 fails at an invalid state). The "Practical import" remark is false:
+`base_rem_practical_import_refuted` (every footprint of approve and of credit contains the one
+invariant); its other half is true (`calc_order_credit_repair_commute`). Pattern 1 ("canonical
+state gives CC1 and CC2 trivially") fails for both conditions: `base_pattern1_cc1_refuted`,
+`base_pattern1_cc2_refuted`.
+
+Corrected footprint theorem. Under the paper's hypotheses (H1) disjoint footprints and (H2)
+repair locality:
+
+- `calc_footprint_cc1_iff`: CC1 at `s` iff
+  `N(A_e2(A_e1(R_F(e2) s))) = N(A_e1(A_e2(R_F(e1) s)))` (exact, every state).
+- `calc_footprint_cc1_valid_iff`, `calc_footprint_cc1_valid`: at a valid state, CC1 iff the two
+  events commute up to `N` (`N(A_e2(A_e1 s)) = N(A_e1(A_e2 s))`). This is the form gsm checks
+  (CC1 on valid states).
+- `calc_footprint_cc1`: at every state, CC1 follows from (H2), footprint absorption
+  (`FPAbsorb`: `N(A_e(R_F(e) s)) = N(A_e s)`, a per-event check on the event's own footprint
+  repairs) and commutation up to `N`. Disjointness is not needed.
+- `calc_fp_absorb_iff_sa`, `calc_cc2_strong_absorption`, `calc_cc1_iff_commute_under_cc2`:
+  footprint absorption is strong absorption for a repair-local event, CC2 implies strong
+  absorption, and under CC2 the CC1 of a pair is exactly commutation up to `N`.
+- `calc_components_cc1_valid`, `calc_components_cc1_iff`: gsm's footprint components (state
+  `S1 * S2`, normalizer componentwise, each event inside one component) satisfy CC1 at every valid
+  state with no further hypothesis; at an invalid state CC1 holds iff each event absorbs `N` in
+  its own component.
+
+Each added hypothesis is needed: `calc_valid_needs_commute`, `calc_valid_needs_disjoint`,
+`calc_valid_needs_repair_local`, `calc_all_needs_commute`, `calc_all_needs_absorb`,
+`calc_all_needs_repair_local` (every other hypothesis holds, CC1 fails). Non-vacuity:
+`calc_clamp_instance` (two clamped counters, disjoint footprints), `calc_order_cc1` (the paper's
+order-fulfillment registry: overlapping footprints, CC1 at every state by `calc_footprint_cc1`,
+CC2 for both events), `calc_components_instance`, `calc_product_instance`.
+
+Corrected pattern 1: `calc_canonical_cc2_iff` (with canonical compensation to `bot`, CC2 for `e`
+iff `N(A_e s) = N(A_e bot)` for every invalid `s`) and `calc_canonical_pattern` (with that check
+for both events, CC1 iff commutation up to `N`); non-vacuity `calc_canonical_instance`.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural

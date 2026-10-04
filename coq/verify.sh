@@ -268,6 +268,41 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require NC.Calculus.
+Print Assumptions NC.Calculus.calc_cc2_strong_absorption.
+Print Assumptions NC.Calculus.calc_cc1_iff_commute_of_sa.
+Print Assumptions NC.Calculus.calc_cc1_iff_commute_under_cc2.
+Print Assumptions NC.Calculus.base_lem_repair_commute.
+Print Assumptions NC.Calculus.base_lem_repair_idempotent.
+Print Assumptions NC.Calculus.calc_decomp_normalizer.
+Print Assumptions NC.Calculus.base_thm_footprint_cc1_refuted.
+Print Assumptions NC.Calculus.base_thm_footprint_cc1_raw_refuted.
+Print Assumptions NC.Calculus.calc_footprint_cc1_iff.
+Print Assumptions NC.Calculus.calc_footprint_cc1_valid_iff.
+Print Assumptions NC.Calculus.calc_footprint_cc1_valid.
+Print Assumptions NC.Calculus.calc_fp_absorb_iff_sa.
+Print Assumptions NC.Calculus.calc_footprint_cc1.
+Print Assumptions NC.Calculus.calc_valid_needs_commute.
+Print Assumptions NC.Calculus.calc_valid_needs_disjoint.
+Print Assumptions NC.Calculus.calc_valid_needs_repair_local.
+Print Assumptions NC.Calculus.calc_all_needs_commute.
+Print Assumptions NC.Calculus.calc_all_needs_absorb.
+Print Assumptions NC.Calculus.calc_all_needs_repair_local.
+Print Assumptions NC.Calculus.calc_clamp_instance.
+Print Assumptions NC.Calculus.calc_components_cc1_iff.
+Print Assumptions NC.Calculus.calc_components_cc1_valid.
+Print Assumptions NC.Calculus.calc_components_instance.
+Print Assumptions NC.Calculus.base_rem_practical_import_refuted.
+Print Assumptions NC.Calculus.calc_order_credit_repair_commute.
+Print Assumptions NC.Calculus.calc_order_cc1.
+Print Assumptions NC.Calculus.base_pattern1_cc1_refuted.
+Print Assumptions NC.Calculus.base_pattern1_cc2_refuted.
+Print Assumptions NC.Calculus.calc_canonical_cc2_iff.
+Print Assumptions NC.Calculus.calc_canonical_pattern.
+Print Assumptions NC.Calculus.calc_canonical_instance.
+Print Assumptions NC.Calculus.base_thm_product.
+Print Assumptions NC.Calculus.base_thm_product_decomposable.
+Print Assumptions NC.Calculus.calc_product_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -278,8 +313,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 254 ]; then
-  echo "FAIL: expected 254 axiom-free results, got $N"
+if [ "$N" -lt 288 ]; then
+  echo "FAIL: expected 288 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
