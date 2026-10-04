@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents NC.GovernanceWF NC.ChaoticACC NC.FederationEventsCycles NC.FederationEventsConverse.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents NC.GovernanceWF NC.ChaoticACC NC.FederationEventsCycles NC.FederationEventsConverse NC.GovernanceConverse.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -201,6 +201,50 @@ Print Assumptions fed_exact.
 Print Assumptions fed_exact_full.
 Print Assumptions static_c1_c2_gc.
 Print Assumptions naive_converse_fails.
+Require Import NC.AtLeastOnce.
+Print Assumptions dedup_In.
+Print Assumptions dedup_NoDup.
+Print Assumptions alo_absorbed.
+Print Assumptions alo_commuting_exactly_once.
+Print Assumptions alo_commuting_converges.
+Print Assumptions causal_alo_absorbs.
+Print Assumptions causal_alo_dedup_causal.
+Print Assumptions causal_alo_exactly_once.
+Print Assumptions causal_alo_converges.
+Print Assumptions non_idempotent_diverges.
+Print Assumptions inc_not_idempotent.
+Print Assumptions inc_duplicate_diverges.
+Print Assumptions late_duplicate_diverges.
+Print Assumptions mx_alo_converges.
+Print Assumptions fl_not_all_commute.
+Print Assumptions fl_causal_alo_converges.
+Print Assumptions newman_on.
+Print Assumptions CR_UN.
+Print Assumptions jc_exact.
+Print Assumptions jc_unique_normal_forms.
+Print Assumptions cc_reach_jc.
+Print Assumptions cc_reach_unique_normal_forms.
+Print Assumptions cc1_runs.
+Print Assumptions cc2_runs.
+Print Assumptions cc1_fail_diverge.
+Print Assumptions cc2_fail_diverge.
+Print Assumptions reach_run.
+Print Assumptions cc1_fail_diverge_from.
+Print Assumptions cc2_fail_diverge_from.
+Print Assumptions cc_exact_from.
+Print Assumptions cc_exact.
+Print Assumptions cc_exact_global.
+Print Assumptions rho_star_qualifier.
+Print Assumptions masked_cc1.
+Print Assumptions causal_prefix.
+Print Assumptions causal_swap.
+Print Assumptions tequiv_causal.
+Print Assumptions ccr_convergence.
+Print Assumptions ccr_diverge.
+Print Assumptions causal_exact.
+Print Assumptions causal_convergence_exact.
+Print Assumptions n_ccr.
+Print Assumptions naive_causal_converse_fails.
 Require Import NC.CoordinatedCycles.
 Print Assumptions topo_topoF.
 Print Assumptions frun_run.
@@ -234,8 +278,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 189 ]; then
-  echo "FAIL: expected 189 axiom-free results, got $N"
+if [ "$N" -lt 254 ]; then
+  echo "FAIL: expected 254 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

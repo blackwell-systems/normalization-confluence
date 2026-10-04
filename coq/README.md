@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 189 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 254 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 158 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -419,6 +419,112 @@ need to commute. Axiom-free:
 
 Each ordering proof bubbles an event to the front past concurrent events, so the connectivity of
 linear extensions is never assumed.
+
+## At-least-once delivery (`AtLeastOnce.v`)
+
+The results above assume each replica sees each event exactly once. Transports usually promise
+at-least-once delivery, so an event can be redelivered, possibly much later. `AtLeastOnce.v` makes
+exactly-once a checked property: it proves when a duplicate is absorbed and gives a divergence
+witness when it is not. A delivery is a list of events with duplicates; its exactly-once projection
+`dedup` keeps the first delivery of each event. The governed step (apply, then repair to a normal
+form) ranges over an invariant domain `D` it preserves. Axiom-free:
+
+- `alo_absorbed`: the general, local form. A delivery reaches the same state as its exactly-once
+  projection when every redelivered event is idempotent (`step a (step a s) = step a s` on `D`) and
+  commutes with each event delivered between the redelivery and the previous copy.
+- `alo_commuting_exactly_once`, `alo_commuting_converges`: the all-orders case. If all delivered
+  events commute and every duplicated event is idempotent, an at-least-once delivery reaches the
+  same state as every exactly-once delivery of the same events in any order, and any two
+  at-least-once deliveries of the same events agree. Built on `Trace.v`'s `run_tequiv`.
+- `causal_alo_exactly_once`, `causal_alo_converges`: the causal case. Only concurrent events need to
+  commute (as in `causal_convergence`), happens-before is irreflexive, and redelivery is itself
+  causally consistent (`causal_alo`: no copy of a cause is delivered after any copy of its effect).
+  Then every duplicate is absorbed and the run equals every causally consistent exactly-once run.
+  `causal_alo_absorbs` and `causal_alo_dedup_causal` are the two steps; the order argument reuses
+  `causal_tequiv` and `run_tequiv`.
+- `non_idempotent_diverges`: for any event whose governed step is not idempotent at some state,
+  delivering it twice from that state diverges from delivering it once. `inc_not_idempotent` /
+  `inc_duplicate_diverges` instantiate it with a counter increment clamped to a cap: from `0`,
+  duplicate delivery ends at `2`, exactly-once at `1`.
+- `late_duplicate_diverges`: the naive causal statement (idempotent duplicates are absorbed whenever
+  the first deliveries are causal) is false. On `CausalReplay.v`'s flag machine, `Add` and `Remove`
+  are idempotent and every concurrent pair commutes, yet redelivering `Add` after its causal
+  successor `Remove` leaves the flag set, while exactly-once delivery clears it. That delivery is not
+  `causal_alo`, which is why the causal theorem requires it.
+- `mx_alo_converges` (a max-register clamped to a cap, all-orders case) and
+  `fl_causal_alo_converges` (a flag with add and causally later remove next to a clamped
+  max-register; `fl_not_all_commute` shows the all-orders theorem does not apply): non-vacuity
+  instances discharging every hypothesis.
+
+In short, deduplication is needed only for an event whose governed step is not idempotent, or whose
+redelivered copy can overtake an event it does not commute with. The first always diverges at a
+witness state (`non_idempotent_diverges`); the second can (`late_duplicate_diverges`).
+
+## The converse: CC and causal convergence are exact (`GovernanceConverse.v`)
+
+The sections above prove CC (single registry) and commutation of concurrent pairs (causal
+delivery) sufficient. `GovernanceConverse.v` proves the converses, in the strongest form that is
+true, and records where the naive converse fails. Axiom-free. Write `gov e s = rho_star (apply e s)`
+for the governed step.
+
+**Single registry, free delivery** (every buffered event may fire; the rewrite system is
+`Governance.v`'s, reused verbatim), with WFC and canonical repair (`rho_star` returns a valid
+state):
+
+- `cc1_runs`, `cc2_runs`: the two sides of CC1 at `s` are the normal forms of the runs
+  `e1` then `e2` and `e2` then `e1` from `(s, [e1; e2])`; the two sides of CC2 at an invalid `s`
+  are the normal forms of apply-then-repair and repair-then-apply from `(s, [e])`. So
+  `cc1_fail_diverge` and `cc2_fail_diverge`: a CC failure is two runs with distinct normal forms.
+- `reach_run`, `cc1_fail_diverge_from`, `cc2_fail_diverge_from`: every state reachable from `s0`
+  (by events and compensation) is reached by delivering some word `w` first, so a CC failure at a
+  reachable state is a divergence of two event orders from `(s0, w ++ [e1; e2])` or
+  `(s0, w ++ [e])`.
+- `cc_exact_from` (headline): every event buffer delivered from `s0` has a unique normal form
+  **if and only if** CC1 and CC2 hold on the states reachable from `s0`. `cc_exact`: the same for
+  every configuration over a reachable state. `cc_exact_global`: CC everywhere iff unique normal
+  forms everywhere.
+- Sufficiency only needs CC on reachable states, for any enabledness: `newman_on` (Newman's Lemma
+  localized to a step-closed set) gives `cc_reach_unique_normal_forms`, which generalizes
+  `governance_unique_normal_forms` and `causal_governance_unique_normal_forms` (CC1 on co-enabled
+  pairs and CC2, both only at reachable states).
+
+**Single registry, any enabledness (causal, guarded).** Here CC1 is not necessary, and the exact
+condition is CC modulo the rest of the run:
+
+- `jc_exact`: from a start configuration `c0`, the system is confluent iff `JC c0`: at every
+  configuration reachable from `c0`, the governed successors of each critical pair are joinable
+  (`(gov e1 s, B \ e1)` with `(gov e2 s, B \ e2)` for co-enabled `e1 <> e2`; `(gov e s, B \ e)`
+  with `(gov e (rho s), B \ e)` for invalid `s`). CC1 and CC2 are the case where the join is an
+  equality (`cc_reach_jc`). `jc_unique_normal_forms`: `JC c0` gives unique normal forms from `c0`.
+
+**Counterexamples to the naive converse.**
+
+- `rho_star_qualifier`: the qualifier "canonical repair" is needed. `Governance.v` only asks that
+  `rho_star s` be a reduct of `s`, which the identity satisfies; with it CC1 fails (set-true and
+  flip do not commute), yet every configuration has a unique normal form (repair resets to the
+  only valid state).
+- `masked_cc1`: under causal enabledness, CC1 can fail for two co-enabled events at a reachable
+  configuration while every run reaches the same normal form. `M1` writes 1, `M2` writes 2, and a
+  reset `MR`, enabled only after both, erases the difference: from `(0, [M1; M2; MR])` every
+  normal form is `(0, [])`. So "CC fails at a reachable state, hence two orders diverge" is false
+  once the future of the run is constrained; `JC` is the exact condition there.
+
+**Causal delivery** (the run model of `CausalReplay.v`):
+
+- `CCR s0`: for every concurrent pair `a`, `b` and every prefix `p` such that `p ++ [a; b]` is
+  causally consistent, the governed steps of `a` and `b` commute at `run p s0`.
+- `causal_exact`: causal convergence from `s0` (any two causally consistent permutations reach the
+  same state) **if and only if** `CCR s0`. Sufficiency (`ccr_convergence`) goes through
+  `causal_tequiv` and the fact that swapping a concurrent adjacent pair preserves causal
+  consistency (`causal_swap`, `tequiv_causal`); necessity (`ccr_diverge`) exhibits the two
+  causally consistent permutations `p ++ [a; b]` and `p ++ [b; a]` with different results.
+- `causal_convergence_exact`: with happens-before irreflexive, causal convergence from every start
+  iff governed steps commute on every concurrent pair at every state: the converse of
+  `causal_convergence`. Irreflexivity is needed: an event with `hb a a` appears in no causal order.
+- `naive_causal_converse_fails`: `NA` and `NB` are concurrent and do not commute at state 1, which
+  the causally consistent run `[NC]` reaches from 0, yet causal convergence holds from 0, because
+  `NC` is causally after both and neither can be delivered after it. Reachability of the
+  non-commuting state is not enough; the pair must be deliverable after the prefix, as in `CCR`.
 
 ## Event interleavings across registries (`FederationEvents.v`)
 
@@ -839,7 +945,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 189 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 254 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

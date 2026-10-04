@@ -1,5 +1,5 @@
 # Build the mechanized confluence proof. Requires coqc (Rocq/Coq >= 8.18; tested on Rocq 9.3).
-all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo TableFast.vo TableFn.vo AstChecker.vo AstTables.vo AstCompact.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo CausalReplay.vo GovernanceCausal.vo FederationEvents.vo GovernanceWF.vo ChaoticACC.vo FederationEventsCycles.vo FederationEventsConverse.vo
+all: Newman.vo Governance.vo Defensibility.vo Gsm.vo Federation.vo Chaotic.vo Checker.vo Trace.vo TableCheck.vo TableFast.vo TableFn.vo AstChecker.vo AstTables.vo AstCompact.vo CRDT.vo Categorical.vo Cohomology.vo CohomologyMin.vo CohomologyGraph.vo FederationOrder.vo CausalReplay.vo GovernanceCausal.vo FederationEvents.vo GovernanceWF.vo ChaoticACC.vo FederationEventsCycles.vo FederationEventsConverse.vo GovernanceConverse.vo
 
 Newman.vo: Newman.v
 	coqc -Q . NC Newman.v
@@ -82,6 +82,9 @@ FederationEventsCycles.vo: FederationEventsCycles.v Trace.vo Federation.vo
 FederationEventsConverse.vo: FederationEventsConverse.v FederationEvents.vo Trace.vo
 	coqc -Q . NC FederationEventsConverse.v
 
+GovernanceConverse.vo: GovernanceConverse.v Newman.vo Governance.vo Trace.vo CausalReplay.vo
+	coqc -Q . NC GovernanceConverse.v
+
 # Print the assumption base of the main results (expect: "Closed under the global context").
 check: all
 	@printf 'Require Import NC.Newman NC.Governance NC.Defensibility.\nPrint Assumptions governance_confluent.\nPrint Assumptions example_confluent.\n' > _check.v
@@ -91,6 +94,13 @@ check: all
 clean:
 	rm -f *.vo *.vok *.vos *.glob .*.aux _check.v
 
+# At-least-once delivery (AtLeastOnce.v).
+all: AtLeastOnce.vo
+
+AtLeastOnce.vo: AtLeastOnce.v Trace.vo CausalReplay.vo
+	coqc -Q . NC AtLeastOnce.v
+
+# Coordinated cycles (CoordinatedCycles.v).
 all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
