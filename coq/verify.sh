@@ -307,6 +307,130 @@ Print Assumptions r1_necessary.
 Print Assumptions ms_instance.
 Print Assumptions ms_paper_traces.
 Print Assumptions ms_converges.
+Require Import NC.RhoStar.
+Print Assumptions base_def_rhostar.
+Print Assumptions base_def_rhostar_least_unique.
+Print Assumptions rho_star_valid.
+Print Assumptions rho_star_fix.
+Print Assumptions rho_star_idem.
+Print Assumptions rho_star_rho.
+Print Assumptions rho_star_steps_le_measure.
+Print Assumptions rho_star_canonical.
+Print Assumptions rho_star_wf_valid.
+Print Assumptions rho_star_wf_idem.
+Print Assumptions cat_bg_rho_idempotent.
+Print Assumptions cat_bg_valid_from_any_state.
+Print Assumptions cat_bg_lemma_zero.
+Print Assumptions cat_bg_nonempty_needs_a_state.
+Print Assumptions base_rem_absorption.
+Print Assumptions base_rem_absorption_enabled.
+Print Assumptions base_thm_strong_absorption.
+Print Assumptions strong_absorption_iff_cc2.
+Print Assumptions termination_bound.
+Print Assumptions comp_total_bound.
+Print Assumptions comp_per_event_bound.
+Print Assumptions base_lem_termination_bound.
+Print Assumptions causal_lem_termination_bound.
+Print Assumptions base_thm_complexity_comp_total.
+Print Assumptions base_thm_complexity_per_event.
+Print Assumptions base_lem_finite_implies_ubc.
+Print Assumptions deps_enabled_after_remove.
+Print Assumptions deps_enabled_after_comp.
+Print Assumptions deps_causal_enabled_after_remove.
+Print Assumptions deps_causal_enabled_after_comp.
+Print Assumptions deps_coenabled_independent.
+Print Assumptions wfc_governance_confluent.
+Print Assumptions wfc_governance_unique_normal_forms.
+Print Assumptions wfc_causal_governance_confluent.
+Print Assumptions wfc_causal_governance_unique_normal_forms.
+Print Assumptions paper_causal_governance_confluent.
+Print Assumptions paper_causal_governance_unique_normal_forms.
+Print Assumptions paper_governance_confluent.
+Print Assumptions paper_governance_unique_normal_forms.
+Print Assumptions wfc_cc_exact_from.
+Print Assumptions wfc_governance_wf_confluent.
+Print Assumptions wfc_causal_governance_wf_confluent.
+Print Assumptions lv_ubc.
+Print Assumptions lv_strong_absorption.
+Print Assumptions lv_rho_star_caps.
+Print Assumptions lv_paper_confluent.
+Print Assumptions lv_paper_governance_confluent.
+Print Assumptions lv_termination_bound.
+Print Assumptions lv_termination_bound_tight.
+Print Assumptions lv_def_rhostar.
+Print Assumptions zw_rho_star_built.
+Print Assumptions zw_confluent_built.
+Print Assumptions crel_fun.
+Print Assumptions crel_iter.
+Print Assumptions iter_crel.
+Print Assumptions rho_star_wf_crel.
+Print Assumptions rho_star_crel.
+Print Assumptions lv_wfc.
+Print Assumptions lv_cc1.
+Print Assumptions lv_cc2.
+Print Assumptions zw_crel.
+Require Import NC.CategoricalBridge.
+Print Assumptions NC.Categorical.fixed_is_equalizer.
+Print Assumptions NC.Categorical.retract_fixes_fixed.
+Print Assumptions NC.Categorical.rhoL_idempotent.
+Print Assumptions NC.Categorical.rhoL_image_iff_L.
+Print Assumptions NC.Categorical.rhoL_L_iff_fixed.
+Print Assumptions NC.Categorical.rhoFold_sound.
+Print Assumptions NC.Categorical.rhoFold_complete.
+Print Assumptions NC.Categorical.rhoF_from_app.
+Print Assumptions NC.CategoricalBridge.map_split.
+Print Assumptions NC.CategoricalBridge.prec_mid.
+Print Assumptions NC.CategoricalBridge.stepN_local.
+Print Assumptions NC.CategoricalBridge.isTarget_true.
+Print Assumptions NC.CategoricalBridge.consistent_targets.
+Print Assumptions NC.CategoricalBridge.cat_LF_split.
+Print Assumptions NC.CategoricalBridge.cat_prop_one.
+Print Assumptions NC.CategoricalBridge.cat_prop_one_product.
+Print Assumptions NC.CategoricalBridge.cat_prop_one_limit.
+Print Assumptions NC.CategoricalBridge.ovr_rho_idem.
+Print Assumptions NC.CategoricalBridge.stepN_idem.
+Print Assumptions NC.CategoricalBridge.stepN_fixed_iff.
+Print Assumptions NC.CategoricalBridge.LF_pointwise.
+Print Assumptions NC.CategoricalBridge.LF_ext.
+Print Assumptions NC.CategoricalBridge.stepT_idem.
+Print Assumptions NC.CategoricalBridge.look_tag_in.
+Print Assumptions NC.CategoricalBridge.look_tag_out.
+Print Assumptions NC.CategoricalBridge.look_agree.
+Print Assumptions NC.CategoricalBridge.run_out.
+Print Assumptions NC.CategoricalBridge.fold_run_gen.
+Print Assumptions NC.CategoricalBridge.rhoFold_run.
+Print Assumptions NC.CategoricalBridge.look_rhoFold.
+Print Assumptions NC.CategoricalBridge.rhoFold_order_independent.
+Print Assumptions NC.CategoricalBridge.rhoFold_order_perm.
+Print Assumptions NC.CategoricalBridge.consistentList_iff_LF.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_sound.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_complete.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_idempotent.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_image.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_fixed.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_order_independent.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_fold_image.
+Print Assumptions NC.CategoricalBridge.nv_idem.
+Print Assumptions NC.CategoricalBridge.nv_putget.
+Print Assumptions NC.CategoricalBridge.nv_sh_fixed.
+Print Assumptions NC.CategoricalBridge.nv_run.
+Print Assumptions NC.CategoricalBridge.nv_sound.
+Print Assumptions NC.CategoricalBridge.nv_s0_not_LF.
+Print Assumptions NC.CategoricalBridge.nv_orders_agree.
+Print Assumptions NC.CategoricalBridge.nv_prop_one.
+Print Assumptions NC.CategoricalBridge.cx_topo.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_m1_counterexample.
+Require Import NC.FederationEventsCyclesCheck.
+Print Assumptions lfp_commute_gc.
+Print Assumptions footprint_c1.
+Print Assumptions cyc_check_step.
+Print Assumptions cyc_check_converges.
+Print Assumptions cyc_check_gc.
+Print Assumptions cyc_check_gc_lfp.
+Print Assumptions cyc_check_instance.
+Print Assumptions check_rejects_latch.
+Print Assumptions monotone_c2_insufficient.
+Print Assumptions c1_localcc_insufficient.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -317,8 +441,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 292 ]; then
-  echo "FAIL: expected 292 axiom-free results, got $N"
+if [ "$N" -lt 413 ]; then
+  echo "FAIL: expected 413 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

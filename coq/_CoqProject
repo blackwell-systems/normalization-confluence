@@ -30,3 +30,6 @@ AtLeastOnce.v
 GovernanceConverse.v
 CoordinatedCycles.v
 PaperInstances.v
+RhoStar.v
+CategoricalBridge.v
+FederationEventsCyclesCheck.v
