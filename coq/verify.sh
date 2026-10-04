@@ -268,6 +268,69 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require Import NC.CohomologyGeneral.
+Print Assumptions cg_len_map.
+Print Assumptions cg_len_seq.
+Print Assumptions bounded_ex_dec.
+Print Assumptions least_witness.
+Print Assumptions nodup_map_inj.
+Print Assumptions inj_bound.
+Print Assumptions loop_cons.
+Print Assumptions pre_succ.
+Print Assumptions pre_all.
+Print Assumptions section_pre.
+Print Assumptions section_fixed.
+Print Assumptions section_of_fixed.
+Print Assumptions thm_obstruction_general.
+Print Assumptions sections_are_fixed_points.
+Print Assumptions orbit_stable.
+Print Assumptions orbit_ext.
+Print Assumptions reaches_fixed_iff_section.
+Print Assumptions thm_obstruction_reachable.
+Print Assumptions diagnose_bounded.
+Print Assumptions diagnose_orbit_witness.
+Print Assumptions diagnose_dichotomy.
+Print Assumptions c15_exact_refuter.
+Print Assumptions c15_free_definitive.
+Print Assumptions c15_injective_reaches_iff_fixed.
+Print Assumptions c15_convergent_result_sound.
+Print Assumptions c15_regular_definitive.
+Print Assumptions c15_regular_is_free.
+Print Assumptions tri_full.
+Print Assumptions swap_loop_g.
+Print Assumptions tri_orbit01.
+Print Assumptions c15_seed_orbits.
+Print Assumptions c15_seed_settles.
+Print Assumptions c15_tri_section.
+Print Assumptions c15_definitive_claim_false.
+Print Assumptions c15_convergent_result_not_global.
+Print Assumptions prop_minimal_qualified_iff.
+Print Assumptions prop_minimal_qualifiers_needed.
+Print Assumptions meets_dec.
+Print Assumptions must_hit.
+Print Assumptions choose_hits.
+Print Assumptions forall2_in.
+Print Assumptions hits_nodup.
+Print Assumptions edge_disjoint_lower_bound.
+Print Assumptions edge_disjoint_min.
+Print Assumptions bool_edge_eq_dec.
+Print Assumptions bowtie_min_two.
+Print Assumptions sat_push.
+Print Assumptions section_pushforward.
+Print Assumptions feasible_pushforward.
+Print Assumptions min_G_ge_min_image.
+Print Assumptions klein_hom.
+Print Assumptions klein_min_ge_1.
+Print Assumptions otree_tree.
+Print Assumptions msection_app.
+Print Assumptions msection_upd_fresh.
+Print Assumptions out_tree_section.
+Print Assumptions out_tree_unique.
+Print Assumptions rooted_criterion.
+Print Assumptions rooted_coordination_suffices.
+Print Assumptions c22_cycle_basis_fails.
+Print Assumptions c22_rooted_instance.
+Print Assumptions c13_two_ways_not_exhaustive.
 Require Import NC.Stream.
 Print Assumptions stream_star_inv.
 Print Assumptions stream_star_sub.
@@ -515,8 +578,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 486 ]; then
-  echo "FAIL: expected 486 axiom-free results, got $N"
+if [ "$N" -lt 548 ]; then
+  echo "FAIL: expected 548 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
