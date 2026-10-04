@@ -111,3 +111,9 @@ all: CategoricalBridge.vo
 
 CategoricalBridge.vo: CategoricalBridge.v Categorical.vo FederationOrder.vo
 	coqc -Q . NC CategoricalBridge.v
+
+# Event order on monotone cycles, checked per event (FederationEventsCyclesCheck.v).
+all: FederationEventsCyclesCheck.vo
+
+FederationEventsCyclesCheck.vo: FederationEventsCyclesCheck.v FederationEventsCycles.vo Federation.vo Trace.vo
+	coqc -Q . NC FederationEventsCyclesCheck.v

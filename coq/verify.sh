@@ -319,6 +319,17 @@ Print Assumptions NC.CategoricalBridge.nv_orders_agree.
 Print Assumptions NC.CategoricalBridge.nv_prop_one.
 Print Assumptions NC.CategoricalBridge.cx_topo.
 Print Assumptions NC.CategoricalBridge.cat_thm_one_m1_counterexample.
+Require Import NC.FederationEventsCyclesCheck.
+Print Assumptions lfp_commute_gc.
+Print Assumptions footprint_c1.
+Print Assumptions cyc_check_step.
+Print Assumptions cyc_check_converges.
+Print Assumptions cyc_check_gc.
+Print Assumptions cyc_check_gc_lfp.
+Print Assumptions cyc_check_instance.
+Print Assumptions check_rejects_latch.
+Print Assumptions monotone_c2_insufficient.
+Print Assumptions c1_localcc_insufficient.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -329,8 +340,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 304 ]; then
-  echo "FAIL: expected 304 axiom-free results, got $N"
+if [ "$N" -lt 314 ]; then
+  echo "FAIL: expected 314 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
