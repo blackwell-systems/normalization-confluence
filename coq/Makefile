@@ -105,3 +105,9 @@ all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
+
+# Categorical bridge (CategoricalBridge.v).
+all: CategoricalBridge.vo
+
+CategoricalBridge.vo: CategoricalBridge.v Categorical.vo FederationOrder.vo
+	coqc -Q . NC CategoricalBridge.v
