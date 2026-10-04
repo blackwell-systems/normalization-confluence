@@ -352,9 +352,10 @@ gluing axiom validates the existing federation design. The obstruction for cycle
 composite's failure to have a reachable fixed point, computable over the shared subspace and
 genuinely Cech `H^1` in the invertible case; the practical loop-composite diagnostic is implemented
 in gsm as `Federation.DiagnoseCycle` (it names the offending cycle and reports whether the loop
-repair settles or orbits from a representative seed). What remains open is the cohomology-proper
-classification, computing the `H^1` class itself in the invertible case and its non-abelian
-analogue in general, rather than the reachable-fixed-point test.
+repair settles or orbits from a representative seed). The cohomology-proper classification, the
+`H^1` class itself in the invertible case, abelian or not, is now mechanized on the nerve's
+1-skeleton (10.1, `coq/CohomologyGraph.v`); what remains open is its refinement on the nerve as a
+2-complex and an analogue for non-invertible transitions beyond the reachable-fixed-point test.
 
 ### 10.1 The completion: `H^0`, `H^1`, and the two routes to convergence
 
@@ -414,7 +415,25 @@ fixed-point condition already established.
 with an explicit cycle-basis of generators (a sufficient set of loops to fix) and a Betti-number rank;
 the vanishing of `H^1` and the monotone least-fixed-point are the two categorical routes to
 convergence, recovering gsm's stated dichotomy as one picture. Proven here for the invertible/torsor
-fragment; open beyond it is the non-abelian obstruction and mechanization.
+fragment, and mechanized axiom-free on an arbitrary finite group-labeled graph, abelian or not
+(`coq/CohomologyGraph.v`); open beyond it are the rank on the nerve as a 2-complex (the triangle
+relations) and the non-invertible case.
+
+**Prior art.** The topology and the holonomy criterion are classical, not results of this note. For
+a connected graph `π_1` is free on the edges outside a spanning tree, of rank `|E| - |V| + 1`
+(Hatcher, *Algebraic Topology*, 2002, Proposition 1A.2); `G`-labelings modulo gauge are `Hom(π_1, G)`
+modulo conjugation (flat `G`-bundles on a graph); and "a global section exists iff every cycle has
+trivial holonomy" is the balance theorem for gain graphs (Zaslavsky, *J. Combin. Theory Ser. B* 47,
+1989, Lemma 5.3; Harary, 1953, for `Z/2`). Čech cohomology as the obstruction to a global section is
+Abramsky and Brandenburger (2011) and Abramsky, Mansfield and Barbosa (2012); the same holonomy
+obstruction drives cycle consistency and group synchronization (Singer, 2011); task solvability in
+distributed computing (Herlihy and Shavit, 1999) is related lineage on a different object. What NC
+adds is the application to federated convergence with non-commutative compensation (WFC/CC, with
+R1/R2 as the gluing axiom), the axiom-free mechanization of the section criterion and the `H^1`
+classification (`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`), and the
+connection to a convergence framework whose checker runs in production. Full citations, and what
+exists in formal libraries (the rank fact is formalized in Lean), are in
+[LANDSCAPE.md](LANDSCAPE.md#prior-art-for-the-cohomological-layer).
 
 ### 10.2 Minimal coordination: eventual versus strong consistency
 

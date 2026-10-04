@@ -174,6 +174,93 @@ own contribution is the synthesis: that method applied to coordination-free repl
 with non-commutative compensation, subsuming CRDTs and I-confluence, mechanized end to end, and
 extended to the federated cohomological obstruction.
 
+## Prior art for the cohomological layer
+
+The federated layer ([CATEGORICAL-STRUCTURE.md](CATEGORICAL-STRUCTURE.md), sections 10 and 10.1)
+states a federation's convergence as a gluing problem: sections are convergence certificates over
+subsystem overlaps, `H^0` is the convergent states, and in the invertible fragment the obstruction
+is a Čech `H^1` class, the holonomy of a cycle basis of the overlap nerve, `|E| - |V| + 1` loops. The
+topology underneath is not new. Five bodies of work sit under it, and naming them fixes what NC adds.
+
+- **The classical fact.** For a connected graph with a maximal tree `T`, `π_1` is free with one
+  generator per edge outside `T` (Hatcher, *Algebraic Topology*, Cambridge University Press, 2002,
+  Proposition 1A.2), so a finite connected graph has `π_1` of rank `|E| - |V| + 1` (ibid., Section
+  1.A, Exercise 3). A labeling of the edges by a group `G`, modulo relabeling at the vertices, is
+  the non-abelian `H^1` of the graph with coefficients in `G`, which is `Hom(π_1, G)` modulo
+  conjugation: the holonomy classification of flat `G`-bundles, on a 1-complex. Combinatorics has
+  the same object as a gain graph. Zaslavsky ("Biased graphs. I. Bias, balance, and gains," *J.
+  Combin. Theory Ser. B* 47(1), 1989, 32-52, Lemma 5.3) shows a gain graph is balanced (every cycle
+  has identity gain) iff it is switching-equivalent to the all-identity labeling, which is NC's
+  section criterion (a global section exists iff the labeling is a coboundary iff every cycle in a
+  cycle basis has trivial holonomy). The `Z/2` case is Harary's balance of signed graphs ("On the
+  notion of balance of a signed graph," *Michigan Math. J.* 2(2), 1953, 143-146).
+
+- **Cohomology as the obstruction to a global section.** Abramsky and Brandenburger ("The
+  sheaf-theoretic structure of non-locality and contextuality," *New J. Phys.* 13, 113036, 2011)
+  show that contextuality is exactly the absence of a global section of a presheaf of local data;
+  Abramsky, Mansfield and Barbosa ("The cohomology of non-locality and contextuality," QPL 2011,
+  EPTCS 95, 2012, 1-14) witness it with a Čech cohomology class of an abelian presheaf, whose
+  non-vanishing is sufficient (not necessary) for contextuality. This is the closest conceptual
+  precedent: local data that agree on every overlap yet admit no global section, detected by a Čech
+  `H^1` obstruction. NC uses the same template on a different presheaf (normalizers over subsystem
+  overlaps). On a graph-shaped nerve in the invertible fragment its obstruction is exact (an iff)
+  because it is the non-abelian `H^1` of a 1-complex above, not an abelianized witness.
+
+- **Topology in distributed computing.** Herlihy and Shavit ("The topological structure of
+  asynchronous computability," *J. ACM* 46(6), 1999, 858-923), with Borowsky and Gafni
+  ("Generalized FLP impossibility result for t-resilient asynchronous computations," STOC 1993,
+  91-100) and Saks and Zaharoglou ("Wait-free k-set agreement is impossible: the topology of public
+  knowledge," STOC 1993, 101-110; *SIAM J. Comput.* 29(5), 2000), characterize wait-free task
+  solvability by maps between simplicial complexes; Herlihy, Kozlov and Rajsbaum (*Distributed
+  Computing Through Combinatorial Topology*, Morgan Kaufmann, 2013) is the textbook account, and
+  Felber, Hummes Flores and Rincon Galeana ("A sheaf-theoretic characterization of tasks in
+  distributed systems," arXiv:2503.02556, 2025) recast it with cellular sheaves. This is related
+  lineage, not the same result: the object is which one-shot decision task processes can solve
+  under failures, not whether a federation's repaired state converges.
+
+- **Cycle consistency and group synchronization.** Recovering group elements `g_i` from noisy
+  pairwise ratios `g_i g_j^{-1}` (Singer, "Angular synchronization by eigenvectors and semidefinite
+  programming," *Appl. Comput. Harmon. Anal.* 30(1), 2011, 20-36) and enforcing that maps composed
+  around a cycle return the identity (Zach, Klopschitz and Pollefeys, "Disambiguating visual
+  relations using loop constraints," CVPR 2010, 1426-1433; Huang and Guibas, "Consistent shape maps
+  via semidefinite programming," *Comput. Graph. Forum* 32(5), SGP 2013) use the same holonomy
+  obstruction. The application differs: estimation under noise, not convergence of a governed
+  system.
+
+- **Applied sheaf theory.** Goguen ("Sheaf semantics for concurrent interacting objects," *Math.
+  Struct. Comput. Sci.* 2, 1992, 159-191) models object behaviours as sheaves and composes them into
+  a system by limits, a precedent for NC's federation-as-limit as well as its gluing; Ghrist
+  (*Elementary Applied Topology*, CreateSpace, 2014) and Hansen and Ghrist ("Toward a spectral
+  theory of cellular sheaves," *J. Appl. Comput. Topol.* 3, 2019, 315-358) develop cellular sheaves
+  and their cohomology; Robinson ("Sheaves are the canonical data structure for sensor
+  integration," *Inf. Fusion* 36, 2017, 208-224) uses sheaf cohomology to measure consistency
+  between data sources.
+
+**Formalization.** The rank fact is already in formal libraries. mathlib's Nielsen-Schreier
+development proves that the vertex group of a free groupoid is freely generated by the arrows
+outside a spanning arborescence (`endIsFree`), and mathlib counts a tree's edges
+(`SimpleGraph.IsTree.card_edgeFinset`). A standalone Lean 4 development, not part of mathlib
+(`github.com/Arthur742Ramos/finite-graph-fundamental-group`), proves that `π_1` of a finite connected
+graph is free of rank `|E| + 1 - |V|`. A search of mathlib, the Rocq graph-theory library (Doczkal
+and Pous) and the HoTT library found no formalization of the balance (coboundary) criterion or of
+`H^1` as tuples of fundamental holonomies modulo simultaneous conjugation; that is a search result,
+not a proof of absence. So NC's `betti_number` is a Rocq counterpart of a fact formalized in Lean;
+what the mechanization adds is the section criterion and the `H^1` classification, and their tie to
+the convergence development.
+
+**What NC adds.** The topology and the holonomy criterion are classical (Hatcher; Zaslavsky), and
+cohomology as the obstruction to a global section is established (Abramsky and Brandenburger;
+Abramsky, Mansfield and Barbosa). NC adds three things on top of them: it applies them to federated
+convergence with non-commutative compensation (the WFC/CC setting, where sections are convergence
+certificates of normalizers and the gluing axiom is the resolver's R1/R2); it mechanizes the
+criterion and the classification axiom-free in Rocq (`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`: the
+coboundary criterion on an arbitrary finite group-labeled graph, the cycle-basis criterion, `H^1` as
+fundamental holonomies modulo simultaneous conjugation with `|E| - |V| + 1` generators, and the
+`S_3` separation); and it connects them to a convergence framework whose checker runs in production
+(gsm, with the loop-composite diagnostic as `Federation.DiagnoseCycle`). Still paper-level: the
+rank on the nerve as a 2-complex (the triangle relations), and the non-invertible case, where the
+obstruction is a fixed-point condition on the loop composite rather than group cohomology.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite
