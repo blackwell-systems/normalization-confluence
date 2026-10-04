@@ -268,6 +268,57 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require Import NC.CategoricalBridge.
+Print Assumptions NC.Categorical.fixed_is_equalizer.
+Print Assumptions NC.Categorical.retract_fixes_fixed.
+Print Assumptions NC.Categorical.rhoL_idempotent.
+Print Assumptions NC.Categorical.rhoL_image_iff_L.
+Print Assumptions NC.Categorical.rhoL_L_iff_fixed.
+Print Assumptions NC.Categorical.rhoFold_sound.
+Print Assumptions NC.Categorical.rhoFold_complete.
+Print Assumptions NC.Categorical.rhoF_from_app.
+Print Assumptions NC.CategoricalBridge.map_split.
+Print Assumptions NC.CategoricalBridge.prec_mid.
+Print Assumptions NC.CategoricalBridge.stepN_local.
+Print Assumptions NC.CategoricalBridge.isTarget_true.
+Print Assumptions NC.CategoricalBridge.consistent_targets.
+Print Assumptions NC.CategoricalBridge.cat_LF_split.
+Print Assumptions NC.CategoricalBridge.cat_prop_one.
+Print Assumptions NC.CategoricalBridge.cat_prop_one_product.
+Print Assumptions NC.CategoricalBridge.cat_prop_one_limit.
+Print Assumptions NC.CategoricalBridge.ovr_rho_idem.
+Print Assumptions NC.CategoricalBridge.stepN_idem.
+Print Assumptions NC.CategoricalBridge.stepN_fixed_iff.
+Print Assumptions NC.CategoricalBridge.LF_pointwise.
+Print Assumptions NC.CategoricalBridge.LF_ext.
+Print Assumptions NC.CategoricalBridge.stepT_idem.
+Print Assumptions NC.CategoricalBridge.look_tag_in.
+Print Assumptions NC.CategoricalBridge.look_tag_out.
+Print Assumptions NC.CategoricalBridge.look_agree.
+Print Assumptions NC.CategoricalBridge.run_out.
+Print Assumptions NC.CategoricalBridge.fold_run_gen.
+Print Assumptions NC.CategoricalBridge.rhoFold_run.
+Print Assumptions NC.CategoricalBridge.look_rhoFold.
+Print Assumptions NC.CategoricalBridge.rhoFold_order_independent.
+Print Assumptions NC.CategoricalBridge.rhoFold_order_perm.
+Print Assumptions NC.CategoricalBridge.consistentList_iff_LF.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_sound.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_complete.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_idempotent.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_image.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_fixed.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_order_independent.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_fold_image.
+Print Assumptions NC.CategoricalBridge.nv_idem.
+Print Assumptions NC.CategoricalBridge.nv_putget.
+Print Assumptions NC.CategoricalBridge.nv_sh_fixed.
+Print Assumptions NC.CategoricalBridge.nv_run.
+Print Assumptions NC.CategoricalBridge.nv_sound.
+Print Assumptions NC.CategoricalBridge.nv_s0_not_LF.
+Print Assumptions NC.CategoricalBridge.nv_orders_agree.
+Print Assumptions NC.CategoricalBridge.nv_prop_one.
+Print Assumptions NC.CategoricalBridge.cx_topo.
+Print Assumptions NC.CategoricalBridge.cat_thm_one_m1_counterexample.
 Require Import NC.FederationEventsCyclesCheck.
 Print Assumptions lfp_commute_gc.
 Print Assumptions footprint_c1.
@@ -289,8 +340,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 264 ]; then
-  echo "FAIL: expected 264 axiom-free results, got $N"
+if [ "$N" -lt 314 ]; then
+  echo "FAIL: expected 314 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
