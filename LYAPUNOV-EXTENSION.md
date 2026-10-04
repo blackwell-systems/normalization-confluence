@@ -16,7 +16,7 @@ controller, a physical or chemical system, an optimizer, a flow rather than a re
 answer is that the *collapse* has a precise continuous analogue, but it is a **new theorem in a
 different branch of mathematics**, not a corollary of the discrete results, and it is strictly
 harder to establish. This note pins down exactly what the analogue is so that a continuous claim
-can be scoped honestly rather than asserted by analogy.
+can be scoped precisely rather than asserted by analogy.
 
 ## The one-sentence idea
 
@@ -73,7 +73,7 @@ The same picture that gives the sweet spot draws the wall, and the wall is the u
 
 > **Non-convex, multi-basin systems do not collapse.** A potential with many local minima has many
 > basins of attraction, hence many attractors. The Lyapunov half still holds (the energy decreases,
-> the system settles into *a* minimum), so you can honestly claim convergence to *an* equilibrium.
+> the system settles into *a* minimum), so the claim that holds is convergence to *an* equilibrium.
 > The contraction half fails (trajectories from nearby states fall into different basins), so you
 > **cannot** claim a unique, order-independent limit. Which basin you reach depends on initial
 > condition, noise, and effectively on order.

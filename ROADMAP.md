@@ -20,9 +20,7 @@ in a module and passes the gate.
 | 3. Exact converse of CC and of causal convergence | `GovernanceConverse.v` | `cc_exact_from`, `cc_exact_global`, `jc_exact`, `causal_exact`, `causal_convergence_exact` | #26 |
 | 4. Non-monotone cycles under a computed coordination | `CoordinatedCycles.v` | `coordinated_sound`, `coordinated_unique_nf`, `plan_exact`, `coordination_needed`, `coordinated_events_converge`, `copyback_zero_coordination`, `negation_one_coordinated` | #27 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
-
-Still in flight: gsm `EmbedCertified` executing the **certified tables** instead of live closures
-(gsm PR #27, open).
+| gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
 ### Qualifiers found
 
@@ -115,7 +113,7 @@ under "Qualifiers found" above.
 
 - **Today.** The convergence conditions are proven sufficient; necessity is shown by
   counterexamples (the paper's necessity results, the CC counterexamples, the C1 and C2
-  counterexamples). The general converse for C1 and C2 is in flight.
+  counterexamples). The general converse for C1 and C2 has since landed (#24).
 - **Target.** General converses for the single-registry CC condition and for causal delivery: if
   CC fails at a reachable state, two event orders diverge; if a non-commuting pair can arrive out of
   causal order, a divergent run exists.
@@ -163,6 +161,45 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 - **Done when.** gsm's federation report states that the federated composition is oracle-certified,
   with differential tests against the Go checks.
 
+### 6. Event order on monotone cycles is checked, not assumed
+
+**Status: open.** Surfaced by the post-roadmap docs sweep.
+
+- **Today.** On a monotone cyclic federation the exact condition for event interleavings is GC
+  (`cyc_events_converge_iff`), which is global, not per edge. Static C1 and C2 are proved sufficient
+  only for acyclic federations (`static_c1_c2_gc`). gsm runs its C1 and C2 checks on
+  `AllowMonotoneCycles` networks too, but nothing proves them sufficient there, and gsm does not
+  check GC. So a monotone cyclic federation gsm accepts has a unique normal form (the least fixed
+  point), but convergence of its event interleavings is not guaranteed by any check gsm runs.
+- **Target.** Either a cheap sufficient condition for cycles, proved in Coq (for example C1 and C2
+  over the iteration's visited states imply GC, or a counterexample showing they do not), or an exact
+  GC check in gsm for small federations with a size cap. In the meantime gsm's report should state
+  that event order on cycles is unchecked.
+- **Done when.** Either the theorem lands and gsm's cycle check matches it, or gsm checks GC (capped)
+  and reports it, with the `cyc_counterexample` latch federation as a regression test.
+
+### 7. Every result in the papers is mechanized
+
+**Status: open.** The papers prove several results that the Coq development does not yet state.
+First step: an audit mapping every theorem, lemma, proposition and corollary in the three `.tex`
+papers to its Coq counterpart, so the gap list is exact rather than inferred from the README. Known
+gaps from the README's [paper] markers:
+
+- **Necessity of acyclicity and of M1** (the federation paper's counterexamples, `prop:cycle-necessary`
+  and the M1 counterexample). No Coq theorem states them; `Cohomology.v`'s negation-orbits example is
+  related but not the same statement.
+- **The authority and resolution theorems as stated.** The mechanized order-independence and
+  retraction (`FederationOrder.v`, `Categorical.v`) cover their substance in a different form.
+- **The rest of the verification calculus**: strong absorption, decomposable repair and product
+  composition. Only the footprint-disjointness path is mechanized (`Gsm.v`).
+- **The complexity bound** on normalization.
+- **The necessity counterexamples as stated in the main paper.** Largely subsumed by the exact
+  converses (`cc_exact_from`, `jc_exact`), to be confirmed against the paper's specific examples.
+- **R1/R2 as the gluing axiom and the sheaf assembly over the full cover.** The gluing
+  counterexample is mechanized; the positive assembly is not.
+- **Done when.** Every numbered result in the papers has a named Coq theorem in the gate, except
+  results cited from the literature (group-feedback-edge-set complexity), which stay cited.
+
 ## Removable caveats, lower value
 
 - **Non-invertible cycles, mechanized criterion.** A global section around a cycle exists if and
@@ -176,6 +213,12 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 - **Cost of checking GC.** On a cycle the exact condition GC has no per-edge reduction, so a check
   enumerates reachable normal forms (or the image of `N`) and tests every independent pair. A
   cheaper sufficient check, or a bound on that exploration, is open.
+- **Authority root in gsm's plan.** `CoordinatedCycles.v` shows the normal form is unique only given
+  the authority root (`root_choice_matters`). gsm's `CoordinationPlan` cuts every cycle and reports no
+  root; the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md` is not implemented. When
+  it is, the plan must name its root.
+- **Synthesis.** gsm's `Registry.Synthesize` (exhaustive search for a convergent repair, or a witness
+  that none exists) is implemented but not mechanized.
 - **Rank of `H^1` on the full nerve.** The mechanized rank is for the graph (the nerve's
   1-skeleton). Triangles add relations that can lower it. Rarely matters in practice.
 - **Complexity results.** NP-hardness and fixed-parameter tractability of the minimum coordination
@@ -194,6 +237,7 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 ## Sequencing
 
 Items 1 to 4, the monotone-cycle event result and the C1/C2 converse have landed, so their theorem
-statements are fixed and item 5 can start. When item 5 lands, every remaining high-value caveat on
+statements are fixed and item 5 can start. Items 6 and 7 are independent of item 5 and of each
+other. When items 5 to 7 land, every remaining high-value caveat on
 this page is either a design exclusion (non-monotone cycles without coordination) or a fundamental
 limit; the lower-value items above remain open.
