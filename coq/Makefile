@@ -105,3 +105,9 @@ all: CoordinatedCycles.vo
 
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
+
+# rho* constructed from WFC and the base facts on it (RhoStar.v, WP1).
+all: RhoStar.vo
+
+RhoStar.vo: RhoStar.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Categorical.vo
+	coqc -Q . NC RhoStar.v
