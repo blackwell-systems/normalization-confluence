@@ -111,3 +111,15 @@ all: RhoStar.vo
 
 RhoStar.vo: RhoStar.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Categorical.vo
 	coqc -Q . NC RhoStar.v
+
+# Categorical bridge (CategoricalBridge.v).
+all: CategoricalBridge.vo
+
+CategoricalBridge.vo: CategoricalBridge.v Categorical.vo FederationOrder.vo
+	coqc -Q . NC CategoricalBridge.v
+
+# Event order on monotone cycles, checked per event (FederationEventsCyclesCheck.v).
+all: FederationEventsCyclesCheck.vo
+
+FederationEventsCyclesCheck.vo: FederationEventsCyclesCheck.v FederationEventsCycles.vo Federation.vo Trace.vo
+	coqc -Q . NC FederationEventsCyclesCheck.v
