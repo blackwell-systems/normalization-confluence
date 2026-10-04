@@ -151,8 +151,8 @@ using solvers and, in Hamsaz and Katara, machine-checked soundness for specific 
 Normalization confluence's distinction is not that capability but the shape of its guarantee: an
 axiom-free, end-to-end mechanized convergence theorem, a build-time exhaustive certification of a
 concrete machine, and an extracted oracle that re-checks the implementation independently of the Go
-that produced it. The claim to stake against this neighborhood is provenance of trust, not novelty
-of function.
+that produced it. The claim to stake against this neighborhood is both function (non-commutative,
+invariant-violating operations converge, proved by confluence) and provenance of trust.
 
 **Foundational method, and the precise instantiation.** Two older bodies of work are the method-roots,
 and naming them keeps the novelty claim precise. *Rewriting logic* (Meseguer; the Church-Rosser and
@@ -170,9 +170,17 @@ guarantees differ: self-stabilization converges from an arbitrary (faulted) stat
 a recovery property over executions, whereas NC's guarantee is order-independence of a fixed event
 set's application, a confluence property over orderings. So the precise placement is that NC inherits
 its confluence method from rewriting logic and its repair intuition from self-stabilization, and its
-own contribution is the synthesis: that method applied to coordination-free replicated convergence
-with non-commutative compensation, subsuming CRDTs and I-confluence, mechanized end to end, and
-extended to the federated cohomological obstruction.
+own contribution is the specialization: that method applied to coordination-free replicated
+convergence with non-commutative compensation, through the new conditions WFC and CC, with CC shown
+necessary by counterexample; a verification calculus that reduces CC to per-event-pair checks;
+CRDTs and I-confluence subsumed as the compensation-free floor; federation (the authority argument,
+resolution operators on acyclic networks, monotone repair on any topology, and the necessity of
+acyclicity and M1); the federation's normal forms as a limit, with compositionality as a corollary;
+the federated cohomological obstruction; and minimal coordination, where a cycle basis suffices (invertible fragment)
+and the exact minimum is a group feedback edge set number. The base theorem, the CRDT subsumption, the
+limit and compositionality core, and the cohomological criterion in the invertible fragment are
+mechanized end to end; the necessity results, the calculus beyond footprint disjointness, and the
+minimal-coordination complexity are paper-level.
 
 ## Related work for the cohomological layer
 
@@ -262,8 +270,9 @@ following. Labels refer to the companion paper,
    tuples of fundamental holonomies modulo simultaneous conjugation, with `|E| - |V| + 1`
    generators (`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`).
 
-These results sit on a convergence framework whose extracted, axiom-free checker re-certifies every
-machine gsm returns, in process. Scope: the cohomological classification is for the invertible
+These results sit on a convergence framework whose extracted, axiom-free checker re-certifies, in
+process, every registry machine gsm returns (from `Build`, `SynthesizeWith`, and `BuildCompositional`
+per footprint component; a federation's components are each built by `Build`). Scope: the cohomological classification is for the invertible
 fragment. At the paper level are `prop:gluing` itself and the sheaf assembly over the full cover,
 the rank on the nerve as a 2-complex (the triangle relations), the non-invertible case (where
 `thm:obstruction` is a fixed-point condition rather than group cohomology), and the cited
@@ -295,13 +304,16 @@ complexity results.
    business rule, allow the violation, repair deterministically.
 2. **A bridge between three fields.** Distributed convergence, term-rewriting confluence, and
    abstract-interpretation fixpoints are shown to be the same phenomenon under different names.
-3. **From folklore to guarantee.** Saga-style compensation gains a checkable condition (WFC + CC)
+3. **Where to coordinate: a cycle basis, not a global yes/no.** When a federation cannot converge
+   coordination-free, coordinating a cycle basis of its morphism network suffices (proved in the
+   invertible fragment), refining CALM and I-confluence from a global verdict into a localized one.
+4. **From folklore to guarantee.** Saga-style compensation gains a checkable condition (WFC + CC)
    and a machine-checked proof, so "our compensations converge" becomes something you verify at
    build time rather than hope for.
 
 ## Where it lives in a stack
 
-- **The theory**: the two papers in this repository, with a machine-checked Coq/Rocq proof in
+- **The theory**: the three papers in this repository, with a machine-checked Coq/Rocq proof in
   [`coq/`](coq) (axiom-free, CI-gated).
 - **The engine**: [`gsm`](https://github.com/blackwell-systems/gsm) verifies WFC and CC for a
   concrete registry at build time (globally, or per footprint component for large machines) and
