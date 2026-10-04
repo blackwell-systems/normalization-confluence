@@ -49,3 +49,6 @@
 1	astchecker	ast-min-range.machine	a minimum above 2^31-1 is outside the certified fragment
 2	astchecker	ast-literal-20digits.machine	more than 19 digits is not a Go int, so input error
 0	astchecker	ast-doc-example.machine	the format example in ast_main.ml parses and converges (it has no comment syntax to trip over)
+0	astchecker	ast-prefix-accept.machine	7161 states (3x7x11x31): the box of the first variable is enumerated over a shared suffix box, the last 16-state group is partial; convergent
+1	astchecker	ast-prefix-cc.machine	same box; resetting variable 1 does not commute with incrementing it
+1	astchecker	ast-prefix-wfc.machine	same box; the repair writes 2 where the invariant wants at most 1, so repair never ends
