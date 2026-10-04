@@ -273,6 +273,7 @@ Print Assumptions cg_len_map.
 Print Assumptions cg_len_seq.
 Print Assumptions bounded_ex_dec.
 Print Assumptions least_witness.
+Print Assumptions nodup_map_inj.
 Print Assumptions inj_bound.
 Print Assumptions loop_cons.
 Print Assumptions pre_succ.
@@ -340,8 +341,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 315 ]; then
-  echo "FAIL: expected 315 axiom-free results, got $N"
+if [ "$N" -lt 316 ]; then
+  echo "FAIL: expected 316 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

@@ -121,6 +121,17 @@ Proof.
   intros k Hk. exact (Gen k k (le_n k) Hk).
 Qed.
 
+Lemma nodup_map_inj :
+  forall (A B : Type) (f : A -> B) (l : list A),
+    NoDup l -> (forall a b, In a l -> In b l -> f a = f b -> a = b) -> NoDup (map f l).
+Proof.
+  intros A B f l Hnd. induction Hnd as [| x l Hx Hnd IH]; intro Hinj; simpl; [constructor |].
+  constructor.
+  - intro Hin. apply in_map_iff in Hin. destruct Hin as [y [Ey Hy]].
+    apply Hx. rewrite <- (Hinj y x (or_intror Hy) (or_introl eq_refl) Ey). exact Hy.
+  - apply IH. intros a b Ha Hb E. apply Hinj; [right; exact Ha | right; exact Hb | exact E].
+Qed.
+
 (* Pigeonhole: a map injective on [0, N] into a list needs at least N + 1 entries. *)
 Lemma inj_bound :
   forall (A : Type) (f : nat -> A) (l : list A) N,
@@ -129,7 +140,7 @@ Lemma inj_bound :
 Proof.
   intros A f l N Hinj Hin.
   assert (Hnd : NoDup (map f (seq 0 (S N)))).
-  { apply NoDup_map_NoDup_ForallPairs; [| apply seq_NoDup].
+  { apply nodup_map_inj; [apply seq_NoDup |].
     intros a b Ha Hb. apply in_seq in Ha. apply in_seq in Hb. apply Hinj; lia. }
   assert (Hinc : incl (map f (seq 0 (S N))) l).
   { intros y Hy. apply in_map_iff in Hy. destruct Hy as [k [<- Hk]]. apply in_seq in Hk.
