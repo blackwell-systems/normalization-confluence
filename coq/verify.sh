@@ -268,6 +268,34 @@ Print Assumptions copyback_without_authority.
 Print Assumptions root_choice_matters.
 Print Assumptions noninvertible_balance_not_static.
 Print Assumptions nonfree_holonomy_counterexample.
+Require Import NC.MonotoneFederation.
+Print Assumptions finite_complete_nn.
+Print Assumptions iter_below_prefixed.
+Print Assumptions fed_def_lattice_shared_cyclic_hyps.
+Print Assumptions net_sweep_valid.
+Print Assumptions net_iter_valid.
+Print Assumptions net_lfp_valid.
+Print Assumptions net_Ncyc_correct.
+Print Assumptions net_Ncyc_idem.
+Print Assumptions net_events_converge_iff.
+Print Assumptions b2_complete.
+Print Assumptions b2r_complete.
+Print Assumptions fed_thm_monotone_cycles_lfp_invalid.
+Print Assumptions fed_valid_corrected_instance.
+Print Assumptions fed_thm_monotone_cycles_events_refuted.
+Print Assumptions fed_thm_monotone_cycles_events_corrected.
+Print Assumptions negation_not_monotone.
+Print Assumptions w_complete_nn.
+Print Assumptions fed_thm_monotone_cycles_kleene_formula_fails.
+Print Assumptions kleene_sup_lfp.
+Print Assumptions kleene_sup_valid.
+Print Assumptions kleene_sup_instance.
+Print Assumptions widening_sound.
+Print Assumptions widening_not_normal_form.
+Print Assumptions fed_rem_convexity_refuted.
+Print Assumptions lfp_mono_param.
+Print Assumptions fed_rem_convexity_corrected.
+Print Assumptions convexity_corrected_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -278,8 +306,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 254 ]; then
-  echo "FAIL: expected 254 axiom-free results, got $N"
+if [ "$N" -lt 281 ]; then
+  echo "FAIL: expected 281 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
