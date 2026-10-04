@@ -4,6 +4,19 @@
 
 Research on coordination-free convergence in distributed systems through normalization confluence - a third structural regime alongside operation commutativity (CRDTs) and invariant confluence.
 
+**A complete, mechanized map of when governed concurrent state converges, with exact conditions in every regime and a checker for the practical ones.**
+
+Scope: discrete, deterministic governed state (continuous state is out of scope; see
+[LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md)). The exact conditions (JC for a single registry,
+CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable states,
+so checking them means exploring the reachable state space. The cheap sufficient conditions (CC for
+a registry, C1 and C2 for an acyclic federation) imply them, and they are what
+[gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check is re-certified by
+an oracle extracted from the proof; the federation-level checks are not yet, see
+[ROADMAP.md](ROADMAP.md) item 5). Non-monotone cycles converge only under a computed coordination,
+to a normal form that is unique given the authority root. These conditions, and the implications
+between them, are mechanized axiom-free in [`coq/`](coq) (254 theorems).
+
 **Dayna Blackwell** | dayna@blackwell-systems.com
 
 ---
@@ -22,7 +35,7 @@ New here? A few pointers orient you:
 - [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
 - [SUBSUMPTION.md](SUBSUMPTION.md): the machine-checked proof that, under causal delivery, op-based CRDTs are exactly the compensation-free fragment of normalization confluence, that state-based CRDTs embed as the semilattice case, and that the inclusion is strict.
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
-- [ROADMAP.md](ROADMAP.md): the remaining caveats, which are removable and how, and which are fundamental limits.
+- [ROADMAP.md](ROADMAP.md): the caveats removed so far (finite state, exactly-once delivery, sufficiency-only conditions, non-monotone cycles), the qualifiers found, what remains open, and which caveats are fundamental limits.
 - [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md): a forward-looking research note (nothing proven) mapping the discrete conditions to a continuous state space, WFC as a Lyapunov function and CC as contraction, with the convex-gradient sweet spot where the collapse survives and the multi-basin boundary where it provably does not.
 - [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm runs as an in-process, fail-closed gate: a checker over emitted step tables and a checker over the rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification. See [coq/extraction/](coq/extraction).
 
@@ -39,6 +52,12 @@ exact split.
    from compensation. Two new conditions, WFC and CC; CC is strictly weaker than operation
    commutativity and shown necessary by counterexample. Together they give convergence via Newman's
    lemma, with a complexity bound and a verification calculus that reduces CC to per-pair checks.
+   The condition is exact: with canonical repair, every configuration from a start has a unique
+   normal form iff CC holds on the states reachable from it, and for any enabledness the exact
+   condition is joinability of critical pairs at reachable configurations (JC). The WFC potential may
+   take values in any well-founded order, so the state space need not be finite; finiteness is only
+   what makes gsm's exhaustive check decidable. Duplicate delivery is absorbed for idempotent governed
+   steps and diverges otherwise.
    CRDTs embed as its compensation-free case, and the inclusion is strict. Under causal delivery,
    where only concurrent events must commute, convergence still holds and the compensation-free
    fragment is exactly the op-based CRDTs.
@@ -46,7 +65,10 @@ exact split.
      (`Newman.v`, `Governance.v`, `Defensibility.v`); the calculus's footprint-disjointness path
      (`Gsm.v`); the strict CRDT embedding (`CRDT.v`); convergence under causal delivery, standard
      op-based CRDTs, and the exactness theorem (`CausalReplay.v`), and the rewrite-system theorem
-     with CC1 only for co-enabled events (`GovernanceCausal.v`).
+     with CC1 only for co-enabled events (`GovernanceCausal.v`); WFC over any well-founded order,
+     with an infinite instance on `Z` (`GovernanceWF.v`); the exact converses `cc_exact_from`,
+     `jc_exact` and `causal_exact`, with counterexamples to the naive converses
+     (`GovernanceConverse.v`); at-least-once delivery (`AtLeastOnce.v`).
    - [paper] The necessity counterexamples, the complexity bound, and the rest of the calculus
      (strong absorption, decomposable repair, product composition).
 2. **Federations.** An authority argument and resolution operators give convergence on any acyclic
@@ -54,9 +76,17 @@ exact split.
    are a limit, so compositionality is a corollary; certificates form a sheaf whose gluing axiom is
    R1/R2; the obstruction on cycles is `H^1` holonomy. Coordinating a cycle basis suffices, the exact
    minimum is a group-feedback-edge-set number, and abelianized sizing is provably unsound (`S_3`).
+   Driving values along a spanning tree from an authority root, checking balanced non-tree edges and
+   coordinating unbalanced ones gives non-monotone cycles a normal form that is unique given the root.
+   Event interleavings across registries converge iff C1 and C2 hold at reachable witnesses (acyclic)
+   or the global condition GC holds (monotone cycles).
    - [mechanized] Order-independence and the retraction for arbitrary acyclic federations
      (`FederationOrder.v`, `Categorical.v`); the monotone least fixed point and chaotic iteration
-     (`Federation.v`, `Chaotic.v`); the limit (an equalizer) and compositionality in its fold-append
+     (`Federation.v`, `Chaotic.v`), and under the ascending chain condition instead of finite height
+     (`ChaoticACC.v`); event interleavings across registries, with C1 and C2 exact at reachable
+     witnesses and GC exact on monotone cycles (`FederationEvents.v`, `FederationEventsConverse.v`,
+     `FederationEventsCycles.v`); soundness of the coordination plan for non-monotone cycles
+     (`CoordinatedCycles.v`); the limit (an equalizer) and compositionality in its fold-append
      form (`Categorical.v`); the gluing counterexample; in the invertible fragment, the section
      criterion, the cycle-basis criterion, `H^1` as a quotient with `|E| - |V| + 1` generators, and
      the sufficiency of coordinating a cycle basis (`Cohomology.v`, `CohomologyGraph.v`); the `S_3`
@@ -96,7 +126,7 @@ Answers when a federation must coordinate at all, and how little coordination su
 
 **Files:**
 - `categorical_structure_of_federated_convergence.pdf` - Full paper
-- `categorical_structure_of_federated_convergence.tex` - LaTeX source (821 lines)
+- `categorical_structure_of_federated_convergence.tex` - LaTeX source (829 lines)
 
 ### Normalization Confluence in Federated Registry Networks
 
@@ -106,7 +136,7 @@ Answers when a federation must coordinate at all, and how little coordination su
 
 Extends normalization confluence to multi-organizational environments where registries are connected by morphisms encoding cross-organizational semantic constraints. For tree-shaped morphism networks (directed forests), proves federated convergence requires only validity preservation of the morphisms - all other conditions derive from network acyclicity via an authority argument: the source's unique normal form deterministically fixes the target's shared component. The tree restriction is then lifted to any acyclic network: multi-source targets carry a validity-preserving, source-determined resolution operator generalizing the authority function.
 
-Shows both conditions are necessary: acyclicity and validity preservation under shared-component overwrite (M1), each by counterexample. Removes the acyclicity requirement for monotone repair: when shared domains are lattices and repair is monotone, convergence holds on any network, including cycles (Knaster-Tarski, with order-independence as chaotic iteration). Proves compositional collapse: a convex, internally convergent sub-federation collapses to a single effective registry, so the outer network converges iff the collapsed one does. The single-registry base theorem, the monotone least fixed point, and chaotic-iteration convergence are mechanized axiom-free in [`coq/`](coq).
+Shows both conditions are necessary: acyclicity and validity preservation under shared-component overwrite (M1), each by counterexample. Removes the acyclicity requirement for monotone repair: when shared domains are lattices and repair is monotone, convergence holds on any network, including cycles (Knaster-Tarski, with order-independence as chaotic iteration). Proves compositional collapse: a convex, internally convergent sub-federation collapses to a single effective registry, so the outer network converges iff the collapsed one does. The single-registry base theorem, order-independence on acyclic networks, the monotone least fixed point, and chaotic-iteration convergence are mechanized axiom-free in [`coq/`](coq), together with event interleavings across registries and the coordinated non-monotone cycle.
 
 Includes self-contained treatment of single-registry model (governance rewrite system, convergence theorem via Newman's Lemma, necessity results, complexity analysis, and verification calculus).
 
@@ -185,7 +215,7 @@ Finally, when shared domains are ordered (lattices) and repair is **monotone**, 
 | Regime | Repair requirement | Permissible topologies | Convergence guarantee |
 |---|---|---|---|
 | **Monotone** | Monotone on a lattice order (join *or* meet); validity-preserving | **Any** — cyclic meshes, DAGs, trees | Least fixed point `lfp(⊥)` under any *fair* asynchronous order |
-| **Non-monotone** | May reverse the order (toggles, negation, cancellations); validity-preserving | **Acyclic only**; multi-source targets need resolution operators | Deterministic one-shot normal form; feedback loops structurally excluded |
+| **Non-monotone** | May reverse the order (toggles, negation, cancellations); validity-preserving | **Acyclic** coordination-free; multi-source targets need resolution operators. Cycles only with a computed coordination | Deterministic one-shot normal form; on a coordinated cycle, unique given the authority root (`CoordinatedCycles.v`) |
 
 Monotonicity and acyclicity are orthogonal — either alone suffices. Validity preservation is required in both. State-based CRDTs are the compensation-free special case of the monotone regime.
 

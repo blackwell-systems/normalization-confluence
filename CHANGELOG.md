@@ -16,9 +16,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   - `causal_tequiv`: causally consistent orders are trace-equivalent under concurrency, connecting causal delivery to `run_tequiv` in `Trace.v`.
 - `coq/GovernanceCausal.v`: `causal_governance_confluent`, the rewrite-system Convergence Theorem with compensation interleaving, with CC1 required only for distinct co-enabled events; witness `cw_confluent` / `cw_violates_all_pairs_cc1` satisfies the weakened hypothesis while violating the original (#19).
 - `coq/README.md`: section for the causal modules (#19).
+- `coq/FederationEvents.v`: convergence of event interleavings across registries in acyclic federations, local events on a target interleaving with propagation from its sources (#21).
+  - `fed_events_commute`, `fed_interleavings_converge`, `fed_permutations_converge`: per-registry conditions plus C1 (cross-registry CC) and C2 (repaired CC) give convergence up to swaps of independent events.
+  - `propagation_flush`, `dist_interleavings_converge`: the distributed model with propagation as separate steps; `xu_implies_c1_c2`.
+  - `audit_counterexample`, `c2_counterexample`: C1 and C2 are each needed; `supply_instance`, `supply_converges`: non-vacuity.
+- `ROADMAP.md`: the remaining caveats, split into removable (high and lower value) and fundamental limits, with approach and acceptance criterion for each (#22).
+- `coq/GovernanceWF.v`: the Convergence Theorem with WFC over an arbitrary well-founded order (`governance_wf_confluent`, `causal_governance_wf_confluent`), a lexicographic-product potential, compensation with no potential, the nat-valued theorems recovered as corollaries, and an infinite instance on `Z` (`zw_confluent`) (#23, roadmap item 1).
+- `coq/ChaoticACC.v`: chaotic iteration reaches the least fixed point under the ascending chain condition below it, with no rank (`chaotic_acc_reaches_lfp`); Kleene iteration under ACC stabilizes (`kleene_acc_lfp`); the finite-height theorems recovered; an ACC lattice with chains of every length and provably no rank into `nat` (`ole_no_rank`) (#23, roadmap item 1).
+- `coq/FederationEventsCycles.v`: event interleaving for monotone cyclic federations. `gc_iff`: the global condition GC (independent governed steps commute at every reachable state) holds iff all trace-equivalent sequences converge; gsm's `normalizeCyclic` modeled (`cyc_N_lfp`, `cyc_N_unique`, `cyc_events_converge_iff`); `cyc_instance`, `bottom_matters`, `cyc_counterexample` (#24).
+- `coq/FederationEventsConverse.v`: C1 and C2 are the exact check for acyclic federations at reachable witnesses (`fed_exact`, `fed_exact_full`, `acyclic_gc_iff`, `static_c1_c2_gc`); `naive_converse_fails`: static C1 fails yet every interleaving converges, so the converse needs reachable witnesses (#24).
+- `coq/AtLeastOnce.v`: convergence under at-least-once delivery (#25, roadmap item 2).
+  - `alo_absorbed`, `alo_commuting_exactly_once`, `alo_commuting_converges`: duplicates of idempotent governed steps are absorbed.
+  - `causal_alo_exactly_once`, `causal_alo_converges`: the causal case, with causally consistent redelivery.
+  - `non_idempotent_diverges`, `inc_duplicate_diverges`: a non-idempotent duplicate diverges; `late_duplicate_diverges`: the naive causal statement is false.
+- `coq/GovernanceConverse.v`: the converse of CC and of causal convergence (#26, roadmap item 3).
+  - `cc_exact_from`, `cc_exact`, `cc_exact_global`: unique normal forms iff CC on the reachable states, with canonical repair.
+  - `jc_exact`: for any enabledness, confluence iff the critical pairs are joinable at every reachable configuration (JC).
+  - `causal_exact`, `causal_convergence_exact`: causal convergence iff concurrent pairs commute after every causally consistent prefix (CCR).
+  - Counterexamples to the naive converses: `rho_star_qualifier`, `masked_cc1`, `naive_causal_converse_fails`.
+- `coq/CoordinatedCycles.v`: soundness of the holonomy-minimal coordination plan for non-monotone cycles (#27, roadmap item 4).
+  - `coordinated_sound`, `coordinated_unique_nf`: driving values along a spanning tree from an authority root, with balanced non-tree edges kept as checked constraints and unbalanced edges coordinated, gives a unique normal form given the root, reached by every topological order.
+  - `plan_exact`, `coordination_needed`, `coordinated_events_converge`.
+  - Instances `copyback_zero_coordination` and `negation_one_coordinated`; counterexamples to the naive statement `copyback_without_authority`, `root_choice_matters`, `noninvertible_balance_not_static`, `nonfree_holonomy_counterexample`.
+- `coq/README.md`: sections for each new module (#21, #23, #24, #25, #26, #27).
 
 ### Changed
 - Axiom-free gate raised from 112 to 125 theorems, checked on Coq 8.18, Coq 8.20 and Rocq 9.3 (#19).
+- Axiom-free gate raised from 125 to 135 theorems (#21).
+- Axiom-free gate raised from 135 to 254 theorems: 166 (#23), 189 (#24), 205 (#25), 232 (#26), 254 (#27).
+- `REGIMES.md`: causal-delivery regime row and paragraph; `CATEGORICAL-STRUCTURE.md` and the categorical paper cite the causal results (#20).
+- Docs sweep after roadmap items 1 to 4: `README.md` (one-line claim and scope, What's new), `ROADMAP.md` (items 1 to 4 done, qualifiers, new open questions), `REGIMES.md`, `SUBSUMPTION.md`, `LANDSCAPE.md`, `CATEGORICAL-STRUCTURE.md`, `COMPANION-OUTLINE.md` and `coq/README.md` updated to the exact conditions and the 254-theorem gate.
 - `SUBSUMPTION.md`: op-based CRDTs are now proven to be exactly the compensation-free fragment under causal delivery, with a new section on causal delivery (#19).
 - `README.md` updated to match, including the "What's new here" item for the first paper (#19).
 - `coq/README.md`: gated theorem count updated from 112 to 125 (#19).
