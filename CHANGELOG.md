@@ -20,7 +20,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ### Changed
 - Axiom-free gate raised from 112 to 125 theorems, checked on Coq 8.18, Coq 8.20 and Rocq 9.3 (#19).
 - `SUBSUMPTION.md`: op-based CRDTs are now proven to be exactly the compensation-free fragment under causal delivery, with a new section on causal delivery (#19).
-- `README.md` updated to match (#19).
+- `README.md` updated to match, including the "What's new here" item for the first paper (#19).
+- `coq/README.md`: gated theorem count updated from 112 to 125 (#19).
 
 ### Fixed
 - `LANDSCAPE.md`: corrected the placement of I-confluence. Its replay-convergent part is exactly the op-based CRDTs; non-commuting I-confluent systems converge by merge, outside the replay model (#19).
@@ -28,9 +29,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## 2026-10-04
 
 ### Added
+- `README.md`: "What's new here" section, each item marked [mechanized], [paper] or [implemented]; the categorical paper added as a third publication; necessity, monotone cycles, compositional collapse and mechanization added to the federated paper's entry (#18).
 - `LANDSCAPE.md`: "Related work for the cohomological layer" section (graph fundamental groups, gain-graph and signed-graph balance, cohomology of global-section obstructions, topology in distributed computing, cycle consistency and group synchronization, applied sheaf theory, related formalizations) (#17).
 
 ### Changed
+- `LANDSCAPE.md`: expanded contribution list, "Where to coordinate: a cycle basis" added, three papers listed (#18).
+- `coq/README.md`: Rocq 9.3 noted as CI-gated; gated theorem count corrected to 112 (#18).
+- `README.md`: the oracle bullet now describes gsm's in-process, fail-closed oracle gate, scoped to `Build`, `SynthesizeWith` and `BuildCompositional`; `.tex` line counts corrected (#18).
 - `CATEGORICAL-STRUCTURE.md` 10 and 10.1: related-work pointer, open items updated to match `coq/CohomologyGraph.v`, and contribution wording that credits the graph topology and balance criterion as classical (#17).
 
 ## 2026-10-03

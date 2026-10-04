@@ -38,10 +38,14 @@ exact split.
    from compensation. Two new conditions, WFC and CC; CC is strictly weaker than operation
    commutativity and shown necessary by counterexample. Together they give convergence via Newman's
    lemma, with a complexity bound and a verification calculus that reduces CC to per-pair checks.
-   CRDTs embed as its compensation-free case, and the inclusion is strict.
+   CRDTs embed as its compensation-free case, and the inclusion is strict. Under causal delivery,
+   where only concurrent events must commute, convergence still holds and the compensation-free
+   fragment is exactly the op-based CRDTs.
    - [mechanized] Newman's lemma and the convergence theorem, with a non-vacuity instance
      (`Newman.v`, `Governance.v`, `Defensibility.v`); the calculus's footprint-disjointness path
-     (`Gsm.v`); the strict CRDT embedding (`CRDT.v`).
+     (`Gsm.v`); the strict CRDT embedding (`CRDT.v`); convergence under causal delivery, standard
+     op-based CRDTs, and the exactness theorem (`CausalReplay.v`), and the rewrite-system theorem
+     with CC1 only for co-enabled events (`GovernanceCausal.v`).
    - [paper] The necessity counterexamples, the complexity bound, and the rest of the calculus
      (strong absorption, decomposable repair, product composition).
 2. **Federations.** An authority argument and resolution operators give convergence on any acyclic
