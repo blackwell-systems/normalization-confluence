@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents NC.GovernanceWF NC.ChaoticACC.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal NC.FederationEvents NC.GovernanceWF NC.ChaoticACC NC.FederationEventsCycles NC.FederationEventsConverse.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -178,6 +178,29 @@ Print Assumptions ple_no_rank.
 Print Assumptions pl_chaotic_reaches_lfp.
 Print Assumptions pl_chaotic_from_bot.
 Print Assumptions pl_kleene_lfp_value.
+Print Assumptions gc_sufficient.
+Print Assumptions gc_necessary.
+Print Assumptions gc_iff.
+Print Assumptions gc_image.
+Print Assumptions cyc_N_lfp.
+Print Assumptions cyc_N_unique.
+Print Assumptions cyc_sweep_order_independent.
+Print Assumptions cyc_N_idem.
+Print Assumptions cyc_events_converge_iff.
+Print Assumptions cyc_instance.
+Print Assumptions bottom_matters.
+Print Assumptions cyc_counterexample.
+Print Assumptions conv_c1_runs.
+Print Assumptions conv_c2_runs.
+Print Assumptions conv_c1_diverge.
+Print Assumptions conv_c2_diverge.
+Print Assumptions reach_commute_iff.
+Print Assumptions acyclic_gc_iff.
+Print Assumptions gc_iff_reach.
+Print Assumptions fed_exact.
+Print Assumptions fed_exact_full.
+Print Assumptions static_c1_c2_gc.
+Print Assumptions naive_converse_fails.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -188,8 +211,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 166 ]; then
-  echo "FAIL: expected 166 axiom-free results, got $N"
+if [ "$N" -lt 189 ]; then
+  echo "FAIL: expected 189 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

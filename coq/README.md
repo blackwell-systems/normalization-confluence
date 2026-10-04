@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 135 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 135 headline results (among them the single-registry
+Expected tail: `PASS: all 189 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 158 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -35,7 +35,8 @@ the general acyclic fold operator's retraction and image characterization, the c
 fold-append theorem, and the four cohomological-layer results: the gluing counterexample, the
 completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
 identity-settles and negation-orbits witnesses, plus the ten cross-registry event-interleaving results
-of `FederationEvents.v`) and fails if any of them depends on an axiom or an
+of `FederationEvents.v`, the twelve monotone-cycle results of `FederationEventsCycles.v` and the eleven
+exactness results of `FederationEventsConverse.v`) and fails if any of them depends on an axiom or an
 admitted lemma.
 
 ## What is proven
@@ -464,7 +465,78 @@ Results:
   both models (non-vacuity), whose target event writes a shared variable, so the stronger form
   without the final repair (`Candidate`) fails there although the federation converges.
 
-Cyclic (`AllowMonotoneCycles`) networks are out of scope: the proof uses the topological order.
+Cyclic (`AllowMonotoneCycles`) networks are not covered by this file (the proof uses the
+topological order); see the next section.
+
+### Monotone cycles and the exact converse (`FederationEventsCycles.v`, `FederationEventsConverse.v`)
+
+**The global condition.** For any federated normalizer `N`, a governed event step is
+`step e = N o (apply e)` (`FedMachine.Apply`). Call two events independent when they are on
+different registries or declared independent on one registry. The global condition `GC s0` says:
+for every state `s` reachable from `s0` by governed steps and every independent pair `a`, `b`,
+`step a (step b s) = step b (step a s)`, i.e. the events commute after full re-normalization on
+reachable federated states. `gc_iff`: `GC s0` holds iff every two trace-equivalent event sequences
+reach the same state from `s0` (sufficiency is `Trace.run_tequiv` over the reachable set; necessity
+takes the one-swap pair at the failing state). So it is the exact condition, not only a sufficient
+one. `gc_image` is the variant over the whole image of `N` (every normalized state), for a check
+without a fixed start.
+
+**Monotone cycles.** The model follows gsm's `normalizeCyclic`: a federated state is (locals,
+shared values); phase 1 normalizes each component; every shared variable is reset to bottom; targets
+are repaired in sweeps until a sweep changes nothing, at most `kleeneCap` rounds. The hypotheses are
+those of `Chaotic.v` (inflationary and soundness-preserving coordinate updates, no change means
+`F`-fixed) plus monotone coordinate updates on a finite-height lattice, i.e. what
+`verifyMonotoneVisited` checks over every state the iteration visits (valid locals with any shared
+values). Results:
+
+- `cyc_N_lfp`, `cyc_N_unique`, `cyc_sweep_order_independent`: the normalizer returns the least fixed
+  point of the repair for the phase-1 locals, the only one, whatever the sweep order; the cap is
+  provably never reached when it exceeds the lattice height.
+- `cyc_N_idem`: the normalizer is idempotent, given that phase 1 fixes valid states and the least
+  fixed point is valid (gsm checks image validity at Build and panics on an invalid fixed point).
+- `cyc_events_converge_iff`: on a monotone cyclic federation, event interleavings from `s0`
+  converge exactly when `GC s0` holds. Events may read shared values (feedback through the cycle).
+- `cyc_instance` (non-vacuity): a two-registry cycle (A's shared flag fed by B, B's by A) with raise
+  and clear events on both registries; every hypothesis is discharged, the least fixed point is
+  computed, and all interleavings converge from every start. `bottom_matters`: on that cycle a
+  non-least fixed point exists, which is why per-edge reasoning (unique solution along a
+  topological order) does not transfer and iteration from bottom is required.
+- `cyc_counterexample`: the same cycle with `LatchA`, which copies A's shared flag (fed by B) into
+  A's local alarm. `GC` fails at the start, and `LatchA; RaiseB` and `RaiseB; LatchA`, one allowed
+  swap apart, end in different federated states.
+
+**Acyclic case: C1 and C2 are the exact check.** For the acyclic machine of `FederationEvents.v`:
+
+- `conv_c1_runs`, `conv_c2_runs`: the witness equations are runs. From a reachable state `s`, with
+  `w` a sequence of events on registries other than `j = reg e` and `z` the state after `w`,
+  `run (e :: w)` leaves `ow_z (e b)` on `j` and `run (w ++ [e])` leaves `ow_z (e (ow_z b))`, the
+  two sides of C1 at `(e, z, z' = s, b = s j)`; `run [e1; e2]` leaves the left side of C2 at
+  `(z = s, b = s j)`.
+- `conv_c1_diverge`, `conv_c2_diverge`: a C1 or C2 failure at a witness realized by a reachable
+  state is an observable divergence of trace-equivalent sequences (C2: one allowed swap; C1: moving
+  `e` past `w`).
+- `reach_commute_iff`: at a reachable state, two independent events commute iff their C1 instances
+  (different registries) or C2 instance (same registry) hold there.
+- `fed_exact`, `fed_exact_full`, `gc_iff_reach`, `acyclic_gc_iff`: from a valid consistent start
+  `s0`, all trace-equivalent sequences converge iff `GC s0` iff C1 and C2 hold at the witnesses
+  reachable from `s0` (C1 with one intervening event already suffices; any number is equivalent).
+- `static_c1_c2_gc`: static C1 + C2 imply `GC s0` and its reachable restriction, so
+  `C1 /\ C2 -> reachable C1 /\ reachable C2 <-> GC <-> convergence`.
+- `naive_converse_fails`: "C1 fails, so some interleavings diverge" is false. A manufacturer event
+  that only bumps a counter and a supplier `sell` guarded on the shared listed flag violate C1, the
+  failing witness's target and source state occur together in a valid consistent start, and still
+  every interleaving from every valid consistent start converges: no run moves the source from
+  `z'` to `z`. The exact converse must quantify over reachable witnesses. For C2 the witness is a
+  single pair `(z, b)`, and the converse applies whenever some valid consistent state realizes it
+  (for example in a two-registry federation whose source has no repair).
+
+**Not covered.** Non-monotone cycles remain excluded by design: their repair has no unique normal
+form reached from bottom, so there is nothing for events to commute after; gsm routes them to
+coordination. The distributed model (explicit propagation steps) is not extended to cycles. The
+global condition is exact but semantic: on a cycle there is no per-edge reduction, so checking it
+means enumerating reachable normal forms (or the image of `N`) and testing every independent pair,
+not the per-edge C1/C2 enumeration gsm runs for acyclic networks. Static C1 and C2 remain
+over-approximations (sufficient, and necessary only at reachable witnesses).
 
 ## Finiteness only for checking (`GovernanceWF.v`, `ChaoticACC.v`)
 
@@ -689,7 +761,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 135 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 189 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -701,7 +773,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 135
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 158
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
