@@ -11,9 +11,11 @@ Scope: discrete, deterministic governed state (continuous state is out of scope;
 CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable states,
 so checking them means exploring the reachable state space. The cheap sufficient conditions (CC for
 a registry, C1 and C2 for an acyclic federation) imply them, and they are what
-[gsm](https://github.com/blackwell-systems/gsm) checks. Non-monotone cycles converge only under a
-computed coordination, to a normal form that is unique given the authority root. All of it is
-mechanized axiom-free in [`coq/`](coq) (254 theorems).
+[gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check is re-certified by
+an oracle extracted from the proof; the federation-level checks are not yet, see
+[ROADMAP.md](ROADMAP.md) item 5). Non-monotone cycles converge only under a computed coordination,
+to a normal form that is unique given the authority root. These conditions, and the implications
+between them, are mechanized axiom-free in [`coq/`](coq) (254 theorems).
 
 **Dayna Blackwell** | dayna@blackwell-systems.com
 
