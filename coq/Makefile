@@ -111,3 +111,27 @@ all: Stream.vo
 
 Stream.vo: Stream.v Newman.vo GovernanceCausal.vo GovernanceWF.vo
 	coqc -Q . NC Stream.v
+
+# The papers' concrete examples (PaperInstances.v).
+all: PaperInstances.vo
+
+PaperInstances.vo: PaperInstances.v Newman.vo Governance.vo GovernanceConverse.vo FederationEvents.vo Trace.vo
+	coqc -Q . NC PaperInstances.v
+
+# rho* constructed from WFC and the base facts on it (RhoStar.v, WP1).
+all: RhoStar.vo
+
+RhoStar.vo: RhoStar.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Categorical.vo
+	coqc -Q . NC RhoStar.v
+
+# Categorical bridge (CategoricalBridge.v).
+all: CategoricalBridge.vo
+
+CategoricalBridge.vo: CategoricalBridge.v Categorical.vo FederationOrder.vo
+	coqc -Q . NC CategoricalBridge.v
+
+# Event order on monotone cycles, checked per event (FederationEventsCyclesCheck.v).
+all: FederationEventsCyclesCheck.vo
+
+FederationEventsCyclesCheck.vo: FederationEventsCyclesCheck.v FederationEventsCycles.vo Federation.vo Trace.vo
+	coqc -Q . NC FederationEventsCyclesCheck.v
