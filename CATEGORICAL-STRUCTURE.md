@@ -352,9 +352,10 @@ gluing axiom validates the existing federation design. The obstruction for cycle
 composite's failure to have a reachable fixed point, computable over the shared subspace and
 genuinely Cech `H^1` in the invertible case; the practical loop-composite diagnostic is implemented
 in gsm as `Federation.DiagnoseCycle` (it names the offending cycle and reports whether the loop
-repair settles or orbits from a representative seed). What remains open is the cohomology-proper
-classification, computing the `H^1` class itself in the invertible case and its non-abelian
-analogue in general, rather than the reachable-fixed-point test.
+repair settles or orbits from a representative seed). The cohomology-proper classification, the
+`H^1` class itself in the invertible case, abelian or not, is now mechanized on the nerve's
+1-skeleton (10.1, `coq/CohomologyGraph.v`); what remains open is its refinement on the nerve as a
+2-complex and an analogue for non-invertible transitions beyond the reachable-fixed-point test.
 
 ### 10.1 The completion: `H^0`, `H^1`, and the two routes to convergence
 
@@ -414,7 +415,25 @@ fixed-point condition already established.
 with an explicit cycle-basis of generators (a sufficient set of loops to fix) and a Betti-number rank;
 the vanishing of `H^1` and the monotone least-fixed-point are the two categorical routes to
 convergence, recovering gsm's stated dichotomy as one picture. Proven here for the invertible/torsor
-fragment; open beyond it is the non-abelian obstruction and mechanization.
+fragment, and mechanized axiom-free on an arbitrary finite group-labeled graph, abelian or not
+(`coq/CohomologyGraph.v`); open beyond it are the rank on the nerve as a 2-complex (the triangle
+relations) and the non-invertible case.
+
+**Related work.** Fundamental groups of graphs (Hatcher, *Algebraic Topology*, 2002, Proposition
+1A.2); balance of gain graphs (Zaslavsky, *J. Combin. Theory Ser. B* 47, 1989, Lemma 5.3) and of
+signed graphs (Harary, 1953); cohomology of global-section obstructions (Abramsky and Brandenburger,
+2011; Abramsky, Mansfield and Barbosa, 2012); topology in distributed computing (Herlihy and Shavit,
+1999); cycle consistency and group synchronization (Singer, 2011); and applied sheaf theory (Goguen,
+1992; Ghrist, 2014; Robinson, 2017). The graph topology and the balance criterion are classical
+(Hatcher; Harary; Zaslavsky). What this note contributes on that base: sections as convergence
+certificates of normalizers, with the resolver conditions R1/R2 as the gluing axiom (section 10; the
+gluing counterexample is mechanized); the obstruction theorem for cyclic federations, a loop
+composite with a reachable fixed point (section 10, implemented as gsm's `Federation.DiagnoseCycle`);
+minimal coordination, where a cycle basis suffices and the exact minimum is a group feedback edge
+set number (10.2, 10.3); the `S_3` separation showing that abelianized sizing is unsound (10.3,
+mechanized); and the axiom-free mechanization of the criterion and the classification in the
+invertible fragment. Full citations, related formalizations in Lean, and the contribution list with
+its scope are in [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-cohomological-layer).
 
 ### 10.2 Minimal coordination: eventual versus strong consistency
 
