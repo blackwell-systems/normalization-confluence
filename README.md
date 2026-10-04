@@ -22,6 +22,7 @@ New here? A few pointers orient you:
 - [LANDSCAPE.md](LANDSCAPE.md): where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes.
 - [SUBSUMPTION.md](SUBSUMPTION.md): the machine-checked proof that, under causal delivery, op-based CRDTs are exactly the compensation-free fragment of normalization confluence, that state-based CRDTs embed as the semilattice case, and that the inclusion is strict.
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
+- [ROADMAP.md](ROADMAP.md): the remaining caveats, which are removable and how, and which are fundamental limits.
 - [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md): a forward-looking research note (nothing proven) mapping the discrete conditions to a continuous state space, WFC as a Lyapunov function and CC as contraction, with the convex-gradient sweet spot where the collapse survives and the multi-basin boundary where it provably does not.
 - [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm runs as an in-process, fail-closed gate: a checker over emitted step tables and a checker over the rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification. See [coq/extraction/](coq/extraction).
 
