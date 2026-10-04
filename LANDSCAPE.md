@@ -80,10 +80,15 @@ I if and only if it is I-confluent*: the operations preserve I and merges of I-v
 I-valid. This is a necessary-and-sufficient characterization for the case where operations never
 drive the state invalid. In NC's terms an I-confluent operation set is a machine that is
 **compensation-free with a nontrivial invariant**: repair never fires because the invariant is
-never violated (max repair depth 0). That puts I-confluence, alongside CRDTs, on NC's floor: CRDTs
-are the compensation-free fragment reached by commutativity, I-confluence the compensation-free
-fragment reached by invariant preservation, and both are the same "repair never needed" corner that
-`compensationFree` decides (machine-checked).
+never violated (max repair depth 0). That puts I-confluence on NC's floor, next to CRDTs, with one
+distinction that matters. In NC's replay model, compensation-free convergence is exactly the
+op-based CRDTs: under causal delivery, a compensation-free system converges iff its concurrent
+operations commute (`compensation_free_exact`, machine-checked). An I-confluent operation set whose
+operations also commute is therefore in that fragment. One whose operations do not commute converges
+by *merging* divergent states, a different mechanism that NC's replay model does not use. So the
+floor is "repair never needed" (which `compensationFree` decides), its replay-convergent part is
+exactly the op-based CRDTs, and I-confluence reaches the rest of it through merge rather than
+replay.
 
 **Where compensation adds reach.** NC's own contribution is the region *above* that floor:
 operations that DO violate the invariant, made convergent by a repair that terminates (WFC) and

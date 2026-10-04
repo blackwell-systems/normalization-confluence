@@ -5,10 +5,13 @@ conflict-free replicated data types (CRDTs) and normalization confluence. The cl
 scoped:
 
 > As a convergence mechanism, every CRDT is a governed state machine whose operations were designed
-> so that compensation is never needed. Normalization confluence keeps the convergence guarantee
-> after dropping that restriction, and the inclusion is strict.
+> so that compensation is never needed. Under causal delivery the compensation-free fragment of
+> normalization confluence is EXACTLY the op-based CRDTs, state-based CRDTs embed as the
+> semilattice case, and the inclusion is strict.
 
-Everything below is mechanized in `coq/CRDT.v`, axiom-free, and gated by `coq/verify.sh`.
+Everything below is mechanized axiom-free and gated by `coq/verify.sh`: the all-pairs results in
+`coq/CRDT.v`, and the causal results (standard op-based CRDTs, exactness, the bridge to trace
+equivalence, and the rewrite-system theorem) in `coq/CausalReplay.v` and `coq/GovernanceCausal.v`.
 
 ## Background in one paragraph
 
@@ -66,6 +69,39 @@ compensation resets to `false`. Three facts are proven:
 
 The machine converges only because compensation repairs the violation. No CRDT can represent it.
 
+## Causal delivery and exactness (`CausalReplay.v`, `GovernanceCausal.v`)
+
+The results above use the strong op-based definition: every pair of operations commutes, in every
+order. The literature's op-based CRDTs only require *concurrent* operations to commute, because
+delivery is causal: an operation is applied after the operations it depends on. Read against that
+definition, the all-pairs results would cover only part of the class. The causal results close the
+gap.
+
+- `causal_convergence`: if governed steps commute for every **concurrent** pair, any two causally
+  consistent delivery orders of the same events reach the same state. Causally ordered pairs never
+  need to commute.
+- `causal_cmrdt_SEC`: standard op-based CRDTs (concurrent operations commute, causal delivery)
+  converge, as an instance.
+- `compensation_free_exact`: for a compensation-free system (normalization is the identity), the
+  causal convergence condition holds **if and only if** the system is an op-based CRDT. With the
+  embedding, the compensation-free fragment is exactly the op-based CRDTs.
+- `witness_causal_not_cmrdt`: strictness under causal delivery. A governed system that converges
+  but is not an op-based CRDT.
+- `witness_beyond_all_pairs`: new reach. A system whose operations do not all commute (an add, a
+  causally later remove, and an independent counter), which the all-pairs results cannot cover, but
+  which converges under causal delivery.
+- `causal_tequiv`: any two causally consistent orders are trace-equivalent under concurrency. This
+  connects causal delivery to `Trace.v`'s `run_tequiv`, the theorem behind gsm's declared
+  `Independent` pairs.
+- `causal_governance_confluent` (`GovernanceCausal.v`): the full rewrite-system Convergence
+  Theorem, with compensation interleaving, holds with CC1 required only for distinct events that
+  are enabled together. Under causal delivery, causally ordered events are never enabled together.
+  The witness `cw_confluent` / `cw_violates_all_pairs_cc1` satisfies the weakened hypothesis while
+  violating the original one.
+
+All of these use the bubbling argument (an event is moved to the front past concurrent events), so
+the connectivity of linear extensions is never assumed.
+
 ## What this claim does not say
 
 The result is about the convergence principle, not about CRDT engineering as a whole. CRDTs also
@@ -73,7 +109,9 @@ address concerns this theorem does not subsume:
 
 - duplicate delivery via idempotence (captured for the CvRDT case as
   `cvrdt_absorbs_duplicates`, not assumed in general),
-- causal delivery and the metadata that enforces it (version vectors, dotted contexts),
+- the metadata that enforces causal delivery (version vectors, dotted contexts). The convergence
+  principle *under* causal delivery is covered (`CausalReplay.v`); how a system achieves causal
+  delivery is not,
 - garbage collection of tombstones and history.
 
 The defensible statement is the one at the top: as a way to *guarantee convergence*, a CRDT is a
@@ -84,5 +122,7 @@ convergent governed machines that are no CRDT. "CRDTs are obsolete" is neither c
 
 - `coq/CRDT.v`: the four results above, axiom-free.
 - `coq/Checker.v`: `run_perm_invariant`, the order-independence lemma every part reuses.
-- `coq/verify.sh`: gates on `cmrdt_SEC`, `cmrdt_governed_SEC`, `cvrdt_SEC`, `witness_converges`,
-  `witness_not_cmrdt`, and `witness_leaves_valid_space` being `Closed under the global context`.
+- `coq/CausalReplay.v`: causal convergence, standard op-based CRDTs, exactness, the causal
+  witnesses, and the bridge to trace equivalence.
+- `coq/GovernanceCausal.v`: the rewrite-system Convergence Theorem under causal delivery.
+- `coq/verify.sh`: gates on all of the above being `Closed under the global context`.

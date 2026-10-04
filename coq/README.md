@@ -393,8 +393,30 @@ after dropping that restriction. Four results, all axiom-free:
   the violation.
 
 The claim is scoped to the convergence principle, not to CRDT engineering as a whole: version
-vectors, causal delivery, and garbage collection are operational concerns this result does not
-subsume. See `../SUBSUMPTION.md` for the full statement and caveats.
+vectors, the mechanisms that achieve causal delivery, and garbage collection are operational
+concerns this result does not subsume. See `../SUBSUMPTION.md` for the full statement and caveats.
+
+## Causal delivery (`CausalReplay.v`, `GovernanceCausal.v`)
+
+The results above require every pair of events to commute. Under causal delivery only
+**concurrent** events (neither happened before the other) can arrive in either order, so only they
+need to commute. Axiom-free:
+
+- `causal_convergence`: governed steps that commute for every concurrent pair make any two causally
+  consistent delivery orders of the same events reach the same state.
+- `causal_cmrdt_SEC`: standard op-based CRDTs (concurrent operations commute) converge.
+- `compensation_free_exact`: a compensation-free system satisfies the causal condition iff it is an
+  op-based CRDT, so the compensation-free fragment is exactly the op-based CRDTs.
+- `witness_causal_not_cmrdt` (strictness) and `witness_beyond_all_pairs` (an add, a causally later
+  remove, and an independent counter: not all operations commute, yet the system converges).
+- `causal_tequiv`: causally consistent orders are trace-equivalent under concurrency, connecting
+  causal delivery to `Trace.v`'s `run_tequiv`.
+- `causal_governance_confluent` (`GovernanceCausal.v`): the rewrite-system Convergence Theorem with
+  CC1 required only for distinct events enabled together; the witness `cw_confluent` /
+  `cw_violates_all_pairs_cc1` meets the weakened hypothesis and violates the original.
+
+Each ordering proof bubbles an event to the front past concurrent events, so the connectivity of
+linear extensions is never assumed.
 
 ## Categorical core (`Categorical.v`)
 

@@ -11,7 +11,7 @@ make
 
 echo "== axiom-free gate (Print Assumptions) =="
 cat > _audit.v <<'EOF'
-Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder.
+Require Import NC.Newman NC.Governance NC.Defensibility NC.Gsm NC.Federation NC.Chaotic NC.Checker NC.Trace NC.TableCheck NC.TableFast NC.TableFn NC.AstChecker NC.AstTables NC.AstCompact NC.CRDT NC.Categorical NC.Cohomology NC.CohomologyMin NC.CohomologyGraph NC.FederationOrder NC.CausalReplay NC.GovernanceCausal.
 Print Assumptions governance_confluent.
 Print Assumptions governance_unique_normal_forms.
 Print Assumptions example_confluent.
@@ -124,6 +124,19 @@ Print Assumptions step_comm.
 Print Assumptions bubble.
 Print Assumptions order_independent.
 Print Assumptions ex_orders_agree.
+Print Assumptions causal_convergence.
+Print Assumptions causal_cmrdt_SEC.
+Print Assumptions compensation_free_exact.
+Print Assumptions witness_causal_converges.
+Print Assumptions witness_causal_not_cmrdt.
+Print Assumptions witness_beyond_all_pairs.
+Print Assumptions witness_orders_agree.
+Print Assumptions tequiv_bubble.
+Print Assumptions causal_tequiv.
+Print Assumptions causal_governance_confluent.
+Print Assumptions causal_governance_unique_normal_forms.
+Print Assumptions cw_confluent.
+Print Assumptions cw_violates_all_pairs_cc1.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -134,8 +147,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 112 ]; then
-  echo "FAIL: expected 112 axiom-free results, got $N"
+if [ "$N" -lt 125 ]; then
+  echo "FAIL: expected 125 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
