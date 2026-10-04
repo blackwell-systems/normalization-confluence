@@ -21,3 +21,4 @@ CohomologyGraph.v
 FederationOrder.v
 CausalReplay.v
 GovernanceCausal.v
+FederationEvents.v

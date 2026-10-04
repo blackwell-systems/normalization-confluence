@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 125 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 125 headline results (among them the single-registry
+Expected tail: `PASS: all 135 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 135 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -34,7 +34,8 @@ federated operator's retraction and image characterization, the order-independen
 the general acyclic fold operator's retraction and image characterization, the compositionality
 fold-append theorem, and the four cohomological-layer results: the gluing counterexample, the
 completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
-identity-settles and negation-orbits witnesses) and fails if any of them depends on an axiom or an
+identity-settles and negation-orbits witnesses, plus the ten cross-registry event-interleaving results
+of `FederationEvents.v`) and fails if any of them depends on an axiom or an
 admitted lemma.
 
 ## What is proven
@@ -418,6 +419,53 @@ need to commute. Axiom-free:
 Each ordering proof bubbles an event to the front past concurrent events, so the connectivity of
 linear extensions is never assumed.
 
+## Event interleavings across registries (`FederationEvents.v`)
+
+The federated results above fix the order in which the normalizer visits registries. They do not
+cover local events on a target registry interleaving with changes propagated from its sources,
+and those can diverge even when every registry converges, every morphism satisfies M1 and the
+network is acyclic: a target event that reads a variable the morphism overwrites sees a different
+value depending on whether a source event was propagated first. `FederationEvents.v` closes this
+for acyclic federations (single-source morphisms and multi-source resolvers alike), axiom-free.
+
+Model: a federated state gives every registry its state; `N` is gsm's `FedMachine.Normalize`
+(normalize each component, then repair each registry in topological order with its morphism
+image), and `applyF e` is `FedMachine.Apply` (component step, then `N`). Write `ow_z x` for the
+repair of `x` from source states `z`, and call `x` consistent when its shared part is an image
+(`x = ow_z' x` for valid `z'`). Two conditions on each registry's events:
+
+- **C1 (cross-registry CC)**: for every event `e`, all valid source states `z`, `z'` and every
+  valid `b` consistent with `z'`: `ow_z (e (ow_z b)) = ow_z (e b)`. The repair is on both sides,
+  so an event that only writes a shared variable (overwritten by the source, as
+  `FedMachine.Apply` documents) passes. This is the check gsm runs.
+- **C2 (repaired CC)**: for declared-independent events `e1`, `e2` of one registry and `b`
+  consistent with `z`: `ow_z (e2 (ow_z (e1 b))) = ow_z (e1 (ow_z (e2 b)))`. For a source registry
+  this is its own CC; for a target it is not implied by its own CC plus C1.
+
+Results:
+
+- `fed_events_commute`, `fed_interleavings_converge`, `fed_permutations_converge`: under the
+  per-registry conditions (`Common`: locality, acyclic order, M1/R2, overwrite absorption from
+  well-formedness plus source-determinacy, component steps valid) plus C1 and C2, from any valid
+  consistent federated state, `FedMachine.Apply` sequences over the combined event alphabet that
+  differ by swapping events of different registries, or declared-independent events of one
+  registry, reach the same federated state.
+- `propagation_flush`, `dist_interleavings_converge`: with propagation as separate steps (each
+  node applies local events and merges its sources' projections whenever they arrive), every
+  interleaving reaches, once propagation completes, the `FedMachine` run of its events, so all
+  interleavings agree. This needs `XU` (C1 for every valid `b`, not only consistent ones) plus
+  each registry's own CC, because a node may apply an event to a state whose shared part a local
+  event has just overwritten; `xu_implies_c1_c2` shows these imply C1 and C2.
+- `audit_counterexample`: everything but C1 holds (a supplier's `sell` guarded on a flag the
+  manufacturer's `recall` drives); the two orders give `sold = 0` and `sold = 1`.
+- `c2_counterexample`: C1 and the target's own CC hold, C2 fails (`Swap` exchanges a shared and a
+  local slot, `Audit` records their xor), and the federation diverges.
+- `supply_instance`, `supply_converges`: a concrete federation discharging every hypothesis of
+  both models (non-vacuity), whose target event writes a shared variable, so the stronger form
+  without the final repair (`Candidate`) fails there although the federation converges.
+
+Cyclic (`AllowMonotoneCycles`) networks are out of scope: the proof uses the topological order.
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the
@@ -598,7 +646,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 125 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 135 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -610,7 +658,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 125
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 135
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
