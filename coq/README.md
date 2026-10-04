@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 254 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 254 headline results (among them the single-registry
+Expected tail: `PASS: all 575 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
 verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
@@ -39,7 +39,10 @@ of `FederationEvents.v`, the twelve monotone-cycle results of `FederationEventsC
 exactness results of `FederationEventsConverse.v`, the fourteen well-founded-governance results of
 `GovernanceWF.v`, the seventeen ACC chaotic-iteration results of `ChaoticACC.v`, the sixteen
 at-least-once results of `AtLeastOnce.v`, the twenty-seven converse results of
-`GovernanceConverse.v` and the twenty-two coordinated-cycle results of `CoordinatedCycles.v`) and fails if any of them depends on an axiom or an
+`GovernanceConverse.v`, the twenty-two coordinated-cycle results of `CoordinatedCycles.v` and the fifty categorical-bridge results of `CategoricalBridge.v`, including eight previously ungated `Categorical.v` names) and fails if any of them depends on an axiom or an
+
+`GovernanceConverse.v`, the twenty-two coordinated-cycle results of `CoordinatedCycles.v` and the ten
+per-event cycle-check results of `FederationEventsCyclesCheck.v`) and fails if any of them depends on an axiom or an
 admitted lemma.
 
 ## What is proven
@@ -643,10 +646,105 @@ values). Results:
 unique normal form reached from bottom, so there is nothing for events to commute after; gsm routes
 them to coordination. Under a computed coordination they converge, to a normal form unique given an
 authority root (`CoordinatedCycles.v`, below). The distributed model (explicit propagation steps) is not extended to cycles. The
-global condition is exact but semantic: on a cycle there is no per-edge reduction, so checking it
-means enumerating reachable normal forms (or the image of `N`) and testing every independent pair,
-not the per-edge C1/C2 enumeration gsm runs for acyclic networks. Static C1 and C2 remain
-over-approximations (sufficient, and necessary only at reachable witnesses).
+global condition is exact but semantic: on a cycle there is no per-edge reduction of it, so checking
+it exactly means enumerating reachable normal forms (or the image of `N`) and testing every
+independent pair. The per-edge C1/C2 enumeration gsm runs for acyclic networks is nevertheless
+sufficient on a monotone cycle (next section). Static C1 and C2 remain over-approximations
+(sufficient, and necessary only at reachable witnesses).
+
+### Event order on monotone cycles, checked per event (`FederationEventsCyclesCheck.v`)
+
+The previous section leaves `GC` global on a cycle. This file proves that a per-event condition
+implies it, so a cyclic federation's event order can be checked without enumerating normal forms.
+
+**Why it works.** gsm's `normalizeCyclic` resets every shared variable to bottom before the sweeps,
+so the shared part of a normal form is a function of the locals alone. An event's writes to shared
+variables are erased; only its effect on locals survives (`cyc_check_step`). Events therefore
+commute after re-normalization as soon as their local outcomes do not depend on which image value
+the shared part holds, and same-registry declared pairs commute on locals.
+
+**Model.** Registries of any type with decidable equality; a federated state is (locals, shared
+values) with per-registry lenses; `comp k s` is registry `k`'s component; `sig e` is the component
+step (`Machine.Apply`), preserving component validity; `cev e` replaces registry `reg e`'s component
+by `sig e` of it (locals and shared values); the normal form is `(fst (rho1 t), Lsh (fst (rho1 t)))`,
+which is `Ncyc_with` of `FederationEventsCycles.v` for `Lsh l = kleene l js K bot`. `Hs j` is any set
+of shared values for registry `j` containing every normal form's (for gsm: the images of the
+morphisms into `j` over valid source states).
+
+- **C1cyc**: for every event `e` of registry `j`, every valid component state `(x, h)` of `j` with
+  `h` in `Hs j`, and every `h'` in `Hs j`, the locals of `sig e (x, h')` equal the locals of
+  `sig e (x, h)`. This is gsm's C1, `ow(rho_B(e(ow(b, v'))), v') = ow(rho_B(e(b)), v')` for every
+  image `v'` and valid consistent `b`: the final overwrite fixes the shared part on both sides, so
+  the equation says exactly that the locals agree.
+- **C2cyc**: for every declared-independent pair `a`, `b` of registry `j` and every valid `(x, h)`
+  with `h` in `Hs j`, the locals of `sig a (locals of sig b (x, h), h)` and of
+  `sig b (locals of sig a (x, h), h)` agree. This is the local part of gsm's C2 (both sides
+  repaired with the same image `z`).
+
+Results:
+
+- `cyc_check_gc`, `cyc_check_converges` (headline): C1cyc and C2cyc imply `GC s0` and convergence of
+  all trace-equivalent sequences, for every `s0` in the image of the normalizer. Hypotheses: phase 1
+  fixes valid states, normal forms are valid (gsm checks this at run time), `Hs` contains the
+  normal forms' shared values.
+- `cyc_check_gc_lfp`: the same for gsm's Kleene normalizer `Ncyc_with` on a monotone cycle (the
+  hypotheses of `cyc_N_lfp`), with `Hs j` any set containing the repair's output into `j` from valid
+  states; "`Hs` contains the normal forms' values" is discharged from the least-fixed-point property.
+- `footprint_c1`: the plain read footprint (an event's local outcome ignores shared values) implies
+  C1cyc for every `Hs`. Writing shared variables is never a problem (the reset erases the writes).
+- `lfp_commute_gc`: the global variant `N o ev e o N = N o ev e`, plus raw commutation of
+  independent events, implies `GC`. Sufficient but not per edge (it quantifies over all raw states
+  and runs `N`); the latch fails it.
+- `cyc_check_instance` (non-vacuity): the two-registry cycle of `cyc_instance` with raise and clear
+  events, plus `PingA`, which also writes A's shared flag, declared independent of `RaiseA`. Every
+  hypothesis of `cyc_check_gc_lfp` is discharged, and `PingA; ClearA` from the bottom state ends at
+  the bottom state (the shared write is erased).
+- `check_rejects_latch`: `cyc_counterexample`'s federation is this model (`cev = xstep`
+  pointwise), and for every `Hs` containing the normal-form shared values C1cyc fails at `LatchA`.
+  The global variant of `lfp_commute_gc` fails too, and `GC xs0` fails.
+
+Counterexamples to the other natural candidates:
+
+- `monotone_c2_insufficient`: "monotone events plus C2 commutation" is false. `LatchA` is a monotone
+  map on the component lattice, C2cyc holds (no declared same-registry pairs), each registry's own
+  CC holds, and `GC` fails.
+- `c1_localcc_insufficient`: "C1 plus each registry's own CC" is false, so C2cyc cannot be dropped.
+  A genuine monotone cycle (A's shared flag fed by B, B's fed by A, every hypothesis of `cyc_N_lfp`
+  discharged) where B has a shared slot whose only image is `false`. `Swap` exchanges B's local slot
+  with the shared slot, `Audit` records their xor. C1cyc holds, the two events commute on B's full
+  state, C2cyc fails, and `Audit; Swap` and `Swap; Audit` (one allowed swap apart) diverge from a
+  normal form. Both events read a shared variable, so C1cyc is strictly weaker than the read
+  footprint.
+
+So candidate A of roadmap item 6 holds, with the qualification that matters: C1 and C2 must be
+evaluated with the shared part ranging over a set that contains every normal form's shared values.
+Images over valid source states (what gsm's C1 enumerates) satisfy this. The values the Kleene
+iteration visits also contain them, so a check over visited states is sufficient too, but it is
+stronger than needed (it adds non-image values such as bottom and can reject federations the image
+check accepts). Neither condition is necessary: `GC` remains the exact one.
+
+**What gsm has to check on an `AllowMonotoneCycles` network.** Nothing beyond its acyclic C1/C2
+enumeration, with three requirements:
+
+1. `H_j`, the image set of target `j`: for each edge into `j`, the morphism (or resolver) image of
+   every valid source component state. Cost: one map evaluation per valid source state per edge.
+   On a cycle the source's valid states must be enumerated in full (no topological restriction).
+2. C1, per event `e` of `j`: for every local part `x` of a valid component state of `j` whose shared
+   part is in `H_j`, the locals of `rho_j(e(x, v'))` are the same for every `v'` in `H_j`. Cost:
+   `|E_j| x |X_j| x |H_j|` evaluations, `X_j` the distinct such locals. This is gsm's existing C1
+   (`b` times `v'`). A C1 or C2 failure on a cycle means event order is not certified there, and the
+   report should say so.
+3. C2, per declared-independent pair on `j`: for every valid component state `(x, h)` with `h` in
+   `H_j`, the two orders "event, overwrite with `h`, event" agree on locals. Cost: four evaluations
+   per state per pair. This is gsm's existing C2.
+
+Per-registry state spaces only, never the product: no normal form is enumerated. The exact
+alternative (checking `GC` itself) enumerates the image of `N` (the product of the local spaces)
+times every independent pair. Regression test: the `cyc_counterexample` latch federation must fail
+C1 (`check_rejects_latch`). For a target with several incoming edges, gsm's per-edge C1 checks
+overwrite each edge's variables separately; with M1 (overwrites preserve validity) they compose
+into C1cyc for the target's whole shared part, one edge at a time. That composition step is not
+mechanized here: the file treats each registry's shared part as one block.
 
 ## Finiteness only for checking (`GovernanceWF.v`, `ChaoticACC.v`)
 
@@ -726,6 +824,51 @@ F31), axiom-free:
   component's non-monotone normalizer). Corrected: `fed_rem_convexity_corrected` (phase 1 monotone
   and `Phi` monotone in the locals too), non-vacuity `convexity_corrected_instance`.
 
+## rho* constructed from WFC (`RhoStar.v`)
+
+The modules above take iterated compensation `rho_star` as a parameter, with the hypotheses
+`rho_star_reach` (and `rho_star_valid` in `GovernanceConverse.v`). The paper defines it instead
+(Base, Def. "Iterated Compensation"): `rho*(s) = rho^m(s)` for the least `m` with `V(rho^m(s))`.
+`RhoStar.v` constructs that operator from WFC (and a decidable validity test, which the paper's
+Boolean `V_R` is) and proves every base fact that rests on it, axiom-free (61 gated results):
+
+- Construction: `rho_star` (nat measure, computable by fuel) and `rho_star_wf` (any well-founded
+  order, by well-founded recursion). `base_def_rhostar` and `base_def_rhostar_least_unique` are the
+  paper's definition exactly (the least `m` exists and determines `rho*`); `rho_star_canonical`
+  shows the operator does not depend on the measure. Notation (i) to (iii) of Base section
+  "Calculus": `rho_star_valid`, `rho_star_fix`, `rho_star_idem`; `rho_star_rho` (rho(s) lies on
+  the chain of an invalid s).
+- Headline theorems with no rho* hypothesis: `wfc_governance_confluent`,
+  `wfc_governance_unique_normal_forms`, `wfc_causal_governance_confluent`,
+  `wfc_causal_governance_unique_normal_forms`, `wfc_governance_wf_confluent`,
+  `wfc_causal_governance_wf_confluent`, `wfc_cc_exact_from` (both rho* hypotheses discharged).
+- Deps-based enabledness (Base def:config: `e` in `B` is enabled iff `deps(e)` is disjoint from
+  `B`) discharges `enabled_after_remove` and `enabled_after_comp` in both rewrite systems
+  (`deps_enabled_after_remove`, `deps_enabled_after_comp`, `deps_causal_enabled_after_remove`,
+  `deps_causal_enabled_after_comp`), and co-enabled events are causally independent
+  (`deps_coenabled_independent`). So Base cor:unique-nf holds in the paper's own terms with only
+  WFC, CC1 and CC2 as hypotheses: `paper_causal_governance_confluent`,
+  `paper_causal_governance_unique_normal_forms` (CC1 on distinct, independent, co-enabled pairs),
+  and the all-pairs versions `paper_governance_confluent`, `paper_governance_unique_normal_forms`.
+- Absorption: `base_rem_absorption` (CC2 lifts to `rho*(apply(e, s)) = rho*(apply(e, rho*(s)))`),
+  `base_rem_absorption_enabled` (CC2 for enabled events only), `base_thm_strong_absorption` (strong
+  absorption implies CC2), and the equivalence `strong_absorption_iff_cc2`.
+- UBC: `base_lem_finite_implies_ubc` (a listed state space gives `M = max Phi`, attained when there
+  is a state); the step bound of Lemma "Termination", every reduction from `(s, E)` has at most
+  `|E| + (|E| + 1) M` steps (`base_lem_termination_bound`, `causal_lem_termination_bound`), attained
+  (`lv_termination_bound_tight`); the model-level part of Theorem "Convergence Complexity": at most
+  `M` compensation steps per applied event plus `M` before the first
+  (`base_thm_complexity_comp_total`, `base_thm_complexity_per_event`, `rho_star_steps_le_measure`).
+- Cat section 3 background: WFC makes the normalizer idempotent (`cat_bg_rho_idempotent`), reaches
+  a valid state from any state (`cat_bg_valid_from_any_state`), and Lemma 0 holds for it with the
+  idempotence hypothesis of `Categorical.v` discharged (`cat_bg_lemma_zero`). The unqualified
+  "its valid set is non-empty" needs a state: the empty registry satisfies WFC with an empty valid
+  set (`cat_bg_nonempty_needs_a_state`).
+- Non-vacuity: a four-level saturating counter (`lv_*`: finite, WFC, UBC with `M = 1`, CC1, CC2,
+  strong absorption, deps-based enabledness for any dependency map) discharges every hypothesis
+  set; the unbounded withdrawal registry of `GovernanceWF.v` gets its rho* constructed
+  (`zw_rho_star_built`, `zw_confluent_built`).
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the
@@ -793,6 +936,45 @@ paper's level of abstraction: the normalizer is an abstract idempotent endomap, 
 
 `Print Assumptions` on the categorical-core headline results is "Closed under the global context";
 they are in the axiom-free gate above.
+
+## Categorical bridge (`CategoricalBridge.v`)
+
+The companion paper's Proposition 1 and Theorem 1 on one concrete federation model, joining the
+three pieces `Categorical.v` and `FederationOrder.v` prove separately: the consistent set with every
+conjunct the paper states, the retraction onto it, and order-independence. Registries are indexed
+by `nat`; registry `i` has a local normalizer `rho i`, sources `src i`, and (as a target) a shared
+component read by `get i`, written by `ovr i`, and a resolver `res i`. `stepN i` overwrites the
+shared component with the resolver value and then normalizes locally. All axiom-free.
+
+- **Proposition 1 (`prop:one`), with the component conjunct.** `LF` is the paper's `L_F`: the tuple
+  lies in the product of the valid sets `Phi_{R_i} = im(rho_i)` (`ProdPhi`) and every target's shared
+  component equals its resolver value. `cat_LF_split`: `LF` is `ProdPhi` plus `Categorical.Consistent`.
+  `cat_prop_one`: on the product of the valid sets, `L_F = eq(g, h)`. `cat_prop_one_product`: the
+  product of valid sets is the equalizer of the identity and the product normalizer, factorwise
+  Lemma 0's `eq(id, rho_i)` (via `fixed_is_equalizer`). `cat_prop_one_limit`: `L_F` is a single
+  equalizer of two maps into a finite product, a finite limit in `Set`.
+- **The bridge (`thm:one`).** `rhoFold_run`: `Categorical.rhoFold`, instantiated on
+  (registry, value) pairs over a topological order, computes `FederationOrder.run` on that order.
+  `consistentList_iff_LF`: Categorical's intrinsic `ConsistentList` is exactly the paper's `L_F`,
+  given local idempotence, the lens law `putget`, and `sh_fixed` (the local normalizer fixes the
+  overwritten shared component). `rhoFold_order_independent` and `rhoFold_order_perm`: the fold
+  inherits `order_independent`.
+- **Theorem 1 as stated.** `cat_thm_one_sound` (Lemma A, from `rhoFold_sound`),
+  `cat_thm_one_complete` (Lemma B, from `rhoFold_complete`), `cat_thm_one_idempotent`,
+  `cat_thm_one_image` and `cat_thm_one_fixed` (`im(rho_F) = Fix(rho_F) = L_F`),
+  `cat_thm_one_order_independent`, and `cat_thm_one_fold_image` for the positional fold.
+- **Corrected hypothesis.** `cat_thm_one_m1_counterexample`: with M1 read as validity preservation
+  under overwrite (the paper's Background definition) plus local idempotence, Theorem 1 fails:
+  `rho_F` does not land in `L_F` and is not idempotent, because compensation rewrites the shared
+  component the morphism wrote. The hypothesis that makes Theorem 1 true is `sh_fixed`, the paper's
+  own Section 3.3 reading of M1/R2.
+- **Non-vacuity.** `nv_*`: three registries (2 reads 0 and 1), clamping normalizers and a summing
+  resolver discharge `idem`, `putget` and `sh_fixed`; `nv_sound`, `nv_s0_not_LF` (L_F is a genuine
+  constraint), `nv_orders_agree` (two topological orders) and `nv_prop_one`.
+
+The gate also covers the Cat-cited `Categorical.v` names that were not in it: `fixed_is_equalizer`,
+`retract_fixes_fixed`, `rhoL_idempotent`, `rhoL_image_iff_L`, `rhoL_L_iff_fixed`, `rhoFold_sound`,
+`rhoFold_complete`, `rhoF_from_app`.
 
 ## Cohomological layer (`Cohomology.v`)
 
@@ -944,6 +1126,157 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## General transport maps: the obstruction, the diagnostic, and coordination bounds (`CohomologyGeneral.v`)
+
+The general-map content of the companion paper's sections 6 to 8 (work package WP9 of
+`PAPER-MAP.md`), axiom-free. Where a paper statement is false or imprecise, the counterexample is a
+theorem and the strongest true form is proven next to it.
+
+**The obstruction theorem (`thm:obstruction`).** A cycle carries edge maps `f_0, ..., f_{n-1}`
+(any maps on any fiber `V`, no invertibility); a section is `s 0, ..., s n` with
+`s (i+1) = f_i (s i)` and `s n = s 0` (`cycle_section`). "Reachable fixed point", which the paper
+does not define, is made precise as `reaches_fixed g x0`: some iterate `g^n x0` is fixed by `g`.
+
+- `thm_obstruction_general`: a section exists iff the loop composite has a fixed point.
+  `sections_are_fixed_points`: restriction to vertex 0 is a bijection from sections onto `Fix(g)`,
+  so the witness lives on the shared fiber alone.
+- `reaches_fixed_iff_section`: a fixed point is reachable from `x0` iff some section has its vertex-0
+  value on the forward orbit of `x0`. `thm_obstruction_reachable`: the paper's statement, with
+  "reachable" meaning "reachable from some seed".
+- gsm's `DiagnoseCycle`, on a finite fiber with decidable equality (`N` = its size):
+  `diagnose_bounded` (the seed reaches a fixed point iff `g^N x0` is fixed), `diagnose_orbit_witness`
+  (the orbit repeats within `N` steps), `diagnose_dichotomy` (exactly one of the two outcomes).
+
+**Reading the diagnostic (section 7).** "A non-convergent result is definitive" is false:
+`c15_definitive_claim_false`, with the loop copy-then-swap on `{t0, t1, t2}` (swap `t0, t1`, fix
+`t2`): seed `t0` orbits (`c15_seed_orbits`) while `t2` is a section (`c15_tri_section`). Corrected
+forms: `c15_exact_refuter` (no section iff no seed reaches a fixed point), `c15_free_definitive`
+(one seed is definitive when the fixed points of `g` are all-or-nothing),
+`c15_injective_reaches_iff_fixed` (for an invertible composite a seed reaches a fixed point iff it
+is fixed), `c15_regular_definitive` and `c15_regular_is_free` (translation by the holonomy: from any
+seed, reaches iff `h = e`). `c15_convergent_result_sound`: a settling seed proves a section exists;
+`c15_convergent_result_not_global`: it does not prove every seed settles.
+
+**Minimal coordination with its qualifiers (`prop:minimal`).** `prop_minimal_qualified_iff`: in the
+regular action with an authority root `r` and spanning tree `T`, the labeling `T ++ X` is a
+coboundary (`H^1 = 0`) iff for every authority value the uncoordinated network (tree drives, every
+non-tree edge kept as a checked constraint) has a consistent state that is the unique one with that
+root value and that every propagation order reaches. `prop_minimal_qualifiers_needed`: Z/2 acting on
+`{t0, t1, t2}` by the swap gives a non-coboundary with a section (the regular action is needed), and
+`nonfree_holonomy_counterexample`, `copyback_without_authority` (the authority root is needed).
+
+**Coordination as edge deletion (section 8).** `feasible Es D`: some state satisfies every edge of
+`Es` outside `D`.
+
+- Edge-disjoint obstructions: `edge_disjoint_lower_bound` (`k` pairwise edge-disjoint cycles with no
+  section force at least `k` deleted edges, for any labels) and `edge_disjoint_min` (with a spanning
+  tree whose unbalanced non-tree edges number `k`, the minimum is exactly `k`); instance
+  `bowtie_min_two`.
+- `min_G >= min_{G^ab}` in general: `section_pushforward`, `feasible_pushforward` and
+  `min_G_ge_min_image` push sections and feasible coordinations along any homomorphism, any graph;
+  instance `klein_min_ge_1`.
+- The non-invertible case, "a cycle basis still suffices", is false: `c22_cycle_basis_fails` is a
+  tree (empty cycle basis) with constant maps 0 and 1 into one vertex, which has no section; one
+  deletion restores one. Corrected for root-oriented trees (`otree`, every edge pointing away from the
+  authority root): `out_tree_section`, `out_tree_unique`, `rooted_criterion` (a section with the
+  tree-driven root value exists iff the driven state satisfies every non-tree edge),
+  `rooted_coordination_suffices`; instance `c22_rooted_instance`.
+
+**Two regimes, not exhaustive (section 6).** `c13_two_ways_not_exhaustive`: a cyclic loop of two
+negations (trivial holonomy, non-monotone edges) and copy-then-swap on `nat` (non-trivial holonomy,
+non-monotone composite) both have sections, so acyclicity and monotonicity are two sufficient
+conditions, not the only ones.
+
+## Stream processors and Stream Convergence (`Stream.v`)
+
+The base paper's headline theorem (Thm. "Stream Convergence", `thm:convergence`) is about stream
+processors that receive events over time, not about one rewrite system. `Stream.v` formalizes
+Def. "Stream Processor" (`def:processor`) on top of the causal GRS with the well-founded WFC of
+`GovernanceWF.v`, so every result is domain-independent, and proves the stream-level results
+axiom-free. `rho*` is taken as in `Governance.v` (specified by `rho_star_reach`).
+
+- Model: `prstep` is the processor discipline inside the GRS (compensate while invalid; apply an
+  enabled event only from a valid state); every `prstep` is a GRS step and a `prstep` normal form is
+  a GRS normal form (`prstep_cstep`, `nf_prstep_cstep`). A `processor` has received sets
+  `recv : nat -> list Event` and configurations `conf : nat -> State * list Event`, with
+  `psi p t = fst (conf p t)`. `is_processor` asks for duplicate-free received sets drawn from the
+  stream, growth by appending, eventual delivery, and the paper's "the computation on `E_P(t)` is a
+  reduction sequence from `(sigma0, E_P(t))`". `settled p t` says the processor has finished
+  processing `E_P(t)`; `fair p` says it keeps reducing while nothing new arrives.
+  `incremental_computes`: a processor that carries its configuration across arrivals is a
+  processor.
+- (a) `stream_validity`, `comp_phase_terminates`, `comp_phase_done_valid`,
+  `settled_empty_buffer` (with a progress hypothesis the finished configuration has an empty
+  buffer). (b) `stream_order_independence` (finished reductions from the same received set end in
+  the same state) and `stream_orders_agree` (any two feasible application orders, each followed by
+  `rho*`, agree). (c) `stream_agreement` (also across different times) and
+  `base_thm_convergence_c`. Bundled: `stream_convergence` (any well-founded potential) and
+  `base_thm_convergence` (the paper's `Phi : Sigma -> nat`).
+- `base_rem_set_function` (`rem:set-function`): `F(E)` exists and depends only on the set `E`.
+- `base_cor_quiescent`, `base_cor_quiescent_nat` (`cor:quiescent`): on a finite stream two fair
+  processors eventually hold the same valid state forever. The proof derives "eventually settled"
+  from termination and fairness.
+- `base_cor_infinite`, `base_cor_infinite_quiescent` (`cor:infinite` at stream level).
+- Corrections. Part (c) as written (no "settled" qualifier) is false:
+  `base_thm_convergence_c_counterexample` (two fair processors with the same received set, one
+  of which has not yet applied it). The closing sentence of the theorem ("disagreements are
+  transient ... restoring agreement") and `rem:infinite-streams` are false for infinite streams:
+  `base_thm_convergence_transient_counterexample` (one processor a tick behind the other on an
+  infinite stream; both settled at every time, they disagree at every time).
+- Non-vacuity: the `Z` withdrawal registry with two processors that receive withdrawals 1 and 2 in
+  different orders and at different times (`zw_stream_registry`, `zw_processors`,
+  `zw_stream_agree`, `zw_stream_quiescent`, `zw_stream_quiescent_nat`,
+  `zw_stream_convergence_nat`, `zw_incremental`); the counter registry of the counterexamples
+  meets every registry hypothesis (`ct_registry`).
+
+## The papers' concrete examples (`PaperInstances.v`)
+
+Every worked example and counterexample in the two normalization-confluence papers, on the paper's
+own data, with every property the paper claims for it as a theorem (work package WP2 of
+`PAPER-MAP.md`). Where the paper's text is wrong, a theorem refutes it and a second one proves the
+corrected claim.
+
+- **Order fulfillment (Base section 4, row B17).** `of_registry` (rho fixes valid states, WFC, UBC
+  with `M = 1`, the invalid states are exactly `(approved, 0)` and `(approved, 1)`),
+  `of_valid_paper`, `of_rho_star_iterated` (`rho* = rho` is the iterated compensation of the
+  paper's definition), `of_cc1` (CC1 for every pair of events at all 12 states), `of_cc2`,
+  `of_paper_traces` (the displayed CC1 and CC2 traces, state by state), `of_unique_normal_forms`
+  (through `cc_exact_global`), `of_processors` (P1 and P2 are runs of the rewrite system to
+  `((approved, 2), [])`, and every normal form of the paper's stream is that one).
+  The naive revert `rho(approved, b) = (pending, b)`: `naive_registry` (WFC, UBC),
+  `naive_paper_witness_fails` (the paper's witness is wrong: at `(pending, 0)` both orders give
+  `(pending, 1)`), `naive_cc1_fails` (the corrected witness `(pending, 1)`: `(pending, 2)` versus
+  `(approved, 2)`), `naive_stream_diverges` (the paper's own stream reaches two normal forms),
+  `naive_cc2_fails` (it also violates CC2, at `(approved, 1)` with credit).
+- **`R_infinity` (Base `thm:necessity` and the remark "What Fails", rows B25, B26).** On `Z` with
+  `apply(e_n, s) = s - n`. `thm_necessity` (for every `M`, a reduction to normal form with more than
+  `M` compensation steps, counted by the relation `cred`), `ri_depth_exact` (every reduction from
+  `(0, [e_n])` to a normal form has exactly `n`), `ri_no_ubc` (no WFC measure is bounded),
+  `ri_cc_any_extension` (CC1 at every state for every pair and CC2 hold for every total extension
+  of `apply(e_n, -)`: `rho*` is constant 0), `ri_what_fails` (WFC, CC, unique normal forms, not
+  UBC), `ri_rho_star_iterated`.
+- **Four-state CC counterexample (Base `prop:cc-necessary`, row B27).** `four_registry`,
+  `four_paths`, `prop_cc_necessary`: two runs from `(A, [e1; e2])` reach the distinct valid normal
+  forms `(B, [])` and `(A, [])`.
+- **Cyclic network (Fed `prop:cycle-necessary`, row F13).** `cycle_paper_trace` (the paper's four
+  repairs back to `(0, 0)`), `prop_cycle_necessary` (components valid everywhere, both morphisms
+  M1, federated compensation deterministic, no federally valid state, no state terminates).
+- **M1 counterexample (Fed `prop:m1-necessary`, row F14).** `m1_paper_trace`, `prop_m1_necessary`
+  (M1 fails, deterministic oscillation, never terminates), `m1_single_round_fails` (one application
+  of `rho_Fed` returns a federally invalid state: single-round termination needs M1).
+- **Resolution conditions (Fed remark after `thm:resolved-convergence`, row F21).**
+  `r2_necessary` (a two-source resolver with R1 and without R2 oscillates forever), `r1_necessary`
+  (a resolver that reads the target's local component, with R2 and component WFC, on an acyclic
+  network: two federally valid normal forms whose shared components differ).
+- **Manufacturer-supplier federation (Fed section 6, row F32)**, in `FederationEvents.v`'s model:
+  `ms_instance` (`Common`, C1, C2, each registry's own CC, the paper's M1, the supplier's WFC, a
+  valid consistent start), `ms_paper_traces` (both orders, state by state, end in
+  `(active, listed)`), `ms_converges` (every permutation of any event list converges, through
+  `fed_permutations_converge`).
+
+Encodings: the federated examples' `{0, 1}` is `bool`; events in these examples have no causal
+dependencies, so enabledness is `free_enabled`.
+
 ## Roadmap: mechanizing the categorical layer (companion paper)
 
 The companion paper (categorical structure of federated convergence) rests on a small structural
@@ -984,7 +1317,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 254 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 575 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -996,7 +1329,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 254
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 327
 headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

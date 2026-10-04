@@ -30,3 +30,9 @@ AtLeastOnce.v
 GovernanceConverse.v
 CoordinatedCycles.v
 MonotoneFederation.v
+CohomologyGeneral.v
+Stream.v
+PaperInstances.v
+RhoStar.v
+CategoricalBridge.v
+FederationEventsCyclesCheck.v
