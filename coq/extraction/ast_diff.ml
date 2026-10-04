@@ -1,7 +1,9 @@
-(* Differential test of the two extracted rules oracles: checkBuildT (step
-   tables from the rules, scanned as check_fast does; what astchecker runs)
-   against checkBuild (the pairwise rules check). checkBuildT_eq proves them
-   equal on every machine and every declaration; this checks the extraction.
+(* Differential test of the three extracted rules oracles: checkBuildC (step
+   tables from the rules packed in blocks, without the box list; what
+   astchecker runs) and checkBuildT (step tables in check_fast's cells) against
+   checkBuild (the pairwise rules check). checkBuildC_eq and checkBuildT_eq
+   prove them equal on every machine and every declaration; this checks the
+   extraction.
 
    Usage:
      astdiff <machine-file> [<pairs-file>]   one machine, read as astchecker reads it
@@ -112,9 +114,9 @@ let rmachine_wide () =
 let counts = Hashtbl.create 8
 
 let compare_one m p =
-  let o = checkBuild m p and t = checkBuildT m p in
-  if o <> t then
-    (Printf.printf "DISAGREE: checkBuild=%b checkBuildT=%b on\n%s" o t (show m p); exit 3);
+  let o = checkBuild m p and t = checkBuildT m p and c = checkBuildC m p in
+  if o <> t || o <> c then
+    (Printf.printf "DISAGREE: checkBuild=%b checkBuildT=%b checkBuildC=%b on\n%s" o t c (show m p); exit 3);
   let v = verdict m p in
   Hashtbl.replace counts v (1 + try Hashtbl.find counts v with Not_found -> 0)
 

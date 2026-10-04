@@ -1,6 +1,6 @@
 // Command rulecheck is the rules oracle's front end over the Go that gogen
-// generates from checkBuildT's extraction (package oracle; AstTables.v proves
-// checkBuildT equal to checkBuild, checkBuildT_eq). It is a port of
+// generates from checkBuildC's extraction (package oracle; AstCompact.v proves
+// checkBuildC equal to checkBuild, checkBuildC_eq). It is a port of
 // extraction/ast_main.ml: the same machine and pairs formats, validation,
 // output lines and exit codes (0 verified convergent, 1 not, 2 usage or parse
 // error); see ast_main.ml for the formats. tests/run.sh checks it against the
@@ -410,11 +410,11 @@ func main() {
 	if npairs >= 0 {
 		declared = fmt.Sprintf("%d declared pairs", npairs)
 	}
-	if oracle.F_checkBuildT(m, pairs) {
+	if oracle.F_checkBuildC(m, pairs) {
 		fmt.Printf("OK: %d vars, %d invariants, %d events, %s; machine verified convergent from its RULES (repair terminates from every state; declared pairs commute on valid states and the zero state)\n", nv, ni, ne, declared)
 		os.Exit(0)
 	}
-	// checkBuildT checks WFC itself, so wfc runs only to name the reason.
+	// checkBuildC checks WFC itself, so wfc runs only to name the reason.
 	if !oracle.F_wfc(m) {
 		fmt.Print("FAIL: compensation does not terminate (WFC): repair from some state never reaches a valid state\n")
 		os.Exit(1)

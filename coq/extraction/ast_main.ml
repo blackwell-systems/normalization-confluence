@@ -1,9 +1,10 @@
 (* Runnable front-end for the AST oracle: reads a combinator MACHINE (its rules,
    not its output tables) and certifies convergence by recomputing each event's
    step function straight from the expression trees, using the Coq-extracted,
-   machine-checked Checker_core.checkBuildT (AstTables.v: it evaluates the rules
-   once per state and event into step tables and scans them as check_fast does;
-   checkBuildT_eq proves it equal to checkBuild). It checks the property gsm's Build
+   machine-checked Checker_core.checkBuildC (AstCompact.v: it evaluates the rules
+   once per state and event into step tables packed in 16-entry blocks, without
+   holding the valuation box, and checks every declared pair from them;
+   checkBuildC_eq proves it equal to checkBuild). It checks the property gsm's Build
    checks: repair terminates from every state (WFC), and every declared pair of
    events commutes on every valid state and on the zero state, under gsm's step
    (apply the event if its guard holds, then normalize).
@@ -94,12 +95,12 @@ let () =
        "FAIL: outside the certified fragment: a write can store a negative value into a two-valued variable with min 0 (a gsm Bool stores value <> 0, the model clamps)\n";
      exit 1);
   let declared = match pairs with None -> "every pair" | Some l -> Printf.sprintf "%d declared pairs" (List.length l) in
-  if checkBuildT m pairs then
+  if checkBuildC m pairs then
     (Printf.printf
        "OK: %d vars, %d invariants, %d events, %s; machine verified convergent from its RULES (repair terminates from every state; declared pairs commute on valid states and the zero state)\n"
        nv ni ne declared;
      exit 0);
-  (* checkBuildT checks WFC itself, so wfc runs only to name the reason. *)
+  (* checkBuildC checks WFC itself, so wfc runs only to name the reason. *)
   if not (wfc m) then
     (Printf.printf
        "FAIL: compensation does not terminate (WFC): repair from some state never reaches a valid state\n";

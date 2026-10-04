@@ -1,0 +1,4 @@
+(doms 3 7 11 31)
+(inv (le (var 0) (lit 1)) (do (set 0 (lit 2))))
+(ev (do (set 1 (add (var 1) (lit 1)))))
+(ev (do (set 3 (lit 5))))

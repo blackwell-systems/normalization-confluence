@@ -165,6 +165,31 @@ if [ "$got" = 0 ] && [ "$took" -le 30 ]; then
 else
   fail=$((fail + 1)); echo "FAIL astchecker many20.machine: want exit 0 within 30 s, got exit $got after ${took} s"; echo "$out" | sed 's/^/     /'
 fi
+# Memory guard for the rules oracle: 2^20 states with 3 events, as 20
+# two-valued variables (one invariant with a repair) and as two 1024-valued
+# variables (a capped counter), must each run in 256 MiB of address space
+# (ulimit -v; Linux only, like the table checker's guard). Holding the
+# valuation box and one check_fast cell per state took about 280 to 300 MiB
+# (checkBuildT, measured on an Apple M1 Pro); the tables packed in blocks
+# without the box take about 70 to 130 MiB.
+{ printf '(doms'; for i in $(seq 1 20); do printf ' 2'; done; echo ')'
+  echo '(inv (le (var 0) (var 1)) (do (set 1 (lit 1))))'
+  for i in 0 2 3; do echo "(ev (do (set $i (lit 1))))"; done; } > "$big/bool20.machine"
+{ echo '(doms 1024 1024)'; echo '(inv (le (var 0) (lit 1022)) (do (set 0 (lit 1022))))'
+  echo '(ev (do (set 0 (add (var 0) (lit 1)))))'; echo '(ev (do (set 1 (add (var 1) (lit 1)))))'
+  echo '(evwhen (le (var 1) (lit 100000)) (do (set 1 (add (var 1) (lit 1)))))'; } > "$big/sq20.machine"
+if ! (ulimit -v 262144) 2>/dev/null; then
+  echo "skip astchecker bool20, sq20 in 256 MiB (this host cannot limit address space)"
+else
+  for f in bool20 sq20; do
+    out="$(ulimit -s 8192 && ulimit -v 262144 && "$bin/astchecker" "$big/$f.machine" 2>&1)"; got=$?
+    if [ "$got" = 0 ]; then
+      pass=$((pass + 1)); echo "ok   astchecker $f.machine in 256 MiB (exit 0)"
+    else
+      fail=$((fail + 1)); echo "FAIL astchecker $f.machine in 256 MiB: want exit 0, got $got"; echo "$out" | sed 's/^/     /'
+    fi
+  done
+fi
 rm -rf "$big"
 
 # The extracted code must not call unary nat arithmetic or conversions: the Nat

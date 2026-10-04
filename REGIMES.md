@@ -107,7 +107,7 @@ gsm's hand-written Go verification cannot pass a non-convergent machine.
 | Oracle | Certifies | Source | Trusts gsm's tables? |
 |---|---|---|---|
 | **Table oracle** (`checker`) | the emitted step tables commute and stay in range | `coq/Checker.v` | yes (checks what gsm emitted) |
-| **Rules oracle** (`astchecker`) | the rules themselves converge, by re-evaluating the combinator AST | `coq/AstChecker.v`, `coq/AstTables.v` | no (recomputes from declarations) |
+| **Rules oracle** (`astchecker`) | the rules themselves converge, by re-evaluating the combinator AST | `coq/AstChecker.v`, `coq/AstTables.v`, `coq/AstCompact.v` | no (recomputes from declarations) |
 
 Both are extracted OCaml binaries (`coq/extraction/`); gsm's differential tests run them on real
 machines. The rules oracle is the stronger check: it re-derives convergence straight from the

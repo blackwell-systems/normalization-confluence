@@ -20,8 +20,8 @@ machine pass here.
   (`tests/run.sh` fails above 30 s, gsm's budget for its in-process gate). It scans the file in
   place and holds the entries in arrays, so on that machine it peaks at about 320 MB (`tests/run.sh`
   runs it in 768 MiB of address space).
-- **`astchecker`** (the RULES oracle, `checkBuildT` from `../AstTables.v`, proven equal to
-  `../AstChecker.v`'s `checkBuild` by `checkBuildT_eq`): certifies a combinator machine
+- **`astchecker`** (the RULES oracle, `checkBuildC` from `../AstCompact.v`, proven equal to
+  `../AstChecker.v`'s `checkBuild` by `checkBuildC_eq`): certifies a combinator machine
   straight from its **rules** (the expression-tree AST), not its output tables. It recomputes
   each event's step function by evaluating the AST (apply the event, then normalize by iterated
   repair) and checks the property gsm's `Build` checks: repair terminates from every valuation
@@ -29,10 +29,12 @@ machine pass here.
   under gsm's step (which normalizes even when a guard is false). So it does not trust gsm to have
   enumerated or normalized anything: it re-derives convergence from the declarations themselves.
   Proven axiom-free via `checkBuild_converges`, `checkBuild_commute`, `checkBuild_wfc_terminates`.
-  It evaluates the rules once per state and event into step tables and scans them as `check_fast`
-  does, so its time grows with the states times (events + declared pairs): on 2^20 states, 20
-  events and every pair declared it takes about 10 s (`checkBuild`, pair by pair, took about
-  260 s; `tests/run.sh` fails above 30 s) and peaks at about 480 MiB (Apple M1 Pro, OCaml 5).
+  It evaluates the rules once per state and event into step tables packed in 16-entry blocks,
+  without holding the valuation box, and checks every declared pair from them, so its time grows
+  with the states times (events + declared pairs): on 2^20 states, 20 events and every pair
+  declared it takes about 10 s (`checkBuild`, pair by pair, took about 260 s; `tests/run.sh` fails
+  above 30 s) and peaks at about 440 MiB; with 3 events it takes about 2 s in 70 to 130 MiB
+  (Apple M1 Pro, OCaml 5; `tests/run.sh` runs two such machines in 256 MiB of address space).
   Arithmetic is gsm's: signed integers, with `check_no_overflow` proving
   that a certified machine never leaves 32-bit range, so Go's `int` never wraps. It also prints a `compensation_free=<bool>` line: the machine-checked
   CRDT-fragment classification (no in-domain valuation ever needs repair, the AST analogue of
@@ -140,8 +142,9 @@ and compares the exit code. The cases pin gsm's signed semantics (including the 
 probe that the earlier `nat` semantics certified wrongly), `Build`'s property (declared pairs,
 the zero state, invalid states, repair termination from every state) and the input validation
 above. It then runs the large inputs at an 8 MiB stack, with time budgets for both oracles at
-2^20 states, and `astdiff`, a test tool (`ast_diff.ml`) that compares the two rules oracles,
-`checkBuildT` (what `astchecker` runs) and `checkBuild`, on every well-formed machine case, on
+2^20 states and a memory budget for the rules oracle, and `astdiff`, a test tool (`ast_diff.ml`)
+that compares the three rules oracles, `checkBuildC` (what `astchecker` runs), `checkBuildT` and
+`checkBuild`, on every well-formed machine case, on
 the profiled machine shapes, on 60000 small random machines and on 400 with 16 to 20 events and 256 to about 2000 states, accepted and rejected ones, including
 machines the front end refuses (domains of 0, variable indices and declared pairs out of range).
 `ast_front.ml` holds the reader that `astchecker` and `astdiff` share. CI runs them on every push.

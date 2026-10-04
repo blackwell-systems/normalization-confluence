@@ -17,14 +17,17 @@
        check_tables (TableCheck.v), so check_tables_converges holds for it
        (check_fast_converges). It builds its own cells and lookup trie from the
        lists.
-     - checkBuildT (AstTables.v): certify a combinator machine straight from
+     - checkBuildC (AstCompact.v): certify a combinator machine straight from
        its RULES against Build's property (the rules oracle): repair terminates
        from every state, and every declared pair commutes on the valid states
        and the zero state under gsm's step. It evaluates the expression trees
-       once per state and event into step tables and scans them as check_fast
-       does, so it does not trust gsm to have produced correct tables at all.
-       checkBuildT_eq proves it equal to checkBuild, so checkBuild_converges
-       and the rest hold for it. The front end (ast_main.ml) uses it.
+       once per state and event into step tables packed in 16-entry blocks,
+       without holding the valuation box, so it does not trust gsm to have
+       produced correct tables at all. checkBuildC_eq proves it equal to
+       checkBuild, so checkBuild_converges and the rest hold for it. The front
+       end (ast_main.ml) uses it.
+     - checkBuildT (AstTables.v): the same property through check_fast's
+       cells (checkBuildT_eq). Extracted for the differential test.
      - checkBuild (AstChecker.v): the same property, checked pair by pair (four
        rule evaluations per state and pair). Extracted for the differential
        test ast_diff.ml.
@@ -45,5 +48,6 @@ Require Import NC.TableFast.
 Require Import NC.TableFn.
 Require Import NC.AstChecker.
 Require Import NC.AstTables.
+Require Import NC.AstCompact.
 
-Extraction "extraction/checker_core.ml" check_fn check_fast checkBuildT checkBuild wfc bounded signSafe compensationFree.
+Extraction "extraction/checker_core.ml" check_fn check_fast checkBuildC checkBuildT checkBuild wfc bounded signSafe compensationFree.
