@@ -35,7 +35,9 @@ needed.
 
 WFC = every compensation chain is finite. CC = two independent events, each followed by repair,
 commute (CC1), and repairing before vs after an event gives the same result (CC2). This is the
-core theorem; everything below reduces to it. Mechanized in `coq/Governance.v` (axiom-free).
+core theorem; everything below reduces to it. Mechanized in `coq/Governance.v` (axiom-free), and
+in `coq/GovernanceWF.v` with the WFC potential in any well-founded order (ordinals, lexicographic
+products), not only the natural numbers.
 
 **Causal variant.** The base theorem asks CC1 of every pair of events, so every replay order must
 agree. Real replicated systems usually promise only causal delivery, under which two causally
@@ -68,7 +70,8 @@ target). Whether the network converges depends on its **topology** and on whethe
 The monotone-cycles row is the deepest result: when the shared domain is a lattice and repair is
 monotone, the federated repair operator has a **least fixed point** reached by Kleene iteration
 from the bottom element, and every order reaches the same one (Knaster-Tarski + chaotic
-iteration). Its constructive finite-lattice core is mechanized in `coq/Federation.v` (axiom-free).
+iteration). Its constructive finite-lattice core is mechanized in `coq/Federation.v` (axiom-free),
+and `coq/ChaoticACC.v` extends it to lattices with no infinite ascending chain (ACC).
 
 ## The decision, as a flowchart
 
