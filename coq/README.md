@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1783 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 1891 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 1783 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
@@ -204,6 +204,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 | `AstCompact.v` | `checkBuildC_eq`, `checkBuildC_converges` | [Rules oracle](docs/infrastructure.md#rules-oracle-astcheckerv) |
 | `extraction/`, `goextract/` | The two oracles extracted to OCaml (`checker`, `astchecker`) and generated as Go for gsm | [extraction/README.md](extraction/README.md), [goextract/README.md](goextract/README.md) |
 | `PaperInstances.v` | The papers' examples: `of_unique_normal_forms`, `thm_necessity`, `prop_cc_necessary`, `prop_cycle_necessary`, `prop_m1_necessary`, `r1_necessary`, `r2_necessary` | [The papers' concrete examples](docs/infrastructure.md#the-papers-concrete-examples-paperinstancesv) |
+| `CanonicalExecution.v`, `CanonicalInstances.v` | Experimental, validation in progress (do not cite yet): the canonical-execution kernel `peak_exact`, `classified_peak_exact`, `history_descent_exact`, `esh_exact`; rederivations `jc_exact_kernel`, `jcg_exact_kernel`, `causal_exact_kernel`, `causal_alo_exact_kernel`, `alo_exact_kernel`, `fed_exact_kernel`, `pjc_exact_kernel`, `flush_fed_iff_kernel` | [Canonical execution](docs/canonical-execution.md) |
 
 ## Adding a module
 
