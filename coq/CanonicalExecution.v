@@ -1,6 +1,7 @@
-(* CanonicalExecution.v: an EXPERIMENTAL meta-theory, "canonical execution". Axiom-free.
-   Experimental: validation in progress. Do not cite yet; CanonicalInstances.v records which
-   existing exact theorems the abstraction rederives and where it leaks.
+(* CanonicalExecution.v: the meta-theory "canonical execution". Axiom-free.
+   Validated, scoped to single systems and acyclic composition (docs/THEORY.md, section
+   "Canonical execution"); CanonicalInstances.v records which existing exact theorems the
+   abstraction rederives and where it leaked.
 
    The hypothesis under test. Convergence of governed execution decomposes into three layers:
      E  effective canonicalization: the dynamics settles (Settlement) and the settled

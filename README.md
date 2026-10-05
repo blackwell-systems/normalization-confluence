@@ -60,7 +60,9 @@ cheap sufficient conditions at build time (see [Companion Tools](#companion-tool
 
 **Researchers: what is new, and against what?** The [papers](#publications), then
 [docs/THEORY.md](docs/THEORY.md) (the theory overview: the third regime, what is new and what is
-not, each item marked mechanized, paper or implemented, the key concepts, and a
+not, each item marked mechanized, paper or implemented, the key concepts, a
+[canonical execution](docs/THEORY.md#canonical-execution) section that rederives six exact results
+through one decomposition and states its scope, and a
 [mathematical structure](docs/THEORY.md#mathematical-structure) section placing the theory in pure
 mathematics),
 [docs/LANDSCAPE.md](docs/LANDSCAPE.md) (placement against prior work),

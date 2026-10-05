@@ -591,6 +591,12 @@ research directions, not missing exact conditions for a listed regime).
   balanced and either no fixed point or a fair schedule that never settles; this search is not
   mechanized), value sets without bounds, and an exact (iff) condition for E in reading B. The rest of the statement below stays
   open.
+
+  networks beyond one cycle are gap 2. P2 is part of the cyclic frontier: the acyclic case is
+  Robert's theorem, and what is open is the cyclic one, an instance of the question of what
+  additional structure makes the composition layer P exact on cycles
+  ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier);
+  [THEORY.md](THEORY.md#canonical-execution)).
 - **Statement.** For a cyclic network in reading B, characterize when every fair asynchronous order
   from a given initial state reaches the same consistent state, without an authority root. Known:
   necessary conditions from Thomas's rules (a positive cycle for multiplicity, a negative cycle for

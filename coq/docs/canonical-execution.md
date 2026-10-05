@@ -1,9 +1,11 @@
-# Canonical execution (experimental)
+# Canonical execution
 
-> **Experimental: validation in progress.** This page records a research experiment. Do not cite
-> these results yet. Nothing here changes what [REGIME-AUDIT.md](../../REGIME-AUDIT.md) or the
-> papers state; the modules only rederive existing exact theorems through a common kernel and
-> record where that works and where it does not.
+> **Validated, scoped to single systems and acyclic composition (see
+> [docs/THEORY.md](../../docs/THEORY.md#canonical-execution)).** E, S and H are exact for single
+> systems and P for acyclic composition; on cycles P has the soundness direction only. Nothing here
+> changes what [REGIME-AUDIT.md](../../REGIME-AUDIT.md) or the papers state; the modules rederive
+> existing exact theorems through a common kernel and record where that works and where it does
+> not. The sections below keep the validation record as it was run.
 
 Modules: `CanonicalExecution.v` (the generic kernel), `CanonicalInstances.v` (the six
 validation criteria) and `CanonicalLocality.v` (the P layer, interaction locality, and the rerun
@@ -362,7 +364,12 @@ the kernel names (peak classification, presentation adequacy, the E/S/H translat
 model semantics. With the P layer, D passes under the same rubric: the federated regime is
 history descent (H) composed with the interaction-locality factorization (P), whose obligation
 `LC` is the model's locality lemma. So E, S, H and P now rederive all six criteria. Two limits
-remain and argue for keeping the experiment uncited: the P layer's exact form is proved for the
-acyclic federation only (on monotone cycles only the soundness half, with a static
-decomposition), and the relation between P_state and P_interaction is an observation with one
-shared hypothesis, not a combined theorem.
+remain: the P layer's exact form is proved for the acyclic federation only (on monotone cycles only
+the soundness half, with a static decomposition), and the relation between P_state and
+P_interaction is an observation with one shared hypothesis, not a combined theorem.
+
+Outcome: after the statement review above, the framework is promoted with those two limits as its
+stated scope (exact for single systems and for acyclic composition; soundness only on cycles; the
+descent reading an observation). The promoted statement, the evidence and the qualifiers are in
+[docs/THEORY.md](../../docs/THEORY.md#canonical-execution), and the open cyclic case is
+[REGIME-AUDIT.md, the cyclic frontier](../../REGIME-AUDIT.md#the-cyclic-frontier).
