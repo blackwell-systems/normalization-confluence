@@ -24,7 +24,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
 ```
 
 Expected tail: `PASS: all 1370 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1198 gated results and fails if any of them depends on an
+The gate runs `Print Assumptions` on all 1370 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -32,8 +32,8 @@ certification-soundness results and the verified-checker results behind the tabl
 the CRDT-subsumption results, the categorical core and bridge, the cohomological layer
 (`Cohomology.v` to `CohomologyGeneral.v`, `RootSet.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
-rootless cycles, the federated rewrite system and compositional collapse). The sections below
-describe each module's results.
+rootless cycles, the distributed propagation model (acyclic and on monotone cycles), the federated
+rewrite system and compositional collapse). The sections below describe each module's results.
 
 ## What is proven
 
@@ -2504,7 +2504,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1198
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1370
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

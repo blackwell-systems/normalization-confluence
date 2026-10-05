@@ -4,10 +4,10 @@ Goal: a theory in which every remaining caveat is either a deliberate design exc
 fundamental limit, and nothing is merely unproven. This page lists each caveat the development
 still carries, what removing it would prove, how, what it depends on, and when it counts as done.
 
-Status of the gate: 1198 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 1370 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54 to #59) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #60, #62) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -34,6 +34,8 @@ proven until it lands in a module and passes the gate.
 | Lossy-network hardness: the 3-SAT reduction mechanized | `LossyHardness.v` | `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` | #57 |
 | State-based CRDT merges through the exact theorems (audit gap 7) | `CvRDTExact.v` | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact`, `naive_cvrdt_iff_fails` | #58 |
 | Exact event order under root-set coordination (audit gap 4) | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | #59 |
+| Distributed propagation model, acyclic: exact condition (audit gap 1, acyclic part) | `DistributedExact.v` | `dist_exact`, `dist_exact_local`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots`, `dist_xu_c2_converge`, `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | #60 |
+| Distributed propagation model on monotone cycles: repair alone, reset epochs, events without resets (audit gap 1, cyclic part; residual open) | `DistributedCycles.v` | `q1_sound_iff`, `q1_unique_iff`, `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `low_agree_iff`, `low_conv_iff`, `quiet_agree_iff`, `quiet_conv_iff`, `dist_cyc_ghost`, `dist_cyc_epoch_fix` | #62 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
@@ -56,6 +58,11 @@ naive statements are false, and each has a mechanized counterexample:
   is a join-semilattice on all states" (`naive_cvrdt_iff_fails`); the exact condition is
   commutation and idempotence at reachable states (`merge_action_exact`), and reachability is
   needed (`clamp_reach_qualifier`).
+- **Distributed model.** The acyclic exact condition is strictly weaker than XU
+  (`levels_exact_not_xu`) and strictly stronger than FedMachine convergence
+  (`dist_strictly_stronger_than_fed`). On monotone cycles every check gsm runs can pass while
+  projection nodes settle at a ghost fixed point the FedMachine never produces (`dist_cyc_ghost`);
+  a reset epoch removes it only as a barrier (`dist_cyc_epoch_fix`).
 - **Causal converse.** Reachability of the state is not enough; the non-commuting concurrent pair
   must be deliverable after a causally consistent prefix (`naive_causal_converse_fails`).
 - **At-least-once.** Idempotence of each duplicated event is not enough under causal delivery: the
@@ -267,7 +274,8 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 
 | Item | Status | Size |
 |---|---|---|
-| Distributed propagation model: exact converse of `dist_interleavings_converge` (acyclic), and a model for cycles (gap 1) | acyclic sufficient only; cyclic not modeled | medium; large |
+| Distributed propagation model (gap 1): acyclic exact converse; a model for monotone cycles | acyclic done, #60 (`dist_exact`); cycles modeled and exact under reset epochs and under `LowR`, #62 (`epoch_conv_iff`, `low_conv_iff`) | n/a |
+| Distributed model on monotone cycles without resets and without `LowR` (gap 1, residual): an exact per-event check for `NoGhostR`, or a discharge of `FlushR`, so that `quiet_agree_iff` and `quiet_conv_iff` lose their reachable hypotheses | open; sufficient checks only (`EvLow` via `infl_evlow`, a unique fixed point via `uniq_agree`) | medium |
 | Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | open | medium |
 | Rootless propagation on non-invertible networks, resolver reading (gap 3; `LOSSY-NETWORKS.md` P2, PR #52) | open | medium to large |
 | Event order under non-invertible root-set coordination (gap 4; P6) | done, #59 (`forest_events_exact`) | n/a |
@@ -280,8 +288,8 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 Optimization and counting, which do not bear on when state converges: minimum coordination on
 invertible cycles tied to the authority-root plan model (its NP-hardness is cited), minimum
 coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and sheaf gluing
-(audit gaps 10 to 13). Open convergence items after #56 to #59: gaps 1, 2, 3 and 5 (four), plus
-the design exclusion of gap 8.
+(audit gaps 10 to 13). Open convergence items after #60 and #62: gap 1 narrowed to its residual
+(cycles without resets and without `LowR`), gaps 2, 3 and 5, plus the design exclusion of gap 8.
 
 ## Removable caveats, lower value
 
@@ -291,9 +299,11 @@ the design exclusion of gap 8.
   assignment of a root set drives a consistent state (`root_set_criterion_graph`, `RootSet.v`, #54);
   deciding that is NP-complete, with the reduction mechanized (`LossyHardness.v`, #57), and event
   order under root-set coordination is exact (`forest_events_exact`, `RootSetEvents.v`, #59).
-- **Distributed model for cycles.** `FederationEvents.v` proves a distributed model (local events
-  and separate propagation steps) for acyclic federations, with a sufficient condition only; state
-  the exact converse there, and extend the model to monotone cycles.
+- **Distributed model for cycles.** Done except a residual: the acyclic exact converse is
+  `dist_exact` (`DistributedExact.v`, #60), and the model on monotone cycles is exact under reset
+  epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`) (`DistributedCycles.v`, #62). Without
+  resets and without `LowR` the exact theorems assume reachable `FlushR` and `NoGhostR`; an exact
+  per-event check for `NoGhostR` is open.
 - **C2 converse over all valid starts in general networks.** The C2 converse applies when some
   valid consistent state realizes the witness pair `(z, b)` (for example a two-registry federation
   whose source has no repair); a general statement quantifying over all valid starts is open.

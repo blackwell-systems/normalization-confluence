@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (1198 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (1370 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -32,7 +32,9 @@ deciding consistency of a lossy network without a spanning root is NP-complete: 
 reduction is machine-checked (correct in both directions, parsimonious, linear in size, with a
 checkable certificate; `coq/LossyHardness.v`), and NP-completeness follows from it by the standard
 argument. NP-hardness of minimum coordination is cited from the literature. The gaps still open are
-the distributed propagation model (acyclic: sufficient only; cyclic: not modeled), rootless
+the distributed propagation model on monotone cycles without reset epochs, where the exact
+condition is mechanized under `LowR` and otherwise only relative to two reachable hypotheses
+(`FlushR`, `NoGhostR`; the acyclic model and cycles with reset epochs are exact), rootless
 networks beyond a single invertible cycle, rootless propagation on lossy networks, and cyclic
 monotone collapse (paper only); least fixed points without ACC are a design exclusion, and minimum
 coordination, the `H^1` rank on the 2-complex and sheaf gluing are open optimization and structure
