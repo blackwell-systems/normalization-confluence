@@ -38,7 +38,9 @@ trivial), so this is a strict generalization, not a competitor.
 This recovery is now machine-checked, not just asserted: `coq/CRDT.v` proves (axiom-free) that an
 op-based CRDT's strong eventual consistency is an instance of the same order-independence lemma the
 governance proof uses, that a state-based CRDT is the semilattice special case, and that the
-inclusion is strict via a convergent governed machine that is provably neither CRDT. See
+inclusion is strict on the same transition representation: a convergent governed machine whose
+raw transitions are provably neither kind of CRDT (its governed behavior is itself trivially a
+CRDT, `witness_governed_constant`, so the separation is about representations). See
 [SUBSUMPTION.md](SUBSUMPTION.md) for the precise statement and its scope.
 
 ## Precisely: CALM, I-confluence, and where compensation adds reach

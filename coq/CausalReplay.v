@@ -21,8 +21,8 @@
    - compensation_free_exact: for a compensation-free system (normalization is the identity), the
      causal convergence condition holds IFF the system is a causal op-based CRDT. With the
      embedding, this makes the compensation-free fragment EXACTLY the op-based CRDTs.
-   - witness_causal_not_cmrdt: a governed system that converges causally but is not a CRDT
-     (strictness).
+   - witness_causal_not_cmrdt: a governed system that converges causally although its raw
+     operations are not an op-based CRDT (strictness on the transition representation).
    - witness_beyond_all_pairs: a system whose operations do NOT all commute, which the all-pairs
      theorem cannot cover, but which converges under causal delivery (the new reach).
 
@@ -268,7 +268,8 @@ Arguments causal_cmrdt {S Op} apply hb.
    Witnesses. Axiom-free.
    ============================================================ *)
 
-(* Strictness: a governed system that converges under causal delivery but is not an op-based CRDT.
+(* Strictness: a governed system that converges under causal delivery although its raw operations
+   are not an op-based CRDT.
    The state is one boolean, only false is valid, and compensation resets to false. The raw
    operations (set-true, flip) do not commute, so with no causal order between them they are a
    concurrent pair that a CRDT would require to commute; the governed steps still agree. *)

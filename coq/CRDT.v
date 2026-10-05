@@ -23,10 +23,12 @@
       (duplicate delivery is absorbed).
 
    4. Strict inclusion (the witness_ theorems): a concrete governed machine that
-      CONVERGES yet is neither CRDT. Its raw operations do not commute (so it is no
-      CmRDT), and an
-      event drives a valid state to an invalid one (so its operations are not the
-      structure-preserving endomaps of a CvRDT). It converges only via compensation.
+      CONVERGES although its raw transitions are neither kind of CRDT. Its raw operations
+      do not commute (so they are no CmRDT), and an event drives a valid state to an
+      invalid one (so the raw operations are not the structure-preserving endomaps of a
+      CvRDT). It converges only via compensation. The separation is on the transition
+      representation: the governed behavior itself is trivially a CRDT
+      (CRDTBoundary.witness_governed_constant).
 
    Everything is axiom-free and reuses run_perm_invariant from Checker.v. *)
 
@@ -116,14 +118,14 @@ Section CvRDT.
   Proof. intros x s. unfold merge. rewrite join_assoc. rewrite join_idem. reflexivity. Qed.
 End CvRDT.
 
-(* ===== 4. Strict inclusion: a convergent governed machine that is no CRDT ===== *)
+(* ===== 4. Strict inclusion: a convergent governed machine whose raw ops are no CRDT ===== *)
 
 Section StrictInclusion.
   (* Witness: the state is one boolean; only `false` is valid. Two events: `settrue`
      (s := true) and `flip` (s := negb s). Compensation restores validity by resetting
      to false. The governed steps converge, but the raw operations do not commute (so
-     it is not an op-based CRDT), and an event drives a valid state to an invalid one
-     (so its operations are not the structure-preserving endomaps of a state-based
+     they are not an op-based CRDT), and an event drives a valid state to an invalid one
+     (so the raw operations are not the structure-preserving endomaps of a state-based
      CRDT). It converges only because compensation repairs the violation. *)
   Definition settrue (_ : bool) : bool := true.
   Definition flip (s : bool) : bool := negb s.
@@ -142,7 +144,7 @@ Section StrictInclusion.
     forall s, run gov es1 s = run gov es2 s.
   Proof. apply run_perm_invariant. exact gov_commute. Qed.
 
-  (* It is NOT an op-based CRDT: the raw operations do not commute, so they cannot be
+  (* The raw operations are NOT an op-based CRDT: they do not commute, so they cannot be
      the concurrent operations of a CmRDT. *)
   Theorem witness_not_cmrdt :
     ~ (forall (f g : bool -> bool) (s : bool), f (g s) = g (f s)).
@@ -151,7 +153,7 @@ Section StrictInclusion.
     unfold flip, settrue in H. simpl in H. discriminate H.
   Qed.
 
-  (* It is NOT a state-based CRDT: an event maps a valid state to an invalid one,
+  (* The raw operations are NOT a state-based CRDT: an event maps a valid state to an invalid one,
      whereas a CvRDT's operations keep the state inside the semilattice (they never
      produce a state that needs repair). *)
   Theorem witness_leaves_valid_space :

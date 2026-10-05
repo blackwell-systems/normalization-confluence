@@ -89,7 +89,7 @@ finite domains satisfy ACC.
 | One registry, **at-least-once delivery** (duplicates) | exactly-once commutation at reachable states + each event idempotent at every reachable state where it is first delivered (under causal delivery: CCR + the same per event, with causally consistent redelivery) | **Yes, if and only if**, same state as exactly-once | `alo_exact`, `causal_alo_exact_idem`; sufficient forms `alo_commuting_converges`, `causal_alo_converges` |
 | One registry, a duplicated **non-idempotent** event | | **No** (diverges) when the failure is at a reachable state; an event needs deduplication iff its duplicate is not absorbed (`safe_free_exact`) | `non_idempotent_diverges`, `notidem_needs_dedup`, `late_duplicate_diverges` |
 | One registry, **guarded enabledness that a compensation step can disable** (a buffered event stops being enabled after repair) | termination from the start + **JC'**: JC's event/event clause, and for each event enabled at an invalid state, repairing after it joins with repairing first; JC alone is neither sufficient nor necessary here | **Yes, if and only if**; normal forms may leave disabled events in the buffer | `jcg_exact`, `jcsplit_exact`, `gnf_iff`; `dc_jc_insufficient`, `nv_jc_not_necessary` (`EnabledAfterComp.v`) |
-| **State-based CRDT** merges (payload states as events, merge as the action, no repair) | merges commute and are idempotent at every state reachable from the start; equivalently, on the reachable states a join-semilattice for which each merge is the join with its payload | **Yes, if and only if**, under every order and any duplication | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact`; `naive_cvrdt_iff_fails`, `clamp_reach_qualifier` (`CvRDTExact.v`) |
+| **State-based CRDT** merges (payload states as events, merge as the action, no repair) | merges commute and are idempotent at every state reachable from the start; equivalently, on the reachable states a join-semilattice for which each merge is the join with its payload | **Yes, if and only if**, under every order and any duplication | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_iff`; `naive_cvrdt_iff_fails`, `clamp_reach_qualifier` (`CvRDTExact.v`) |
 | **Stream processors** (incremental, time-indexed received sets) | under `Progress`: PJC at every duplicate-free event set (free delivery: PCC) | **Yes, if and only if**: settled processors with the same received set agree | `stream_exact`, `stream_exact_free` |
 
 WFC = every compensation chain is finite. CC = two independent events, each followed by repair,
@@ -274,14 +274,16 @@ conditions.
 system (merges as events, no repair) is exactly a commutative and idempotent action on the
 reachable states (`merge_action_exact`), and with a finite event range and decidable equality,
 exactly a join-semilattice representation on the reachable states in which each merge is the join
-with its payload (`cvrdt_on_exact`). CvRDTs occupy that compensation-free monotone corner. The
+with its payload (`cvrdt_on_iff`). CvRDTs occupy that compensation-free monotone corner. The
 federated monotone-cycle results address a different problem: a common network repair fixed point
 when constraints between registries form cycles. Under causal delivery, convergence for every start
 is exactly commutation of concurrent pairs at every state (`causal_convergence_exact`), and standard
 op-based CRDTs converge as an instance (`causal_cmrdt_SEC`); `compensation_free_exact` is the
 structural statement that, with normalization the identity, that commutation condition is the
 op-based CRDT condition. Normalization confluence adds business invariants on top, and that is
-strictly more: `witness_causal_not_cmrdt` converges causally without being a CRDT, and
+strictly more: `witness_causal_not_cmrdt` converges causally although its raw transitions are
+not an op-based CRDT (its governed behavior is itself trivially a CRDT,
+`witness_governed_constant`, so the separation is on the transition representation), and
 `witness_beyond_all_pairs` (an add, a causally later remove, an independent counter) converges
 although its operations do not all commute. The precise relationship is in
 [SUBSUMPTION.md](SUBSUMPTION.md).

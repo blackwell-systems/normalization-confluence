@@ -8,7 +8,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 [REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 1499 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 1524 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64) is in the Done table; what remains open is listed under "Open items"
@@ -36,7 +36,7 @@ proven until it lands in a module and passes the gate.
 | Exact at-least-once delivery, free and causal | `AtLeastOnceExact.v` | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `notidem_needs_dedup`, `gsm_unlisted_safe` | #55 |
 | Exact confluence when compensation may disable a buffered event (audit gap 6) | `EnabledAfterComp.v` | `jcg_exact`, `jcsplit_exact`, `jc_exact_recovered`, `gnf_iff`, `dc_jc_insufficient`, `nv_jc_not_necessary` | #56 |
 | Lossy-network hardness: the 3-SAT reduction mechanized | `LossyHardness.v` | `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` | #57 |
-| State-based CRDT merges through the exact theorems (audit gap 7) | `CvRDTExact.v` | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact`, `naive_cvrdt_iff_fails` | #58 |
+| State-based CRDT merges through the exact theorems (audit gap 7) | `CvRDTExact.v` | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact` (iff as exported: `cvrdt_on_iff`), `naive_cvrdt_iff_fails` | #58 |
 | Exact event order under root-set coordination (audit gap 4) | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | #59 |
 | Distributed propagation model, acyclic: exact condition (audit gap 1, acyclic part) | `DistributedExact.v` | `dist_exact`, `dist_exact_local`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots`, `dist_xu_c2_converge`, `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | #60 |
 | Distributed propagation model on monotone cycles: repair alone, reset epochs, events without resets (audit gap 1, cyclic part; residual open) | `DistributedCycles.v` | `q1_sound_iff`, `q1_unique_iff`, `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `low_agree_iff`, `low_conv_iff`, `quiet_agree_iff`, `quiet_conv_iff`, `dist_cyc_ghost`, `dist_cyc_epoch_fix` | #62 |
@@ -292,7 +292,7 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 | Event order under non-invertible root-set coordination (gap 4; P6) | done, #59 (`forest_events_exact`) | n/a |
 | Cyclic monotone collapse (gap 5) | paper only | medium to large |
 | Enabledness that a compensation step can disable (gap 6; outside `jc_exact`'s `enabled_after_comp`) | done, #56 (`jcg_exact`) | n/a |
-| State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`) | n/a |
+| State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`; the iff as exported: `cvrdt_on_iff`) | n/a |
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence (`LOSSY-NETWORKS.md` 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
 
