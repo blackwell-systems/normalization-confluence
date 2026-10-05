@@ -351,5 +351,5 @@ certificates on covers closed under sources, with its boundary stated
 ([`SheafGluing.v`](#sheaf-gluing-over-sub-federation-covers-sheafgluingv)).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate
-(currently 2012 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 2067 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.

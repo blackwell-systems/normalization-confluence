@@ -1,7 +1,7 @@
 # Distributed model with propagation steps
 
 Detailed results for the distributed propagation model: the exact condition on acyclic federations,
-the model on monotone cycles, and that model without resets made exact. Each module's one-line summary is in the [module
+the model on monotone cycles, that model without resets made exact, and convergence alone in it. Each module's one-line summary is in the [module
 index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#8-distributed-model-with-propagation-steps), section 8.
 
@@ -276,7 +276,8 @@ Each right-hand conjunct is necessary: an instance where it alone fails.
 keeps itself (`sa := lb || sa || sb`), from the FedMachine normal form, every quiescent
 interleaving of the same events agrees, yet each one after an event is a ghost. Convergence among
 interleavings is weaker than agreement with the FedMachine; the exact condition for convergence
-alone is open ([REGIME-AUDIT.md](../../REGIME-AUDIT.md) gap 14).
+alone is `conv_quiet_exact` ([below](#convergence-alone-on-monotone-cycles-distributedconvergenceexactv);
+[REGIME-AUDIT.md](../../REGIME-AUDIT.md) gap 14, closed).
 
 **2. `FlushR` exactly.**
 
@@ -357,3 +358,91 @@ certifying post-epoch states only. Without resets the deployment is certified at
 point and needs no barrier, but unless events are inflationary the extra check is a global
 reachability argument. For gsm's `alarms` shape (a clear on a feedback loop, nothing pinning the
 loop) no-reset certification is impossible (`ghost_exact`), and epochs are required.
+
+## Convergence alone on monotone cycles (`DistributedConvergenceExact.v`)
+
+`flush_fed_iff` is exact for convergence *together with* agreement with the FedMachine, whose
+canonical state is the least fixed point `Lfp`. Convergence among quiescent interleavings alone,
+`FlushR /\ DConvQ` (no resets), had only the sufficient condition `quiet_conv_suff` (`XUcR`,
+`FMConv`, `NoGhostR`), and `conv_ghost_normal` showed `NoGhostR` is not necessary. This file gives
+the exact condition (55 gated results, axiom-free). The idea: replace the FedMachine's canonical
+state (reset, then Kleene) by the canonical state the propagation dynamics produces itself, the
+quiescent state a reachable state flushes to, which may be a ghost. The canonical-execution
+decomposition then goes through with that canonicalizer, read as a relation (no choice function, so
+nothing leaves the axiom-free gate).
+
+New notions (all without resets):
+
+- `Flushes t q`: some propagation word takes `t` to the quiescent state `q`.
+- `FlushDetR` (E, canonical fidelity with the dynamics' own canonicalizer): every reachable state
+  flushes to at most one quiescent state. A ghost is allowed; it must be determined.
+- `FlushXUR` (S, state descent for the flush): for every reachable `t`, event `e` and flush `q` of
+  `t`, `ev e t` and `ev e q` flush to a common state.
+- `QM s es q`, the quiescent machine: flush `s`, then for each event apply it and flush again,
+  ending at `q`. It is the FedMachine with `Normalize` (reset, then Kleene) replaced by propagation
+  to quiescence, which keeps ghosts.
+- `QMConv s0` (H, history descent for the flush): trace-equivalent event sequences have the same
+  quiescent-machine outcomes.
+
+**1. The exact condition.** No lattice hypothesis is used: the proof needs only the action
+structure of the model.
+
+- **`conv_quiet_exact`**: `FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`.
+  The forward direction holds with resets too (`conv_flushdet`, `conv_flushxu`, `conv_qmconv`); the
+  backward direction (`conv_quiet_suff`, through `qm_track`: under the three layers every flush of a
+  reachable state is the quiescent machine's outcome for the same events) is for the no-reset
+  model: a reset moves a state's flush to `Lfp` without an event, which the epoch theorems handle.
+- **`fair_conv_exact`**: the same with `FairFlushR`.
+- **`flushdet_event_iff`**: `FlushDetR <->` the start and every post-event state flush to at most
+  one quiescent state (the analog of `noghost_event_iff`).
+
+Each right-hand conjunct is necessary: an instance where it alone fails.
+
+| Conjunct | Instance | What holds, what fails |
+|---|---|---|
+| `FlushR` | `flip_conv_noflush` | flip1 from `fa`: no reachable state quiesces, so `FlushDetR`, `FlushXUR` and `QMConv` hold vacuously; `FlushR` fails |
+| `FlushDetR` | `fork_conv_nodet` | the flag cycle with both alarms clear, from the stale start `(sa, sb) = (true, false)`, identity events: propagating A first reaches `Lfp`, propagating B first reaches the ghost `(true, true)`; `FlushR`, `FlushXUR`, `QMConv` hold |
+| `FlushXUR` | `copy_conv_noxu` | `copy_xu_fails` (one fixed point): `FlushR`, `FlushDetR`, `QMConv` hold; `CopyA` reads A's stale flag |
+| `QMConv` | `fm_conv_noqm` | `fm_conv_fails` (one fixed point): `FlushR`, `FlushDetR`, `FlushXUR` hold; `SetA` and `ClrA` are declared independent and do not commute |
+
+**2. The ghost-free case recovers the earlier results.** Under `FlushR /\ NoGhostR` every flush is
+the FedMachine normal form (`noghost_flushes`), so `FlushDetR` holds (`noghost_flushdet`), `FlushXUR`
+is `XUcR` (`noghost_flushxu_iff`) and `QMConv` is `FMConv (Nc s0)` (`noghost_qmconv_iff`; by
+`noghost_qm` the quiescent machine is the FedMachine).
+
+- **`quiet_conv_recovered`**: `FlushR -> NoGhostR -> (DConvQ <-> XUcR /\ FMConv (Nc s0))`, which is
+  `quiet_conv_iff` at `r = false`.
+- **`agree_conv_noghost`**: `FlushR -> (DAgreeQ /\ DConvQ <-> DConvQ /\ NoGhostR)`. Agreement with
+  the FedMachine is convergence plus canonical fidelity to `Lfp`.
+- **`flush_fed_recovered`**: `flush_fed_iff` at `r = false`, rederived through `conv_quiet_exact`.
+- `quiet_conv_suff` stays the sufficient condition that needs no `FlushR`.
+
+**3. When the ghost is determined for free.** With the lattice hypotheses of `DistributedCycles.v`:
+**`sand_flushdet`**: a sandwiched state (`s <= h <=` every fixed point above `s`, `s` sound) flushes
+only to the least fixed point above `s`. So `SandR` or `SoundR` gives `FlushDetR`
+(`sandr_flushdet`, `soundr_flushdet`), and **`soundr_conv_iff`**: `SoundR -> (DConvQ <-> FlushXUR /\
+QMConv)`; `FlushR` and `FlushDetR` come free. Only unsound reachable states can fork
+(`fork_conv_nodet`, the start of `dist_schedule_dependence`).
+
+**4. Instances.**
+
+- **`conv_ghost_instance`**: `conv_ghost_normal` is an instance. All four conjuncts hold, `NoGhostR`
+  and `DAgreeQ` fail, and the quiescent machine sends `SetSA` to the ghost
+  `((false, false), (true, true))` while the FedMachine sends it to `((false, false), (false,
+  false))`: the interleavings agree, on the quiescent machine's state rather than the FedMachine's.
+- **`ghost_conv_not_fed`**: none of the three conditions of `quiet_conv_suff` is necessary. On the
+  same network, from the ghost start `((false, false), (true, true))` (a fixed point above `Lfp`),
+  with `XCopyA` (A's alarm := A's flag) and `XRaiseB` (B's alarm := true), declared independent as
+  events of different registries: A's flag stays set, so `XCopyA` always raises A's alarm and the
+  quiescent state depends only on which events occurred. `FairFlushR` and `DConvQ` hold, so all four
+  conjuncts hold; `XUcR`, `FMConv (Nc s0)`, `NoGhostR` and `DAgreeQ` all fail (the FedMachine resets
+  A's flag, so `XCopyA` before `XRaiseB` leaves A's alarm down there, and after it raises it).
+- **`raise_only_conv`**: non-vacuity without a ghost, and of `SoundR`: raise-only events from a
+  FedMachine normal form.
+
+Reading. The ghost is not the obstacle to convergence; it is the obstacle to agreement with the
+FedMachine. Convergence alone asks the same three layers as `flush_fed_iff`, each relative to the
+state propagation settles in instead of `Lfp`. All conditions are reachable properties (as in
+`flush_fed_iff`); `SoundR` removes the fidelity layer. No per-target check for `FlushXUR` or
+`QMConv` is given: gsm's `C1cyc` and `C2cyc` are stated against `Lfp`, so they discharge the
+ghost-free forms (`XUcR`, `FMConv`) only.

@@ -65,3 +65,4 @@ CanonicalLocality.v
 SignedCycles.v
 SignedResolver.v
 LocalSigned.v
+DistributedConvergenceExact.v
