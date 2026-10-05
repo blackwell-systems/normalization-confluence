@@ -45,4 +45,5 @@ StreamExact.v
 GovernanceWFConverse.v
 RootlessCycles.v
 CoordinatedExact.v
+AtLeastOnceExact.v
 RootSet.v

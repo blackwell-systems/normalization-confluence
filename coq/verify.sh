@@ -945,6 +945,38 @@ Print Assumptions NC.CoordinatedExact.k_rrun_fixed.
 Print Assumptions NC.CoordinatedExact.old_condition_not_necessary.
 Print Assumptions NC.CoordinatedExact.copyback_events_exact.
 Print Assumptions NC.CoordinatedExact.negation_events_exact.
+Require NC.AtLeastOnceExact.
+Print Assumptions NC.AtLeastOnceExact.causal_alo_exact.
+Print Assumptions NC.AtLeastOnceExact.causal_alo_exact_idem.
+Print Assumptions NC.AtLeastOnceExact.safe_at_exact.
+Print Assumptions NC.AtLeastOnceExact.safe_at_iff_idem.
+Print Assumptions NC.AtLeastOnceExact.absorb_idem.
+Print Assumptions NC.AtLeastOnceExact.idem_absorb.
+Print Assumptions NC.AtLeastOnceExact.causal_notidem_needs_dedup.
+Print Assumptions NC.AtLeastOnceExact.causal_gsm_unlisted_safe.
+Print Assumptions NC.AtLeastOnceExact.ccr_on_true_iff.
+Print Assumptions NC.AtLeastOnceExact.alo_exact.
+Print Assumptions NC.AtLeastOnceExact.alo_exact_absorb.
+Print Assumptions NC.AtLeastOnceExact.safe_free_exact.
+Print Assumptions NC.AtLeastOnceExact.safe_free_iff_idem.
+Print Assumptions NC.AtLeastOnceExact.needs_dedup_exact.
+Print Assumptions NC.AtLeastOnceExact.needs_dedup_witness.
+Print Assumptions NC.AtLeastOnceExact.alo_safe.
+Print Assumptions NC.AtLeastOnceExact.alo_idem_reachable.
+Print Assumptions NC.AtLeastOnceExact.notidem_needs_dedup.
+Print Assumptions NC.AtLeastOnceExact.gsm_unlisted_safe.
+Print Assumptions NC.AtLeastOnceExact.old_free_implies.
+Print Assumptions NC.AtLeastOnceExact.alo_commuting_recovered.
+Print Assumptions NC.AtLeastOnceExact.old_causal_implies.
+Print Assumptions NC.AtLeastOnceExact.causal_alo_recovered.
+Print Assumptions NC.AtLeastOnceExact.inc_alo_fails.
+Print Assumptions NC.AtLeastOnceExact.fw_alo_fails.
+Print Assumptions NC.AtLeastOnceExact.flag_idem_needs_dedup.
+Print Assumptions NC.AtLeastOnceExact.jmp_unreachable.
+Print Assumptions NC.AtLeastOnceExact.mx_alo_exact.
+Print Assumptions NC.AtLeastOnceExact.fl_causal_alo_exact.
+Print Assumptions NC.AtLeastOnceExact.causal_absorb_qualifier.
+Print Assumptions NC.AtLeastOnceExact.n_causal_alo_exact.
 Require NC.RootSet.
 Print Assumptions NC.RootSet.drive_root.
 Print Assumptions NC.RootSet.out_forest_section.
@@ -999,8 +1031,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 958 ]; then
-  echo "FAIL: expected 958 axiom-free results, got $N"
+if [ "$N" -lt 989 ]; then
+  echo "FAIL: expected 989 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
