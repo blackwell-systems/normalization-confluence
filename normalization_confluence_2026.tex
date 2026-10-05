@@ -32,6 +32,10 @@
 
 \newcommand{\defeq}{\vcentcolon=}
 \newcommand{\nf}{\mathrm{nf}}
+% Coq theorem names (typewriter, breakable at underscores)
+\DeclareUrlCommand\coq{\urlstyle{tt}}
+\Urlmuskip=0mu
+\emergencystretch=3em
 
 \title{Normalization Confluence for\\Registry-Governed Stream Processing}
 
@@ -39,6 +43,9 @@
 Dayna Blackwell\\
 \small\href{mailto:dayna@blackwell-systems.com}{dayna@blackwell-systems.com}\\
 \small Licensed under CC-BY-4.0.}
+
+\date{4 October 2026\\[4pt]
+\small Version 2. See Appendix (Errata and corrections) for changes from version 1.}
 
 \begin{document}
 \maketitle
@@ -68,8 +75,11 @@ of the order in which they apply those events.  A third condition---%
 \emph{uniformly bounded compensation} (UBC)---yields constant per-event
 overhead and $O(n \log n)$ total cost matching conventional stream processing.
 We show UBC is tight: without it, compensation depth grows without limit.
-We show CC is necessary: without it, different orders can reach different
-valid states.
+We show CC is exact where it can be: with every buffered event free to fire
+and compensation that repairs to validity, every event set delivered from the
+initial state has a unique normal form if and only if CC holds on the
+reachable states; when causal dependencies constrain the future of a run, the
+exact condition is a joinability form of CC.
 
 Compensation commutativity is strictly weaker than operation commutativity:
 operations need not commute, only their compensated results.  The gap between
@@ -80,9 +90,14 @@ To make CC practically verifiable, we develop a \emph{verification calculus}
 that reduces the global CC obligation to local checks.  An \emph{invariant
 footprint} mapping identifies which invariants each event can affect, and a
 \emph{decomposable repair} condition ensures per-invariant repairs commute.
-Together, these yield sufficient conditions for CC that can be checked
-per-event-pair rather than globally, and a product composition theorem that
-enables modular verification of multi-registry systems.
+Under decomposable repair, CC2 is equivalent to a per-event strong absorption
+property, and CC1 for a pair reduces to commutation of the two events up to
+normalization plus a per-event footprint absorption check; at valid states,
+disjoint footprints and repair locality reduce CC1 to commutation up to
+normalization alone.  A product composition theorem enables modular
+verification of multi-registry systems.  The convergence theorems, their
+exact converses, the calculus, and the paper's examples and counterexamples
+are mechanized in Coq/Rocq, axiom-free.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Stream Processing, Normalization
@@ -134,13 +149,15 @@ commute---even though the operations themselves do not.  Under this condition,
 together with well-founded compensation, Newman's Lemma guarantees that all
 causality-respecting processing orders reach the same valid state.
 
-The three regimes form a hierarchy of progressively weaker requirements:
+The three regimes compare as follows:
 \begin{enumerate}[leftmargin=*,nosep]
-\item Operation commutativity $\implies$ compensation commutativity
-  $\implies$ convergence.
-\item Invariant confluence $\implies$ no compensation needed $\implies$
-  convergence.
-\item Compensation commutativity alone $\implies$ convergence (this paper).
+\item Operation commutativity (every state valid) $\implies$ compensation
+  commutativity $\implies$ convergence.
+\item Invariant confluence $\implies$ no compensation needed; in the
+  sequential-application model of this paper, convergence then still
+  requires the operations to commute on the reachable states.
+\item Well-founded compensation and compensation commutativity $\implies$
+  convergence (this paper).
 \end{enumerate}
 Normalization confluence occupies the design space between CRDT commutativity
 (which requires operations to commute) and I-confluence (which requires
@@ -170,9 +187,11 @@ from operation algebra to compensation design.
   processors consuming the same events converge to the same valid state,
   regardless of application order, under well-founded compensation (WFC) and
   compensation commutativity (CC).
-\item \textbf{Necessity of both conditions} (\Cref{sec:necessity}):
-  Counterexamples demonstrating that without UBC, compensation depth is
-  unbounded, and without CC, different orders reach different valid states.
+\item \textbf{Tightness and exactness} (\Cref{sec:necessity}): without UBC,
+  compensation depth is unbounded; a failure of CC can make different orders
+  reach different valid states; and CC is the exact condition (an
+  if-and-only-if) when every buffered event may fire and compensation repairs
+  to validity, with a joinability form of CC exact under any enabledness.
 \item \textbf{Complexity analysis} (\Cref{sec:complexity}): Proof that
   registry governance adds $O(\log n)$ overhead per event under UBC,
   preserving practical scalability.
@@ -180,16 +199,19 @@ from operation algebra to compensation design.
   Together with CRDTs and invariant confluence, a partition of the
   coordination-free design space into operation commutativity, invariant
   confluence, and normalization confluence.
-\item \textbf{Verification calculus} (\Cref{sec:calculus}): Sufficient
-  conditions---invariant footprints and decomposable repair---that reduce the
-  global CC obligation to local, per-event-pair checks.  Product composition
-  theorems enable modular verification of multi-registry systems.
+\item \textbf{Verification calculus} (\Cref{sec:calculus}): invariant
+  footprints and decomposable repair reduce the global CC obligation to
+  per-event checks (strong absorption, footprint absorption) and per-pair
+  commutation up to normalization, with each hypothesis shown to be needed.
+  Product composition theorems enable modular verification of multi-registry
+  systems.
 \item \textbf{Machine-checked proof} (\Cref{sec:mechanization}): A Coq/Rocq
-  mechanization of the Convergence Theorem---Newman's Lemma and the three
-  critical-pair cases---that is axiom-free (\texttt{Print Assumptions} reports
-  ``Closed under the global context'') and accompanied by a concrete registry
-  witnessing that WFC and CC are jointly satisfiable, so the theorem is not
-  vacuous.
+  mechanization of the Convergence Theorem (Newman's Lemma and the three
+  critical-pair cases), of the stream-level theorem, of the exact converses,
+  of the calculus, and of every worked example and counterexample, all
+  axiom-free (\texttt{Print Assumptions} reports ``Closed under the global
+  context''), with concrete registries witnessing that the hypotheses are
+  jointly satisfiable, so no theorem is vacuous.
 \end{enumerate}
 
 %========================================
@@ -216,9 +238,9 @@ Bailis et al.~\cite{bailis2014coordination} extend this to identify
 possible orderings preserve application invariants.  When invariant confluence
 holds, no compensation is needed.  Our framework addresses the complement:
 operations that are \emph{not} invariant-confluent.  We prove that
-compensation restores convergence under bounded depth and commutativity.
-Together, invariant confluence and our result partition the design space
-(\Cref{sec:design-space}).
+compensation restores convergence under well-founded compensation and
+compensation commutativity.  \Cref{sec:design-space} compares the two regimes
+precisely.
 
 \paragraph{Invariant-Repair Systems.}
 Indigo~\cite{balegas2015indigo} and IPA~\cite{balegas2019ipa} also restore
@@ -491,7 +513,9 @@ Under WFC (\Cref{ax:wfc}), define $\rho_R^*(\sigma)$ to be the unique state
 obtained by iterating $\rho_R$ from~$\sigma$ until reaching validity:
 $\rho_R^*(\sigma) = \rho_R^{m}(\sigma)$ for the least $m$ such that
 $V_R(\rho_R^{m}(\sigma)) = \top$.  Existence and finiteness of~$m$ follow from
-WFC; uniqueness follows from determinism of~$\rho_R$.
+WFC (indeed $m \le \Phi(\sigma)$); uniqueness follows from determinism
+of~$\rho_R$.  Because $V_R$ is Boolean-valued, $\rho_R^*$ is computable, and it
+does not depend on which measure witnesses WFC.
 \end{definition}
 
 \begin{axiom}[Compensation Commutativity (CC)]
@@ -565,12 +589,17 @@ We require:
 \end{enumerate}
 The processor's computation on event set $E_P(t)$ is a reduction sequence in
 the governance rewrite system $\mathcal{G}$ starting from
-$(\sigma_0, E_P(t))$.
+$(\sigma_0, E_P(t))$.  The processor has \emph{finished processing} $E_P(t)$
+at time~$t$ if its configuration at~$t$ is a normal form of that reduction.
+It is \emph{fair} if, while no new events arrive, it keeps reducing, and makes
+progress whenever it has not finished.
 \end{definition}
 
-Different processors may apply the same events in different
-causality-respecting orders.  The convergence theorem guarantees they
-nonetheless arrive at the same valid state.
+A received set that is not yet causally closed (an event has arrived before
+one of its dependencies) is never finished in this sense: the waiting event
+stays in the buffer, so the configuration is not a normal form.  Different processors may apply the same events in different
+causality-respecting orders.  The convergence theorem guarantees that, once
+they have finished processing the same events, they hold the same valid state.
 
 %========================================
 \section{Worked Example: Order Fulfillment}
@@ -674,10 +703,10 @@ subsequent credit reaches balance~2, triggering auto-approval.  In Path~2, the
 credit arrives first, and approval at balance~2 is valid.  Both reach
 $(\textit{approved}, 2)$: the order is approved with sufficient funds.
 
-Since $|\Sigma_R| = 12$, CC1 can be verified exhaustively for all valid
-starting states.  All cases follow the same pattern: compensation preserves
-the approval intent in the held state, and subsequent credits eventually
-satisfy the balance threshold.
+Since $|\Sigma_R| = 12$, CC1 can be verified exhaustively; it holds for every
+pair of events at all 12 states, invalid ones included.  All cases follow the
+same pattern: compensation preserves the approval intent in the held state,
+and subsequent credits eventually satisfy the balance threshold.
 
 \paragraph{CC2 (Compensation Absorption).}
 From the invalid state $(\textit{approved}, 0)$ with event
@@ -733,21 +762,43 @@ commutativity guarantees agreement regardless of the path.
 \subsection{Why Compensation Design Matters}
 
 The held stage is essential.  A naive compensation that simply reverts
-approval to \textit{pending}---i.e.,
-$\rho(\textit{approved}, b) = (\textit{pending}, b)$---would violate CC1.
-From $(\textit{pending}, 0)$, approval-then-credit would produce
-$(\textit{pending}, 1)$ (intent to approve lost), while credit-then-approval
-would produce $(\textit{held}, 1)$ or a different compensated state depending
-on the design.  The held stage preserves the approval intent so that
+approval to \textit{pending}, that is,
+$\rho(\textit{approved}, b) = (\textit{pending}, b)$ for $b < 2$, satisfies WFC
+and UBC but violates CC1.  The witness is the state $(\textit{pending}, 1)$:
+approval then credit gives $\rho(\textit{approved}, 1) = (\textit{pending}, 1)$
+and then $(\textit{pending}, 2)$ (intent to approve lost), while credit then
+approval gives $(\textit{pending}, 2)$ and then $(\textit{approved}, 2)$, which
+is valid.  So
+\begin{align*}
+\rho^*(\mathrm{apply}(e_{\mathrm{credit}},
+  \rho^*(\mathrm{apply}(e_{\mathrm{approve}}, (\textit{pending}, 1)))))
+&= (\textit{pending}, 2), \\
+\rho^*(\mathrm{apply}(e_{\mathrm{approve}},
+  \rho^*(\mathrm{apply}(e_{\mathrm{credit}}, (\textit{pending}, 1)))))
+&= (\textit{approved}, 2) \neq (\textit{pending}, 2).
+\end{align*}
+On the stream $\langle e_{\mathrm{approve}}, e_{\mathrm{credit}},
+e_{\mathrm{credit}} \rangle$ below, $P_1$ would end in $(\textit{pending}, 2)$
+and $P_2$ in $(\textit{approved}, 2)$.  (At $(\textit{pending}, 0)$ the two
+orders happen to agree: both give $(\textit{pending}, 1)$.)  The naive revert
+also violates CC2: at the invalid state $(\textit{approved}, 1)$,
+\begin{align*}
+\rho^*(\mathrm{apply}(e_{\mathrm{credit}}, (\textit{approved}, 1)))
+&= (\textit{approved}, 2), \\
+\rho^*(\mathrm{apply}(e_{\mathrm{credit}}, \rho(\textit{approved}, 1)))
+&= (\textit{pending}, 2).
+\end{align*}
+The held stage preserves the approval intent so that
 subsequent credits can trigger auto-approval, ensuring that different orderings
 converge.
 
 This illustrates the practical content of the CC conditions: they constrain
-\emph{compensation design}, not operation design.  The sufficient condition
-used here is \emph{state-determined compensation}: $\rho^*$ depends only on
-which invariants are violated (an approved order with low balance is always
-placed on hold), making the post-compensation state independent of how the
-violation was reached.
+\emph{compensation design}, not operation design.  What the held stage provides
+is \emph{absorption}: compensating before a credit or after it gives the same
+normalized result (CC2), and the two events commute once results are
+normalized.  \Cref{sec:calculus} shows that these per-event and per-pair facts
+give CC1 at every state, and that under absorption CC1 is equivalent to
+commutation up to normalization (\Cref{thm:footprint-cc1}).
 
 %========================================
 \section{Convergence Theorem}
@@ -781,6 +832,9 @@ $\sigma$, so at most $M$ compensation steps can occur between apply steps
 (including before the first apply), giving the uniform bound
 $|E| + (|E| + 1) \cdot M$.
 \end{proof}
+
+The bound is tight: a registry with $M = 1$ and a single event has a
+reduction of $3 = |E| + (|E|+1) M$ steps (compensate, apply, compensate).
 
 \subsection{Local Confluence}
 
@@ -865,35 +919,92 @@ confluent rewrite system has unique normal forms.
 
 \begin{remark}[Machine-checked]
 \label{sec:mechanization}
-This result is mechanized in Coq/Rocq (checked with Rocq~9.3).  Newman's Lemma
-is proved from scratch (no external libraries) as
-\emph{strongly normalizing $+$ locally confluent $\implies$ confluent}, and
-the Governance Rewrite System is formalized with its two rules; the
-lexicographic measure $(|B|, \Phi(\sigma))$ discharges termination and the
-three critical-pair cases (closed by CC1, CC2, and determinism of~$\rho_R$)
-discharge local confluence, yielding confluence and unique normal forms.  For
-both the abstract theorem and a concrete instantiation, \texttt{Print
-Assumptions} reports ``Closed under the global context'': no axioms and no
-admitted lemmas.  The development takes the paper's named conditions (WFC, CC)
-as hypotheses---exactly the abstraction level used here---and a concrete
-registry (state-determined compensation) discharges all of them with genuine
-nondeterminism, establishing that the hypotheses are jointly satisfiable and
-the theorem is not vacuous.  The soundness of the reference implementation's own
-certification strategy is mechanized as well: that footprint disjointness
-implies order-independent commutation (the compositional CC path, avoiding
-enumeration) and that a repair strictly decreasing a potential is strongly
-normalizing (WFC), each with a concrete witness and again axiom-free.  The
-development is furthermore paired with two runnable checkers extracted from it,
-each proven axiom-free: one certifies that a compiled machine's emitted step
-tables commute and stay in range, and one recomputes convergence directly from
-the machine's rules by evaluating their expression trees (trusting neither the
-implementation's enumeration nor its normalization).  Because the checking logic
-is extracted from the proof rather than reimplemented by hand, the two serve as
-independent differential oracles for the reference implementation: a defect in
-its hand-written verification cannot make a non-convergent machine pass either
-checker.  The proof
-scripts are available in the \texttt{coq/} directory of the accompanying
-artifact.
+This result and the rest of the paper's theory are mechanized in Coq/Rocq
+(checked with Rocq~9.3; CI also runs Coq~8.18 and~8.20).  Newman's Lemma is
+proved from scratch (no external libraries) as \emph{strongly normalizing
+$+$ locally confluent $\implies$ confluent}, and the Governance Rewrite System
+is formalized with its two rules; the lexicographic measure
+$(|B|, \Phi(\sigma))$ discharges termination and the three critical-pair cases
+(closed by CC1, CC2, and determinism of~$\rho_R$) discharge local confluence,
+yielding confluence and unique normal forms.  The gate script
+\texttt{coq/verify.sh} checks 609 named results, and \texttt{Print
+Assumptions} reports ``Closed under the global context'' (no axioms, no
+admitted lemmas) for every one.  The results this paper relies on, by
+section:
+\begin{itemize}[leftmargin=*,nosep]
+\item \emph{Model and convergence.}  $\rho_R^*$ is constructed from WFC, as
+  in \Cref{def:rhostar} (\coq{base_def_rhostar},
+  \coq{base_def_rhostar_least_unique}, \coq{rho_star_canonical}; properties
+  \coq{rho_star_valid}, \coq{rho_star_fix}, \coq{rho_star_idem}), so
+  \Cref{cor:unique-nf} holds with WFC, CC1 on distinct, independent,
+  co-enabled pairs, and CC2 as its only hypotheses, with the
+  dependency-based enabledness of \Cref{def:config}
+  (\coq{paper_causal_governance_unique_normal_forms},
+  \coq{paper_governance_unique_normal_forms}; also
+  \coq{governance_unique_normal_forms},
+  \coq{causal_governance_unique_normal_forms}).  Termination and its bound:
+  \coq{base_lem_termination_bound}, attained by
+  \coq{lv_termination_bound_tight}; \Cref{lem:finite-implies-ubc}:
+  \coq{base_lem_finite_implies_ubc}; \Cref{rem:absorption}:
+  \coq{base_rem_absorption}.
+\item \emph{Stream level} (\Cref{def:processor}, \Cref{thm:convergence}):
+  \coq{base_thm_convergence}, \coq{stream_convergence},
+  \coq{stream_agreement}, \coq{base_rem_set_function},
+  \coq{base_cor_quiescent}; counterexamples to the version-1 statements
+  \coq{base_thm_convergence_c_counterexample},
+  \coq{base_thm_convergence_transient_counterexample}.
+\item \emph{Domain independence} (\Cref{cor:infinite}): WFC over any
+  well-founded order (\coq{governance_wf_confluent},
+  \coq{causal_governance_wf_confluent}, \coq{base_cor_infinite}), with an
+  instance on~$\mathbb{Z}$ (\coq{zw_confluent}, \coq{zw_stream_agree}).
+\item \emph{Tightness and exactness} (\Cref{sec:necessity}):
+  \coq{thm_necessity}, \coq{ri_depth_exact}, \coq{ri_no_ubc},
+  \coq{ri_what_fails}, \coq{ri_cc_any_extension}; \coq{prop_cc_necessary};
+  the exact converses \coq{cc_exact_from} (with $\rho_R^*$ constructed:
+  \coq{wfc_cc_exact_from}) and \coq{jc_exact}, and the qualifiers
+  \coq{masked_cc1}, \coq{rho_star_qualifier}.
+\item \emph{Worked example} (\Cref{sec:example}): \coq{of_registry},
+  \coq{of_cc1}, \coq{of_cc2}, \coq{of_paper_traces}, \coq{of_processors};
+  the naive revert: \coq{naive_cc1_fails}, \coq{naive_cc2_fails},
+  \coq{naive_stream_diverges}, \coq{naive_paper_witness_fails}.
+\item \emph{Complexity} (\Cref{thm:complexity}, model-level step bound):
+  \coq{base_thm_complexity_per_event}, \coq{base_thm_complexity_comp_total}.
+\item \emph{Calculus} (\Cref{sec:calculus}): \coq{strong_absorption_iff_cc2},
+  \coq{base_lem_repair_commute}, \coq{base_lem_repair_idempotent}, the
+  corrected footprint theorem and its parts (\coq{calc_footprint_cc1_iff},
+  \coq{calc_footprint_cc1_valid_iff}, \coq{calc_footprint_cc1},
+  \coq{calc_fp_absorb_iff_sa}, \coq{calc_cc1_iff_commute_under_cc2}), the
+  counterexamples to the version-1 statement
+  (\coq{base_thm_footprint_cc1_refuted},
+  \coq{base_thm_footprint_cc1_raw_refuted}) and to dropping each hypothesis
+  (\coq{calc_valid_needs_commute}, \coq{calc_valid_needs_disjoint},
+  \coq{calc_valid_needs_repair_local}, \coq{calc_all_needs_commute},
+  \coq{calc_all_needs_absorb}, \coq{calc_all_needs_repair_local}), the
+  canonical-state pattern (\coq{calc_canonical_pattern},
+  \coq{base_pattern1_cc1_refuted}), and product lifting
+  (\coq{base_thm_product}, \coq{base_thm_product_decomposable}).
+\end{itemize}
+Each abstract theorem comes with a concrete registry discharging all of its
+hypotheses with genuine nondeterminism (for example \coq{example_confluent},
+\coq{calc_clamp_instance}, \coq{calc_order_cc1}), so no theorem is vacuous.
+The soundness of the reference implementation's own certification strategy
+is mechanized as well: events whose state-variable footprints (read and
+write sets) are disjoint commute (\coq{disjoint_events_commute}; this concerns
+state variables and is a different statement from the invariant footprints of
+\Cref{sec:calculus}), and a repair strictly decreasing a potential is
+strongly normalizing (\coq{repair_terminates}).  The development is
+furthermore paired with two runnable checkers extracted from it, each proven
+axiom-free: one certifies that a compiled machine's emitted step tables
+commute and stay in range (\coq{check_tables_converges}), and one recomputes
+convergence directly from the machine's rules by evaluating their expression
+trees, trusting neither the implementation's enumeration nor its
+normalization (\coq{checkBuild_converges}).  Because the checking logic is
+extracted from the proof rather than reimplemented by hand, the two serve as
+independent differential oracles for the reference implementation: a defect
+in its hand-written verification cannot make a non-convergent machine pass
+either checker.  The proof scripts are available in the \texttt{coq/}
+directory of the accompanying artifact; \texttt{coq/PAPER-MAP.md} maps every
+numbered result of this paper to its Coq statement.
 \end{remark}
 
 \begin{theorem}[Stream Convergence]
@@ -906,14 +1017,15 @@ Then:
 \item \textbf{Validity}: For each processor, after it completes the
   incremental compensation phase for any applied event, its state satisfies
   $V_R(\Psi_{P_j}(t)) = \top$.
-\item \textbf{Order independence}: The state of each processor depends only on
-  its received event set, not on the order in which events were applied.
-\item \textbf{Agreement}: Whenever the processors have received the same
-  events, they are in the same state: if $E_{P_1}(t) = E_{P_2}(t)$, then
-  $\Psi_{P_1}(t) = \Psi_{P_2}(t)$.
+\item \textbf{Order independence}: Once a processor has finished processing
+  its received event set, its state depends only on that set, not on the
+  order in which events were applied.
+\item \textbf{Agreement}: Processors that have finished processing the same
+  events are in the same state: if $P_1$ has finished processing
+  $E_{P_1}(t_1)$, $P_2$ has finished processing $E_{P_2}(t_2)$, and
+  $E_{P_1}(t_1) = E_{P_2}(t_2)$, then $\Psi_{P_1}(t_1) = \Psi_{P_2}(t_2)$.
+  The times $t_1$ and $t_2$ may differ.
 \end{enumerate}
-Combined with eventual delivery, disagreements are transient: any event causing
-processors to differ will eventually be received by both, restoring agreement.
 \end{theorem}
 
 \begin{proof}
@@ -928,18 +1040,37 @@ $V_R(\Psi_{P_j}(t)) = \top$.
 
 \medskip\noindent\textbf{Part (b): Order independence.}\;
 Each processor's computation on event set $E = E_{P_j}(t)$ is a reduction
-sequence in the governance rewrite system from $(\sigma_0, E)$ to a normal
-form $(\sigma^*, \varnothing)$.  Different causality-respecting orders
-correspond to different reduction sequences.  By \Cref{cor:unique-nf}, all
-reduction sequences reach the same normal form.  Therefore the final
-state~$\sigma^*$ depends only on $E$, not on the order.
+sequence in the governance rewrite system from $(\sigma_0, E)$; when the
+processor has finished, it has reached a normal form $(\sigma^*, \varnothing)$.
+Different causality-respecting orders correspond to different reduction
+sequences.  By \Cref{cor:unique-nf}, all reduction sequences reach the same
+normal form.  Therefore the final state~$\sigma^*$ depends only on $E$, not on
+the order.
 
 \medskip\noindent\textbf{Part (c): Agreement.}\;
-If $E_{P_1}(t) = E_{P_2}(t) = E$, then both processors' computations are
-reduction sequences from $(\sigma_0, E)$.  By \Cref{cor:unique-nf}, both
-reach the same normal form $(\sigma^*, \varnothing)$.  Therefore
-$\Psi_{P_1}(t) = \Psi_{P_2}(t) = \sigma^*$.
+If $E_{P_1}(t_1) = E_{P_2}(t_2) = E$ and both processors have finished, then
+both configurations are normal forms of reductions from $(\sigma_0, E)$.  By
+\Cref{cor:unique-nf}, the normal form is unique, so
+$\Psi_{P_1}(t_1) = \Psi_{P_2}(t_2)$.
 \end{proof}
+
+\begin{remark}[Why ``finished'' is needed]
+\label{rem:finished}
+Without the qualifier, part~(c) fails: two processors can hold the same
+received set while one of them has not yet applied it.  With a counter
+registry and the stream $\{e\}$, one processor that has applied~$e$ (state~1)
+and one that has received but not yet applied it (state~0, a zero-length
+reduction from $(0, \{e\})$) are both processors, both fair, and disagree.
+Eventual delivery alone also does not make received sets coincide on an
+infinite stream: if $P_1$ receives the $n$-th event at time~$n$ and $P_2$ at
+time~$n+1$, both can be finished at every time and still disagree at every
+time.  What does hold is (c) as stated, at the same or at different times,
+and fixed-point agreement for finite streams (\Cref{cor:quiescent}).  Both
+counterexamples are mechanized
+(\coq{base_thm_convergence_c_counterexample},
+\coq{base_thm_convergence_transient_counterexample}), as is the theorem
+(\coq{base_thm_convergence}, \coq{stream_agreement}).
+\end{remark}
 
 \begin{remark}[Semantic Projection]
 \label{rem:set-function}
@@ -952,34 +1083,39 @@ semantics.
 
 \begin{corollary}[Convergence Under Quiescent Streams]
 \label{cor:quiescent}
-If the stream $\mathcal{S}$ is finite, then there exists a valid state
+If the stream $\mathcal{S}$ is finite and each processor is fair (it keeps
+processing while no new events arrive), then there exists a valid state
 $\sigma^*$ such that both processors converge to~$\sigma^*$: there exists $T$
 with $\Psi_{P_1}(t) = \Psi_{P_2}(t) = \sigma^*$ for all $t \geq T$.
 \end{corollary}
 \begin{proof}
 By eventual delivery, there exists $T_N$ such that
-$E_{P_1}(t) = E_{P_2}(t) = \mathcal{S}$ for all $t \geq T_N$.  By
-\Cref{thm:convergence}(c), both processors are in the same state.  Since no
-new events arrive, this state is fixed from~$T_N$ onward.
+$E_{P_1}(t) = E_{P_2}(t) = \mathcal{S}$ for all $t \geq T_N$.  From $T_N$ on no
+new events arrive, so by fairness and \Cref{lem:termination} each processor
+finishes processing~$\mathcal{S}$ at some time and stays at that normal form
+afterwards.  By \Cref{thm:convergence}(c), from the later of the two finishing
+times~$T$ both processors are in the same valid state.
 \end{proof}
 
 \begin{remark}[Infinite Streams]
 \label{rem:infinite-streams}
 For infinite streams, the received event sets grow monotonically
-toward~$\mathcal{S}$ but may differ at any given time.  When event sets
-coincide, \Cref{thm:convergence}(c) guarantees agreement.  Eventual delivery
-ensures that any event causing disagreement is transient.  The agreed-upon
-state may continue to change as new events arrive---the guarantee is perpetual
-agreement, not convergence to a fixed point.  \Cref{cor:quiescent} recovers
-fixed-point convergence when the stream is finite.
+toward~$\mathcal{S}$ but may differ at every time, and eventual delivery does
+not make them coincide: a processor that is always one event behind another
+disagrees with it forever (\Cref{rem:finished}).  The guarantee is
+\Cref{thm:convergence}(c): whenever two finished processors have received the
+same events, at the same or at different times, they hold the same state.
+The agreed-upon state may continue to change as new events arrive.
+\Cref{cor:quiescent} recovers fixed-point convergence when the stream is
+finite.
 \end{remark}
 
 %========================================
 \section{Necessity of the Structural Conditions}
 \label{sec:necessity}
 
-We show that both UBC and CC are necessary for their respective guarantees:
-UBC for uniform complexity, CC for agreement.
+We show that UBC is necessary for uniform complexity, and that CC is the exact
+condition for agreement where an exact condition of this form exists.
 
 \subsection{Necessity of UBC}
 
@@ -1021,19 +1157,25 @@ required to restore validity grows without limit.
 
 \begin{remark}[What Fails]
 The counterexample satisfies WFC (compensation terminates for every
-fixed~$E_n$) but violates UBC (compensation depth is~$n$, unbounded).  CC also
-holds: there is only one event per set, so order independence is vacuous, and
-compensation absorption holds because $\rho$ moves deterministically
-toward~$0$.  The pathology is purely one of unbounded depth, which invalidates
-the uniform step bound and the constant per-event compensation cost in
-\Cref{thm:complexity}.  Finite semantic state spaces prevent this by
-bounding~$\Phi$ (\Cref{lem:finite-implies-ubc}).
+fixed~$E_n$) but violates UBC (compensation depth is~$n$, unbounded).  In
+fact every reduction from $(0, \{e_n\})$ to a normal form has exactly $n$
+compensation steps, and every measure witnessing WFC for $R_\infty$ is
+unbounded, not only $|\sigma|$.  CC also holds: the only valid state is~$0$,
+so $\rho^*(\sigma) = 0$ for every~$\sigma$, and both sides of CC1 and of CC2
+equal~$0$ for every state and every pair of events, whatever
+$\mathrm{apply}(e_n, -)$ does away from~$0$ (take, for instance,
+$\mathrm{apply}(e_n, \sigma) = \sigma - n$).  The pathology is purely one of
+unbounded depth, which invalidates the uniform step bound and the constant
+per-event compensation cost in \Cref{thm:complexity}.  Finite semantic state
+spaces prevent this by bounding~$\Phi$ (\Cref{lem:finite-implies-ubc}).
 \end{remark}
 
 \subsection{Necessity of CC}
 
-CC is necessary for agreement: without it, processors applying the same events
-in different causality-respecting orders can reach different valid states.
+Without CC, processors applying the same events in different
+causality-respecting orders can reach different valid states
+(\Cref{prop:cc-necessary}), and under free delivery this is the only way
+agreement can fail (\Cref{thm:cc-exact}).
 
 \begin{proposition}[Disagreement Without CC]
 \label{prop:cc-necessary}
@@ -1081,15 +1223,63 @@ The key feature is that $\rho_R$ maps distinct invalid states to
 \emph{distinct} valid states ($C \mapsto A$, $D \mapsto B$), creating
 path-dependent repair.  Contrast this with the order fulfillment example
 (\Cref{sec:example}), where compensation preserves approval intent via the
-held state, ensuring path-independent repair.  CC captures precisely the
-boundary between these cases.
+held state, ensuring path-independent repair.  \Cref{thm:cc-exact} makes
+precise in what sense CC captures the boundary between these cases.
 \end{remark}
 
-\begin{remark}
-The UBC counterexample (\Cref{thm:necessity}) satisfies CC but violates UBC;
-the CC counterexample (\Cref{prop:cc-necessary}) satisfies WFC and UBC but
-violates CC.  Together, they show that each condition is independently
-necessary for its respective guarantee.
+\Cref{prop:cc-necessary} is existential: it shows that \emph{some} failure of
+CC produces disagreement.  The converse holds in the following exact form.
+Say that \emph{every buffered event may fire} (free delivery) when an event is
+enabled as soon as it is in the buffer, as for events without causal
+dependencies, and that compensation is \emph{canonical} when $\rho_R^*$
+returns a valid state, as \Cref{def:rhostar} guarantees under WFC.  A state is
+\emph{reachable} from~$\sigma_0$ if some reduction from some
+$(\sigma_0, E)$ passes through it.
+
+\begin{theorem}[CC Is Exact]
+\label{thm:cc-exact}
+Let $R$ satisfy WFC, with $\rho_R^*$ as in \Cref{def:rhostar}, and let every
+buffered event fire freely.  Then every configuration $(\sigma_0, E)$ with $E$
+finite has a unique normal form if and only if CC1 and CC2 hold at every
+state reachable from~$\sigma_0$.  Under an arbitrary enabledness predicate
+(causal or guarded), the system is confluent from a configuration $c_0$ if and
+only if, at every configuration reachable from~$c_0$, the governed successors
+of every critical pair are joinable; CC1 and CC2 are the special case in which
+the join is an equality.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Sufficiency is \Cref{cor:unique-nf}, with Newman's Lemma localized to the
+step-closed set of reachable configurations.  For necessity under free
+delivery, the two sides of CC1 at~$\sigma$ are the normal forms of the runs
+$e_1$ then $e_2$ and $e_2$ then $e_1$ from $(\sigma, \{e_1, e_2\})$, and the
+two sides of CC2 at an invalid~$\sigma$ are the normal forms of
+apply-then-compensate and compensate-then-apply from $(\sigma, \{e\})$.  A
+reachable~$\sigma$ is reached from $\sigma_0$ by delivering some word~$w$
+first, so a failure of CC at~$\sigma$ yields two distinct normal forms of
+$(\sigma_0, w \cdot e_1 e_2)$ or $(\sigma_0, w \cdot e)$.  The general case is
+Newman's Lemma together with the observation that a non-joinable critical pair
+at a reachable configuration is a pair of distinct normal forms.  Both
+directions are mechanized (\coq{cc_exact_from}, \coq{wfc_cc_exact_from},
+\coq{jc_exact}).
+\end{proof}
+
+\begin{remark}[Scope of the Converse]
+\label{rem:converse-scope}
+Both qualifiers are needed.  If $\rho_R^*$ is only required to be some
+compensation reduct of its argument (the identity qualifies), CC1 can fail
+while every configuration has a unique normal form.  And under causal
+enabledness, CC1 can fail for a co-enabled pair at a reachable configuration
+while every run still reaches the same normal form: events $M_1$ (write~1)
+and $M_2$ (write~2) do not commute, but a reset event that depends on both
+erases the difference, so from $(0, \{M_1, M_2, M_{\mathrm{reset}}\})$ every
+normal form is $(0, \varnothing)$ (\coq{rho_star_qualifier},
+\coq{masked_cc1}).  There the exact condition is the
+joinability form of \Cref{thm:cc-exact}, not CC1.  Together with
+\Cref{thm:necessity}, which satisfies CC and violates UBC, and
+\Cref{prop:cc-necessary}, which satisfies WFC and UBC and violates CC, this
+shows each condition is needed for its guarantee: UBC for uniform step
+bounds, CC (exactly, under free delivery) for agreement.
 \end{remark}
 
 %========================================
@@ -1165,11 +1355,19 @@ regimes under which distributed processors converge without coordination:
   scalability (\Cref{thm:complexity}).  No coordination is needed.
 \end{enumerate}
 
-The three regimes form a containment hierarchy.  Operation commutativity
-implies CC (with $\rho_R^* = \mathrm{id}$).  Invariant confluence implies that
-compensation never fires.  Normalization confluence subsumes both as special
-cases and additionally covers systems where operations are non-commutative and
-invariant-violating---the common case in business applications.
+The regimes relate as follows.  Operation commutativity with every state
+valid implies CC (with $\rho_R^* = \mathrm{id}$), and conversely a
+compensation-free system meets the causal convergence condition exactly when
+it is an op-based CRDT, so normalization confluence strictly contains the
+op-based CRDTs.  Invariant confluence implies that compensation never fires,
+but it does not by itself make operations commute: in the
+sequential-application model of this paper, an invariant-confluent system
+satisfies CC exactly when its operations commute on the reachable states, and
+by \Cref{thm:cc-exact} one whose operations do not commute there diverges
+under free delivery.  So normalization confluence contains the
+invariant-confluent systems that converge under reordering, not all of them,
+and it additionally covers systems where operations are non-commutative and
+invariant-violating, the common case in business applications.
 
 The regimes partition the coordination-free design space by \emph{where}
 convergence is guaranteed: in the operations (regime~1), in the invariants
@@ -1188,31 +1386,51 @@ data-structure layer (CRDTs) and the transaction layer (I-confluence).
 \end{remark}
 
 \subsection{Verifying Compensation Commutativity}
+\label{sec:verify-cc}
 
 CC is easy to state but potentially hard to verify: it quantifies over all
 states and all independent event pairs.  \Cref{sec:calculus} develops a
-verification calculus that reduces CC to local, per-event-pair checks via
-invariant footprints and decomposable repair.  Here we note three common
+verification calculus that reduces CC to local per-event and per-pair checks
+via invariant footprints and decomposable repair.  Here we note three common
 patterns that practitioners can use as a first check before invoking the full
 calculus:
 
 \begin{enumerate}[leftmargin=*,nosep]
-\item \textbf{Compensation to a canonical state.}\;  If there exists a
+\item \textbf{Compensation to a canonical state.}\;  Suppose there is a
   default valid state $\sigma_\bot$ such that $\rho_R^*(\sigma) = \sigma_\bot$
-  for all invalid~$\sigma$, both CC1 and CC2 hold trivially.  This is the
-  ``reset to safe default'' pattern.
-\item \textbf{Lattice-structured compensation.}\;  If the valid states form a
-  join-semilattice and compensation computes the join with the nearest valid
-  state, both conditions hold by the commutativity of the join operation.  This
-  lattice structure lifts to the federated setting: the companion
-  paper~\cite{blackwell2026federated} shows that when repair is \emph{monotone}
-  on an ordered shared domain, federated convergence holds even on
-  \emph{cyclic} networks (by the Knaster--Tarski fixed-point theorem), with
-  state-based CRDTs as the compensation-free special case.
+  for all invalid~$\sigma$ (the ``reset to safe default'' pattern).  This
+  alone does not give CC: on valid states compensation never fires, so two
+  valid-to-valid events that do not commute violate CC1, and an event that
+  treats an invalid state differently from the reset state violates CC2.
+  What the pattern does give is a cheap check.  CC2 holds for~$e$ if and only
+  if $N(A_e(\sigma)) = N(A_e(\sigma_\bot))$ for every invalid~$\sigma$ (one
+  comparison per invalid state against a fixed reference), where
+  $N = \rho_R^*$ and $A_e = \mathrm{apply}(e, -)$ as in
+  \Cref{sec:calculus}; and when this holds for $e_1$ and~$e_2$, CC1 for the
+  pair at~$\sigma$ holds if and only if
+  $N(A_{e_2}(A_{e_1}(\sigma))) = N(A_{e_1}(A_{e_2}(\sigma)))$.  So canonical
+  compensation, the reset check, and commutation up to~$N$ together give CC1
+  and CC2.
+\item \textbf{Lattice-structured compensation.}\;  Suppose the states form a
+  join-semilattice, each event joins a fixed element
+  ($\mathrm{apply}(e, \sigma) = \sigma \sqcup a_e$), the normalizer~$N$ is a
+  closure operator (monotone, extensive, idempotent), and one compensation
+  step stays between a state and its closure
+  ($\sigma \sqsubseteq \rho_R(\sigma) \sqsubseteq N(\sigma)$).  Then
+  $N(N(x) \sqcup y) = N(x \sqcup y)$ for all $x, y$, so both sides of CC1
+  equal $N(\sigma \sqcup a_{e_1} \sqcup a_{e_2})$, and CC2 holds because
+  $\sigma \sqcup a_e \sqsubseteq \rho_R(\sigma) \sqcup a_e \sqsubseteq
+  N(\sigma) \sqcup a_e$.  (This is a short paper-level argument; it is not
+  part of the mechanization.)  Monotone repair on an ordered shared domain is
+  also the setting of the companion paper's~\cite{blackwell2026federated}
+  cyclic federations, where federated repair reaches a least fixed point (by
+  the Knaster--Tarski theorem) and a further condition decides whether event
+  order matters, with state-based CRDTs as the compensation-free special case.
 \item \textbf{Decomposable repair.}\;  If compensation decomposes into
   commuting per-invariant repairs, CC can be verified via the footprint
   calculus of \Cref{sec:calculus}.  The order fulfillment example
-  (\Cref{sec:example}) uses this pattern.
+  (\Cref{sec:example}) uses this pattern, with one invariant whose repair is
+  the hold.
 \end{enumerate}
 
 \subsection{Applications}
@@ -1226,23 +1444,27 @@ Infrastructure-as-code tools apply streams of configuration changes to
 infrastructure state.  Valid configurations are defined by policy.  The
 semantic state space is finite ($k$ boolean policy predicates yield at most
 $2^k$ equivalence classes).  Remediation operators that reset violated policies
-to compliant defaults satisfy CC2 (compensation to a canonical state per
-policy).  Our theorem guarantees convergence to equivalent policy-compliant
-states regardless of the order in which changes are applied.
+to compliant defaults fit the canonical-state pattern: CC2 reduces to one
+comparison per violating state against the default, and CC1 to commutation of
+changes up to normalization.  When those checks pass, our theorem guarantees
+convergence to equivalent policy-compliant states regardless of the order in
+which changes are applied.
 
 \paragraph{Database Schema Migration.}
 Schema migrations are event streams applied to schema state.  The set of valid
 schema configurations is finite.  Migration scripts that repair constraint
 violations constitute compensation operators.  When such scripts resolve each
-constraint independently (lattice-structured compensation), CC holds and our
-theorem guarantees order-independent convergence.
+constraint independently (decomposable repair), CC reduces to the per-event
+and per-pair checks of the calculus (\Cref{sec:calculus}); when those pass,
+our theorem guarantees order-independent convergence.
 
 \paragraph{Regulatory Compliance.}
 Organizations processing streams of regulatory changes must maintain
 compliance.  Compliance states are finite (each regulation is either satisfied
 or not).  Remediation procedures that restore compliance by addressing each
-violated regulation independently satisfy CC.  Our theorem guarantees
-convergence to equivalent compliance states.
+violated regulation independently are decomposable repairs, so CC can be
+checked with the calculus; when it holds, our theorem guarantees convergence
+to equivalent compliance states.
 
 \subsection{Infinite Domains}
 \label{sec:infinite}
@@ -1256,15 +1478,18 @@ enumerable.  Convergence is therefore domain-independent.
 
 \begin{corollary}[Domain-Independent Convergence]
 \label{cor:infinite}
-\Cref{thm:convergence} holds for any semantic state space, finite or infinite,
-provided WFC (with a well-founded compensation measure) and CC hold.
+\Cref{thm:convergence} and \Cref{cor:quiescent} hold for any semantic state
+space, finite or infinite, provided CC holds and WFC holds with a measure
+$\Phi$ into any well-founded order (not necessarily~$\mathbb{N}$).
 \end{corollary}
 
-The necessity example of \Cref{sec:necessity} already witnesses this: the
-registry $R_\infty$ ($\Sigma = \mathbb{Z}$, $\Phi(\sigma) = |\sigma|$,
-compensation stepping toward $0$) satisfies WFC and CC and converges---every
-event set reaches a unique valid normal form---yet $\Sigma$ is infinite.  What it
-lacks is UBC: compensation depth grows without bound.
+This is mechanized at both the rewrite-system and the stream level, with an
+instance on~$\mathbb{Z}$ (\Cref{sec:mechanization}).  The necessity example of
+\Cref{sec:necessity} also witnesses it: the registry $R_\infty$
+($\Sigma = \mathbb{Z}$, $\Phi(\sigma) = |\sigma|$, compensation stepping
+toward~$0$) satisfies WFC and CC and converges (every event set reaches a
+unique valid normal form), yet $\Sigma$ is infinite.  What it lacks is UBC:
+compensation depth grows without bound.
 
 Finiteness therefore underwrites three \emph{secondary} properties, not
 soundness: (i)~UBC and the uniform per-event cost (\Cref{thm:complexity});
@@ -1275,15 +1500,18 @@ quotient---$|\Sigma_R| \le 2^k$ (\Cref{rem:scope})---so ``infinite'' here means
 genuinely \emph{unbounded numeric} semantic state, as in $R_\infty$.
 
 On such a domain enumeration is unavailable, but CC can still be discharged.
-The verification calculus (\Cref{sec:calculus})---footprint disjointness and
-decomposable repair---establishes CC by \emph{algebraic} conditions that never
-quantify over an enumerated state space; symbolic decision procedures apply
-where those do not.  When the valid states form a complete lattice and
-compensation is monotone, the normal form is a fixed point computed by Kleene
-iteration: finitely under the ascending chain condition, and under
+The verification calculus (\Cref{sec:calculus}), with decomposable repair,
+strong absorption, footprint absorption and commutation up to normalization,
+establishes CC by \emph{algebraic} conditions that never quantify over an
+enumerated state space; symbolic decision procedures apply where those do
+not.  When the valid states form a complete lattice and compensation is
+monotone, the normal form is a fixed point computed by Kleene iteration:
+finitely under the ascending chain condition, and under
 \emph{widening}~\cite{cousot1977} otherwise, at the cost of a sound
-over-approximation.  Exactness may be lost without ACC, but existence and
-uniqueness of the normal form are guaranteed by \Cref{cor:infinite} regardless.
+over-approximation.  Without ACC the least fixed point still exists (by the
+Knaster--Tarski theorem) but finite iteration need not reach it; whenever WFC
+and CC hold, existence and uniqueness of the normal form are guaranteed by
+\Cref{cor:infinite}.
 The federated generalization of the monotone case
 appears in~\cite{blackwell2026federated}.
 
@@ -1292,9 +1520,10 @@ appears in~\cite{blackwell2026federated}.
 The single-registry result is the foundation for further extensions.  First,
 \emph{federated streams} where multiple organizations maintain independent
 registries connected by morphisms; this is developed in the companion
-paper~\cite{blackwell2026federated}, which reduces federated convergence to the
-single-registry case via an authority argument and extends it to multi-source
-networks (resolution operators) and to cyclic networks under monotone repair.
+paper~\cite{blackwell2026federated}, which gives exact conditions for
+federated convergence when events fire at federally valid states, and treats
+multi-source networks (resolution operators) and cyclic networks under
+monotone repair.
 Second, \emph{privacy-preserving validation} where organizations prove registry
 compliance via zero-knowledge proofs, which remains open.  Both build on the
 single-registry convergence result established here.
@@ -1304,8 +1533,8 @@ single-registry convergence result established here.
 \label{sec:calculus}
 
 Compensation commutativity is a global condition: it quantifies over all states
-and all independent event pairs.  This section develops sufficient conditions
-that reduce CC to local, per-event-pair checks.  The key tools are an
+and all independent event pairs.  This section develops conditions, exact
+where possible, that reduce CC to local per-event and per-pair checks.  The key tools are an
 \emph{invariant footprint} mapping and a \emph{decomposable repair} condition.
 
 \subsection{Notation}
@@ -1314,7 +1543,8 @@ For readability in algebraic manipulations, we write
 $N(\sigma) \defeq \rho_R^*(\sigma)$ for iterated compensation to validity
 (\Cref{def:rhostar}).  The normalizer satisfies: (i)~$V_R(N(\sigma)) = \top$
 for all~$\sigma$; (ii)~$N(\sigma) = \sigma$ if $V_R(\sigma) = \top$;
-(iii)~$N(N(\sigma)) = N(\sigma)$ (idempotence).  We write
+(iii)~$N(N(\sigma)) = N(\sigma)$ (idempotence) (\coq{rho_star_valid},
+\coq{rho_star_fix}, \coq{rho_star_idem}).  We write
 $A_e(\sigma) \defeq \mathrm{apply}(e, \sigma)$ when convenient.
 
 In this notation, the CC obligations become:
@@ -1324,6 +1554,9 @@ In this notation, the CC obligations become:
 \item[\textbf{(CC2)}] $N(A_e(\sigma)) = N(A_e(\rho_R(\sigma)))$ for
   invalid~$\sigma$.
 \end{itemize}
+We say that CC1 holds for $(e_1, e_2)$ \emph{at}~$\sigma$ when its equation
+holds at that state, and that CC2 holds \emph{for}~$e$ when its equation holds
+at every invalid~$\sigma$.
 
 \subsection{Invariant Vectors and Footprints}
 
@@ -1384,29 +1617,40 @@ r_i(A_e(\sigma)) = A_e(r_i(\sigma)).
 That is, $e$ commutes with repairs of invariants it does not affect.
 \end{definition}
 
-\subsection{Strong Absorption Implies CC2}
+\subsection{Strong Absorption and CC2}
 
 \begin{theorem}[Strong Absorption]
 \label{thm:strong-absorption}
-Assume WFC and let $N = \rho_R^*$.  If for all events $e$ and states~$\sigma$,
+Assume WFC and let $N = \rho_R^*$.  Then CC2 holds (for all events) if and
+only if, for all events $e$ and states~$\sigma$,
 \[
-N(A_e(\sigma)) = N(A_e(N(\sigma))),
+N(A_e(\sigma)) = N(A_e(N(\sigma))).
 \]
-then CC2 holds.
 \end{theorem}
 
 \begin{proof}
-Let $V_R(\sigma) = \bot$.  Because $N$ iterates $\rho_R$ to the unique valid
-fixpoint reachable from~$\sigma$, and $\rho_R(\sigma)$ lies on the same
-compensation chain, we have $N(\sigma) = N(\rho_R(\sigma))$.
-
-Applying the assumed equation at $\sigma$ and at $\rho_R(\sigma)$:
+($\Leftarrow$) Let $V_R(\sigma) = \bot$.  Because $N$ iterates $\rho_R$ to the
+unique valid fixpoint reachable from~$\sigma$, and $\rho_R(\sigma)$ lies on the
+same compensation chain, we have $N(\sigma) = N(\rho_R(\sigma))$.  Applying the
+assumed equation at $\sigma$ and at $\rho_R(\sigma)$:
 \[
 N(A_e(\sigma)) = N(A_e(N(\sigma))) = N(A_e(N(\rho_R(\sigma)))) = N(A_e(\rho_R(\sigma))),
 \]
 where the first and third equalities use the assumption and the middle equality
 uses $N(\sigma) = N(\rho_R(\sigma))$.  This is CC2.
+
+($\Rightarrow$) This is the generalization of CC2 noted in
+\Cref{rem:absorption}: by induction on the number~$m$ of compensation steps
+from $\sigma$ to $N(\sigma) = \rho_R^m(\sigma)$, CC2 at each invalid
+$\rho_R^j(\sigma)$, $j < m$, gives
+$N(A_e(\rho_R^j(\sigma))) = N(A_e(\rho_R^{j+1}(\sigma)))$, and chaining these
+equalities gives $N(A_e(\sigma)) = N(A_e(N(\sigma)))$.
 \end{proof}
+
+Both directions are mechanized (\coq{strong_absorption_iff_cc2};
+the forward direction alone is \coq{base_thm_strong_absorption}).  The
+per-event form also holds: CC2 for a single event~$e$ at every invalid state
+implies strong absorption for~$e$ (\coq{calc_cc2_strong_absorption}).
 
 \begin{remark}
 Strong absorption states: ``normalizing before applying an event does not
@@ -1418,7 +1662,7 @@ intent regardless of whether the order was directly approved with low balance
 or arrived at the invalid state through a different path.
 \end{remark}
 
-\subsection{Footprint Disjointness Implies CC1}
+\subsection{Footprints and CC1}
 
 We prove two preparatory lemmas before the main theorem.
 
@@ -1464,82 +1708,139 @@ so $R_J(R_J(\sigma)) = R_J(\sigma)$ by the first claim.
 
 \begin{theorem}[Footprint Commutativity]
 \label{thm:footprint-cc1}
-Assume WFC and that $N$ is decomposable via commuting per-invariant repairs
-$r_1, \ldots, r_k$.  Let $e_1, e_2$ be independent events satisfying:
+Let $N = \rho_R^*$ be decomposable via per-invariant repairs
+$r_1, \ldots, r_k$ satisfying (R1) to (R3), let $F$ be a footprint, and let
+$e_1, e_2$ be events.  Write $F_j = F(e_j)$ and consider the hypotheses
 \begin{enumerate}[leftmargin=*,nosep,label=(H\arabic*)]
-\item Disjoint footprints: $F(e_1) \cap F(e_2) = \varnothing$.
-\item Repair locality: each $e_j$ is repair-local with respect to $F(e_j)$.
+\item Disjoint footprints: $F_1 \cap F_2 = \varnothing$.
+\item Repair locality: each $e_j$ is repair-local with respect to $F_j$.
+\item Commutation up to~$N$ at~$\sigma$:
+  $N(A_{e_2}(A_{e_1}(\sigma))) = N(A_{e_1}(A_{e_2}(\sigma)))$ (raw
+  commutation $A_{e_1} \circ A_{e_2} = A_{e_2} \circ A_{e_1}$ suffices).
+\item Footprint absorption: $N(A_{e_j}(R_{F_j}(\tau))) = N(A_{e_j}(\tau))$
+  for all states~$\tau$ and $j = 1, 2$.
 \end{enumerate}
-Then CC1 holds for $(e_1, e_2)$.
+Then:
+\begin{enumerate}[leftmargin=*,nosep,label=(\alph*)]
+\item \textbf{Exact form.}  Under (H1) and (H2), for every state~$\sigma$,
+  CC1 holds at~$\sigma$ if and only if
+  $N(A_{e_2}(A_{e_1}(R_{F_2}(\sigma)))) = N(A_{e_1}(A_{e_2}(R_{F_1}(\sigma))))$.
+\item \textbf{Valid states.}  Under (H1) and (H2), for every valid~$\sigma$,
+  CC1 holds at~$\sigma$ if and only if (H3) holds at~$\sigma$.  In
+  particular, (H1), (H2) and raw commutation give CC1 at every valid state.
+\item \textbf{Every state.}  Under (H2), (H3) at~$\sigma$ and (H4), CC1 holds
+  at~$\sigma$; (H1) is not needed.  Given (H2), footprint absorption (H4)
+  for~$e_j$ is equivalent to strong absorption for~$e_j$:
+  $N(A_{e_j}(\tau)) = N(A_{e_j}(N(\tau)))$ for all~$\tau$.
+\end{enumerate}
 \end{theorem}
 
 \begin{proof}
-Partition $\{1, \ldots, k\}$ into three disjoint index sets:
-$S_1 = F(e_1)$, $S_2 = F(e_2)$,
-$S_0 = \{1,\ldots,k\} \setminus (S_1 \cup S_2)$.
-By decomposability and mutual commutativity, $N = R_{S_0} \circ R_{S_1}
-\circ R_{S_2}$ in any order.  We compute both sides of CC1 as chains of
-equalities.
+Write $J^c$ for $\{1, \ldots, k\} \setminus J$.  First, $N \circ R_J = N$ for
+every index set~$J$: by decomposability and (R3), $N = R_{J^c} \circ R_J$, so
+$N(R_J(\tau)) = R_{J^c}(R_J(R_J(\tau))) = R_{J^c}(R_J(\tau)) = N(\tau)$ by
+\Cref{lem:repair-idempotent}.  Second, if $e$ is repair-local with respect to
+$F(e)$, then for every~$\tau$
+\begin{equation}
+\label{eq:nan}
+N(A_e(N(\tau))) = N(A_e(R_{F(e)}(\tau))),
+\end{equation}
+because $N(\tau) = R_{F(e)^c}(R_{F(e)}(\tau))$, \Cref{lem:repair-commute}
+moves $R_{F(e)^c}$ past $A_e$, and $N \circ R_{F(e)^c} = N$.
 
-\emph{Left side}: $N(A_{e_2}(N(A_{e_1}(\sigma))))$.
-\begin{align}
-&= N(A_{e_2}(R_{S_0}(R_{S_1}(R_{S_2}(A_{e_1}(\sigma))))))
-  \tag{expand inner $N$} \\
-&= N(R_{S_0}(R_{S_1}(A_{e_2}(R_{S_2}(A_{e_1}(\sigma))))))
-  \tag{\Cref{lem:repair-commute}: $S_0 \cap F(e_2) = S_1 \cap F(e_2) = \varnothing$} \\
-&= R_{S_0}(R_{S_1}(R_{S_2}(R_{S_0}(R_{S_1}(A_{e_2}(R_{S_2}(A_{e_1}(\sigma))))))))
-  \tag{expand outer $N$} \\
-&= R_{S_0}(R_{S_1}(R_{S_2}(A_{e_2}(R_{S_2}(A_{e_1}(\sigma))))))
-  \tag{\Cref{lem:repair-idempotent}: $R_{S_0}, R_{S_1}$ absorbed}
-\end{align}
+(a) By \eqref{eq:nan} for~$e_2$, the left side of CC1 is
+$N(A_{e_2}(N(A_{e_1}(\sigma)))) = N(A_{e_2}(R_{F_2}(A_{e_1}(\sigma))))$, and
+by (H1) and \Cref{lem:repair-commute} for~$e_1$ (with $J = F_2$, disjoint
+from~$F_1$) this is $N(A_{e_2}(A_{e_1}(R_{F_2}(\sigma))))$.  Symmetrically,
+the right side is $N(A_{e_1}(A_{e_2}(R_{F_1}(\sigma))))$.
 
-\emph{Right side}: $N(A_{e_1}(N(A_{e_2}(\sigma))))$.
-\begin{align}
-&= N(A_{e_1}(R_{S_0}(R_{S_2}(R_{S_1}(A_{e_2}(\sigma))))))
-  \tag{expand inner $N$} \\
-&= N(R_{S_0}(R_{S_2}(A_{e_1}(R_{S_1}(A_{e_2}(\sigma))))))
-  \tag{\Cref{lem:repair-commute}: $S_0 \cap F(e_1) = S_2 \cap F(e_1) = \varnothing$} \\
-&= R_{S_0}(R_{S_1}(R_{S_2}(R_{S_0}(R_{S_2}(A_{e_1}(R_{S_1}(A_{e_2}(\sigma))))))))
-  \tag{expand outer $N$} \\
-&= R_{S_0}(R_{S_1}(R_{S_2}(A_{e_1}(R_{S_1}(A_{e_2}(\sigma))))))
-  \tag{\Cref{lem:repair-idempotent}: $R_{S_0}, R_{S_2}$ absorbed}
-\end{align}
+(b) At a valid~$\sigma$ every $\psi_i(\sigma)$ holds, so
+$R_{F_1}(\sigma) = R_{F_2}(\sigma) = \sigma$ by
+\Cref{lem:repair-idempotent}, and (a) becomes (H3).
 
-\emph{Equating.}  The left side is
-$R_{S_0}(R_{S_1}(R_{S_2}(A_{e_2}(R_{S_2}(A_{e_1}(\sigma))))))$ and the right
-side is $R_{S_0}(R_{S_1}(R_{S_2}(A_{e_1}(R_{S_1}(A_{e_2}(\sigma))))))$.
-It remains to show their inner expressions are equal.
-
-Apply \Cref{lem:repair-commute} to move $R_{S_2}$ past $A_{e_1}$ on the left
-(since $S_2 \cap F(e_1) = \varnothing$):
+(c) By \eqref{eq:nan}, (H4) for~$e_j$ says exactly
+$N(A_{e_j}(N(\tau))) = N(A_{e_j}(\tau))$ for all~$\tau$, which is strong
+absorption (conversely, strong absorption at $R_{F_j}(\tau)$ together with
+$N(R_{F_j}(\tau)) = N(\tau)$ gives (H4)).  Then
 \[
-A_{e_2}(R_{S_2}(A_{e_1}(\sigma))) = A_{e_2}(A_{e_1}(R_{S_2}(\sigma))).
+N(A_{e_2}(N(A_{e_1}(\sigma)))) = N(A_{e_2}(A_{e_1}(\sigma)))
+= N(A_{e_1}(A_{e_2}(\sigma))) = N(A_{e_1}(N(A_{e_2}(\sigma)))),
 \]
-Apply \Cref{lem:repair-commute} to move $R_{S_1}$ past $A_{e_2}$ on the right
-(since $S_1 \cap F(e_2) = \varnothing$):
-\[
-A_{e_1}(R_{S_1}(A_{e_2}(\sigma))) = A_{e_1}(A_{e_2}(R_{S_1}(\sigma))).
-\]
-Both inner expressions now have the form
-$A_{e_j}(A_{e_\ell}(R_?(\sigma)))$ with all repairs pushed past the events.
-Applying $R_{S_2}$ to the left expression and $R_{S_1}$ to the right, then
-using mutual commutativity of $R_{S_1}$ and $R_{S_2}$, both sides reduce to
-\[
-R_{S_0}(R_{S_1}(R_{S_2}(A_{e_2}(A_{e_1}(R_{S_2}(R_{S_1}(\sigma))))))).
-\]
-Since $R_{S_1}$ and $R_{S_2}$ commute and each is idempotent after application
-(\Cref{lem:repair-idempotent}), the left and right sides are equal.
+by strong absorption for~$e_2$, (H3), and strong absorption for~$e_1$.
 \end{proof}
 
+\begin{corollary}[CC1 Under CC2]
+\label{cor:cc1-under-cc2}
+Assume WFC and let $N = \rho_R^*$.  If CC2 holds for $e_1$ and~$e_2$, then
+for every state~$\sigma$, CC1 holds for the pair at~$\sigma$ if and only if
+$N(A_{e_2}(A_{e_1}(\sigma))) = N(A_{e_1}(A_{e_2}(\sigma)))$.
+\end{corollary}
+
+\begin{proof}
+By \Cref{thm:strong-absorption} (in its per-event form) both events satisfy
+strong absorption, and the chain of equalities in the proof of
+\Cref{thm:footprint-cc1}(c) applies in both directions.
+\end{proof}
+
+In a registry satisfying CC2, then, CC1 is exactly commutation up to
+normalization, and footprints play no role in that equivalence; their role is
+to make (H4), or CC2 itself, a local check.  Every part is mechanized:
+(a)~\coq{calc_footprint_cc1_iff}, (b)~\coq{calc_footprint_cc1_valid_iff}
+and \coq{calc_footprint_cc1_valid}, (c)~\coq{calc_footprint_cc1} and
+\coq{calc_fp_absorb_iff_sa}, \Cref{cor:cc1-under-cc2}
+\coq{calc_cc1_iff_commute_under_cc2}; with non-vacuity instances
+\coq{calc_clamp_instance} (two clamped counters with disjoint footprints, CC1
+at every state including invalid ones) and \coq{calc_order_cc1}.  Form~(b) is
+the one the reference implementation's compositional check uses, since it
+checks CC1 on valid states.  The same reasoning covers a state space split
+into components: on $\Sigma_1 \times \Sigma_2$ with $N = N_1 \times N_2$ and
+events acting on one component each, CC1 holds at every valid state, and at
+any state exactly when each event absorbs its own component's normalizer
+(\coq{calc_components_cc1_valid}, \coq{calc_components_cc1_iff}).
+
+\begin{remark}[Each Hypothesis Is Needed]
+\label{rem:footprint-counterexamples}
+Version~1 of this paper stated \Cref{thm:footprint-cc1} with (H1) and (H2)
+alone as giving CC1 at every state.  That is false.  With no invariants
+($k = 0$) every footprint is empty, repair is the identity, (H1) and (H2) hold
+vacuously, and the events $x := 1$ and $x := 2$ violate CC1
+(\coq{base_thm_footprint_cc1_refuted}).  Adding raw commutation does not
+help: on states $\{0,1,2,3\}$ with $\psi_1 = \psi_2 = (\sigma \geq 2)$,
+repairs $r_1 = r_2$ sending $0, 1 \mapsto 2$ and fixing $2, 3$, and events
+$a = (0 \mapsto 0, 1 \mapsto 0, 2 \mapsto 2, 3 \mapsto 3)$ (footprint empty,
+repair-local) and $b = (0 \mapsto 0, 1 \mapsto 0, 2 \mapsto 3, 3 \mapsto 0)$
+(footprint $\{1, 2\}$), the raw events commute but at state~$0$ the two sides
+of CC1 are $3$ and~$2$ (\coq{base_thm_footprint_cc1_raw_refuted}).  The
+failure is that $b$ does not absorb the repairs of its own footprint
+($N(b(R_{\{1,2\}}(0))) = 3 \neq 2 = N(b(0))$), which is (H4); $b$ also
+violates CC2 at~$0$.  Dropping any one hypothesis of the corrected forms
+breaks them, with every other hypothesis holding: the valid-state form
+without (H3) (\coq{calc_valid_needs_commute}), without (H1)
+(\coq{calc_valid_needs_disjoint}), or without (H2)
+(\coq{calc_valid_needs_repair_local}); the every-state form without (H3)
+(\coq{calc_all_needs_commute}), without (H4)
+(\coq{calc_all_needs_absorb}, the example above), or without (H2)
+(\coq{calc_all_needs_repair_local}).
+\end{remark}
+
 \begin{remark}[Practical import]
+\label{rem:practical-import}
 A practitioner does not prove CC1 by global state enumeration.  Instead:
-(i)~assign each event type an invariant footprint, (ii)~verify that each event
-commutes with repairs outside its footprint (\Cref{lem:repair-commute}),
-(iii)~check that independent event pairs have disjoint footprints.  All three
-are local obligations.  The order fulfillment example (\Cref{sec:example})
-demonstrates this workflow: $e_{\mathrm{credit}}$ and $e_{\mathrm{approve}}$
-affect disjoint aspects of the state, and the held-state repair commutes with
-credit application.
+(i)~assign each event type an invariant footprint; (ii)~verify that each
+event commutes with repairs outside its footprint (repair locality,
+\Cref{lem:repair-commute}); (iii)~verify, per event, that it absorbs the
+repairs of its own footprint, (H4), equivalently strong absorption, which CC2
+already implies; and (iv)~verify, per independent pair, commutation up to
+normalization, (H3).  All four are local obligations, and (iv) is often raw
+commutation.  At valid states, (ii) and disjoint footprints reduce CC1 to
+(iv) alone.  The order fulfillment example (\Cref{sec:example}) does not have
+disjoint footprints: approval can falsify the single invariant and credit can
+restore it, so every footprint of either event contains it
+(\coq{base_rem_practical_import_refuted}).  It is certified by part~(c)
+instead: the held-state repair commutes with credit application
+(\coq{calc_order_credit_repair_commute}), both events absorb their footprint
+repairs, and the events commute up to normalization, so CC1 holds at every
+state, and CC2 holds as well (\coq{calc_order_cc1}).
 \end{remark}
 
 \subsection{Product Composition}
@@ -1562,8 +1863,11 @@ Events are pairs $e = (e^{(1)}, e^{(2)})$ with application componentwise.
 \begin{theorem}[Product Lifting]
 \label{thm:product}
 If each $R_j$ satisfies WFC and CC, then $R_1 \otimes R_2$ satisfies WFC and
-CC.  If each normalizer is decomposable, the product normalizer is
-decomposable with footprints composed by union across components.
+CC; more precisely, CC1 holds for a product pair at $(\sigma_1, \sigma_2)$ if
+and only if it holds for the first components at~$\sigma_1$ and for the
+second components at~$\sigma_2$.  If each normalizer is decomposable, the
+product normalizer is decomposable with footprints composed by union across
+components, and repair locality and footprint disjointness lift.
 \end{theorem}
 
 \begin{proof}
@@ -1580,6 +1884,10 @@ in $R_1$ and $R_2$ by componentwise application and normalization.
 
 \emph{Decomposability}: Per-invariant repairs in each component act on
 disjoint state components and thus commute across components trivially.
+The normalizer identity $N = N_1 \times N_2$ uses that each $\rho_j$ fixes
+valid states (\Cref{def:registry}).  Mechanized as \coq{base_thm_product}
+and \coq{base_thm_product_decomposable}, with the instance
+\coq{calc_product_instance}.
 \end{proof}
 
 \begin{remark}
@@ -1595,14 +1903,15 @@ Full decomposability is a strong sufficient condition.  When it does not hold
 globally, the calculus still provides value:
 
 \begin{enumerate}[leftmargin=*,nosep]
-\item CC may hold for event pairs with disjoint footprints even if the full
-  normalizer is not decomposable.  The footprint theorem
-  (\Cref{thm:footprint-cc1}) applies to any event pair satisfying its
-  hypotheses, regardless of whether \emph{all} pairs do.
+\item The footprint theorem (\Cref{thm:footprint-cc1}) is a statement about
+  one event pair: it applies to any pair satisfying its hypotheses,
+  regardless of whether \emph{all} pairs do, and \Cref{cor:cc1-under-cc2}
+  needs no decomposability at all.
 \item When footprints overlap for some event pair, the calculus identifies
   precisely which pairs require further analysis.  A practitioner can then
-  either redesign compensation to be canonical for the overlapping invariants
-  or add coordination only for the interacting event types.
+  check the corrected canonical-state pattern for the overlapping invariants
+  (\Cref{sec:verify-cc}, pattern~1) or add
+  coordination only for the interacting event types.
 \item For event types that share footprints but whose normalized outcomes
   agree by domain-specific reasoning (e.g., both repairs clamp to the same
   bound), CC1 can be verified by case analysis restricted to the overlapping
@@ -1621,17 +1930,27 @@ ensures termination, and compensation commutativity (CC), which ensures
 confluence.  Under both, the governance rewrite system has unique normal forms
 by Newman's Lemma, and all processors consuming the same events converge to
 the same valid state.  A uniform bound on compensation depth (UBC) additionally
-guarantees constant per-event overhead.  Both conditions are necessary: without
-UBC, compensation depth is unbounded; without CC, different orders reach
-different valid states.
+guarantees constant per-event overhead.  Without UBC, compensation depth is
+unbounded.  CC is exact: when every buffered event may fire and compensation
+repairs to validity, every event set has a unique normal form if and only if
+CC holds on the reachable states, and under causal or guarded enabledness a
+joinability form of CC is the exact condition.  Convergence does not depend on
+the state space being finite; finiteness serves only uniform cost and
+checking by enumeration.
 
 To make CC practically verifiable, we developed a verification calculus that
 reduces the global CC obligation to local checks.  Invariant footprints
 identify which invariants each event can affect; decomposable repair ensures
-per-invariant fixes commute; and product composition enables modular
-verification across semantic modules.  Together, these convert
+per-invariant fixes commute; CC2 is equivalent to strong absorption; CC1 at
+every state follows from repair locality, per-event footprint absorption and
+commutation up to normalization, and at valid states disjoint footprints and
+repair locality reduce it to commutation up to normalization alone; and
+product composition enables modular verification across semantic modules.
+Each hypothesis is shown to be needed.  Together, these convert
 ``compensate-and-converge'' from a convergence theorem into a verifiable
-design pattern with tractable proof obligations.
+design pattern with tractable proof obligations.  The convergence theory and
+the calculus are mechanized in Coq/Rocq without axioms, including the paper's examples and the
+counterexamples that delimit each theorem.
 
 Compensation commutativity is strictly weaker than the operation commutativity
 required by CRDTs: operations need not commute, only their compensated results.
@@ -1649,6 +1968,190 @@ sound and a calculus for verifying those conditions.
 \section*{Acknowledgments}
 
 I thank my wife, Yuval, for her patience and support throughout this research.
+
+\appendix
+\section{Errata and corrections}
+\label{app:errata}
+
+This appendix lists every statement of version~1 that version~2 refutes,
+corrects or sharpens.  For each, it gives the old statement (short), the
+counterexample where there is one, and the corrected result, with the names of
+the Coq theorems (all in the axiom-free gate of \texttt{coq/verify.sh}).  The
+body of the paper states only the corrected results.
+
+\begin{enumerate}[leftmargin=*,label=\textbf{E\arabic*.},ref=E\arabic*]
+\item \textbf{\Cref{thm:footprint-cc1} (Footprint Commutativity).}
+  \emph{Old:} under WFC and decomposable repair, disjoint footprints (H1) and
+  repair locality (H2) give CC1 for an independent pair.
+  \emph{Counterexamples:} with $k = 0$ the events $x := 1$ and $x := 2$
+  satisfy (H1) and (H2) vacuously and violate CC1
+  (\coq{base_thm_footprint_cc1_refuted}); the four-state example of
+  \Cref{rem:footprint-counterexamples} satisfies (H1), (H2) and raw
+  commutation and violates CC1 at state~0
+  (\coq{base_thm_footprint_cc1_raw_refuted}).  The old proof's final step
+  moved a repair block past an event whose footprint it intersects, which
+  repair locality does not allow.
+  \emph{Corrected:} \Cref{thm:footprint-cc1}: (a)~under (H1), (H2), CC1 at
+  $\sigma$ iff the events commute up to~$N$ after the other event's footprint
+  repairs (\coq{calc_footprint_cc1_iff}); (b)~at valid states, CC1 iff
+  commutation up to~$N$ (\coq{calc_footprint_cc1_valid_iff},
+  \coq{calc_footprint_cc1_valid}); (c)~at every state, repair locality,
+  commutation up to~$N$ and per-event footprint absorption give CC1, without
+  (H1) (\coq{calc_footprint_cc1}, \coq{calc_fp_absorb_iff_sa}); and
+  \Cref{cor:cc1-under-cc2}: under CC2, CC1 iff commutation up to~$N$
+  (\coq{calc_cc1_iff_commute_under_cc2}).  Each hypothesis is needed
+  (\coq{calc_valid_needs_commute}, \coq{calc_valid_needs_disjoint},
+  \coq{calc_valid_needs_repair_local}, \coq{calc_all_needs_commute},
+  \coq{calc_all_needs_absorb}, \coq{calc_all_needs_repair_local}).
+
+\item \textbf{Remark ``Practical import''.}
+  \emph{Old:} the order-fulfillment events have disjoint footprints, so the
+  footprint workflow certifies the example.
+  \emph{Counterexample:} the single invariant lies in every footprint of both
+  events (\coq{base_rem_practical_import_refuted}).
+  \emph{Corrected:} \Cref{rem:practical-import}: the workflow has a fourth
+  step (per-event footprint absorption), and the example is certified by
+  \Cref{thm:footprint-cc1}(c) (\coq{calc_order_credit_repair_commute},
+  \coq{calc_order_cc1}).
+
+\item \textbf{\Cref{sec:verify-cc}, pattern~1 (compensation to a canonical
+  state).}
+  \emph{Old:} if $\rho_R^*(\sigma) = \sigma_\bot$ for every invalid~$\sigma$,
+  CC1 and CC2 hold trivially.
+  \emph{Counterexamples:} $x := 1$ and $x := 2$ on valid states violate CC1
+  (\coq{base_pattern1_cc1_refuted}); an event that sends an invalid state and
+  the reset state to different places violates CC2
+  (\coq{base_pattern1_cc2_refuted}).
+  \emph{Corrected:} CC2 for~$e$ iff $N(A_e(\sigma)) = N(A_e(\sigma_\bot))$ for
+  every invalid~$\sigma$ (\coq{calc_canonical_cc2_iff}); given that for both
+  events, CC1 iff commutation up to~$N$ (\coq{calc_canonical_pattern},
+  instance \coq{calc_canonical_instance}).
+
+\item \textbf{\Cref{sec:verify-cc}, pattern~2 (lattice-structured
+  compensation).}
+  \emph{Old:} compensation that ``computes the join with the nearest valid
+  state'' satisfies CC by commutativity of the join.  This was imprecise
+  (``nearest valid state'' is undefined).
+  \emph{Corrected:} stated precisely (events join fixed elements, $N$ a
+  closure operator, $\sigma \sqsubseteq \rho_R(\sigma) \sqsubseteq N(\sigma)$)
+  with a short paper proof; not mechanized.  The federated remark in the same
+  item no longer claims event-order convergence on monotone cycles, which the
+  companion paper's revision shows needs a further condition.
+
+\item \textbf{\Cref{sec:example}, ``Why Compensation Design Matters''.}
+  \emph{Old:} under the naive revert $\rho(\textit{approved}, b) =
+  (\textit{pending}, b)$, CC1 fails at $(\textit{pending}, 0)$.
+  \emph{Counterexample:} at $(\textit{pending}, 0)$ both orders give
+  $(\textit{pending}, 1)$ (\coq{naive_paper_witness_fails}).
+  \emph{Corrected:} CC1 fails at $(\textit{pending}, 1)$, with
+  $(\textit{pending}, 2) \neq (\textit{approved}, 2)$
+  (\coq{naive_cc1_fails}); the paper's stream diverges
+  (\coq{naive_stream_diverges}); the naive revert also violates CC2 at
+  $(\textit{approved}, 1)$ (\coq{naive_cc2_fails}).  The closing paragraph
+  no longer cites ``state-determined compensation'' as a sufficient
+  condition (canonical compensation is a special case and is not sufficient,
+  E3); it names the absorption and commutation facts that
+  \Cref{thm:footprint-cc1} uses.  The exhaustive check covers all 12 states
+  (\coq{of_cc1}, \coq{of_cc2}, \coq{of_processors}).
+
+\item \textbf{Remark ``What Fails'' (after \Cref{thm:necessity}).}
+  \emph{Old:} $R_\infty$ satisfies CC because ``there is only one event per
+  set, so order independence is vacuous''.  The conclusion is true, the
+  reason is not (CC1 is a property of the registry over all events, and
+  $\mathrm{apply}(e_n, -)$ was defined only at~0).
+  \emph{Corrected:} $\rho^*$ is constantly~0, so CC1 and CC2 hold for every
+  total extension of $\mathrm{apply}(e_n, -)$ (\coq{ri_cc_any_extension},
+  \coq{ri_what_fails}); stronger forms of the UBC failure:
+  \coq{ri_depth_exact}, \coq{ri_no_ubc}.  \Cref{thm:necessity} itself is
+  unchanged (\coq{thm_necessity}).
+
+\item \textbf{\Cref{thm:convergence}(c) (Agreement).}
+  \emph{Old:} if $E_{P_1}(t) = E_{P_2}(t)$ then $\Psi_{P_1}(t) =
+  \Psi_{P_2}(t)$.
+  \emph{Counterexample:} one processor has applied the single received event
+  and the other has not yet (\coq{base_thm_convergence_c_counterexample}).
+  \emph{Corrected:} processors that have \emph{finished processing} equal
+  received sets agree, at the same or different times
+  (\coq{base_thm_convergence_c}, \coq{stream_agreement}); parts (a) and~(b)
+  are stated for finished processors (\coq{base_thm_convergence},
+  \coq{stream_convergence}).  \Cref{def:processor} now defines
+  ``finished'' and ``fair''.
+
+\item \textbf{Closing sentence of \Cref{thm:convergence} and
+  \Cref{rem:infinite-streams}.}
+  \emph{Old:} with eventual delivery, disagreements are transient: any event
+  causing processors to differ is eventually received by both, restoring
+  agreement.
+  \emph{Counterexample:} on an infinite stream, a processor one event behind
+  another is finished at every time and disagrees at every time
+  (\coq{base_thm_convergence_transient_counterexample}).
+  \emph{Corrected:} the sentence is removed; \Cref{rem:finished} and
+  \Cref{rem:infinite-streams} state what holds: (c) as corrected, and
+  fixed-point agreement for finite streams.
+
+\item \textbf{\Cref{cor:quiescent}.}
+  \emph{Old:} for a finite stream the processors eventually agree forever.
+  The proof assumed both processors had finished processing at~$T_N$.
+  \emph{Corrected:} the same conclusion for fair processors
+  (\coq{base_cor_quiescent}, \coq{base_cor_quiescent_nat}).
+
+\item \textbf{``CC is necessary'' (abstract, contributions,
+  \Cref{sec:necessity}, the remark after \Cref{prop:cc-necessary},
+  conclusion).}
+  \emph{Old:} CC is necessary for agreement, and each condition is
+  independently necessary for its guarantee.  \Cref{prop:cc-necessary} is
+  existential and remains true (\coq{prop_cc_necessary}), but CC as stated is
+  not necessary in the paper's causal setting.
+  \emph{Counterexamples:} under causal enabledness CC1 can fail at a
+  reachable configuration while normal forms are unique
+  (\coq{masked_cc1}); with non-canonical $\rho^*$ the same
+  (\coq{rho_star_qualifier}).
+  \emph{Corrected:} \Cref{thm:cc-exact}: under free delivery and canonical
+  repair, unique normal forms from~$\sigma_0$ iff CC1 and CC2 on the states
+  reachable from~$\sigma_0$ (\coq{cc_exact_from}, \coq{wfc_cc_exact_from});
+  under any enabledness, confluence iff joinability at reachable
+  configurations (\coq{jc_exact}); \Cref{rem:converse-scope}.
+
+\item \textbf{\Cref{thm:strong-absorption}.}
+  \emph{Old:} strong absorption implies CC2.
+  \emph{Sharpened:} under WFC the two are equivalent
+  (\coq{strong_absorption_iff_cc2}; forward direction
+  \coq{base_thm_strong_absorption}; per event
+  \coq{calc_cc2_strong_absorption}).
+
+\item \textbf{Three-regime hierarchy (\Cref{sec:intro},
+  \Cref{sec:design-space}, Related Work).}
+  \emph{Old:} the regimes form a containment hierarchy of progressively
+  weaker requirements, and normalization confluence subsumes invariant
+  confluence.  This was imprecise: an invariant-confluent system needs no
+  compensation but its operations need not commute, so it can violate CC1.
+  \emph{Corrected:} normalization confluence contains the
+  invariant-confluent systems that converge under reordering; the op-based
+  CRDT side is exact (\coq{compensation_free_exact},
+  \coq{cmrdt_governed_SEC}, \coq{witness_converges},
+  \coq{witness_not_cmrdt}).
+
+\item \textbf{Sharpened or newly mechanized, no statement refuted.}
+  \Cref{def:rhostar}: $\rho_R^*$ is constructed from WFC, needs at most
+  $\Phi(\sigma)$ steps, and is independent of the measure
+  (\coq{base_def_rhostar}, \coq{base_def_rhostar_least_unique},
+  \coq{rho_star_canonical}).  \Cref{lem:termination}: the bound is attained
+  (\coq{base_lem_termination_bound}, \coq{lv_termination_bound_tight}).
+  \Cref{cor:infinite} (domain independence) is mechanized at the
+  rewrite-system and stream levels (\coq{governance_wf_confluent},
+  \coq{causal_governance_wf_confluent}, \coq{base_cor_infinite},
+  \coq{base_cor_infinite_quiescent}, \coq{zw_confluent}) and now also covers
+  \Cref{cor:quiescent}; its paragraph on widening no longer claims
+  uniqueness of the normal form without WFC.  \Cref{thm:product}: CC1 lifts
+  as an equivalence with the componentwise conditions
+  (\coq{base_thm_product}, \coq{base_thm_product_decomposable}).  The
+  Applications paragraphs no longer assert CC for reset and per-constraint
+  remediation; they point to the corrected checks.  The remark
+  ``Machine-checked'' (\Cref{sec:mechanization}) lists the Coq theorem
+  names; version~1's phrase ``footprint disjointness implies
+  order-independent commutation'' referred to state-variable footprints
+  (\coq{disjoint_events_commute}), not to \Cref{thm:footprint-cc1}.
+\end{enumerate}
 
 \begin{thebibliography}{99}
 
