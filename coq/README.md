@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1040 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 1123 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 989 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
@@ -1771,6 +1771,80 @@ David's root-set decomposition (JAIR 1995, Theorem 1; the single-root case is Zh
 Corollary 3); what is new here is the axiom-free mechanization, the bijection with root
 assignments, and the recovery of `rooted_criterion`.
 
+## The exact event-order condition under root-set coordination (`RootSetEvents.v`)
+
+`CoordinatedExact.v` gives the exact event-order condition when values are driven along a spanning
+tree of a group-labeled graph. `RootSet.v` drives values from a root set `R` along an outward
+spanning forest `F` with arbitrary (lossy) maps. This file combines the two and closes the row
+"event order under root-set coordination (non-invertible driving forest)" of the regime audit,
+section 12 (`LOSSY-NETWORKS.md` P6).
+
+**The driving network of a forest** (`frule`, `fsrc`, `ffun`). A vertex `w` attached by a forest
+edge `(u, w, f)` reads only `u` and takes `f (s u)`, ignoring its own value; a root keeps its own
+value; registries off `R ++ verts F` are untouched (`forest_network_shape`). Non-driving edges `X`
+never write: they are constraints checked on the result, or coordinated away. A forest gives every
+vertex one driver, so the network is acyclic and satisfies `FederationEvents.Common`
+(`forest_common`), and `FederationEventsConverse.v` applies unchanged (`forest_gc_iff`,
+`forest_fed_exact`, `forest_fed_exact_full`). Consistent states of the network are exactly the
+sections of `F` (`forest_cons_iff`). `forest_order`, `forest_order_set`: for duplicate-free `R`,
+`R ++ targets F` is a topological order over exactly `R ++ verts F`.
+
+Setting of the main theorems: `oforest R F`, a topological order `o` of the network over exactly
+`R ++ verts F`, events `(E, reg, sig)` on those registries with any declared same-registry
+independence `J`, and a consistent start `s0`.
+
+**C1 and C2 on the forest.** `forest_c1_static`, `forest_c1r1`: C1 holds unconditionally (a driven
+target is overwritten by `f (z u)` on both sides; a root's repair is the identity).
+`forest_c2at_iff`: C2 at a reachable witness `s` is trivial on driven registries and, on a root
+`r`, is exactly `sig e2 (sig e1 (s r)) = sig e1 (sig e2 (s r))`. `forest_c2_static_iff`: static C2
+holds iff every two `J`-independent events of every root commute at every value.
+
+**The exact condition.**
+
+- **`forest_events_exact`**: for every consistent start `s0`,
+  `TraceConv s0 <-> forall r, In r R -> RootCC r J (s0 r)`: every two `J`-independent events of
+  each root `r` commute at every value reachable from `s0 r` by `r`'s own events. One independent
+  condition per root.
+- `forest_perm_exact`: the same for permutations (every pair declared).
+- `forest_events_exact_global`, `forest_global_iff_static`: convergence from **every** consistent
+  start iff every root's independent events commute at every value, iff static C1 and C2.
+
+**Different roots do not interact.** `forest_root_run`: a root's value after a run is its start
+value pushed through its own events only. `forest_run_formula`, `forest_run_single_root`: every
+vertex is `p w` applied to the run of one root `rho w` (its driving root) on that root's own
+events. `forest_runs_by_root`: runs with the same per-root subsequences reach the same state;
+`forest_cross_commute`: events on different registries commute from every consistent state;
+`forest_driven_noop`: an event on a driven registry is overwritten. A vertex reached from two roots
+in the graph is still driven by one of them (the other edge is in `X`), so there is no cross-root
+counterexample. The only cross-root coupling is through the kept constraints:
+`forest_runs_kept`, every reached state is a section of `F`, and it is a section of `F ++ X` iff
+the run's root values are a consistent root assignment (`root_set_criterion`).
+
+**The group case recovered.** `tforest r T` turns a spanning tree of `CoordinatedCycles.v` (edges in
+either direction) into an outward forest from `[r]` with the maps `tr g b` (`tforest_props`), whose
+network is the tree's driving network pointwise (`dfun_ffun`, `dsrc_fsrc`; `runF_fext`).
+`coordinated_events_exact_recovered` and `coordinated_events_exact_global_recovered` re-derive
+`coordinated_events_exact` and `coordinated_events_exact_global` as `R = [r]`; `recovered_klein`
+applies the first to the Klein tree.
+
+**Instances** (`tw_*`, over `nat`). Roots 0 and 1, forest `[(0, 2, par); (1, 3, cap1)]` with the
+lossy `par x = x mod 2` and `cap1 x = min x 1`, non-driving edge `(1, 2, par)`, so vertex 2 is
+reached from both roots (`tw_root_set`: `[0; 1]` is a root set, neither root alone is). Events
+Dbl (`2x`) and Clamp (`min x 5`) on root 0, Inc on root 1, Poke (write 7) on the driven vertex 2.
+
+- `tw_converges_at_zero`: from every consistent start with root 0 at 0, every permutation
+  converges (both root-0 events fix 0).
+- `tw_diverges_at_three`: from root 0 at 3, Dbl and Clamp give 6 versus 5 at root 0 and 0 versus 1
+  at vertex 2.
+- `tw_reachable_matters`: Dbl and Clamp commute at 1, yet from root 0 at 1 the runs
+  Dbl Dbl Dbl Clamp and Dbl Dbl Clamp Dbl diverge (5 versus 8), since 4 is reachable: the
+  reachable-value qualifier is needed. `tw_not_global`: convergence holds from some consistent
+  starts and fails from others.
+- `tw_cross_roots`, `tw_poke_noop`, `tw_vertex2`: root 0 and root 1 events commute from every
+  consistent start, Poke is overwritten, and vertex 2 depends on root 0's events only.
+- `tw_constraint`: the cross-root constraint holds from the zero start, fails after one Inc on
+  root 1, and holds again after two.
+
 ## Stream processors and Stream Convergence (`Stream.v`)
 
 The base paper's headline theorem (Thm. "Stream Convergence", `thm:convergence`) is about stream
@@ -2021,7 +2095,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 1040 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1123 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
