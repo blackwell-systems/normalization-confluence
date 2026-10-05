@@ -213,3 +213,9 @@ all: RootSet.vo
 
 RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
 	coqc -Q . NC RootSet.v
+
+# State-based CRDT merges as an instance of the exact theorems (CvRDTExact.v).
+all: CvRDTExact.vo
+
+CvRDTExact.vo: CvRDTExact.v Newman.vo Trace.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo Checker.vo CRDT.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo
+	coqc -Q . NC CvRDTExact.v
