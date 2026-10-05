@@ -179,9 +179,9 @@ Split `E`'s interface into **output ports** `out(E)` (externally readable, `G`-c
 sub-federation with consistent set `L_{G[p]}` and normalizer `ρ_{G[p]}` (Theorem 1 / 1').
 
 **Parametric certificate.** The certificate certifies `G[p]` convergent for *every* valid `p ∈ P` (a
-`∀p` verdict: WFC/CC/M1/R2/monotonicity for each pinned input). gsm's exhaustive build-time
+`∀p` result: WFC/CC/M1/R2/monotonicity for each pinned input). gsm's exhaustive build-time
 verification already ranges over reachable states, so it produces this; the certificate records the
-port split, the parametric verdict, and the subsystem digest.
+port split, the parametric result, and the subsystem digest.
 
 **Theorem 2' (assume-guarantee compositionality).** With the port split and a parametric certificate
 for `G`, boundary-only `Embed` is sound: `L_flat ≅ L_emb` and `ρ_{F_flat} = ρ_{F_emb}`, and no
@@ -280,7 +280,7 @@ existing convergence development it would reuse.
 
 **The presheaf.** Over a system's variable set, take a region to be a variable subset `U`, the
 subsystem on `U` to be the rules whose footprint lies in `U`, and the section `F(U)` to be that
-subsystem's normalizer `ρ_U` with its convergence verdict. Restriction `F(U) → F(U')` for `U' ⊆ U`
+subsystem's normalizer `ρ_U` with its convergence result. Restriction `F(U) → F(U')` for `U' ⊆ U`
 restricts the normalizer. The sheaf question: do local certificates that agree on overlaps glue to a
 global one, checkable from the overlap alone?
 
@@ -497,7 +497,7 @@ core (strong consistency), a cycle basis of the obstruction rather than the whol
 distributed deployment this reads: put consensus only on the obstructing cycles, run everything else
 coordination-free, and pay the availability cost of coordination on that core (a cycle basis
 suffices; the true minimum is the group feedback edge set problem of 10.3). It refines CALM and
-I-confluence from a global yes/no coordination verdict into a localized, mixed-consistency partition.
+I-confluence from a global yes/no coordination answer into a localized, mixed-consistency partition.
 
 Boundary: this locates where coordination is needed for convergence, assuming the delivery layer
 gives each replica the same event set (NC is the convergence layer, not the transport). It is clean

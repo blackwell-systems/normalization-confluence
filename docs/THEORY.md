@@ -79,7 +79,7 @@ exact split.
 4. **Trust.** Axiom-free Rocq proofs, CI-checked on three prover versions (Coq 8.18, Coq 8.20,
    Rocq 9.3). Every registry machine gsm returns (from `Build`, `SynthesizeWith`, and
    `BuildCompositional` per footprint component) is re-certified in process by a checker generated
-   from the proof, with optimized variants proved to give the same verdicts.
+   from the proof, with optimized variants proved to give the same results.
    - [mechanized] The checkers' soundness and the equality of the optimized variants
      (`TableFast.v`, `TableFn.v`, `AstTables.v`, `AstCompact.v`).
    - [implemented] The in-process gate in gsm.

@@ -1,7 +1,7 @@
 # Companion paper: outline and decisions
 
 Status: planning artifact for the companion to the two published papers. Not prose yet. This
-records the thesis, contribution ranking, framing decisions, the inhabitation verdict, related-work
+records the thesis, contribution ranking, framing decisions, the inhabitation result, related-work
 positioning, and the mechanization status, so drafting starts from settled ground.
 
 ## Working title
@@ -31,7 +31,7 @@ NC-specific results in front.
    minimal coordinated core, the core being a cycle basis of the obstruction (first-Betti-number
    many loops), not the whole network. Refines CALM and I-confluence from a global yes/no into a
    localized mixed-consistency partition. SCOPED: the clean Betti-number minimality is rigorous in
-   the invertible (lossless) fragment; see the inhabitation verdict below.
+   the invertible (lossless) fragment; see the inhabitation result below.
 2. The completion: H^0 = convergent states, H^1 = holonomy obstruction, cycle-basis generators, the
    two ways H^1 vanishes = the acyclic and monotone regimes unified.
 3. Computable obstruction diagnostic. The loop composite over the shared subspace as the witness,
@@ -50,7 +50,7 @@ invertible with trivial holonomy (converges), invertible with non-trivial holono
 coordination-free; minimal coordination on a cycle basis is the fix). The third line is where H^1
 earns its place.
 
-## Inhabitation verdict (grounds the scoping)
+## Inhabitation result (grounds the scoping)
 A morphism is invertible on the shared fiber exactly when it is a lossless relabeling (copy, boolean
 NOT, bijective enum/unit/format map). It is non-invertible when it collapses information (max, min,
 most-restrictive-wins, clamp-to-cap, reset), which includes every multi-source resolver. Checked
@@ -65,7 +65,7 @@ against gsm's actual example federations:
 So the invertible fragment is non-empty and characterizable (lossless relabeling morphisms), and it
 is exactly where cyclic obstruction is resolved by coordination rather than by order. But the
 cyclic-and-invertible intersection that the Betti-number minimality needs is a real but non-dominant
-corner (most federations are acyclic, or monotone-cyclic). Verdict: minimality is a scoped theorem,
+corner (most federations are acyclic, or monotone-cyclic). Result: minimality is a scoped theorem,
 not a universal headline. The characterization (invertible = lossless relabeling) is itself a
 contribution, since it states precisely when the sharp classification applies.
 
@@ -96,7 +96,7 @@ contribution, since it states precisely when the sharp classification applies.
 
 ## Related-work positioning (review-critical, literature-checked September 2026)
 
-Verdict of the check: the novelty holds, and it is sharper than "we apply cohomology to
+Result of the check: the novelty holds, and it is sharper than "we apply cohomology to
 convergence." The sheaf-cohomology-as-obstruction TEMPLATE is not new and must not be claimed as
 such; what is new is the OBJECT (federated normalization convergence), the OPERATIONAL diagnostic,
 and the MINIMALITY-of-coordination result. Position accordingly and cite the closest work up front.
@@ -117,7 +117,7 @@ Closest prior art and the precise delineation:
 - Herlihy-Shavit-Rajsbaum combinatorial topology: task solvability / wait-freedom via simplicial
   complexes, the lineage 2503.02556 sits in. Different question from convergence; cite to preempt
   conflation.
-- CALM and its recent refinements give a GLOBAL verdict; NC LOCALIZES it. CALM (Hellerstein-Ameloot,
+- CALM and its recent refinements give a GLOBAL answer; NC LOCALIZES it. CALM (Hellerstein-Ameloot,
   monotone iff coordination-free), "Complete CALM: A Coordination Criterion for Specifications"
   (arXiv:2602.09435, 2026, monotone at the semantic level), and "A Preliminary Model of
   Coordination-free Consistency" (arXiv:2504.01141, 2025) all answer WHETHER coordination is

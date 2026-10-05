@@ -65,13 +65,13 @@ make astdemo  # rules oracle: accepts convergent rules, rejects non-convergent r
 GSM_CONVERGENCE_CHECKER=/path/to/normalization-confluence/coq/extraction/checker \
   go test ./... -run TestConvergenceTables_WriteAndVerify
 
-# rules oracle -- cross-check gsm's verdict straight from the combinator rules:
+# rules oracle -- cross-check gsm's answer straight from the combinator rules:
 GSM_AST_CHECKER=/path/to/normalization-confluence/coq/extraction/astchecker \
   go test ./... -run TestMachineAST
 ```
 
 Each gsm test builds a machine, serializes it, and runs the matching checker on it; the test
-fails if the verified checker disagrees with gsm's verdict.
+fails if the verified checker disagrees with gsm's answer.
 
 ## File formats
 
@@ -155,6 +155,6 @@ The `checker` certifies **convergence of the emitted tables** for the declared p
 gsm produces, so it shares Build's global-enumeration ceiling (compositional machines have no
 global tables to export). The `astchecker` certifies **convergence of the rules** over the whole
 valuation box, so it likewise enumerates that box, but it never trusts gsm's tables or
-normalization: it recomputes from the declarations. Together they pin gsm's verdict from two
+normalization: it recomputes from the declarations. Together they pin gsm's answer from two
 independent, machine-checked angles. Extracted code and compiled binaries are build artifacts
 (see `.gitignore`); regenerate with `make`.

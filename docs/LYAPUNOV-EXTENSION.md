@@ -64,7 +64,7 @@ There is one class where both halves hold at once and the continuous collapse is
 > the Euclidean metric. The result: a unique minimizer, reached exponentially fast, independent of
 > where you start. That is the continuous unique-normal-form.
 
-This is the honest ceiling of "my collapse works in the continuous case": convex-potential gradient
+This is the real ceiling of "my collapse works in the continuous case": convex-potential gradient
 systems, and their Riemannian (geodesically convex) generalization. State it that way and it holds.
 
 ## The boundary: where it provably does not, and why that helps
