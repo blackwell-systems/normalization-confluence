@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (1783 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (1968 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -40,10 +40,13 @@ with its count over Z/2, and sheaf gluing is exact on sub-federation covers. The
 propagation model is exact on acyclic networks and on monotone cycles with or without reset epochs
 (on cycles, for convergence together with agreement with gsm's synchronous `FedMachine`). The
 gaps still open are rootless networks beyond a single invertible cycle, rootless propagation on
-lossy networks, cyclic monotone collapse (paper only), and, on monotone cycles without resets,
-convergence among interleavings alone, when they may all settle on a state the `FedMachine` never
-produces; sheaf gluing on the companion paper's variable-level and monotone-overlap site is paper
-only, and least fixed points without ACC are a design exclusion.
+lossy networks (where sufficient signed-cycle certificates are mechanized, with Harary's balance
+theorem proved for finite signed graphs), cyclic monotone collapse (paper only), and, on monotone
+cycles without resets, convergence among interleavings alone, when they may all settle on a state
+the `FedMachine` never produces. All four are cyclic; the audit states them as one question, what
+makes composition exact on cycles. Sheaf gluing on the companion paper's variable-level and
+monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
+sources, are paper only, and least fixed points without ACC are a design exclusion.
 [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's status with its Coq theorem.
 
 **Dayna Blackwell** | dayna@blackwell-systems.com

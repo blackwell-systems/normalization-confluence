@@ -50,9 +50,15 @@ exact split.
      with CC1 only for co-enabled events (`GovernanceCausal.v`); WFC over any well-founded order,
      with an infinite instance on `Z` (`GovernanceWF.v`); the exact converses `cc_exact_from`,
      `jc_exact` and `causal_exact`, with counterexamples to the naive converses
-     (`GovernanceConverse.v`); at-least-once delivery (`AtLeastOnce.v`).
-   - [paper] The necessity counterexamples, the complexity bound, and the rest of the calculus
-     (strong absorption, decomposable repair, product composition).
+     (`GovernanceConverse.v`); at-least-once delivery (`AtLeastOnce.v`); the necessity
+     counterexamples (`thm_necessity`, `prop_cc_necessary`, `PaperInstances.v`); the per-event and
+     total step bounds (`base_thm_complexity_per_event`, `base_thm_complexity_comp_total`,
+     `RhoStar.v`); and the rest of the calculus, strong absorption (`base_thm_strong_absorption`),
+     decomposable repair (`calc_decomp_normalizer`), product composition (`base_thm_product`) and
+     the corrected footprint theorem (`calc_footprint_cc1_iff`; the paper's v1 statement is refuted,
+     `base_thm_footprint_cc1_refuted`) (`Calculus.v`).
+   - [paper] The asymptotic cost model of `thm:complexity` (`O(n)`, `O(n log n)` with a priority
+     queue), which concerns data structures rather than the step bound.
 2. **Federations.** An authority argument and resolution operators give convergence on any acyclic
    network, and monotone repair on any topology; acyclicity and M1 are shown necessary. Normal forms
    are a limit, so compositionality is a corollary; certificates form a sheaf whose gluing axiom is
@@ -77,10 +83,14 @@ exact split.
      (`CohomologyGeneral.v`, `RootSet.v`, `LossyHardness.v`); minimum coordination, tied to the
      plan model on invertible networks and through root sets on lossy ones, with its hardness
      reductions (`CoordinationMinimum.v`, `LossyMinimum.v`).
-   - [paper] The authority and resolution theorems as stated, the necessity of acyclicity and M1,
-     the sheaf assembly on the variable-level and monotone-overlap site, and the cited complexity
-     results (NP-completeness of 3-SAT and Max-Cut; fixed-parameter, planar and approximation
-     results for group feedback edge sets).
+     The authority and resolution theorems in their corrected (v2) form (`fed_lem_authority_a`,
+     `fed_lem_authority_b`, `fed_lem_authority_c_corrected`, `fed_lem_resolved_termination`,
+     `fed_thm_fed_convergence_corrected`, `fed_thm_resolved_convergence_corrected`,
+     `FederationGRS.v`) and the necessity of acyclicity and M1 (`prop_cycle_necessary`,
+     `prop_m1_necessary`, `PaperInstances.v`).
+   - [paper] The sheaf assembly on the variable-level and monotone-overlap site, and the cited
+     complexity results (NP-completeness of 3-SAT and Max-Cut; fixed-parameter, planar and
+     approximation results for group feedback edge sets).
    - [implemented] The loop-composite diagnostic, as `Federation.DiagnoseCycle`.
 3. **Synthesis.** An exhaustive search finds a convergent repair or, when it completes, a witness
    that none exists.
