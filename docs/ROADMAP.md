@@ -11,7 +11,7 @@ prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](
 Status of the gate: 2012 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54 to #60, #62, #64, #70 to #73, #80, #83) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](../REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -44,11 +44,14 @@ proven until it lands in a module and passes the gate.
 | Minimum coordination on lossy networks (audit gap 11; `LOSSY-NETWORKS.md` P4, reading A) | `LossyMinimum.v` | `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_decide`, `lmin_reduction`, `net_lmin_dichotomy`, `min_le_np_certificate`, `lossy_min_is_gfes`, `lossy_min_exceeds_cycle_bounds` | #70 |
 | Signed cycles: loops versus merges, Harary balance, and sufficient signed certificates for E (audit gap 3, progress; gap stays open) | `SignedCycles.v`, `SignedResolver.v` | `invertible_merge_is_holonomy`, `holonomy_free_section`, `obstruction_loop_vs_merge`, `harary_balance`, `balanced_no_positive_acyclic`; `switched_monotone`, `signed_settlement`, `signed_fidelity` (and `_harary` forms); breaks `neg2_no_fixed_point`, `copyback_ghost`, `ring_low_start_E`, `unbalanced_unique_oscillates`, `flip_needs_top_resolver`, `xor_no_certificate`, `cyc3_unsignable`; statement review #81 | #80, #81 |
 | Local interaction graphs, Boolean, every `n`: local fidelity and local settlement (audit gap 3, progress; gap stays open) | `LocalSigned.v` | `rrt_sub`, `local_fidelity`, `local_fidelity_canon`, `local_signed_fidelity`, `global_to_local`; `richard_t3`, `outdeg_nonexpansive`, `richard_t4`, `sd_path`, `shih_dong_E`; breaks `local_weaker_than_global`, `local_neg_free_no_fixed_point`, `shih_dong_not_fair`, `ring_local_conditions` | #83 |
+| CRDT boundary: without compensation the CRDT algebra is exactly the remaining convergence condition; with it the class is strictly larger on the same transition representation | `CRDTBoundary.v` | `crdt_boundary`, `cf_causal_boundary`, `cf_merge_boundary`, `cf_cvrdt_boundary`, `witness_not_cvrdt_exact`, `boundary_nonvacuous`; qualifier `witness_governed_constant` (strictness is about representations, not observable behavior) | #67, #68 |
+| Canonical execution framework (validated, scoped to single systems and acyclic composition; [THEORY.md](THEORY.md#canonical-execution)) | `CanonicalExecution.v`, `CanonicalInstances.v`, `CanonicalLocality.v` | E: `canonical_execution_exact`; S: `state_descent_iff_cc2`; P: `factor_exact` (with `factor_needs_sound`, `factor_needs_realizable`, `factor_needs_exposed`), `fed_exact_P`, `c_local_iff_r1`; on cycles soundness only, `cyc_factor_sound`, and `cyclic_lc_sound_fails`; statement review #78, promoted #79 | #74, #77 to #79 |
 | `H^1` on the nerve as a 2-complex (audit gap 12; WP10, rank half) | `CohomologyNerve.v` | `nerve_H1_classification`, `nerve_H1_abelian`, `nerve_H1_Z2_count`, `nerve_Z2_full_iff`, `nerve_section_iff_coboundary`, `triangle_kills_flip` | #71 |
 | Minimum coordination tied to the plan model (audit gap 10) | `CoordinationMinimum.v` | `plan_min_exact`, `feasible_plan`, `plan_coord_feasible`, `plan_min_attained`, `plan_min_root_independent`, `maxcut_reduction`, `maxcut_plan_reduction`; `plan_min_connected_needed`, `plan_min_nodup_needed`, `s3_tree_choice` | #72 |
 | Sheaf gluing over sub-federation covers (audit gap 13, narrowed; WP10, sheaf half) | `SheafGluing.v` | `separation`, `gluing`, `sheaf_exact`, `sheaf_iff_refines`, `cert_restrict_iff`, `cert_sheaf`; `triangle_fails`, `r1_failure`, `gluing_cex_overlap`, `cert_needs_sc` | #73 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
+| gsm check for **XU** on acyclic federations (distributed projection merging), reported as `FedReport.ProjectionSafe`, required by opt-in `RequireProjectionSafe` | gsm | gsm PR #34 (unreleased, after v0.13.0); the hypothesis of `dist_interleavings_converge`; it implies `dist_exact`'s condition and is strictly stronger (`levels_exact_not_xu`) | gsm |
 
 ### Qualifiers found
 
@@ -156,8 +159,8 @@ redelivery must be causally consistent (`late_duplicate_diverges`).
   governed step are absorbed, extending the order-independence results; this mirrors how state-based
   CRDTs absorb duplicates (`cvrdt_absorbs_duplicates`).
 - **Done when.** The theorem passes the gate with a witness of divergence for a non-idempotent
-  event. gsm's next release reports non-idempotent events (`Report.NotIdempotent`, gsm PR #24), so the
-  documentation can say exactly which events need deduplication.
+  event. gsm reports non-idempotent events (`Report.NotIdempotent`, gsm PR #24, released in v0.13.0),
+  so the documentation can say exactly which events need deduplication.
 
 ### 3. "Sufficient, not necessary" becomes "if and only if"
 
@@ -365,9 +368,11 @@ is closed. Of the optimization and counting gaps, only gap 13's residual remains
   enumerates reachable normal forms (or the image of `N`) and tests every independent pair. A
   cheaper sufficient check, or a bound on that exploration, is open.
 - **Authority root in gsm's plan.** `CoordinatedCycles.v` shows the normal form is unique only given
-  the authority root (`root_choice_matters`). gsm's `CoordinationPlan` cuts every cycle and reports no
-  root; the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md` is not implemented. When
-  it is, the plan must name its root.
+  the authority root (`root_choice_matters`). Done for gsm's current plan as of gsm v0.13.0:
+  `CoordinationPlan` still cuts every cycle, and each `CoordinationPoint` now names its `Authority`
+  (`BuildCoordinated` rejects an authority other than the cut edge's target). Open: the
+  holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md` is not implemented; when it is,
+  its plan must name its root the same way.
 - **Synthesis.** gsm's `Registry.Synthesize` (exhaustive search for a convergent repair, or a witness
   that none exists) is implemented but not mechanized.
 - **Rank of `H^1` on the full nerve.** Done, #71: with the triangle relations, `H^1` is classified
