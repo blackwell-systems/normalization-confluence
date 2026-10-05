@@ -11,7 +11,7 @@ prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](
 Status of the gate: 1499 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54 to #60, #62) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #60, #62, #64) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](../REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -40,6 +40,7 @@ proven until it lands in a module and passes the gate.
 | Exact event order under root-set coordination (audit gap 4) | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | #59 |
 | Distributed propagation model, acyclic: exact condition (audit gap 1, acyclic part) | `DistributedExact.v` | `dist_exact`, `dist_exact_local`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots`, `dist_xu_c2_converge`, `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | #60 |
 | Distributed propagation model on monotone cycles: repair alone, reset epochs, events without resets (audit gap 1, cyclic part; residual open) | `DistributedCycles.v` | `q1_sound_iff`, `q1_unique_iff`, `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `low_agree_iff`, `low_conv_iff`, `quiet_agree_iff`, `quiet_conv_iff`, `dist_cyc_ghost`, `dist_cyc_epoch_fix` | #62 |
+| Distributed model on monotone cycles without resets, exactly (audit gap 1, residual; gap 1 closed) | `DistributedCyclesExact.v` | `flush_agree_iff`, `flush_fed_iff`, `fair_agree_iff`, `fair_fed_iff`; `FlushR`: `fair_flush_sound_iff`, `flushat_sound_iff`, `sand_settles`; `NoGhostR`: `noghost_event_iff`, `noghost_inv_iff`, `noghost_soundr_iff`, `soundr_fed_iff`; gsm: `lens_noreset_iff`, `lens_noreset_fair_iff`; necessity `copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `flip2_fair_livelock`, `ghost_exact` | #64 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
@@ -66,7 +67,12 @@ naive statements are false, and each has a mechanized counterexample:
   (`levels_exact_not_xu`) and strictly stronger than FedMachine convergence
   (`dist_strictly_stronger_than_fed`). On monotone cycles every check gsm runs can pass while
   projection nodes settle at a ghost fixed point the FedMachine never produces (`dist_cyc_ghost`);
-  a reset epoch removes it only as a barrier (`dist_cyc_epoch_fix`).
+  a reset epoch removes it only as a barrier (`dist_cyc_epoch_fix`), and a clear that resets only
+  its own shared slot still ghosts (`local_reset_ghost`). Without resets, flushability is part of
+  the certified property, not a hypothesis on it (`flip_noflush`), and "some propagation word
+  reaches quiescence" does not give "every fair schedule does" (`flip2_fair_livelock`,
+  `ring_exact`). No ghost is not necessary for convergence among interleavings alone
+  (`conv_ghost_normal`); it is necessary for agreement with the FedMachine (`ghost_exact`).
 - **Causal converse.** Reachability of the state is not enough; the non-commuting concurrent pair
   must be deliverable after a causally consistent prefix (`naive_causal_converse_fails`).
 - **At-least-once.** Idempotence of each duplicated event is not enough under causal delivery: the
@@ -279,7 +285,8 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 | Item | Status | Size |
 |---|---|---|
 | Distributed propagation model (gap 1): acyclic exact converse; a model for monotone cycles | acyclic done, #60 (`dist_exact`); cycles modeled and exact under reset epochs and under `LowR`, #62 (`epoch_conv_iff`, `low_conv_iff`) | n/a |
-| Distributed model on monotone cycles without resets and without `LowR` (gap 1, residual): an exact per-event check for `NoGhostR`, or a discharge of `FlushR`, so that `quiet_agree_iff` and `quiet_conv_iff` lose their reachable hypotheses | open; sufficient checks only (`EvLow` via `infl_evlow`, a unique fixed point via `uniq_agree`) | medium |
+| Distributed model on monotone cycles without resets and without `LowR` (gap 1, residual): move `FlushR` and `NoGhostR` off the hypothesis side and characterize them | done, #64: `flush_fed_iff`, `fair_fed_iff` (each conjunct necessary), `FlushR` via `fair_flush_sound_iff`, `NoGhostR` via `noghost_event_iff` and `noghost_inv_iff`, gsm reduction `lens_noreset_iff` | n/a |
+| Distributed model on monotone cycles without resets: exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when they may agree on a common ghost (gap 14) | open; sufficient `XUcR`, `FMConv`, `NoGhostR` (`quiet_conv_suff`), and `NoGhostR` is not necessary (`conv_ghost_normal`) | small to medium |
 | Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | open | medium |
 | Rootless propagation on non-invertible networks, resolver reading (gap 3; `LOSSY-NETWORKS.md` P2, PR #52) | open | medium to large |
 | Event order under non-invertible root-set coordination (gap 4; P6) | done, #59 (`forest_events_exact`) | n/a |
@@ -292,8 +299,8 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 Optimization and counting, which do not bear on when state converges: minimum coordination on
 invertible cycles tied to the authority-root plan model (its NP-hardness is cited), minimum
 coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and sheaf gluing
-(audit gaps 10 to 13). Open convergence items after #60 and #62: gap 1 narrowed to its residual
-(cycles without resets and without `LowR`), gaps 2, 3 and 5, plus the design exclusion of gap 8.
+(audit gaps 10 to 13). Open convergence items after #64: gaps 2, 3, 5 and 14, plus the design
+exclusion of gap 8. Gap 1 is closed.
 
 ## Removable caveats, lower value
 
@@ -303,11 +310,15 @@ coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and
   assignment of a root set drives a consistent state (`root_set_criterion_graph`, `RootSet.v`, #54);
   deciding that is NP-complete, with the reduction mechanized (`LossyHardness.v`, #57), and event
   order under root-set coordination is exact (`forest_events_exact`, `RootSetEvents.v`, #59).
-- **Distributed model for cycles.** Done except a residual: the acyclic exact converse is
-  `dist_exact` (`DistributedExact.v`, #60), and the model on monotone cycles is exact under reset
-  epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`) (`DistributedCycles.v`, #62). Without
-  resets and without `LowR` the exact theorems assume reachable `FlushR` and `NoGhostR`; an exact
-  per-event check for `NoGhostR` is open.
+- **Distributed model for cycles.** Done: the acyclic exact converse is `dist_exact`
+  (`DistributedExact.v`, #60); the model on monotone cycles is exact under reset epochs
+  (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`) (`DistributedCycles.v`, #62), and without
+  resets with no reachable hypothesis left (`flush_fed_iff`, `fair_fed_iff`,
+  `DistributedCyclesExact.v`, #64). Remaining: convergence among interleavings alone, without
+  agreement with the FedMachine (gap 14, in the Open items table). Checking the no-reset condition
+  in gsm: cheap per-event and per-network routes exist for `FlushR` (`infl_evsound`,
+  `evlow_fairflush`, `step_sound_fairflush`); `NoGhostR` in general needs a global invariant
+  (`noghost_inv_iff`, `unique_or_low_noghost`).
 - **C2 converse over all valid starts in general networks.** The C2 converse applies when some
   valid consistent state realizes the witness pair `(z, b)` (for example a two-registry federation
   whose source has no repair); a general statement quantifying over all valid starts is open.
