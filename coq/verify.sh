@@ -945,6 +945,50 @@ Print Assumptions NC.CoordinatedExact.k_rrun_fixed.
 Print Assumptions NC.CoordinatedExact.old_condition_not_necessary.
 Print Assumptions NC.CoordinatedExact.copyback_events_exact.
 Print Assumptions NC.CoordinatedExact.negation_events_exact.
+Require NC.RootSet.
+Print Assumptions NC.RootSet.drive_root.
+Print Assumptions NC.RootSet.out_forest_section.
+Print Assumptions NC.RootSet.out_forest_unique.
+Print Assumptions NC.RootSet.section_driven.
+Print Assumptions NC.RootSet.drive_ext.
+Print Assumptions NC.RootSet.root_set_criterion.
+Print Assumptions NC.RootSet.root_set_criterion_driven.
+Print Assumptions NC.RootSet.root_set_exists.
+Print Assumptions NC.RootSet.driving_paths.
+Print Assumptions NC.RootSet.root_set_agreement.
+Print Assumptions NC.RootSet.closed_reach.
+Print Assumptions NC.RootSet.forest_reach.
+Print Assumptions NC.RootSet.root_set_iff_forest.
+Print Assumptions NC.RootSet.root_set_criterion_graph.
+Print Assumptions NC.RootSet.root_set_criterion_values.
+Print Assumptions NC.RootSet.root_set_bijection.
+Print Assumptions NC.RootSet.msection_b_spec.
+Print Assumptions NC.RootSet.tuples_spec.
+Print Assumptions NC.RootSet.tuples_nodup.
+Print Assumptions NC.RootSet.root_set_count.
+Print Assumptions NC.RootSet.root_set_decide.
+Print Assumptions NC.RootSet.otree_oforest.
+Print Assumptions NC.RootSet.rooted_criterion_recovered.
+Print Assumptions NC.RootSet.out_tree_section_recovered.
+Print Assumptions NC.RootSet.out_tree_unique_recovered.
+Print Assumptions NC.RootSet.diamond_forest.
+Print Assumptions NC.RootSet.diamond_not_injective.
+Print Assumptions NC.RootSet.diamond_no_consistent_root.
+Print Assumptions NC.RootSet.diamond_no_section.
+Print Assumptions NC.RootSet.diamond_count.
+Print Assumptions NC.RootSet.c22_forest.
+Print Assumptions NC.RootSet.c22_root_set.
+Print Assumptions NC.RootSet.c22_no_consistent_root.
+Print Assumptions NC.RootSet.c22_no_section_recovered.
+Print Assumptions NC.RootSet.c22_count.
+Print Assumptions NC.RootSet.two_forest.
+Print Assumptions NC.RootSet.two_has_section.
+Print Assumptions NC.RootSet.two_count.
+Print Assumptions NC.RootSet.two_count_is_sections.
+Print Assumptions NC.RootSet.scc_forest.
+Print Assumptions NC.RootSet.scc_component.
+Print Assumptions NC.RootSet.scc_consistent_roots.
+Print Assumptions NC.RootSet.scc_unique_section.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -955,8 +999,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 915 ]; then
-  echo "FAIL: expected 915 axiom-free results, got $N"
+if [ "$N" -lt 958 ]; then
+  echo "FAIL: expected 958 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
