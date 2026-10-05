@@ -1523,7 +1523,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 669 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 715 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
