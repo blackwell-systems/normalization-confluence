@@ -64,3 +64,4 @@ CanonicalInstances.v
 CanonicalLocality.v
 SignedCycles.v
 SignedResolver.v
+LocalSigned.v

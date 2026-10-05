@@ -2016,6 +2016,51 @@ Print Assumptions NC.SignedResolver.signed_fidelity_harary.
 Print Assumptions NC.SignedResolver.ring_low_start_E.
 Print Assumptions NC.SignedResolver.unique_pos_cycle_every_certificate.
 Print Assumptions NC.SignedResolver.flip_needs_top_resolver.
+Require Import NC.LocalSigned.
+Print Assumptions NC.LocalSigned.lneg_spec.
+Print Assumptions NC.LocalSigned.fixed_csign.
+Print Assumptions NC.LocalSigned.cycle_or_sink.
+Print Assumptions NC.LocalSigned.nl_complete.
+Print Assumptions NC.LocalSigned.rrt_sub.
+Print Assumptions NC.LocalSigned.fixed_iff.
+Print Assumptions NC.LocalSigned.local_fidelity.
+Print Assumptions NC.LocalSigned.local_fidelity_canon.
+Print Assumptions NC.LocalSigned.local_signed_fidelity.
+Print Assumptions NC.LocalSigned.local_in_global.
+Print Assumptions NC.LocalSigned.local_cycle_global.
+Print Assumptions NC.LocalSigned.global_to_local.
+Print Assumptions NC.LocalSigned.negk_csign.
+Print Assumptions NC.LocalSigned.t4_path.
+Print Assumptions NC.LocalSigned.sd_path.
+Print Assumptions NC.LocalSigned.t4_full.
+Print Assumptions NC.LocalSigned.richard_t4.
+Print Assumptions NC.LocalSigned.shih_dong_E.
+Print Assumptions NC.LocalSigned.nonexp.
+Print Assumptions NC.LocalSigned.outdeg_nonexpansive.
+Print Assumptions NC.LocalSigned.opp_csign.
+Print Assumptions NC.LocalSigned.claim1.
+Print Assumptions NC.LocalSigned.claim2.
+Print Assumptions NC.LocalSigned.partners.
+Print Assumptions NC.LocalSigned.claim3.
+Print Assumptions NC.LocalSigned.four_point.
+Print Assumptions NC.LocalSigned.opp_core.
+Print Assumptions NC.LocalSigned.opp_false.
+Print Assumptions NC.LocalSigned.t3_path.
+Print Assumptions NC.LocalSigned.richard_t3.
+Print Assumptions NC.LocalSigned.chk_sound.
+Print Assumptions NC.LocalSigned.chk_neg.
+Print Assumptions NC.LocalSigned.chk_pos.
+Print Assumptions NC.LocalSigned.chk_none.
+Print Assumptions NC.LocalSigned.chk_through.
+Print Assumptions NC.LocalSigned.outdeg_sound.
+Print Assumptions NC.LocalSigned.bext.
+Print Assumptions NC.LocalSigned.lc_no_cycle.
+Print Assumptions NC.LocalSigned.local_weaker_than_global.
+Print Assumptions NC.LocalSigned.local_neg_free_no_fixed_point.
+Print Assumptions NC.LocalSigned.sd_sch_fair.
+Print Assumptions NC.LocalSigned.shih_dong_not_fair.
+Print Assumptions NC.LocalSigned.ring_local_conditions.
+Print Assumptions NC.LocalSigned.global_to_local_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2026,8 +2071,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1968 ]; then
-  echo "FAIL: expected 1968 axiom-free results, got $N"
+if [ "$N" -lt 2012 ]; then
+  echo "FAIL: expected 2012 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
