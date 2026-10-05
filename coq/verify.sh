@@ -1564,6 +1564,77 @@ Print Assumptions NC.CRDTBoundary.crdt_boundary.
 Print Assumptions NC.CRDTBoundary.boundary_nonvacuous.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff_nonvacuous.
+Require NC.CoordinationMinimum.
+Print Assumptions NC.CoordinationMinimum.cm_filter_app.
+Print Assumptions NC.CoordinationMinimum.cm_len_app.
+Print Assumptions NC.CoordinationMinimum.cm_filter_perm_len.
+Print Assumptions NC.CoordinationMinimum.cm_filter_len_le.
+Print Assumptions NC.CoordinationMinimum.cm_filter_mono.
+Print Assumptions NC.CoordinationMinimum.cm_filter_none.
+Print Assumptions NC.CoordinationMinimum.cm_filter_all.
+Print Assumptions NC.CoordinationMinimum.cm_filter_ext_in.
+Print Assumptions NC.CoordinationMinimum.cm_perm_partition.
+Print Assumptions NC.CoordinationMinimum.cm_nodup_filter.
+Print Assumptions NC.CoordinationMinimum.cross_dec_list.
+Print Assumptions NC.CoordinationMinimum.tree_cross.
+Print Assumptions NC.CoordinationMinimum.outside_lt.
+Print Assumptions NC.CoordinationMinimum.outside_le.
+Print Assumptions NC.CoordinationMinimum.balb_true.
+Print Assumptions NC.CoordinationMinimum.balb_false.
+Print Assumptions NC.CoordinationMinimum.perm_incl.
+Print Assumptions NC.CoordinationMinimum.plan_covers.
+Print Assumptions NC.CoordinationMinimum.feasibleM_feasible.
+Print Assumptions NC.CoordinationMinimum.feasible_feasibleM.
+Print Assumptions NC.CoordinationMinimum.feasibleM_nil.
+Print Assumptions NC.CoordinationMinimum.treeb_sound.
+Print Assumptions NC.CoordinationMinimum.spansb_sound.
+Print Assumptions NC.CoordinationMinimum.rem1_perm.
+Print Assumptions NC.CoordinationMinimum.permb_sound.
+Print Assumptions NC.CoordinationMinimum.planb_sound.
+Print Assumptions NC.CoordinationMinimum.section_check.
+Print Assumptions NC.CoordinationMinimum.tsec_snoc.
+Print Assumptions NC.CoordinationMinimum.tsec_section.
+Print Assumptions NC.CoordinationMinimum.coord_unbalanced.
+Print Assumptions NC.CoordinationMinimum.kept_balanced.
+Print Assumptions NC.CoordinationMinimum.plan_cost_any_section.
+Print Assumptions NC.CoordinationMinimum.plan_cost_le_betti.
+Print Assumptions NC.CoordinationMinimum.plan_coord_feasible.
+Print Assumptions NC.CoordinationMinimum.plan_coord_exact.
+Print Assumptions NC.CoordinationMinimum.section_decide.
+Print Assumptions NC.CoordinationMinimum.resc_section.
+Print Assumptions NC.CoordinationMinimum.tree_no_cross.
+Print Assumptions NC.CoordinationMinimum.attach.
+Print Assumptions NC.CoordinationMinimum.grow.
+Print Assumptions NC.CoordinationMinimum.feasible_plan.
+Print Assumptions NC.CoordinationMinimum.plan_min_exact.
+Print Assumptions NC.CoordinationMinimum.plan_min_root_independent.
+Print Assumptions NC.CoordinationMinimum.plan_min_lower_iff.
+Print Assumptions NC.CoordinationMinimum.plan_min_attained.
+Print Assumptions NC.CoordinationMinimum.plan_min_exact_set.
+Print Assumptions NC.CoordinationMinimum.plan_cost_ge_disjoint.
+Print Assumptions NC.CoordinationMinimum.plan_min_connected_needed.
+Print Assumptions NC.CoordinationMinimum.dup_no_section.
+Print Assumptions NC.CoordinationMinimum.dup_feasibleM_ge2.
+Print Assumptions NC.CoordinationMinimum.plan_min_nodup_needed.
+Print Assumptions NC.CoordinationMinimum.cut_count_signed.
+Print Assumptions NC.CoordinationMinimum.signed_true.
+Print Assumptions NC.CoordinationMinimum.signed_size.
+Print Assumptions NC.CoordinationMinimum.maxcut_reduction.
+Print Assumptions NC.CoordinationMinimum.maxcut_plan_reduction.
+Print Assumptions NC.CoordinationMinimum.maxcut_triangle.
+Print Assumptions NC.CoordinationMinimum.negation_plan_min.
+Print Assumptions NC.CoordinationMinimum.bowtie_plan_min.
+Print Assumptions NC.CoordinationMinimum.pendant_tree_uses_F.
+Print Assumptions NC.CoordinationMinimum.s3_assoc.
+Print Assumptions NC.CoordinationMinimum.s3_id_l.
+Print Assumptions NC.CoordinationMinimum.s3_id_r.
+Print Assumptions NC.CoordinationMinimum.s3_inv_r.
+Print Assumptions NC.CoordinationMinimum.s3_inv_l.
+Print Assumptions NC.CoordinationMinimum.s3_not_comm.
+Print Assumptions NC.CoordinationMinimum.s3_cycle_no_section.
+Print Assumptions NC.CoordinationMinimum.s3_disjoint.
+Print Assumptions NC.CoordinationMinimum.s3_sign_hom.
+Print Assumptions NC.CoordinationMinimum.s3_tree_choice.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1574,8 +1645,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1524 ]; then
-  echo "FAIL: expected 1524 axiom-free results, got $N"
+if [ "$N" -lt 1594 ]; then
+  echo "FAIL: expected 1594 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1524 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1524 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 1594 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 1594 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -157,6 +157,7 @@ is on the same page.
 | `CoordinatedCycles.v` | `coordinated_sound`, `coordinated_unique_nf`, `plan_exact`, `coordination_needed`; `root_choice_matters`, `copyback_without_authority` | [Under a computed coordination](docs/non-monotone-invertible.md#non-monotone-cycles-under-a-computed-coordination-coordinatedcyclesv) |
 | `RootlessCycles.v` | `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | [Rootless propagation](docs/non-monotone-invertible.md#rootless-propagation-on-invertible-cycles-rootlesscyclesv) |
 | `CoordinatedExact.v` | `coordinated_events_exact`, `coordinated_events_exact_global`; `old_condition_not_necessary` | [Event order under the plan](docs/non-monotone-invertible.md#the-exact-event-order-condition-under-the-coordination-plan-coordinatedexactv) |
+| `CoordinationMinimum.v` | `plan_min_exact`, `feasible_plan`, `plan_coord_feasible`, `plan_min_attained`, `maxcut_reduction`; `plan_min_connected_needed`, `plan_min_nodup_needed`, `s3_tree_choice` | [Minimum coordination and the plan model](docs/non-monotone-invertible.md#minimum-coordination-and-the-plan-model-coordinationminimumv) |
 
 ### 12. Non-invertible (lossy) transports ([docs/non-invertible.md](docs/non-invertible.md))
 
@@ -217,7 +218,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1524
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1594
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

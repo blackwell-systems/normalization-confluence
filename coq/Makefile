@@ -261,3 +261,9 @@ all: CRDTBoundary.vo
 
 CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
 	coqc -Q . NC CRDTBoundary.v
+
+# Minimum coordination tied to the authority-root plan model; the Max-Cut reduction (CoordinationMinimum.v).
+all: CoordinationMinimum.vo
+
+CoordinationMinimum.vo: CoordinationMinimum.v CohomologyGraph.vo CoordinatedCycles.vo CohomologyGeneral.vo
+	coqc -Q . NC CoordinationMinimum.v

@@ -155,7 +155,9 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
   root value still coordinates it.
 
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
-that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
+that minimizes the coordinated set is the group feedback edge set problem: the minimum over trees
+equals the minimum feasible coordination, and the problem is NP-hard by a mechanized Max-Cut
+reduction ([`CoordinationMinimum.v`](#minimum-coordination-and-the-plan-model-coordinationminimumv)).
 
 ## Rootless propagation on invertible cycles (`RootlessCycles.v`)
 
@@ -278,3 +280,81 @@ permutations do not converge, every reached state satisfies the kept network `cc
 none satisfies `cc_T ++ neg_B ++ neg_C`. The two loops share the driving network (it depends only on
 `T` and `r`), so event convergence depends only on the root's events; `B` and `C` change only which
 constraints the reached states satisfy.
+
+## Minimum coordination and the plan model (`CoordinationMinimum.v`)
+
+`plan_exact` fixes a spanning tree and says exactly which edges the plan must coordinate relative to
+it. `CohomologyGeneral.v` defines a feasible coordination (a deletion set whose residual has a
+global section) and bounds its minimum from below. This file links the two: the minimum over rooted
+spanning trees of the plan's cost **is** the minimum feasible coordination (the group feedback edge
+set number), for every authority root. Any group with decidable equality, the regular action.
+
+**Definitions.**
+
+- `plan Es r T X`: `tree r T`, `Permutation Es (T ++ X)` (the tree is a sub-multiset of the network)
+  and `spans r T X`. Having a plan rooted at `r` is how connectivity is stated.
+- `coord r T X`: the non-tree edges unbalanced against the computed tree section `tsec r T`
+  (`tsec_section`); `plan_cost r T X` is its length. `plan_cost_any_section`: any section of the tree
+  gives the same count (balance is static, `balanced_any_section`). `plan_cost_le_betti`: at most
+  `|X|`.
+- `feasibleM Es F`: `Es` is `K ++ F` up to order and `K` has a global section (deletion of a
+  sub-multiset). `feasibleM_feasible`, `feasible_feasibleM`: it agrees with
+  `CohomologyGeneral.feasible` (deletion by membership) on duplicate-free networks.
+
+**Results.**
+
+- `plan_coord_feasible`: for every plan, the coordinated set is feasible (its residual `T ++ kept`
+  carries the tree section). `plan_coord_exact` is `plan_exact` for the computed split: a set of
+  non-tree edges can be kept iff it avoids `coord`.
+- **`feasible_plan`**: for every feasible `F` (with a plan rooted at `r` witnessing connectivity)
+  there is a plan rooted at `r` with `plan_cost <= |F|`. No connectivity of the residual is assumed.
+  The tree is grown from `r` through edges of the residual `K` first (`grow`, `attach`); when no
+  residual edge leaves the grown part, an edge of `F` is attached and the section of `K` is
+  multiplied on the right by one constant on every vertex not yet reached (`resc`, `resc_section`:
+  gauge freedom, valid because no residual edge crosses). So tree edges in `F` cost nothing, and only
+  non-tree edges of `F` can be unbalanced.
+- **`plan_min_exact`**: for a connected network and every `k`,
+  `(exists T X, plan Es r T X /\ plan_cost r T X <= k) <-> (exists F, feasibleM Es F /\ |F| <= k)`.
+  `plan_min_lower_iff`: every plan costs at least `k` iff every feasible set has at least `k` edges.
+  `plan_min_attained`: a minimum feasible `F` gives a plan of cost `|F|` that is optimal among all
+  plans. `plan_min_root_independent`: the optimum is the same for every root (the root still decides
+  the normal form, `root_choice_matters`, but not how much is coordinated).
+- `plan_min_exact_set`: the same iff with `CohomologyGeneral.feasible` on a duplicate-free network.
+  `plan_cost_ge_disjoint`: `edge_disjoint_lower_bound` recovered for every plan.
+- `section_decide`: relative to a tree, `T ++ X` has a section iff `tsec r T` satisfies every edge of
+  `X` (a decision procedure from `cycle_basis_criterion`); `planb_sound`, `permb_sound`,
+  `section_check` are the boolean checkers used by the instances.
+
+**The hypotheses are needed.**
+
+- `plan_min_connected_needed`: two disjoint edges. Deleting nothing is feasible, but no tree rooted
+  anywhere spans both edges (`tree_vertex_count`), so no plan exists and the tree form of the iff
+  fails at `k = 0`. On a disconnected network the theorem applies per component.
+- `plan_min_nodup_needed`: two copies each of the flip and the identity between 0 and 1. Deleting the
+  flip by membership (one entry, both copies) is feasible, yet every plan coordinates two edges, so
+  `plan_min_exact_set` needs `NoDup` (`plan_min_exact`, with sub-multisets, does not).
+
+**Complexity: the Max-Cut reduction.** `signed H` labels every edge of a graph `H` with the flip in
+Z/2 (`signed_size`: same vertices, same number of edges). `maxcut_reduction`: a feasible coordination
+with `|F| + k <= |H|` exists iff `H` has a cut of at least `k` edges, so the minimum coordination of
+`signed H` is `|H|` minus the maximum cut. `maxcut_plan_reduction`: the same for plans when
+`signed H` is connected. Mechanized: correctness and size of the reduction. Cited: the
+NP-completeness of Max-Cut (Karp 1972), from which minimum coordination is NP-hard already for Z/2
+and already in the plan model; membership in NP is the plan itself, checked by `section_decide`.
+`maxcut_triangle` is the non-vacuity instance (maximum cut 2, minimum coordination 1, attained by a
+plan).
+
+**Instances** (every hypothesis discharged).
+
+- `negation_plan_min`: gsm's negation 2-cycle rooted at A, cost 1, the minimum over every plan and
+  every feasible set.
+- `bowtie_plan_min`: the bowtie of `CohomologyGeneral.v`, cost 2, the minimum (`bowtie_min_two`).
+- `pendant_tree_uses_F`: the negation loop with a pendant edge 1 -> 2. Deleting the negation edge and
+  the pendant edge is feasible and leaves vertex 2 isolated, and every spanning tree uses the deleted
+  pendant edge: the tree must be allowed to contain edges of `F`, which `feasible_plan` does.
+- **`s3_tree_choice`**: an `S_3` network, four paths from 0 to 1 with holonomies `id`, `rho`, `rho`,
+  `tau` (`rho` a 3-cycle, `tau` a transposition). The plan of the tree through the direct edge
+  coordinates 3 edges; the plan of the tree through the first `rho` path coordinates 2; 2 is the
+  minimum over every plan and every feasible set (two edge-disjoint obstructing cycles,
+  `s3_cycle_no_section`, `s3_disjoint`). The abelian image under the sign (`s3_sign_hom`) needs only
+  one deletion, so the `S_3` minimum is strictly above the abelian one, as in `theta_separation`.
