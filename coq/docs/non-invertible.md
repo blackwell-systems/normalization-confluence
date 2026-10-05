@@ -302,3 +302,94 @@ Dbl (`2x`) and Clamp (`min x 5`) on root 0, Inc on root 1, Poke (write 7) on the
   consistent start, Poke is overwritten, and vertex 2 depends on root 0's events only.
 - `tw_constraint`: the cross-root constraint holds from the zero start, fails after one Inc on
   root 1, and holds again after two.
+
+## Minimum coordination for lossy networks (`LossyMinimum.v`)
+
+Gap 11 of `REGIME-AUDIT.md` (section 12, "Optimization: minimum coordination", none known). A
+coordination deletes edges; the question is the least number of deletions that leaves a network
+with a section.
+
+**Definitions.** Edges are deleted by **position** in the edge list `G`, so parallel copies of one
+edge are distinct and no equality on maps is needed. A coordination set `F` is a duplicate-free
+list of positions below `|G|` (`cset G F`); the residual network `resid G F` keeps the edges whose
+position is not in `F`. `F` is feasible (`lfeasible G F`) when `resid G F` has a section, and
+`is_lmin G k` says that some feasible coordination set has `k` positions and every feasible one
+has at least `k` (unique: `lmin_unique`).
+
+**Exact characterization (through `RootSet.v`).**
+
+- `lfeasible_root_set`: for **any** root set `R` and spanning forest `Fr` of the residual, `F` is
+  feasible iff some root assignment `a` drives a state satisfying every residual edge
+  (`root_set_criterion_graph` applied to the residual).
+- `lfeasible_iff_root_set`: `F` is feasible iff the residual has a root set, a spanning forest and
+  a root assignment whose driven state satisfies every residual edge (`root_set_ok`). A root set
+  always exists: all vertices with the empty forest (`trivial_forest`).
+- `lmin_root_set`: `k` is the minimum iff it is the least `|F|` whose residual passes that
+  criterion.
+- Upper bounds: `forest_residual_feasible` (an outward-forest residual is feasible) and
+  `lossy_lmin_le_nontree` (with an outward forest `T` followed by extra edges `X`, the minimum is
+  at most `|X|`).
+
+**Decision procedure** (a fiber listed by `lv` with decidable equality).
+
+- `sec_b_spec`: `sec_b` decides section existence by a search over one value per vertex.
+  `lfeasible_decide_forest`: with a spanning forest of the residual, feasibility is the search over
+  the product of the root domains (`root_set_decide`).
+- `lmin_le_b_spec`: `lmin_le_b G k = true` iff a feasible coordination set of size at most `k`
+  exists (a search over the subsets of positions).
+- `lmin_b_correct`: `lmin_b G` (the least `k` with `lmin_le_b G k`) is the minimum;
+  `lmin_decide`: `is_lmin G k <-> lmin_b G = k`; `lmin_exists`.
+
+**Hardness** (through the 3-SAT network `net f` of `LossyHardness.v`).
+
+- `lmin_zero_iff_section`: the minimum is `0` iff the network has a section.
+- `lmin_zero_iff_sat`: `is_lmin (net f) 0 <-> satisfiable f` (`net_section_iff_sat`);
+  `min_le_zero_iff_sat`: the same for the decision problem "minimum `<= 0`".
+- `net_lmin_dichotomy`: the minimum of `net f` is `0` if `f` is satisfiable and `1` otherwise:
+  deleting the pinning self-loop (position `0`) always leaves a section (`net_unpinned`,
+  `net_one_suffices`, from `no_pin_trivial`).
+- `lmin_reduction`: the reduction packaged: `|net f| = 6|f| + 1`,
+  `is_lmin (net f) 0 <-> satisfiable f`, and `is_lmin (net f) 1 <-> ~ satisfiable f`.
+
+So "minimum `<= k`" is NP-hard already at `k = 0`, and telling minimum `0` from minimum `1` is
+NP-hard, so no efficient algorithm approximates the minimum within any factor unless P = NP. As in
+`LossyHardness.v`, what is mechanized is the correctness and size of the reduction; the complexity
+conclusion is the standard argument.
+
+**Membership in NP.**
+
+- `min_le_np_certificate`: a feasible coordination set of size at most `k` exists iff some
+  certificate `(F, t)`, a list of positions and one value per residual vertex, passes
+  `min_cert_ok` (a length test, a duplicate test, a range test, and one equality test per residual
+  edge).
+- `min_cert_size`: an accepted certificate has `|F| <= k`, `|F| <= |G|` and `|t| <= 2|G|`.
+- `lmin_le_np`: for the minimum `m`, `m <= k` iff some certificate passes.
+
+**The invertible case.** `lift Es` reads a group-labeled network as a lossy one under the regular
+action (`g` acts by `x |-> g x`); `msection_lift`: sections coincide.
+
+- `lossy_min_is_gfes`: on lifted networks the lossy minimum **is** the group feedback edge set
+  minimum: the least number of deleted edges leaving a coboundary labeling (`gfes`,
+  `is_gfes_min`; `lfeasible_lift_iff` via `section_iff_coboundary`).
+- `lift_cycle_basis`: when the residual is a spanning tree plus extra edges, `F` is feasible iff
+  every extra edge is balanced (`cycle_basis_criterion`), so in the invertible case feasibility is
+  decided per fundamental cycle.
+- `group_tree_lmin_zero`: a group-labeled tree has minimum `0`; `group_lmin_le_nontree`: with a
+  spanning tree `T` (edges in either direction) and extra edges `X`, the minimum is at most `|X|`.
+
+**The lossy minimum is not cycle-based.**
+
+- `c22_lmin`: the C22 shape (constant maps `false` and `true` from `0` and `1` into `2`) is a tree
+  and has minimum `1`.
+- `lossy_min_exceeds_cycle_bounds`: every valid lower bound `L` on the lossy minimum that sees only
+  cycles (takes the same value on every tree as on the empty network) has `L c22_es = 0 < 1`.
+  `cycle_bounds_nonvacuous`: the zero bound meets both hypotheses. Edge-disjoint obstructing
+  cycles (`edge_disjoint_lower_bound`) are such a bound.
+- `c22_group_lmin`: the same tree with group labels has minimum `0` (`group_tree_lmin_zero`), and
+  `lossy_lmin_le_nontree` needs an outward forest where `group_lmin_le_nontree` accepts any tree.
+
+**Instances.** `c22_lmin_b`, `c22_lmin` and `c22_certificate` (the checker accepts deleting
+position `1` with `k = 1` and rejects the empty set with `k = 0`); `diamond_lmin` (minimum `1`);
+`two_lmin` and `scc_lmin` (minimum `0`); `tri_lmin` (a Z/2 triangle closed by a flip: lossy
+minimum `1` = group feedback edge set minimum); `bow_lmin` (the bowtie: `2` both ways, matching
+`bowtie_min_two`); `fsat_lmin` (`0`) and `funsat_lmin` (`1`) through the 3-SAT network.
