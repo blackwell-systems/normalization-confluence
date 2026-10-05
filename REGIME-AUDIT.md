@@ -1,0 +1,320 @@
+# Regime audit of the headline claim
+
+The claim this audit certifies (the README's headline):
+
+> **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
+> condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
+> checker for the practical ones.**
+
+This page checks that sentence against the development, regime by regime and question by question.
+It adds no proofs. Audited at `main` `bc50702` (gate: `coq/verify.sh`, 989 axiom-free results) and
+gsm `main` `a71a1b0`. Every Coq name cited was read as a statement in `coq/*.v`, not matched by
+name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
+
+History. The first version of this audit (at `bb8ea95`, gate 729) checked the earlier headline,
+which called the map "complete" with "exact conditions in every regime", and found both words
+inaccurate; its conclusion listed the convergence regimes that had a sufficient condition only, or none. Since then seven mechanization PRs
+closed most of those gaps: #47 (`CoordinatedExact.v`), #48 (`RootlessCycles.v`), #49
+(`GovernanceWFConverse.v`), #50 (`MonotoneExact.v`), #51 (`StreamExact.v`), #54 (`RootSet.v`) and
+#55 (`AtLeastOnceExact.v`). The tables below are the current state; the conclusion re-answers the
+old questions and confirms the new wording.
+
+## How to read the tables
+
+Each row is one question asked of one regime. Columns:
+
+- **Exact (N and S).** A mechanized necessary-and-sufficient condition, with its theorem, or
+  "none mechanized", or "none known".
+- **Cheap sufficient, and the link.** The condition gsm-style checking can afford (per state, per
+  pair, per edge), and the theorem that makes it imply the exact one.
+- **gsm.** Whether gsm `main` implements a check (file or API named).
+- **Gap.** `paper` (proved in a paper, not mechanized), `open` (not proved anywhere, or listed open
+  by the development itself), `design` (excluded by the model or the axiom-free constraint),
+  `hardness` (a cited complexity result says no efficient exact condition exists), or `-`.
+
+Three kinds of question are kept apart, because the convergence claim is about the first:
+
+1. **Convergence**: does a unique normal form exist; do all event orders reach it.
+2. **Optimization**: what is the minimum coordination.
+3. **Counting**: the rank of `H^1`.
+
+## 1. Single registry
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Free delivery: unique normal form for every buffer from `s0` | CC1 and CC2 on states reachable from `s0`, with canonical repair: `cc_exact_from`, `cc_exact`, `cc_exact_global`; with `rho*` built from WFC: `wfc_cc_exact_from`; with no termination hypothesis: `canonical_cc_exact_from` | CC1 and CC2 at every state: `governance_unique_normal_forms`, `paper_governance_unique_normal_forms`; reachable form implies JC: `cc_reach_jc` | `Registry.Build` (exhaustive CC; footprint path `disjoint_events_commute`); re-certified by the table and rules oracles | Qualifier: canonical repair needed (`rho_star_qualifier`). - |
+| Causal or guarded enabledness: confluence from `c0` | JC at configurations reachable from `c0`: `jc_exact`; with termination only from `c0`, over any well-founded order: `sn_jc_exact` | CC1 on co-enabled pairs plus CC2, on reachable states: `cc_reach_jc`, `cc_reach_unique_normal_forms`; deps-based enabledness: `paper_causal_governance_unique_normal_forms` | CC1 checked on declared `Independent` pairs only | Qualifier: `jc_exact` and `sn_jc_exact` assume enabledness persists under compensation (`enabled_after_comp`). Enabledness that a repair step can disable has no exact condition: open. CC1 not necessary: `masked_cc1`. |
+| Any well-founded potential (infinite state, ordinal or lexicographic `Phi`): unique normal form | `wf_jc_exact`, `lex_jc_exact`, `comp_wf_jc_exact` (no potential), `canonical_jc_exact`; free delivery `wf_cc_exact_from`, `canonical_cc_exact_from`; with `rho*` constructed: `wf_cc_exact_from_built`, `comp_wf_cc_exact_from_built`. The `nat` statements are recovered: `jc_exact_from_wf`, `cc_exact_from_from_wf` | `governance_wf_confluent`, `causal_governance_wf_confluent`, `governance_lex_confluent`, instance `zw_confluent` | n/a (gsm needs finite state to decide) | - (closed by #49) |
+| WFC itself (termination) | The system terminates from every configuration iff compensation is well-founded: `terminating_iff_comp_wf`; iff some potential into some well-founded order exists: `comp_wf_iff_wfc`. Canonical repair implies it: `canonical_comp_wf`; with decidable validity a `nat` potential exists: `comp_wf_nat_potential` | `repair_terminates`; `base_lem_finite_implies_ubc` | WFC cycle detection in `Build` | - (closed by #49) |
+
+## 2. Causal delivery (replay model)
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Do all causally consistent orders of the same events reach one state from `s0` | CCR: concurrent pairs commute after every causally consistent prefix: `causal_exact` | Governed steps commute on every concurrent pair at every state: `causal_convergence`; the global iff `causal_convergence_exact` (needs `hb` irreflexive) | Declared `Independent` pairs read as the concurrent ones (`causal_tequiv`, `run_tequiv`) | Qualifier: reachability of the state is not enough (`naive_causal_converse_fails`). - |
+
+## 3. At-least-once delivery
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Free delivery: does every delivery with duplicates reach the exactly-once result | Exactly-once commutation at reachable states plus idempotence of each event at every reachable state where it is first delivered: `alo_exact`; equivalently with absorption after every exactly-once run containing the event: `alo_exact_absorb`. Convergence forces idempotence at every state any at-least-once delivery reaches: `alo_idem_reachable` | `alo_absorbed`, `alo_commuting_exactly_once`, `alo_commuting_converges`; placed under the iff by `old_free_implies`, `alo_commuting_recovered` | `Report.NotIdempotent` (see the next row) | - (closed by #55) |
+| Per event: which events need deduplication | An event needs none iff its duplicate is absorbed after every exactly-once run containing it: `safe_free_exact`, `needs_dedup_exact`, `needs_dedup_witness`; under reachable commutation, iff idempotent at reachable first deliveries: `safe_free_iff_idem` | A non-idempotent step at a reachable witness: `notidem_needs_dedup` | `Report.NotIdempotent` is sound at reachable witnesses (`notidem_needs_dedup`) and complete when exactly-once delivery converges and reachable states are valid (`gsm_unlisted_safe`). It can over-report: a step not idempotent only at an unreachable state is listed though every delivery converges (`jmp_unreachable`). Idempotence alone is not enough without commutation (`flag_idem_needs_dedup`, `fw_alo_fails`) | - |
+| Causal delivery (`causal_alo` redelivery) | CCR on the event set plus absorption: `causal_alo_exact`; plus idempotence: `causal_alo_exact_idem`; per event `safe_at_exact`, `safe_at_iff_idem` | `causal_alo_exactly_once`, `causal_alo_converges`, placed by `old_causal_implies`, `causal_alo_recovered`; `late_duplicate_diverges` shows the redelivery qualifier is needed | as above (`causal_notidem_needs_dedup`, `causal_gsm_unlisted_safe`) | Qualifier: absorption at every causal run containing the event is not necessary (`causal_absorb_qualifier`). - (closed by #55) |
+
+## 4. CRDT fragment
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Op-based, causal delivery: convergence of a compensation-free system | `compensation_free_exact` (causal condition iff op-based CRDT) composed with `causal_convergence_exact` | `cmrdt_SEC`, `causal_cmrdt_SEC` | Rules oracle certifies the compensation-free classification | - |
+| State-based: convergence of merges | Not stated for the CvRDT model; the general exact theorems apply by instantiation (merges as events, identity repair) but no instance is proved | `cvrdt_SEC`, `cvrdt_absorbs_duplicates` (commutative, associative, idempotent join) | n/a | open (small: the instance). Not proved as an instance of `thm:monotone-cycles` either (Fed remark says so) |
+| Strictness of the inclusion | n/a | `witness_not_cmrdt`, `witness_leaves_valid_space`, `witness_causal_not_cmrdt` | n/a | - |
+
+## 5. Stream processors
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Settled processors with the same received set agree | Under `Progress`: PJC at every duplicate-free `(s0, E)`: `stream_exact`, with `pjc_exact` for the processor rewrite system; free delivery: PCC: `stream_exact_free`; with no qualifier, agreement iff finished reductions are a set function: `stream_agree_set_function` | `stream_convergence`, `stream_order_independence`, `base_cor_quiescent`; `pjc_stream_agreement`, `jc_stream_agreement`, `stream_agreement_recovered` | n/a | Qualifiers: the natural iff with the rewrite-system JC is false (`jc_not_necessary`); `Progress` is needed (`progress_needed`). - (closed by #51) |
+| Infinite streams: eventual agreement | None; the naive claim is false (`base_thm_convergence_transient_counterexample`) | Agreement at settled times with equal received sets (`stream_agreement`) | n/a | design (a lagging processor need never agree) |
+
+## 6. Acyclic federation: the repair normal form
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Single source (M1): unique federated repair normal form | **No iff needed.** Under the network hypotheses the normal form is unconditional: `frun_solves`, `solve_unique`, `order_independent`, `cat_thm_one_order_independent`, one round from any state `fed_lem_fed_termination`. Each hypothesis is shown needed existentially: acyclicity `prop_cycle_necessary`, M1 `prop_m1_necessary` | M1 per morphism | M1, shared-only writes, source determinacy (`verifyEdge`) | The regime is defined by its hypotheses; inside it the answer is unconditional. - |
+| Multi-source (R1, R2) | **No iff needed**, same shape: `fed_lem_resolved_termination`; R1 `r1_necessary`, R2 `r2_necessary` | R1 and R2 per resolver | `verifyResolved`, every combination of valid source states | Decidability remark for R1, R2 is paper-only (Fed `rem:fed-mechanized`; ROADMAP item 5). - |
+
+## 7. Acyclic federation: event order
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Guarded (events at federally valid states, `FedMachine.Apply`): all trace-equivalent sequences converge from a valid consistent `s0` | C1 and C2 at witnesses reachable from `s0`: `fed_exact`, `fed_exact_full`, `acyclic_gc_iff`; as a rewrite system `fed_guarded_exact`; by paper label `fed_thm_fed_convergence_exact`, `fed_thm_resolved_convergence_exact` | Static C1 and C2: `static_c1_c2_gc`, `fed_permutations_converge`, `fed_thm_fed_convergence_guarded` | C1 and C2 (`verifyCrossOrder`, `verifyRepairedCC`) | Qualifier: static C1 not necessary (`naive_converse_fails`). A C2 converse quantifying over all valid starts is a different quantification (ROADMAP, lower value); the reachable-witness iff stands. Not oracle-certified (ROADMAP item 5). - |
+| Unguarded `G_Fed` (events may fire before compensation) | CC1 and CC2 of `G_Fed` on reachable states: `fed_grs_exact` (no per-edge form) | XU plus component CC: `grs_unique_nf`, `fed_thm_fed_convergence_corrected`; C1 and C2 do not suffice (`fed_grs_c1_c2_insufficient`) | No XU check; gsm's runtime is the guarded model | - (exact, in global form) |
+
+## 8. Distributed model with propagation steps
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Acyclic: every interleaving of local events and propagation reaches one state once propagation completes | **None mechanized** | XU plus each registry's own CC: `propagation_flush`, `dist_interleavings_converge`; `xu_implies_c1_c2` | n/a (gsm's `FedMachine` is the synchronous model) | **open** (medium) |
+| Cyclic (monotone or coordinated) | **None; not modeled** | none | n/a | **open** (large; ROADMAP lower value, coq/README "not extended to cycles") |
+
+## 9. Monotone cycles: the repair normal form
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Unique repair normal form, finite height or ACC | Unconditional inside the regime: `cyc_N_lfp`, `cyc_N_unique`, `cyc_sweep_order_independent`, `kleene_lfp`, `lfp_unique`, `chaotic_reaches_lfp`, `chaotic_limit_unique`, `chaotic_acc_reaches_lfp`, `kleene_acc_lfp` | Monotone `Phi` (`fed_def_lattice_shared_cyclic_hyps`) | `verifyMonotone`, `verifyMonotoneVisited` (cover-step monotonicity over visited states) | - |
+| Same on a complete lattice without ACC | Existence of the lfp is classical Knaster-Tarski: paper only (`thm:monotone-cycles` (a)). Mechanized: double-negated existence under ACC (`kleene_acc_lfp_nn`), the Kleene supremum when `Phi` preserves it (`kleene_sup_lfp`), and, on any partial order with bottom, the exact condition for the lfp to be reached by iteration (next row) | Continuity at the Kleene chain | n/a: gsm's lattices are finite, so they satisfy ACC | **design** (the axiom-free gate excludes classical Knaster-Tarski; the constructive scope is ACC, or an lfp reached by iteration) |
+| Finite reachability of the lfp by iteration | The lfp is reached at a finite stage iff the Kleene chain is eventually constant iff productive Kleene steps from bottom are strongly normalizing iff there is no infinite strict ascent along the chain: `kleene_reach_exact` (any partial order with bottom, monotone `f`, decidable stabilization), `kleene_reaches_iff`, constructive `kleene_reach_nn`; chaotic schedules and gsm's round-robin reach it iff Kleene does: `chaotic_reach_exact`, `rounds_reach_by_kleene` | ACC (`kleene_reach_of_acc`, `kleene_reach_of_acc_below`); finite height (`kleene_reach_of_finite_height`). ACC is not necessary (`acc_not_necessary`); "every schedule terminates" is strictly stronger (`chaotic_sn_strictly_stronger`) | `kleeneCap` from the lattice bound | - (closed by #50) |
+| Validity of the lfp | For a reached lfp: valid iff some Kleene iterate is valid: `lfp_valid_iff_reached`; under ACC with no reachability hypothesis: `lfp_valid_exact`; for gsm's normalizer: `Ncyc_valid_exact`; any fixed point is valid iff the images are valid at it: `fixed_valid_iff_images`. Bottom validity is the case `k = 0` (`net_lfp_valid_recovered`) and is not necessary (`bottom_validity_not_necessary`); the reachability qualifier is needed (`lfp_valid_iff_needs_reach`) | Every component valid with bottom shared values (`net_lfp_valid`); gsm's visited-image check (next column) | Image validity over visited states (`verifyMonotoneVisited`), now proved sound: it makes every fixed point valid (`gsm_check_fixed_valid`), hence the lfp (`gsm_check_lfp_valid`) and gsm's cyclic normal form (`gsm_check_Ncyc_valid`), with no bottom-validity hypothesis. Sufficient, not necessary (`gsm_check_not_necessary`); incomparable with bottom validity | - (closed by #50; the earlier caveat that gsm's check was not the one Coq proves sufficient is resolved) |
+| The paper's monotone repair inside the non-monotone engine (non-monotone `rho_Fed^J` of a sub-federation) | n/a | `fed_rem_convexity_corrected` (phase 1 and `Phi` monotone in locals) | n/a | - (`fed_rem_convexity_refuted` corrects the paper) |
+
+## 10. Monotone cycles: event order
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| All trace-equivalent sequences converge from `s0` | GC at reachable federated states: `gc_iff`, `cyc_events_converge_iff`, `net_events_converge_iff`, `fed_thm_monotone_cycles_events_corrected` | C1cyc and C2cyc over a set containing every normal form's shared values: `cyc_check_gc`, `cyc_check_converges`, `cyc_check_gc_lfp` (image sets over valid sources suffice); read footprint `footprint_c1`; global variant `lfp_commute_gc` | Per-target C1 and C2 with image sets over every valid source state (`FedReport.Checks`, citing `cyc_check_gc_lfp`) | GC has no per-edge reduction; neither cheap condition is necessary. Not oracle-certified. - |
+| Multi-edge targets | Same GC | Per-edge C1 plus M1 compose: `multi_edge_c1`, `multi_edge_gc`, `multi_edge_converges`; M1 needed: `m1_necessary`; without M1, check every local part: `multi_edge_c1_free` | gsm checks C1 against the joint image of all incoming edges (C1cyc directly), not the per-edge route | - |
+| Resolver targets on a cycle | Same GC | C1 over the resolver image `R`: `resolver_joint_c1`; per-source images insufficient: `resolver_edge_insufficient` | Joint image `R` over every combination of valid source states | - |
+
+## 11. Non-monotone cycles, invertible transports
+
+Model: the shared fiber is the group `G` acting on itself (regular action); edges are transports by
+group elements.
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Does a consistent state exist (`H^0` non-empty) | The labeling is a coboundary (`H^1 = 0`): `section_iff_coboundary`; per fundamental cycle: `cycle_basis_criterion`, `sat_iff_trivial_holonomy`; single cycle: `fixed_point_iff_trivial_holonomy` | Trivial holonomy of each fundamental cycle of a spanning tree | `DiagnoseCycle` on one cycle (sound refuter on the regular action: `c15_regular_definitive`) | Regular action needed (`nonfree_holonomy_counterexample`). - |
+| Coordination-free convergence to a unique normal form, given an authority root | `H^1 = 0` iff, for every root value, the root-driven implementation has a unique consistent state reached by every propagation order: `prop_minimal_qualified_iff` | as above | Not implemented: gsm has no root-driven coordination-free mode for cycles; a non-monotone cycle fails `Build` | - for the theory; gsm gap (holonomy-minimal plan "proposed, not implemented", `HOLONOMY-COORDINATION-DESIGN.md`) |
+| No authority root (every edge a writer), single coherently oriented cycle (`n >= 1`) | A consistent state exists, and every state reaches one by a fair round, iff the holonomy is trivial: `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`; with trivial holonomy, the reachable consistent state is unique iff `\|G\| = 1`, for all schedules and for fair ones: `rootless_unique_iff`, `rootless_unique_iff_general`; existence and uniqueness from every initial state iff `\|G\| = 1`: `rootless_unique_normal_form_iff` | none needed (the iff is decidable from the labels) | n/a | Corners: `n = 0` is unique over Z/2 (`rootless_selfloop_unique`); a non-coherently oriented triangle is unique (`rootless_orientation_matters`: a registry with no in-edge is a de facto root). - (closed by #48) |
+| No authority root, any other invertible graph (several cycles, mixed orientation) | **None mechanized** | none | n/a | **open** (medium) |
+| What must be coordinated, relative to a spanning tree | Exactly the unbalanced non-tree edges: `plan_exact`, `coordination_needed`; soundness `coordinated_sound`, `coordinated_unique_nf`; balance is static `balanced_any_section`; root dependence `root_choice_matters` | Coordinate all unbalanced edges | `CoordinationPlan` cuts a feedback edge set by DFS (every cycle, not only unbalanced ones) and names the authority; `BuildCoordinated` | gsm's plan is sound but not the holonomy-minimal one. - |
+| Event order under the coordination | From a start consistent with the driving network, J-trace-equivalent sequences all converge iff independent root events commute at every root value reachable by root events: `coordinated_events_exact`, `coordinated_perm_exact`, `coordinated_events_exact_plan`; from every start iff they commute at every value: `coordinated_events_exact_global` | Root events commute at every value: `coordinated_events_converge` (recovered as `coordinated_events_converge_recovered`; not necessary for a fixed start: `old_condition_not_necessary`) | `BuildCoordinated` runs the acyclic C1 and C2 on the residual (on the driving network C1 holds unconditionally, `coordinated_c1_static`, and C2 is the root-event condition, `coordinated_c2at_iff`) | - (closed by #47) |
+| **Optimization:** minimum coordination over all trees and roots | The minimum deletion set with a feasible residual is the group feedback edge set number. That equality is definitional given `section_iff_coboundary` and `feasible`; no theorem links it to the plan model (tree, root, `C`). Mechanized pieces: `edge_disjoint_lower_bound`, `edge_disjoint_min`, `min_G_ge_min_image`, `theta_separation` (`S_3`: `min_G = 2 > 1 = min_{G^ab}`) | Unbalanced edges of any rooted tree: size at most `betti_number` | `CoordinationPlan` (upper bound, "not necessarily the minimum") | **hardness** (NP-hard, cited: Cat section 8) and **open** (plan-model link, medium) |
+
+## 12. Non-invertible transports
+
+Reading A (the constraint reading) in the terms of PR #52's research note `LOSSY-NETWORKS.md`: each
+edge is an equation and the consistent states are the sections (`msection`).
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Single cycle: does a consistent state exist | Loop composite has a fixed point: `thm_obstruction_general`, `sections_are_fixed_points`; "some seed reaches a fixed point": `thm_obstruction_reachable`, `reaches_fixed_iff_section` | Finite fiber: `g^N x0` fixed for some seed (`diagnose_bounded`, `diagnose_dichotomy`) | `DiagnoseCycle` | - |
+| Reading the diagnostic | No section iff no seed reaches a fixed point: `c15_exact_refuter`; one seed is definitive only when fixed points are all-or-nothing (`c15_free_definitive`) | A settling seed proves existence: `c15_convergent_result_sound` | `DiagnoseCycle` tests one representative seed | gsm's one-seed result is not a refuter off the regular action (`c15_definitive_claim_false`); documented. - |
+| Graph with an out-arborescence from a root: consistent state with a given root value | Driven state satisfies every non-tree edge: `rooted_criterion` (recovered from the root-set form: `rooted_criterion_recovered`); uniqueness `out_tree_unique` | Delete every non-tree edge: `rooted_coordination_suffices` | n/a | Edge need depends on the root value (`noninvertible_balance_not_static`). - |
+| General graph (no spanning root): does a consistent state exist | Root sets are exactly the sets with an outward spanning forest: `root_set_iff_forest`. For any root set and spanning forest, a section exists iff some root assignment drives a state satisfying every edge: `root_set_criterion_graph`; with root values fixed: `root_set_criterion_values`; agreement form (two roots agree wherever both reach): `root_set_agreement`; decided by search over the product of root domains: `root_set_decide`. Existence is NP-complete in general (3-SAT reduction, `LOSSY-NETWORKS.md` section 3.2, PR #52; cited, not mechanized) | One root (`rooted_criterion`) is polynomial | n/a | **hardness** (cited): no efficient exact criterion unless P = NP; the exact one is mechanized. - (closed by #54) |
+| Counting and uniqueness given root values | Sections correspond bijectively to consistent root assignments: `root_set_bijection`, counted by `root_set_count`; sections are determined by their root values (`out_forest_unique`) | n/a | n/a | - (closed by #54) |
+| Event order under root-set coordination (non-invertible driving forest) | **None mechanized.** `CoordinatedExact.v` is stated for group transports only; the driving forest is acyclic, so `fed_exact` should instantiate as it did there | none | n/a | **open** (small; `LOSSY-NETWORKS.md` P6) |
+| Rootless propagation (resolver reading B): does every fair order reach one consistent state | **None mechanized** for non-invertible labels. The Boolean instances `copyback_without_authority` and the negation loop are invertible (section 11) | none | n/a (a non-monotone cycle fails `Build`) | **open** (medium for Boolean fibers, large in general; `LOSSY-NETWORKS.md` P2) |
+| **Optimization:** minimum coordination | **None known**; "the minimum is not a cohomological rank" (Cat section 8) | `rooted_coordination_suffices` (upper bound) | n/a | **open** (NP-hardness inherited from the Z/2 case, cited) |
+
+## 13. The full nerve as a 2-complex
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Convergence (existence of a section) | Decided on the graph: `section_iff_coboundary` covers every labeled graph, so triangles add no convergence question | n/a | n/a | - |
+| **Counting:** rank of `H^1` with triangle relations | **None mechanized.** On the 1-skeleton: `H1_classification`, `gauge_fix`, `betti_number` (`\|E\| - \|V\| + 1`) | n/a | n/a | **paper** (Cat section 6) and **open** (Cat conclusion: "the classification on the full 2-dimensional nerve") |
+| Sheaf gluing (R1/R2 as the gluing axiom, positive assembly) | **None mechanized**; the negative half is `gluing_order_dependent` | n/a | n/a | **paper** (Cat `prop:gluing`, section 5) |
+
+## 14. Compositional collapse
+
+| Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
+|---|---|---|---|---|
+| Acyclic, convex `J`: the effective registry converges | C1 and C2 at witnesses reachable inside `J`: `collapse_a_guarded_exact` | C1 and C2 on `J`'s events: `collapse_a_guarded`, `collapse_modular_converges` | `Federation.Embed`, certificates (`validateCertificates`, seam re-check) | - |
+| Acyclic: outer network `N'` converges iff `N` does | `collapse_c_exact`, `collapse_c_guarded_iff`, `collapse_c_unguarded_iff`, `collapse_c_guarded_exact` | `collapse_c_guarded_c1_c2` | as above | - |
+| Cyclic `J` with monotone repair | **None mechanized** | none | gsm flattens embedded cyclic subs (the outer federation must opt in to `AllowMonotoneCycles`), so its check does not rely on a collapse theorem | **paper** (Fed v2, after `thm:collapse`: "not covered by the mechanization"; `rem:fed-mechanized` lists it as not mechanized) |
+
+## Conclusion
+
+### The open gaps
+
+Every row above is `-` (exact, or unconditional inside its regime), `hardness`, or one of these.
+This is the list the headline's "a gap stated in the open" refers to.
+
+Convergence:
+
+| # | Regime and question | Kind | Size |
+|---|---|---|---|
+| 1 | Distributed model with explicit propagation: acyclic has only a sufficient condition (`dist_interleavings_converge`); cyclic is not modeled (section 8) | open | medium (acyclic), large (cyclic) |
+| 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | open | medium |
+| 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open | medium to large |
+| 4 | Event order under non-invertible root-set coordination (section 12) | open | small |
+| 5 | Cyclic monotone sub-federations under collapse (section 14) | paper only | medium to large |
+| 6 | Single registry with enabledness that a compensation step can disable (section 1) | open | small to medium |
+| 7 | State-based CRDT merges as an instance of the exact theorems (section 4) | open | small |
+| 8 | Least fixed points on complete lattices without ACC (section 9) | design exclusion: classical Knaster-Tarski is outside the axiom-free gate; gsm's finite domains satisfy ACC, so nothing gsm accepts depends on it | n/a |
+| 9 | Infinite streams: eventual agreement (section 5) | design: the naive claim is refuted (`base_thm_convergence_transient_counterexample`) | n/a |
+
+Optimization and counting (unchanged since the first audit):
+
+| # | Question | Kind |
+|---|---|---|
+| 10 | Minimum coordination on invertible cycles tied to the authority-root plan model (section 11); its complexity is cited | open (medium); hardness cited |
+| 11 | Minimum coordination on non-invertible networks (section 12) | open (none known) |
+| 12 | Rank of `H^1` on the 2-complex (section 13) | paper and open |
+| 13 | Sheaf gluing, positive assembly (section 13) | paper |
+
+Items 6, 7 and 9 were already in the first audit's tables (as qualifiers or "minor") but not in its
+conclusion; they are listed here because the new headline asks that every non-exact regime be
+named.
+
+### Is the new headline accurate?
+
+Yes, regime by regime:
+
+| Regime | Exact (machine-checked) | Hardness (cited) | Open gap (listed above) |
+|---|---|---|---|
+| Single registry, free delivery | `cc_exact_from`, `canonical_cc_exact_from` | | |
+| Single registry, causal or guarded enabledness persisting under repair | `jc_exact`, `sn_jc_exact` | | 6 (repair-disabled enabledness) |
+| Single registry, any well-founded potential; termination itself | `wf_jc_exact`, `wf_cc_exact_from`, `terminating_iff_comp_wf`, `comp_wf_iff_wfc` | | |
+| Causal replay | `causal_exact` | | |
+| At-least-once, free and causal; per-event deduplication | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `safe_at_exact` | | |
+| CRDT fragment | `compensation_free_exact` (op-based) | | 7 (state-based instance) |
+| Stream processors | `stream_exact`, `stream_exact_free` | | 9 (infinite streams, design) |
+| Acyclic federations, repair normal form | unconditional in the regime | | |
+| Acyclic federations, event order (guarded; unguarded) | `fed_exact`, `fed_guarded_exact`; `fed_grs_exact` | | |
+| Distributed propagation model | | | 1 |
+| Monotone cycles: normal form, reachability, validity | unconditional; `kleene_reach_exact`; `lfp_valid_iff_reached`, `Ncyc_valid_exact` | | 8 (no ACC, design) |
+| Monotone cycles, event order | `gc_iff` | | |
+| Invertible cycles: existence; root-driven convergence | `section_iff_coboundary`; `prop_minimal_qualified_iff` | | |
+| Invertible, rootless single cycle | `rootless_unique_normal_form_iff` | | 2 (other graphs) |
+| Invertible, coordinated: what to coordinate; event order | `plan_exact`; `coordinated_events_exact` | | |
+| Non-invertible: single cycle; rooted; root set | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count` | existence NP-complete (`LOSSY-NETWORKS.md` 3.2) | 3 (rootless dynamics), 4 (event order) |
+| Collapse | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) | | 5 (cyclic) |
+| Minimum coordination | | invertible: NP-hard (group feedback edge set) | 10, 11 |
+| 2-complex rank, sheaf gluing | | | 12, 13 |
+
+No regime is left that is neither exact, hardness-backed, nor listed. Two readings of the wording
+need care, and both hold:
+
+- "Machine-checked" applies to the exact conditions only. The hardness results (NP-completeness of
+  root-set existence, NP-hardness of minimum coordination) are cited from the literature and from
+  the research note, not mechanized; the README says so.
+- "A hardness result showing no efficient one exists" is used only where the exact condition is
+  also mechanized (root sets) or where the problem is an optimization (minimum coordination). No
+  convergence regime rests on hardness alone.
+
+### Re-answering the first audit's questions
+
+**Is "complete" accurate?** Still no, but the gap list is much shorter. Of the first audit's
+convergence gaps, these closed: at-least-once delivery (#55), ordinal and lexicographic potentials
+(#49), the stream level (#51), event order under coordination (#47), lfp validity and finite
+reachability (#50), rootless single invertible cycles (#48), and the non-invertible existence
+criterion without a spanning root (#54). Items 1 to 7 above remain, so the map is not complete. The
+new headline does not claim completeness; it claims that every regime's status is stated.
+
+**Is "exact conditions in every regime" accurate?** No. Items 1 to 7 are regimes with a sufficient
+condition only, or none; item 1 is a regime the development models (`FederationEvents.v`), so even
+"exact in every regime it covers" fails. Items 8 and 9 are design exclusions. The new headline's
+three-way disjunction (exact, hardness, open) is accurate.
+
+**"A checker for the practical ones."** Accurate, with two qualifications. gsm checks the cheap
+sufficient conditions (CC with declared pairs, `NotIdempotent`, M1, R1/R2, C1 and C2 on acyclic and
+monotone-cyclic networks with joint images, monotonicity and image validity over visited states);
+it checks none of the exact reachable-state conditions (JC, CCR, GC), which is the stated design.
+Only the single-registry result is oracle-certified; the federation checks are Go code (ROADMAP
+item 5). Two earlier caveats are now resolved: gsm's lfp-validity check is proved sound
+(`gsm_check_Ncyc_valid`, #50; gsm's comment in `federation_monotone.go` that its condition is "not
+part of the Coq lemmas" can now cite it), and `NotIdempotent` is placed exactly: sound at reachable
+witnesses, complete when exactly-once delivery converges, and able to over-report at unreachable
+states (#55).
+
+### Wording
+
+Recommended, and adopted in the README:
+
+> **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
+> condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
+> checker for the practical ones.**
+
+The first audit proposed narrower lines that named the exact core; they are superseded because the
+exact core now covers every delivery model of a single registry and every cyclic regime except
+those in the list above.
+
+### Mechanization tasks
+
+From the first audit's list (numbering kept):
+
+| # | Task | Status |
+|---|---|---|
+| 1 | Exact converses over any well-founded potential | done, #49 |
+| 2 | Stream-level exact condition | done, #51 |
+| 3 | Event order under coordination, exact | done, #47 |
+| 4 | Monotone cycles: exact validity, gsm's check sound, exact finite reachability | done, #50 |
+| 5 | Rootless invertible cycles | done for single coherently oriented cycles, #48; other graphs open (gap 2) |
+| 6 | At-least-once exact converse, free and causal | done, #55 |
+| 7 | Distributed propagation model, acyclic exact converse | open (gap 1), medium |
+| 8 | Cyclic monotone collapse | open (gap 5), medium to large |
+| 9 | Distributed propagation model on monotone cycles | open (gap 1), large |
+| 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54 (NP-completeness cited); event order open (gap 4), small; rootless dynamics open (gap 3) |
+| 11 | Complete lattices without ACC | stated as a design exclusion (gap 8) |
+| 12 | Minimum coordination linked to the plan model | open (gap 10), medium |
+| 13 | Non-invertible minimum coordination | open (gap 11), large |
+| 14 | Rank of `H^1` on the 2-complex | open (gap 12), large |
+| 15 | Sheaf gluing, positive assembly | open (gap 13), large |
+
+New: 16, repair-disabled enabledness (gap 6), small to medium; 17, the state-based CRDT instance
+(gap 7), small.
+
+## Side findings (documentation drift)
+
+Found while auditing. Fixed in the same PR as this revision:
+
+- `ROADMAP.md` reported a 254-theorem gate and listed items 6 and 7 as open; item 6 landed
+  (`FederationEventsCyclesCheck.v`, #31) and item 7's work packages WP1 to WP9 and the paper
+  revision landed (#32 to #43).
+- `REGIMES.md`, federation table: "Cyclic, non-monotone, coordination-free: no condition suffices"
+  was contradicted by `c13_two_ways_not_exhaustive` (a non-monotone negation 2-cycle has a section)
+  and is now exact on single cycles (`rootless_unique_normal_form_iff`); the monotone row omitted
+  validity of the lfp; "Compositional collapse ... (paper)" is mechanized for acyclic `J`
+  (`Collapse.v`); the acyclic row cited the refuted `thm:fed-convergence` without C1 and C2; the
+  at-least-once row gave a sufficient condition only.
+- `coq/README.md`: the gate paragraph said "all 327 headline results" while the gate passed more
+  than twice that, and repeated a sentence fragment; the categorical-layer roadmap said the
+  non-invertible case "is not mechanized", but `CohomologyGeneral.v` and `RootSet.v` now mechanize
+  its single-cycle, rooted and root-set forms.
+
+Still open:
+
+- The Cat paper (v2) treats the input-port refinement "at the paper level"; `Collapse.v` mechanizes
+  it (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`).
+- `coq/PAPER-MAP.md` was written at the 254-theorem gate; its status columns predate WP1 to WP9.
+- gsm's README repeats the earlier headline (outside this repository).

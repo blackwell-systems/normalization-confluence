@@ -24,26 +24,16 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
 ```
 
 Expected tail: `PASS: all 989 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
-confluence and unique-normal-form theorems, the defensibility instance, the two gsm
-certification-soundness results, the two federated results, the two chaotic-iteration results, the
-verified-checker soundness results (including the Build-aligned table and rules oracles), the six CRDT-subsumption results, and the ten categorical-core
-results: image-equals-fixed-points, the idempotent retraction onto the fixed-point set, its
-clamp-to-cap non-vacuity instance, the consistent-set-is-an-equalizer proposition, the concrete
-federated operator's retraction and image characterization, the order-independence commutation core,
-the general acyclic fold operator's retraction and image characterization, the compositionality
-fold-append theorem, and the four cohomological-layer results: the gluing counterexample, the
-completion theorem's single-cycle essence (a section exists iff the holonomy is trivial), and the
-identity-settles and negation-orbits witnesses, plus the ten cross-registry event-interleaving results
-of `FederationEvents.v`, the twelve monotone-cycle results of `FederationEventsCycles.v` and the eleven
-exactness results of `FederationEventsConverse.v`, the fourteen well-founded-governance results of
-`GovernanceWF.v`, the seventeen ACC chaotic-iteration results of `ChaoticACC.v`, the sixteen
-at-least-once results of `AtLeastOnce.v`, the twenty-seven converse results of
-`GovernanceConverse.v`, the twenty-two coordinated-cycle results of `CoordinatedCycles.v` and the fifty categorical-bridge results of `CategoricalBridge.v`, including eight previously ungated `Categorical.v` names) and fails if any of them depends on an axiom or an
-
-`GovernanceConverse.v`, the twenty-two coordinated-cycle results of `CoordinatedCycles.v` and the ten
-per-event cycle-check results of `FederationEventsCyclesCheck.v`) and fails if any of them depends on an axiom or an
-admitted lemma.
+The gate runs `Print Assumptions` on all 989 gated results and fails if any of them depends on an
+axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
+unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
+`GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
+certification-soundness results and the verified-checker results behind the table and rules oracles,
+the CRDT-subsumption results, the categorical core and bridge, the cohomological layer
+(`Cohomology.v` to `CohomologyGeneral.v`, `RootSet.v`), and the federation modules (acyclic event
+order and its converse, monotone cycles and their exact validity and reachability, coordinated and
+rootless cycles, the federated rewrite system and compositional collapse). The sections below
+describe each module's results.
 
 ## What is proven
 
@@ -1968,15 +1958,22 @@ cohomological completion through `H^1` as a quotient (`Cohomology.v`, `Cohomolog
 `CohomologyGraph.v`). The loop-composite fixed-point diagnostic is implemented in gsm as
 `Federation.DiagnoseCycle`.
 
-Kept at paper level (out of scope for the first mechanization pass):
+Kept at paper level after the first mechanization pass, and since mechanized:
 
-- The cohomological completion is mechanized in the invertible/torsor fragment (above). The general
-  non-invertible case reduces to the loop-composite fixed-point condition, a dynamical statement
-  rather than group cohomology, and is not mechanized.
-- The operational core of that story is already implemented: the loop-composite fixed-point / orbit
-  test is `gsm`'s `Federation.DiagnoseCycle`. A later target is mechanizing that test (finite-space
-  fixed-point reachability), for which `Federation.v` and `Chaotic.v` already supply most of the
-  machinery.
+- The general non-invertible case reduces to the loop-composite fixed-point condition, a dynamical
+  statement rather than group cohomology. It is now mechanized: on a single cycle a section exists
+  iff the loop composite has a fixed point, iff some seed reaches one (`thm_obstruction_general`,
+  `thm_obstruction_reachable`, `CohomologyGeneral.v`); with a root, iff the driven state satisfies
+  every non-tree edge (`rooted_criterion`); and on any graph, iff some assignment of a root set's
+  values drives a consistent state (`root_set_criterion_graph`, `RootSet.v`), where deciding it is
+  NP-complete in general (cited, not mechanized).
+- The operational core of that story is `gsm`'s `Federation.DiagnoseCycle` (the loop-composite
+  fixed-point / orbit test). Its reading is mechanized: no section iff no seed reaches a fixed point
+  (`c15_exact_refuter`), and one seed is definitive on the regular action
+  (`c15_regular_definitive`) but not in general (`c15_definitive_claim_false`).
+
+Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing assembly
+(`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
 (currently 989 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
@@ -1991,7 +1988,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 327
-headline theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 989
+gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

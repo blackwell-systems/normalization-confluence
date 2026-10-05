@@ -4,10 +4,12 @@ Goal: a theory in which every remaining caveat is either a deliberate design exc
 fundamental limit, and nothing is merely unproven. This page lists each caveat the development
 still carries, what removing it would prove, how, what it depends on, and when it counts as done.
 
-Status of the gate: 254 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
-Rocq 9.3 (135 when this page was first written). Items 1 to 4, the monotone-cycle event result and
-the C1/C2 converse have landed; item 5 is open. Nothing on this page is claimed proven until it lands
-in a module and passes the gate.
+Status of the gate: 989 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
+except the parts listed under it, and item 5 is open. The exactness work that followed the regime
+audit (#47 to #51, #54, #55) is in the Done table; what remains open is listed under "Open items"
+below and, regime by regime, in [REGIME-AUDIT.md](REGIME-AUDIT.md). Nothing on this page is claimed
+proven until it lands in a module and passes the gate.
 
 ## Done
 
@@ -19,6 +21,15 @@ in a module and passes the gate.
 | 2. At-least-once delivery | `AtLeastOnce.v` | `alo_commuting_converges`, `causal_alo_converges`, `non_idempotent_diverges`, `late_duplicate_diverges` | #25 |
 | 3. Exact converse of CC and of causal convergence | `GovernanceConverse.v` | `cc_exact_from`, `cc_exact_global`, `jc_exact`, `causal_exact`, `causal_convergence_exact` | #26 |
 | 4. Non-monotone cycles under a computed coordination | `CoordinatedCycles.v` | `coordinated_sound`, `coordinated_unique_nf`, `plan_exact`, `coordination_needed`, `coordinated_events_converge`, `copyback_zero_coordination`, `negation_one_coordinated` | #27 |
+| 6. Event order on monotone cycles, checked per edge | `FederationEventsCyclesCheck.v`, `FederationEventsCyclesMulti.v` | `cyc_check_gc`, `cyc_check_gc_lfp`, `multi_edge_c1`, `resolver_joint_c1`, `check_rejects_latch` | #31, #44 |
+| 7. Paper results mechanized (audit and WP1 to WP9) | `PAPER-MAP.md`; `RhoStar.v`, `PaperInstances.v`, `Calculus.v`, `Stream.v`, `FederationGRS.v`, `MonotoneFederation.v`, `CategoricalBridge.v`, `Collapse.v`, `CohomologyGeneral.v` | see `CHANGELOG.md`; version 2 of the three papers states only corrected results, with an errata appendix | #30, #32 to #43 |
+| Exact converses over any well-founded order | `GovernanceWFConverse.v` | `terminating_iff_comp_wf`, `comp_wf_iff_wfc`, `sn_jc_exact`, `wf_cc_exact_from`, `canonical_cc_exact_from` | #49 |
+| Exact stream agreement | `StreamExact.v` | `stream_exact`, `stream_exact_free`, `jc_not_necessary` | #51 |
+| Exact event order under coordination | `CoordinatedExact.v` | `coordinated_events_exact`, `coordinated_events_exact_global`, `old_condition_not_necessary` | #47 |
+| Exact lfp validity and finite reachability; gsm's validity check sound | `MonotoneExact.v` | `lfp_valid_iff_reached`, `Ncyc_valid_exact`, `kleene_reach_exact`, `gsm_check_Ncyc_valid` | #50 |
+| Rootless invertible cycles | `RootlessCycles.v` | `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | #48 |
+| Root-set criterion for non-invertible networks | `RootSet.v` | `root_set_iff_forest`, `root_set_criterion_graph`, `root_set_count`, `root_set_decide` | #54 |
+| Exact at-least-once delivery, free and causal | `AtLeastOnceExact.v` | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `notidem_needs_dedup`, `gsm_unlisted_safe` | #55 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
@@ -44,6 +55,17 @@ naive statements are false, and each has a mechanized counterexample:
   consistent states (`copyback_without_authority`). Balance is a static property of an edge only for
   invertible transports (`noninvertible_balance_not_static`), and the strong form of
   `unbalanced_blocks` needs the regular action (`nonfree_holonomy_counterexample`).
+- **Rootless cycles.** Without a root, a single coherently oriented invertible cycle has a unique
+  normal form from every start iff the group is trivial (`rootless_unique_normal_form_iff`); the
+  orientation matters (`rootless_orientation_matters`).
+- **At-least-once, exactly.** Idempotence alone is not enough without commutation
+  (`flag_idem_needs_dedup`, `fw_alo_fails`), and global idempotence is not necessary
+  (`jmp_unreachable`), so gsm's `NotIdempotent` can over-report.
+- **Streams.** The natural iff with the rewrite-system condition JC is false (`jc_not_necessary`);
+  the exact condition is PJC under `Progress` (`progress_needed`).
+- **Least fixed points.** Validity of the lfp needs neither bottom validity nor gsm's check
+  (`bottom_validity_not_necessary`, `gsm_check_not_necessary`), and the reachability qualifier is
+  needed (`lfp_valid_iff_needs_reach`).
 
 ### Exact versus checked
 
@@ -61,7 +83,8 @@ per edge, so a gsm check for it explores the federated state space.
 ## Removable caveats, high value
 
 Each item below lists the theorem it would add, the approach, and the acceptance criterion. Items 1
-to 4 are done; the "Today" paragraphs record the state before they landed. Item 5 is open.
+to 4 and 6 are done, and item 7 is done except the parts listed under it; the "Today" paragraphs
+record the state before they landed. Item 5 is open.
 
 ### 1. "Finite state" becomes a statement about checking only
 
@@ -142,8 +165,10 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
   `CohomologyGraph.v`; the authority root fixes the constant that `tree_unique` leaves free.
 - **Done when.** The soundness theorem passes the gate, with the copy-back loop (balanced, accepted
   with zero coordination) and the negation loop (unbalanced, one edge coordinated) as instances.
-- **Effect.** Every cyclic case is covered: monotone cycles converge, and non-monotone cycles
-  converge given the computed coordination.
+- **Effect.** Monotone cycles converge, and invertible non-monotone cycles converge given the
+  computed coordination (event order exactly: `coordinated_events_exact`, #47). Cycles with no
+  authority root are exact only for single coherently oriented invertible cycles
+  (`RootlessCycles.v`, #48); see "Open items" below for the rest.
 
 ### 5. Federation-level checks become oracle-certified
 
@@ -163,7 +188,13 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 
 ### 6. Event order on monotone cycles is checked, not assumed
 
-**Status: open.** Surfaced by the post-roadmap docs sweep.
+**Status: done (#31, #44).** `FederationEventsCyclesCheck.v`: gsm's per-target C1 and C2, read on
+a cycle over a set containing every normal form's shared values (such as the morphism images),
+imply GC (`cyc_check_gc`, `cyc_check_gc_lfp`), and the check rejects the `cyc_counterexample` latch
+(`check_rejects_latch`). `FederationEventsCyclesMulti.v`: per-edge C1 checks compose for multi-edge
+targets under M1 (`multi_edge_c1`), and resolver targets need the joint image
+(`resolver_joint_c1`, `resolver_edge_insufficient`). gsm's report cites `cyc_check_gc_lfp`. Neither
+cheap condition is necessary; the exact condition remains GC.
 
 - **Today.** On a monotone cyclic federation the exact condition for event interleavings is GC
   (`cyc_events_converge_iff`), which is global, not per edge. Static C1 and C2 are proved sufficient
@@ -180,10 +211,27 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 
 ### 7. Every result in the papers is mechanized
 
-**Status: open.** The papers prove several results that the Coq development does not yet state.
-First step: an audit mapping every theorem, lemma, proposition and corollary in the three `.tex`
-papers to its Coq counterpart, so the gap list is exact rather than inferred from the README. Known
-gaps from the README's [paper] markers:
+**Status: done except the items below.** The audit step landed as `coq/PAPER-MAP.md` (#30), and
+its work packages WP1 to WP9 landed (#32 to #39, #42), with version 2 of the three papers (#40,
+#41, #43) stating only corrected results, each refuted version-1 statement backed by a gated
+counterexample. `PAPER-MAP.md`'s status columns record the 254-theorem gate it was written at and
+have not been re-run since the packages landed. What the version-2 papers still state at paper
+level:
+
+- **Sheaf gluing** (Cat `prop:gluing`, the sheaf assembly over the full cover) and **the rank of
+  `H^1` on the nerve as a 2-complex** (Cat section 6): WP10, optional, not started.
+- **The cyclic monotone case of `thm:collapse`** (Fed, after `thm:collapse` and in
+  `rem:fed-mechanized`).
+- **The lattice-compensation CC pattern** (Base 8.2, corrected with a short paper proof).
+- Out of scope by design: cited complexity results (group feedback edge set; Cat section 8), the
+  asymptotic cost of normalization (Base `thm:complexity`; the per-event step bound is mechanized),
+  and the decidability remark for R1, R2, C1 and C2 (item 5).
+
+The Cat paper still treats the input-port refinement as paper level, though `Collapse.v` mechanizes
+it (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`); that is a paper wording
+fix, not a gap.
+
+The original item text follows. Known gaps at the time, from the README's [paper] markers:
 
 - **Necessity of acyclicity and of M1** (the federation paper's counterexamples, `prop:cycle-necessary`
   and the M1 counterexample). No Coq theorem states them; `Cohomology.v`'s negation-orbits example is
@@ -200,13 +248,37 @@ gaps from the README's [paper] markers:
 - **Done when.** Every numbered result in the papers has a named Coq theorem in the gate, except
   results cited from the literature (group-feedback-edge-set complexity), which stay cited.
 
+## Open items
+
+The convergence regimes that still lack an exact condition, consistent with
+[REGIME-AUDIT.md](REGIME-AUDIT.md) (its gap numbers in parentheses). Every other regime has a
+machine-checked exact condition, or a cited hardness result where no efficient one exists.
+
+| Item | Status | Size |
+|---|---|---|
+| Distributed propagation model: exact converse of `dist_interleavings_converge` (acyclic), and a model for cycles (gap 1) | acyclic sufficient only; cyclic not modeled | medium; large |
+| Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | open | medium |
+| Rootless propagation on non-invertible networks, resolver reading (gap 3; `LOSSY-NETWORKS.md` P2, PR #52) | open | medium to large |
+| Event order under non-invertible root-set coordination (gap 4; P6) | open | small |
+| Cyclic monotone collapse (gap 5) | paper only | medium to large |
+| Enabledness that a compensation step can disable (gap 6; outside `jc_exact`'s `enabled_after_comp`) | open | small to medium |
+| State-based CRDT merges as an instance of the exact theorems (gap 7) | open | small |
+| Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
+
+Optimization and counting, which do not bear on when state converges: minimum coordination on
+invertible cycles tied to the authority-root plan model (its NP-hardness is cited), minimum
+coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and sheaf gluing
+(audit gaps 10 to 13).
+
 ## Removable caveats, lower value
 
-- **Non-invertible cycles, mechanized criterion.** A global section around a cycle exists if and
-  only if the loop composite has a reachable fixed point. This is what gsm's `DiagnoseCycle`
-  computes; mechanizing it backs the diagnostic with a theorem.
+- **Non-invertible cycles, mechanized criterion.** Done: a section around a cycle exists iff the
+  loop composite has a reachable fixed point (`thm_obstruction_general`,
+  `thm_obstruction_reachable`, `CohomologyGeneral.v`, #36), and on any graph iff some root
+  assignment of a root set drives a consistent state (`root_set_criterion_graph`, `RootSet.v`, #54).
 - **Distributed model for cycles.** `FederationEvents.v` proves a distributed model (local events
-  and separate propagation steps) for acyclic federations; extend it to monotone cycles.
+  and separate propagation steps) for acyclic federations, with a sufficient condition only; state
+  the exact converse there, and extend the model to monotone cycles.
 - **C2 converse over all valid starts in general networks.** The C2 converse applies when some
   valid consistent state realizes the witness pair `(z, b)` (for example a two-registry federation
   whose source has no repair); a general statement quantifying over all valid starts is open.
@@ -236,8 +308,9 @@ gaps from the README's [paper] markers:
 
 ## Sequencing
 
-Items 1 to 4, the monotone-cycle event result and the C1/C2 converse have landed, so their theorem
-statements are fixed and item 5 can start. Items 6 and 7 are independent of item 5 and of each
-other. When items 5 to 7 land, every remaining high-value caveat on
-this page is either a design exclusion (non-monotone cycles without coordination) or a fundamental
-limit; the lower-value items above remain open.
+Items 1 to 4 and 6, the monotone-cycle event result, the C1/C2 converse and item 7's work packages
+have landed, so their theorem statements are fixed and item 5 can start. The open items above are
+independent of item 5 and of each other; the smallest are event order under root-set coordination
+and the state-based CRDT instance. When item 5 and the open items land, every remaining caveat on
+this page is either a design exclusion (least fixed points without ACC) or a fundamental limit; the
+lower-value items above remain open.
