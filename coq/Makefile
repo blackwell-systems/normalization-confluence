@@ -267,3 +267,9 @@ all: CohomologyNerve.vo
 
 CohomologyNerve.vo: CohomologyNerve.v CohomologyGraph.vo
 	coqc -Q . NC CohomologyNerve.v
+
+# Minimum coordination for lossy networks: characterization, decision, hardness (LossyMinimum.v).
+all: LossyMinimum.vo
+
+LossyMinimum.vo: LossyMinimum.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo
+	coqc -Q . NC LossyMinimum.v

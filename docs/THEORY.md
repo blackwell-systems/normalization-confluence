@@ -267,7 +267,8 @@ a section exists iff the loop composite has a fixed point reachable from some se
 (`thm_obstruction_reachable`), and on a finite fiber a bounded number of iterations decides it
 (`diagnose_bounded`, `diagnose_dichotomy`). So the obstruction theory has a proved boundary: cohomology where maps are
 invertible, provable hardness where they are not. The research note on lossy networks,
-`LOSSY-NETWORKS.md`, is in progress (PR #52).
+[LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver
+readings, root sets, and signed-cycle (Thomas-type) conditions.
 
 ### Monoids and traces
 
