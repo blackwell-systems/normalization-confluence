@@ -68,12 +68,12 @@ conditions, not the only ones.
 
 ## The root-set criterion for lossy networks without a spanning root (`RootSet.v`)
 
-Reading A of `LOSSY-NETWORKS.md` (the constraint reading, as in `CohomologyGeneral.v`): a network is a
+Reading A of [LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md) (the constraint reading, as in `CohomologyGeneral.v`): a network is a
 list `G` of edges `(u, v, f)` with `f : V -> V` an arbitrary, possibly lossy, map on one fiber `V`;
 a state `s` is a section when `f (s u) = s v` on every edge (`msection s G`). `rooted_criterion`
 decides this when one vertex reaches all others. This file replaces the root by a **root set** and
 closes, for reading A, the row "general graph: none mechanized; none known" of the regime audit
-(open problem P1 of `LOSSY-NETWORKS.md`).
+(open problem P1 of [LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md)).
 
 **Setting.** `root_set R G`: every vertex of `G` is reachable (`reach`) from some vertex of `R`; for
 instance one representative per source strongly connected component, plus any others (a minimum
@@ -138,7 +138,7 @@ domains (`O(prod |X_r| (|V| + |E|))`).
   `[0]` and `[2]` are not. `scc_consistent_roots`: the only consistent root tuple is
   `(true, false)` (the back edge pins 0, the meeting at 3 pins 2); `scc_unique_section`.
 
-**What this settles.** Together with the NP-completeness of existence (`LOSSY-NETWORKS.md`
+**What this settles.** Together with the NP-completeness of existence ([LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md)
 section 3.2, a reduction from 3-SAT, consistent with Cooper, Cohen and Jeavons 1994 as reported by
 David 1995; the reduction's correctness and size are mechanized in `LossyHardness.v`), this is the exact criterion for the regime "non-invertible graphs
 without a spanning root", and no efficient exact criterion exists unless P = NP: the search over
@@ -150,7 +150,7 @@ assignments, and the recovery of `rooted_criterion`.
 
 ## The 3-SAT reduction for lossy networks (`LossyHardness.v`)
 
-`LOSSY-NETWORKS.md` section 3.2 states that deciding whether a lossy network has a section
+[LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md) section 3.2 states that deciding whether a lossy network has a section
 (reading A, `msection` of `CohomologyGeneral.v`) is NP-complete, by a reduction from 3-SAT. This
 file mechanizes **the reduction's correctness and its size bound**; it does not formalize Turing
 machines or polynomial time. NP-completeness then follows by the standard argument: membership
@@ -195,7 +195,7 @@ occurrence.
 - `net_count`: the sections recorded on the (duplicate-free) network vertices with values in
   `{0..8}` (`section_tuples`) and the satisfying assignments recorded on the (duplicate-free)
   occurring variables (`sat_tuples`) are duplicate-free lists, each characterized exactly, of
-  **equal length**: #sections = #satisfying assignments, as `LOSSY-NETWORKS.md` claims (its
+  **equal length**: #sections = #satisfying assignments, as [LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md) claims (its
   "[our conjecture]" on parsimony, now mechanized).
 
 **Size.**
@@ -235,7 +235,7 @@ occurrence.
 tree of a group-labeled graph. `RootSet.v` drives values from a root set `R` along an outward
 spanning forest `F` with arbitrary (lossy) maps. This file combines the two and closes the row
 "event order under root-set coordination (non-invertible driving forest)" of the regime audit,
-section 12 (`LOSSY-NETWORKS.md` P6).
+section 12 ([LOSSY-NETWORKS.md](../../docs/LOSSY-NETWORKS.md) P6).
 
 **The driving network of a forest** (`frule`, `fsrc`, `ffun`). A vertex `w` attached by a forest
 edge `(u, w, f)` reads only `u` and takes `f (s u)`, ignoring its own value; a root keeps its own
