@@ -207,3 +207,9 @@ all: AtLeastOnceExact.vo
 
 AtLeastOnceExact.vo: AtLeastOnceExact.v Trace.vo CausalReplay.vo AtLeastOnce.vo GovernanceConverse.vo
 	coqc -Q . NC AtLeastOnceExact.v
+
+# The root-set criterion for lossy networks without a spanning root (RootSet.v).
+all: RootSet.vo
+
+RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
+	coqc -Q . NC RootSet.v

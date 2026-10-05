@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 915 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 989 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -1654,6 +1654,88 @@ negations (trivial holonomy, non-monotone edges) and copy-then-swap on `nat` (no
 non-monotone composite) both have sections, so acyclicity and monotonicity are two sufficient
 conditions, not the only ones.
 
+## The root-set criterion for lossy networks without a spanning root (`RootSet.v`)
+
+Reading A of `LOSSY-NETWORKS.md` (the constraint reading, as in `CohomologyGeneral.v`): a network is a
+list `G` of edges `(u, v, f)` with `f : V -> V` an arbitrary, possibly lossy, map on one fiber `V`;
+a state `s` is a section when `f (s u) = s v` on every edge (`msection s G`). `rooted_criterion`
+decides this when one vertex reaches all others. This file replaces the root by a **root set** and
+closes, for reading A, the row "general graph: none mechanized; none known" of the regime audit
+(open problem P1 of `LOSSY-NETWORKS.md`).
+
+**Setting.** `root_set R G`: every vertex of `G` is reachable (`reach`) from some vertex of `R`; for
+instance one representative per source strongly connected component, plus any others (a minimum
+root set is exactly one per source component, David, JAIR 1995). An outward spanning forest from
+`R` (`oforest R F`) attaches one fresh vertex per edge to the reached set `R ++ verts F`, so it gives
+every vertex exactly one driving path from exactly one root; `spanning_forest R G F` asks `F` to be
+a subgraph of `G` covering every vertex of `G`. `drive F a` pushes root values `a` along `F`.
+
+**The structure.**
+
+- `root_set_iff_forest`: `root_set R G <-> exists F, spanning_forest R G F` (the forest is grown
+  greedily, by a crossing-edge search with a vertex-count measure).
+- `out_forest_section`, `drive_root`: for every root assignment the driven state is a section of
+  the forest with those root values. `out_forest_unique`: sections of the forest that agree on `R`
+  agree on every reached vertex. `driving_paths`: each reached vertex `w` is driven by one root
+  `rho w` through one path composite `p w`, `drive F a w = p w (a (rho w))`.
+
+**The criterion (exact).**
+
+- `root_set_criterion`: for `oforest R F`, a forest section `sF` and non-driving edges `X` among the
+  reached vertices, `(exists s, msection s (F ++ X) /\ s = sF on R) <-> every edge of X holds at sF`.
+  `root_set_criterion_driven` is the same for a root assignment `a` and its driven state.
+- `root_set_exists`: `(exists s, msection s (F ++ X)) <-> exists a, every edge of X holds at drive F a`.
+- `root_set_agreement`: the same in agreement form: for every non-driving edge `(u, w, f)`,
+  `f (p u (a (rho u))) = p w (a (rho w))`. When `rho u <> rho w` this says the two roots agree at a
+  vertex reached from both; when `rho u = rho w` it is the single-root condition of
+  `rooted_criterion`.
+- On a graph: **`root_set_criterion_graph`**, for any root set `R` of `G` and spanning forest `F`,
+  `(exists s, msection s G) <-> exists a, msection (drive F a) G`;
+  `root_set_criterion_values`, the same with the root values fixed.
+
+**Sections are root assignments.** `root_set_bijection`: a section is the driven state of its own
+root values (on every vertex of the network), the driven state keeps its root values, and two
+sections with the same root values agree on the network. `root_set_count`: with `V` enumerated
+without duplicates and `R` duplicate-free, the consistent root tuples (`consistent_roots`, a filter
+of the product of the root domains, `tuples`) and the sections recorded on the network's vertices
+(`sections_on`) are both duplicate-free lists, the second contains exactly the restrictions of the
+sections of `G`, and they have the same length: **the number of sections equals the number of
+consistent root assignments**. `root_set_decide`: existence is
+`existsb (rs_ok R G F) (tuples lv (length R)) = true`, a search over the product of the root
+domains (`O(prod |X_r| (|V| + |E|))`).
+
+**The single-root case.** `otree_oforest` (`otree r T <-> oforest [r] T`) and
+`rooted_criterion_recovered`, `out_tree_section_recovered`, `out_tree_unique_recovered` re-derive
+`CohomologyGeneral.v`'s theorems as `R = [r]`.
+
+**Instances.**
+
+- The diamond (`diamond_*`): one root, paths `0 -> 1 -> 3` (copies) and `0 -> 2 -> 3` through the
+  lossy `dia_h` on `{t0, t1, t2}` (`diamond_not_injective`). The paths disagree at 3 for every root
+  value: `diamond_no_section` through the criterion, `diamond_count` (zero consistent root values).
+- Two constant maps into one vertex (`c22_*`, the shape of `c22_cycle_basis_fails`): `[0; 1]` is a
+  root set and neither root alone is (`c22_root_set`); no root tuple is consistent
+  (`c22_no_consistent_root`, `c22_count`), so `c22_no_section_recovered` re-derives the no-section
+  half of `c22_cycle_basis_fails`.
+- Two roots with sections (`two_*`): roots 0 and 1 into 2 through the lossy collapse
+  `t0, t1 |-> t0, t2 |-> t2`. `two_has_section`; `two_count` and `two_count_is_sections`: 5 of the
+  9 root tuples are consistent and the network has exactly 5 sections.
+- A root set containing a strongly connected component (`scc_*`): `{0, 1}` is a source component
+  (copy `0 -> 1`, lossy back edge `1 -> 0` constant `true`), 2 a second source, and `1 -> 3` (copy),
+  `2 -> 3` (negation) meet at 3. `scc_component`: 0 and 1 reach each other, `[0; 2]` is a root set,
+  `[0]` and `[2]` are not. `scc_consistent_roots`: the only consistent root tuple is
+  `(true, false)` (the back edge pins 0, the meeting at 3 pins 2); `scc_unique_section`.
+
+**What this settles.** Together with the NP-completeness of existence (`LOSSY-NETWORKS.md`
+section 3.2, a reduction from 3-SAT, consistent with Cooper, Cohen and Jeavons 1994 as reported by
+David 1995; cited, not mechanized), this is the exact criterion for the regime "non-invertible graphs
+without a spanning root", and no efficient exact criterion exists unless P = NP: the search over
+the product of the root domains is the irreducible cost, polynomial for a bounded number of source
+components (one, in `rooted_criterion`) and exponential in that number in general. The criterion is
+David's root-set decomposition (JAIR 1995, Theorem 1; the single-root case is Zhang and Yap 2011,
+Corollary 3); what is new here is the axiom-free mechanization, the bijection with root
+assignments, and the recovery of `rooted_criterion`.
+
 ## Stream processors and Stream Convergence (`Stream.v`)
 
 The base paper's headline theorem (Thm. "Stream Convergence", `thm:convergence`) is about stream
@@ -1897,7 +1979,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 915 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 989 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
