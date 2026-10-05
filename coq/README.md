@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1370 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 1499 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 1370 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
@@ -2606,7 +2606,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 1370 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1499 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
