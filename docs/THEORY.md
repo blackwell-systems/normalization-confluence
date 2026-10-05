@@ -240,6 +240,15 @@ of a composite can be checked on its parts.
   hence `LC`, fails (`cyclic_lc_sound_fails`; the divergence alone is `cyclic_lc_fails`). The
   open convergence problems are the question this leaves: what additional structure makes P exact
   on cycles ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier)).
+- **A canonicalizer chosen by the dynamics.** E does not have to use the least fixed point. In the
+  no-reset distributed model on monotone cycles, convergence among quiescent interleavings alone is
+  exact with the quiescent state propagation settles in as the canonical state, a ghost allowed
+  (`conv_quiet_exact`, `DistributedConvergenceExact.v`): fidelity becomes "every reachable state
+  flushes to at most one quiescent state", and S and H are state descent and history descent for
+  that flush. `flush_fed_iff` is the case where the flush is `Lfp` (`agree_conv_noghost`: agreement
+  with the FedMachine is convergence plus `NoGhostR`). The flush is a relation, not a function, so
+  this is proved directly rather than as an instance of `esh_exact`, whose canonicalizer is a
+  function; an axiom-free choice of a flush for every state is not available.
 
 ### Evidence: six exact results as short corollaries
 
@@ -311,10 +320,13 @@ is where `LC` fails (`cyclic_lc_sound_fails`).
 
 ### What it is not yet
 
-The framework has rederived the six existing exact results and explained the absent laws above. It
-has not yet produced a new exact result for an unstudied regime. The natural test is the cyclic
-frontier: a structure that makes P exact on cycles would settle open gaps rather than rederive
-closed ones.
+The framework has rederived the six existing exact results and explained the absent laws above.
+Its decomposition shaped one new exact result: gap 14, convergence alone in the no-reset cyclic
+distributed model, is E, S and H relative to the quiescent state propagation settles in
+(`conv_quiet_exact`, above under Scope). Read through it, `conv_ghost_esh`'s "H without E" becomes
+all three layers for the dynamics' canonicalizer (`conv_ghost_instance`). That result needed a
+different canonicalizer, not P. The open test is still the cyclic frontier: a structure that makes
+P exact on cycles would settle the remaining open gaps.
 
 ## Mathematical structure
 

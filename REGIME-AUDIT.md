@@ -7,13 +7,15 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Current at `main` `69ef03a` (gate: `coq/verify.sh`, 2012 axiom-free results;
-the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were read
-at `dc610a9`, and the rows #83 changed at `69ef03a`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+It adds no proofs. Current at `main` `a0d4713` with #90 (gate: `coq/verify.sh`, 2067 axiom-free
+results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were
+read at `dc610a9`, the rows #83 changed at `69ef03a`, and the rows #90 changed at `a0d4713`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
 since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
 matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
-Current state. Open convergence gaps: 2, 3, 5 and 14; gaps 8 and 9 are design exclusions. The
+Current state. Open convergence gaps: 2, 3 and 5; gaps 8 and 9 are design exclusions. Gap 14
+(convergence alone in the no-reset cyclic distributed model) is closed by #90
+(`conv_quiet_exact`). The
 optimization and counting gaps 10, 11 and 12 are closed with exact theorems and mechanized hardness
 reductions, and gap 13 is closed on the registry-level site with two residues at paper level (the
 variable-level and monotone-overlap site, and a sheaf condition for relative certificates on covers
@@ -60,7 +62,10 @@ then #80 (`SignedCycles.v`, `SignedResolver.v`) and its statement review (#81) b
 rootless resolver row, and gap 3 records them as progress; no gap closes and no status changes.
 Then #83 (`LocalSigned.v`) brought the gate to 2012: the rootless resolver row gains sufficient
 certificates on local interaction graphs, with counterexamples marking what they do not give, and
-gap 3 records them as progress; again no gap closes and no status changes.
+gap 3 records them as progress; again no gap closes and no status changes. Then #90
+(`DistributedConvergenceExact.v`) brought the gate to 2067 and closed gap 14: convergence among
+quiescent interleavings alone is exact (`conv_quiet_exact`), with the quiescent state propagation
+settles in, ghost allowed, as the canonical state in place of the FedMachine's least fixed point.
 The tables below are the current state; the conclusion re-answers the old questions and confirms
 the wording.
 
@@ -158,8 +163,8 @@ flushed start).
 | Monotone cycles, repair alone (no events): does every fair propagation schedule from a stale start settle at `Lfp l` | From a sound start (`h0 <= F l h0`) and a fair schedule, the run reaches `Lfp l` iff `h0 <= Lfp l`: `q1_sound_iff` (from a sound start every fair schedule settles at the least fixed point above `h0`: `q1_sound_settles`); every fair schedule from every start settles at `Lfp l` iff `F l` has exactly one fixed point (with a top element and the dual step laws): `q1_unique_iff` | Any start at or below `Lfp l`: `q1_below` (bottom: `q1_from_bot`) | n/a (gsm reports cyclic projection deployments not certified, gsm #34) | Qualifiers: at or above a fixed point other than `Lfp l` no schedule reaches `Lfp l` (`q1_stuck`, a ghost); from an arbitrary stale start the fixed point reached depends on the schedule (`dist_schedule_dependence`), and a fair schedule on a monotone 3-cycle never reaches a quiescent state (`dist_ring_livelock`). - (closed by #62) |
 | Monotone cycles, events, with reset epochs (a barrier resets every shared value to bottom, then propagation to quiescence, no event inside the epoch); compared after a final epoch | Every run agrees with the FedMachine iff the event's local outcome is the same at every reachable stale state as at its flushed form (`XUcR`): `epoch_agree_iff`; all interleavings agree iff `XUcR` and the FedMachine converges from the flushed start: `epoch_conv_iff` (the cyclic form of `dist_exact_tc`) | gsm's per-target C1cyc and C2cyc over a set covering the reachable shared values (the start's values, bottom, the morphism images and what events write: `hs_reach`) give both: `lens_epoch`; an epoch computes the flushed state: `EP_run`, `epoch_flush` | No epoch mode; cyclic projection deployments are reported not certified (gsm #34) | Qualifier: the reset must be a barrier; a staggered reset re-creates the ghost in one propagation step (`dist_cyc_epoch_fix`, which also shows epochs repair the `dist_cyc_ghost` federation from every start). - (closed by #62) |
 | Monotone cycles, events, no resets, every reachable state at or below `Lfp` of its locals (`LowR`); compared at quiescent states | Every reachable quiescent state is the FedMachine state iff `XUcR`: `low_agree_iff`; all quiescent interleavings agree iff `XUcR` and FedMachine convergence from the flushed start: `low_conv_iff` (`LowR` gives `FlushR` and `NoGhostR`: `low_flush`, `low_noghost`) | Per event: inflationary events (locals only rise, no shared value raised) give `EvLow` (`infl_evlow`), and `EvLow` from a start at or below `Lfp` gives `LowR` (`evlow_lowr`); gsm's C1cyc and C2cyc over a covering set plus `LowR`: `lens_quiet` | n/a (as above) | - (closed by #62) |
-| Monotone cycles, events, no resets, general (no `LowR`); compared at quiescent states. The certified property is that the deployment flushes, every reachable quiescent state agrees with the FedMachine, and quiescent interleavings agree (`FlushR /\ DAgreeQ /\ DConvQ`, or with `FairFlushR`) | Unconditional (nothing on the left of the iff but the property): `FlushR /\ DAgreeQ <-> XUcR /\ FlushR /\ NoGhostR` (`flush_agree_iff`); `FlushR /\ DAgreeQ /\ DConvQ <-> XUcR /\ FMConv /\ FlushR /\ NoGhostR` (`flush_fed_iff`); the same with `FairFlushR` (`fair_agree_iff`, `fair_fed_iff`). Each right-hand conjunct is necessary, by an instance where it alone fails: `XUcR` (`copy_xu_fails`), `FMConv` (`fm_conv_fails`), `FlushR` (`flip_noflush`), `FairFlushR` (`flip2_fair_livelock`; `ring_exact`, the ring of `dist_ring_livelock`, has `FlushR` without `FairFlushR`), `NoGhostR` (`ghost_exact`, the `dist_cyc_ghost` federation). `FlushR` exactly: a fair run reaches quiescence iff it reaches a sound state (`h <= F l h`): `fair_flush_sound_iff`; for words `flushat_sound_iff`; reachable forms `fairflushR_sound_iff`, `flushR_sound_iff`. `NoGhostR` exactly: iff the start and every post-event state (an event applied at a reachable state) are ghost-free: `noghost_event_iff` (every reachable ghost comes from the start or a last event whose output is not below `Lfp` of its locals: `ghost_witness`); iff some invariant closed under events and propagation contains no quiescent ghost: `noghost_inv_iff`; a sound state is ghost-free iff it is low: `ghostfree_sound_iff`, so under `SoundR` (every reachable state sound) `NoGhostR <-> LowR` (`noghost_soundr_iff`), `LowR` is checked per event (`lowr_post_iff`), and `DAgreeQ <-> XUcR /\ LowR`, `DAgreeQ /\ DConvQ <-> XUcR /\ LowR /\ FMConv` (`soundr_agree_iff`, `soundr_fed_iff`) | `FlushR` (as `FairFlushR`, which implies it: `fairflushR_flushR`): sandwiched, sound or low reachable states (`sandr_fairflush`, `soundr_fairflush`, `lowr_fairflush`; `sand_settles`, which recovers `q1_below` and `q1_sound_settles`); per event `evsand_sandr`, `evsound_soundr`, `evlow_fairflush`, and inflationary events that write no shared value keep soundness (`infl_evsound`); gsm starts `Nc t` are sound and low (`nc_sound_low`); per network, every single propagation step yields a sound state (`step_sound_fairflush`). `NoGhostR`: an invariant whose states have one-fixed-point locals or are low (`unique_or_low_noghost`, recovering `uniq_noghost` and the `EvLow` route: `unique_or_low_recovers`); `EvLow` (`infl_evlow`). gsm's C1cyc and C2cyc over a covering set reduce the certified property to `FlushR /\ NoGhostR` (or `FairFlushR /\ NoGhostR`): `lens_noreset_iff`, `lens_noreset_fair_iff` | n/a (gsm reports cyclic projection deployments not certified, gsm #34 and #36; no check for `FlushR` or `NoGhostR`) | Qualifiers: flushability is part of the certified property, not a hypothesis on it: `DAgreeQ` and `DConvQ` speak only of quiescent states, so they say nothing about a deployment that never quiesces (`flip_noflush`: one fixed point, `XUcR`, `FMConv` and `NoGhostR` hold, and no propagation word from the start reaches quiescence). None of `SoundR`, `SandR`, `LowR` is necessary for `FairFlushR` (`ghost_exact` reaches a state that is neither sound nor sandwiched, and `FairFlushR` holds), and `LowR` is not necessary for `NoGhostR` without `SoundR` (`ghostfree_unsound`). Non-vacuity beyond `EvLow` and global uniqueness: `latched_exact`; a clear that resets only its own shared slot still ghosts (`local_reset_ghost`: the reset must cover the cycle, as in `lens_epoch`). `NoGhostR` is not necessary for `DConvQ` alone: from a FedMachine normal form, `FairFlushR`, `XUcR`, `FMConv` and `DConvQ` hold, every quiescent interleaving agrees, and each sits on a ghost, so `NoGhostR` and `DAgreeQ` fail (`conv_ghost_normal`). Convergence is exact jointly with agreement; convergence alone is gap 14. - (closed by #64; was gap 1) |
-| Monotone cycles, events, no resets: convergence among quiescent interleavings alone, without agreement with the FedMachine (`FlushR /\ DConvQ`, a common ghost allowed) | **None mechanized** | `XUcR`, `FMConv` and `NoGhostR` give `DConvQ` (`quiet_conv_suff`, no `FlushR` needed); `NoGhostR` is not necessary (`conv_ghost_normal`) | n/a (a gsm check for cyclic deployments would certify agreement with the FedMachine, the row above) | **open** (gap 14, small to medium) |
+| Monotone cycles, events, no resets, general (no `LowR`); compared at quiescent states. The certified property is that the deployment flushes, every reachable quiescent state agrees with the FedMachine, and quiescent interleavings agree (`FlushR /\ DAgreeQ /\ DConvQ`, or with `FairFlushR`) | Unconditional (nothing on the left of the iff but the property): `FlushR /\ DAgreeQ <-> XUcR /\ FlushR /\ NoGhostR` (`flush_agree_iff`); `FlushR /\ DAgreeQ /\ DConvQ <-> XUcR /\ FMConv /\ FlushR /\ NoGhostR` (`flush_fed_iff`); the same with `FairFlushR` (`fair_agree_iff`, `fair_fed_iff`). Each right-hand conjunct is necessary, by an instance where it alone fails: `XUcR` (`copy_xu_fails`), `FMConv` (`fm_conv_fails`), `FlushR` (`flip_noflush`), `FairFlushR` (`flip2_fair_livelock`; `ring_exact`, the ring of `dist_ring_livelock`, has `FlushR` without `FairFlushR`), `NoGhostR` (`ghost_exact`, the `dist_cyc_ghost` federation). `FlushR` exactly: a fair run reaches quiescence iff it reaches a sound state (`h <= F l h`): `fair_flush_sound_iff`; for words `flushat_sound_iff`; reachable forms `fairflushR_sound_iff`, `flushR_sound_iff`. `NoGhostR` exactly: iff the start and every post-event state (an event applied at a reachable state) are ghost-free: `noghost_event_iff` (every reachable ghost comes from the start or a last event whose output is not below `Lfp` of its locals: `ghost_witness`); iff some invariant closed under events and propagation contains no quiescent ghost: `noghost_inv_iff`; a sound state is ghost-free iff it is low: `ghostfree_sound_iff`, so under `SoundR` (every reachable state sound) `NoGhostR <-> LowR` (`noghost_soundr_iff`), `LowR` is checked per event (`lowr_post_iff`), and `DAgreeQ <-> XUcR /\ LowR`, `DAgreeQ /\ DConvQ <-> XUcR /\ LowR /\ FMConv` (`soundr_agree_iff`, `soundr_fed_iff`) | `FlushR` (as `FairFlushR`, which implies it: `fairflushR_flushR`): sandwiched, sound or low reachable states (`sandr_fairflush`, `soundr_fairflush`, `lowr_fairflush`; `sand_settles`, which recovers `q1_below` and `q1_sound_settles`); per event `evsand_sandr`, `evsound_soundr`, `evlow_fairflush`, and inflationary events that write no shared value keep soundness (`infl_evsound`); gsm starts `Nc t` are sound and low (`nc_sound_low`); per network, every single propagation step yields a sound state (`step_sound_fairflush`). `NoGhostR`: an invariant whose states have one-fixed-point locals or are low (`unique_or_low_noghost`, recovering `uniq_noghost` and the `EvLow` route: `unique_or_low_recovers`); `EvLow` (`infl_evlow`). gsm's C1cyc and C2cyc over a covering set reduce the certified property to `FlushR /\ NoGhostR` (or `FairFlushR /\ NoGhostR`): `lens_noreset_iff`, `lens_noreset_fair_iff` | n/a (gsm reports cyclic projection deployments not certified, gsm #34 and #36; no check for `FlushR` or `NoGhostR`) | Qualifiers: flushability is part of the certified property, not a hypothesis on it: `DAgreeQ` and `DConvQ` speak only of quiescent states, so they say nothing about a deployment that never quiesces (`flip_noflush`: one fixed point, `XUcR`, `FMConv` and `NoGhostR` hold, and no propagation word from the start reaches quiescence). None of `SoundR`, `SandR`, `LowR` is necessary for `FairFlushR` (`ghost_exact` reaches a state that is neither sound nor sandwiched, and `FairFlushR` holds), and `LowR` is not necessary for `NoGhostR` without `SoundR` (`ghostfree_unsound`). Non-vacuity beyond `EvLow` and global uniqueness: `latched_exact`; a clear that resets only its own shared slot still ghosts (`local_reset_ghost`: the reset must cover the cycle, as in `lens_epoch`). `NoGhostR` is not necessary for `DConvQ` alone: from a FedMachine normal form, `FairFlushR`, `XUcR`, `FMConv` and `DConvQ` hold, every quiescent interleaving agrees, and each sits on a ghost, so `NoGhostR` and `DAgreeQ` fail (`conv_ghost_normal`). Convergence is exact jointly with agreement here; convergence alone is the next row. - (closed by #64; was gap 1) |
+| Monotone cycles, events, no resets: convergence among quiescent interleavings alone, without agreement with the FedMachine (`FlushR /\ DConvQ`, a common ghost allowed) | Unconditional: `FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv` (`conv_quiet_exact`; with `FairFlushR`: `fair_conv_exact`). The canonical state is the one propagation settles in, read as a relation (`Flushes t q`: a propagation word takes `t` to the quiescent `q`), in place of `Lfp`: `FlushDetR` (E: every reachable state flushes to at most one quiescent state; checked at the start and each post-event state, `flushdet_event_iff`), `FlushXUR` (S: an event at a reachable stale state and at its flush flush to a common state), `QMConv` (H: the quiescent machine, flush then event then flush, gives trace-equivalent event sequences the same outcomes). No lattice hypothesis is used. Each conjunct is necessary, by an instance where it alone fails: `FlushR` (`flip_conv_noflush`), `FlushDetR` (`fork_conv_nodet`: from a stale start one word reaches `Lfp`, another the ghost), `FlushXUR` (`copy_conv_noxu`), `QMConv` (`fm_conv_noqm`). Ghost-free case: under `FlushR /\ NoGhostR`, `FlushDetR` holds, `FlushXUR <-> XUcR`, `QMConv <-> FMConv (Nc s0)` (`noghost_flushdet`, `noghost_flushxu_iff`, `noghost_qmconv_iff`), recovering `quiet_conv_iff` (`quiet_conv_recovered`) and `flush_fed_iff` (`flush_fed_recovered`); agreement is convergence plus fidelity to `Lfp`: `FlushR -> (DAgreeQ /\ DConvQ <-> DConvQ /\ NoGhostR)` (`agree_conv_noghost`) | `XUcR`, `FMConv` and `NoGhostR` give `DConvQ` with no `FlushR` (`quiet_conv_suff`); under `SoundR`, `FlushR` and `FlushDetR` are free and `DConvQ <-> FlushXUR /\ QMConv` (`soundr_conv_iff`; a sandwiched state flushes only to the least fixed point above its sound lower bound, `sand_flushdet`) | n/a (gsm's C1cyc and C2cyc are stated against `Lfp`; they discharge `XUcR` and `FMConv`, the ghost-free forms, and nothing is given for `FlushXUR` or `QMConv` when a ghost is reachable) | Qualifiers: no resets (the backward direction fails with resets: a reset moves a state's flush to `Lfp` without an event; the forward direction holds for every `r`). None of `XUcR`, `FMConv`, `NoGhostR` is necessary for convergence alone: `ghost_conv_not_fed` (from a ghost start, a copy event on A and a raise on B: `FairFlushR` and `DConvQ` hold, `XUcR`, `FMConv (Nc s0)`, `NoGhostR` and `DAgreeQ` fail). `conv_ghost_normal` is an instance (`conv_ghost_instance`: the interleavings agree on the quiescent machine's ghost). The conditions are reachable properties, as in `flush_fed_iff`. - (closed by #90; was gap 14) |
 
 ## 9. Monotone cycles: the repair normal form
 
@@ -249,22 +254,24 @@ Convergence:
 | 7 | State-based CRDT merges as an instance of the exact theorems (section 4) | **closed**, #58 (`merge_action_exact`, `cvrdt_on_exact`; the iff as exported: `cvrdt_on_iff`) | n/a |
 | 8 | Least fixed points on complete lattices without ACC (section 9) | design exclusion: classical Knaster-Tarski is outside the axiom-free gate; gsm's finite domains satisfy ACC, so nothing gsm accepts depends on it | n/a |
 | 9 | Infinite streams: eventual agreement (section 5) | design: the naive claim is refuted (`base_thm_convergence_transient_counterexample`) | n/a |
-| 14 | Distributed model on monotone cycles without resets: an exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when interleavings may agree on a common ghost (section 8). Sufficient: `XUcR`, `FMConv`, `NoGhostR` (`quiet_conv_suff`); `NoGhostR` not necessary (`conv_ghost_normal`). The certified property, convergence together with agreement with the FedMachine, is exact (gap 1) | open | small to medium |
+| 14 | Distributed model on monotone cycles without resets: an exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when interleavings may agree on a common ghost (section 8) | **closed**, #90 (`conv_quiet_exact`: `FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the layers of `flush_fed_iff` relative to the quiescent state propagation settles in; each conjunct necessary) | n/a |
 
-Open convergence gaps after #64: 2, 3, 5 and 14. Gap 1 is closed. Gaps 8 and 9 are design exclusions.
+Open convergence gaps after #90: 2, 3 and 5. Gaps 1 and 14 are closed. Gaps 8 and 9 are design
+exclusions.
 
-Why gap 14 is a gap and not a qualifier. The other distributed rows answer convergence among
-interleavings on its own: `dist_exact` (acyclic, `DistConv`), `epoch_conv_iff` (`DistConvE`),
-`low_conv_iff` (`DConvQ` under `LowR`). In the no-reset regime without
-`LowR`, `conv_ghost_normal` exhibits a deployment that converges in that sense (every fair schedule
-settles, equivalent quiescent interleavings agree) on a state the FedMachine never produces, and no
-theorem gives the exact condition for that convergence alone; `flush_fed_iff` answers it only
-jointly with agreement. The regime is one the development models, the property is defined there
-(`DConvQ` in `DistributedCycles.v`), and its status is "sufficient only", which is what the open-gap
-list records. It does not bear on gsm: a gsm check for cyclic deployments would certify agreement with gsm's
-FedMachine, and for that property the answer is exact (`flush_fed_iff`, `lens_noreset_iff`). The necessity instances for
-`XUcR` and `FMConv` refute agreement (`copy_xu_fails`) or the joint property (`fm_conv_fails`), not
-`DConvQ` alone, so which of the three conjuncts a convergence-alone condition keeps is also open.
+How gap 14 closed. It was a gap and not a qualifier because the property is defined in a regime
+the development models (`DConvQ` in `DistributedCycles.v`), `conv_ghost_normal` exhibited a
+deployment that converges on a state the FedMachine never produces, and only a sufficient
+condition was known. #90 gives the exact condition. The ghost is not an obstacle to convergence; it
+is the obstacle to agreement with the FedMachine. Convergence alone asks the same three layers as
+`flush_fed_iff` (fidelity, state descent, history descent), each relative to the quiescent state
+propagation settles in rather than to `Lfp`, and `agree_conv_noghost` makes the split exact:
+agreement is convergence plus `NoGhostR`. The earlier note that the necessity instances for `XUcR`
+and `FMConv` refute agreement, not `DConvQ` alone, is now settled: none of `XUcR`, `FMConv`,
+`NoGhostR` is necessary for convergence alone (`ghost_conv_not_fed`), and their flush-relative
+forms `FlushXUR`, `QMConv` are (`copy_conv_noxu`, `fm_conv_noqm`). It still does not bear on gsm: a
+gsm check for cyclic deployments would certify agreement with the FedMachine, which is
+`flush_fed_iff`.
 
 Optimization and counting (unchanged from the first audit until the fifth wave, #70 to #73):
 
@@ -296,13 +303,14 @@ Each open gap, checked against its own description above:
 | 2 | yes | Section 11 scopes it as rootless invertible networks with several cycles or mixed orientation. A registry with no incoming edge is never written and acts as a de facto root (`rootless_orientation_matters`), and the single coherently oriented cycle is exact, so what is open is how several cycles compose with no authority | `rootless_unique_iff` (one cycle); `prop_minimal_qualified_iff` (with an authority root) |
 | 3 | yes | Section 12 and [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2 state it for a cyclic network in the resolver reading; the acyclic case is Robert's theorem, which the federation model already has (LOSSY-NETWORKS.md section 4.2). On cycles, sufficient signed certificates on the global interaction graph (#80) and on Boolean local interaction graphs (#83) are mechanized. The local ones give E's existential Settlement and not fair-schedule settlement, even with no cycle in any local graph (`shih_dong_not_fair`): by Robert's theorem a fair schedule that never settles needs a cycle in the global graph, and here that cycle shows in no single local graph. Fair settlement from local conditions, multivalued local graphs and an exact condition are the open part | acyclic resolver networks (Robert's theorem: every fair schedule converges); on cycles, sufficient only (`signed_settlement`, `signed_fidelity`; locally `local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`) |
 | 5 | yes | Section 14: collapse of a sub-federation `J` that is itself a monotone cycle | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) |
-| 14 | yes | Section 8: the no-reset distributed model on monotone cycles, convergence alone. What separates it from the exact rows is the ghost: interleavings can agree on a quiescent state that is a fixed point of the cyclic repair other than the least one (`conv_ghost_normal`) | `dist_exact` (acyclic); `epoch_conv_iff` (reset epochs); `flush_fed_iff` (jointly with agreement) |
+| 14 (closed, #90) | yes | Section 8: the no-reset distributed model on monotone cycles, convergence alone. What separated it from the exact rows was the ghost: interleavings can agree on a quiescent state that is a fixed point of the cyclic repair other than the least one (`conv_ghost_normal`). Closed without P: `conv_quiet_exact` is a whole-system E, S and H statement with the quiescent state propagation settles in as the canonical state. The obstacle was the choice of canonicalizer, not composition, so the result says nothing about P on cycles; it removes gap 14 from the frontier | `conv_quiet_exact`; earlier `dist_exact` (acyclic), `epoch_conv_iff` (reset epochs), `flush_fed_iff` (jointly with agreement) |
 | 13, monotone-overlap site | yes | Section 13: the Cat paper's monotone-overlap regime is the cyclic, least-fixed-point site; `SheafGluing.v` is acyclic throughout | `sheaf_iff_refines`, `cert_sheaf` (registry-level site) |
 | 13, relative certificates on covers not closed under sources | no | Not a cycle question: `SheafGluing.v` is acyclic and the witness is a three-registry chain (`chain_cert_nonclosed`); the open part is a sheaf condition for certificates that read external inputs (`cert_restrict` gives only the relative restriction equation). A separate residue | `cert_sheaf`, `cert_restrict_iff` (covers closed under sources) |
 | 13, variable-level site | no | Not a cycle question: two subsystems writing one variable is a multi-writer site, which enters only through `gluing_cex_overlap`. A separate residue | n/a |
 
 Gaps 8 and 9 are design exclusions, not open problems, and are not part of the claim. Gap 13 is
-listed under optimization and counting; only its monotone-overlap part joins the frontier.
+listed under optimization and counting; only its monotone-overlap part joins the frontier. Gap 14
+stays in the table as the one frontier instance settled so far, and it was settled outside P.
 
 The cyclic raw material already mechanized:
 
@@ -313,6 +321,9 @@ The cyclic raw material already mechanized:
   that any exact form has to get around: `cyclic_lc_sound_fails`.
 - Reset epochs make the no-reset ghost go away by a barrier: `epoch_conv_iff` (and `low_conv_iff`
   under `LowR`).
+- Without a barrier, convergence alone is exact once the canonical state is the one propagation
+  settles in, ghost allowed (`conv_quiet_exact`, #90): the cyclic repair's extra fixed points need
+  a different canonicalizer, not a compositional argument.
 - Rootless single cycles: `rootless_unique_iff` (unique iff the group is trivial).
 - Signed certificates for E on resolver networks, global interaction graph (#80): balance makes
   every resolver monotone after a change of order (`switched_monotone`), and then low starts or a
@@ -343,7 +354,7 @@ Yes, regime by regime:
 | Acyclic federations, repair normal form | unconditional in the regime | | |
 | Acyclic federations, event order (guarded; unguarded) | `fed_exact`, `fed_guarded_exact`; `fed_grs_exact` | | |
 | Distributed propagation model, acyclic | `dist_exact`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots` | | |
-| Distributed propagation model, monotone cycles: repair alone; reset epochs; no resets (under `LowR`; general) | `q1_sound_iff`, `q1_unique_iff`; `epoch_agree_iff`, `epoch_conv_iff`; `low_agree_iff`, `low_conv_iff`; `flush_agree_iff`, `flush_fed_iff`, `fair_agree_iff`, `fair_fed_iff` (`FlushR`: `fair_flush_sound_iff`; `NoGhostR`: `noghost_event_iff`, `noghost_inv_iff`) | | 14 (no resets: convergence alone, without agreement) |
+| Distributed propagation model, monotone cycles: repair alone; reset epochs; no resets (under `LowR`; general) | `q1_sound_iff`, `q1_unique_iff`; `epoch_agree_iff`, `epoch_conv_iff`; `low_agree_iff`, `low_conv_iff`; `flush_agree_iff`, `flush_fed_iff`, `fair_agree_iff`, `fair_fed_iff` (`FlushR`: `fair_flush_sound_iff`; `NoGhostR`: `noghost_event_iff`, `noghost_inv_iff`); convergence alone `conv_quiet_exact`, `fair_conv_exact` | | |
 | Monotone cycles: normal form, reachability, validity | unconditional; `kleene_reach_exact`; `lfp_valid_iff_reached`, `Ncyc_valid_exact` | | 8 (no ACC, design) |
 | Monotone cycles, event order | `gc_iff` | | |
 | Invertible cycles: existence; root-driven convergence | `section_iff_coboundary`; `prop_minimal_qualified_iff` | | |
@@ -386,16 +397,14 @@ root-set coordination (#59), enabledness a compensation step can disable (#56) a
 CRDT instance (#58) closed, and the distributed propagation model (gap 1) became exact on acyclic
 federations (#60), on monotone cycles under reset epochs or `LowR` (#62), and on monotone cycles
 without resets with no reachable hypothesis left (#64). On the optimization and counting side,
-gaps 10, 11 and 12 closed (#72, #70, #71) and gap 13 narrowed (#73). Items 2, 3, 5 and 14 above
-remain open for convergence, and gap 13's residual is paper only, so the map is not complete. The
+gaps 10, 11 and 12 closed (#72, #70, #71) and gap 13 narrowed (#73), and gap 14, added by #64,
+closed (#90). Items 2, 3 and 5 above remain open for convergence, and gap 13's residual is paper only, so the map is not complete. The
 headline does not claim completeness; it claims that every regime's status is stated.
 
 **Is "exact conditions in every regime" accurate?** No. Items 2, 3 and 5 are regimes with a
-sufficient condition only, or none. Item 14 is a question in a regime the development models
-(`DistributedCyclesExact.v`): no-reset cyclic deployments are exact for the certified property
-(convergence together with agreement with the FedMachine), but convergence alone has a sufficient
-condition only. So even "exact in every regime it covers" still fails, now for that one property.
-Items 8 and 9 are design exclusions. The headline's three-way disjunction (exact, hardness, open) is
+sufficient condition only, or none. Item 14 was a question in a regime the development models
+(`DistributedCyclesExact.v`), where convergence alone had a sufficient condition only; #90 makes it
+exact (`conv_quiet_exact`). Items 8 and 9 are design exclusions. The headline's three-way disjunction (exact, hardness, open) is
 accurate.
 
 **"A checker for the practical ones."** Accurate, with two qualifications. gsm checks the cheap
@@ -437,7 +446,8 @@ The line does not say the hardness results are machine-checked, so #57 does not 
 changes the precision paragraph under it (previous section). #60 and #62 do not change it either:
 they move most of gap 1 into the exact column and leave a residual that is still listed. #64 does not
 change it: it closes gap 1 and adds gap 14, which the README lists, so every regime is still exact,
-hardness-backed, or listed open. The fifth wave (#70 to #73) does not change it: three listed gaps
+hardness-backed, or listed open. #90 does not change it: it moves gap 14 to the exact
+column. The fifth wave (#70 to #73) does not change it: three listed gaps
 move to the exact column with mechanized hardness reductions, and the fourth (gap 13) narrows to a
 residual that stays listed. The precision paragraph changes (minimum coordination's hardness is now
 a mechanized reduction, not only a citation). The first audit proposed narrower lines
@@ -459,7 +469,7 @@ From the first audit's list (numbering kept):
 | 6 | At-least-once exact converse, free and causal | done, #55 |
 | 7 | Distributed propagation model, acyclic exact converse | done, #60 (`dist_exact`, `dist_exact_global`, `dist_global_exact_roots`) |
 | 8 | Cyclic monotone collapse | open (gap 5), medium to large |
-| 9 | Distributed propagation model on monotone cycles | done: exact under reset epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`), #62; without resets, unconditionally (`flush_fed_iff`, `fair_fed_iff`), with `FlushR` and `NoGhostR` characterized (`fair_flush_sound_iff`, `noghost_event_iff`, `noghost_inv_iff`) and gsm's checks reduced to them (`lens_noreset_iff`), #64. Convergence alone, without agreement, open (gap 14) |
+| 9 | Distributed propagation model on monotone cycles | done: exact under reset epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`), #62; without resets, unconditionally (`flush_fed_iff`, `fair_fed_iff`), with `FlushR` and `NoGhostR` characterized (`fair_flush_sound_iff`, `noghost_event_iff`, `noghost_inv_iff`) and gsm's checks reduced to them (`lens_noreset_iff`), #64. Convergence alone, without agreement, exact (`conv_quiet_exact`), #90 |
 | 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54; NP-completeness reduction mechanized, #57; event order done, #59; rootless dynamics open (gap 3; sufficient signed certificates for E on the global interaction graph, #80, and on Boolean local interaction graphs, #83) |
 | 11 | Complete lattices without ACC | stated as a design exclusion (gap 8) |
 | 12 | Minimum coordination linked to the plan model | done, #72 (`plan_min_exact`, `feasible_plan`; Max-Cut reduction `maxcut_reduction`) |
@@ -469,7 +479,7 @@ From the first audit's list (numbering kept):
 | 16 | Repair-disabled enabledness (gap 6) | done, #56 |
 | 17 | The state-based CRDT instance (gap 7) | done, #58 |
 | 18 | The lossy-network 3-SAT reduction (correctness, parsimony, size, certificate) | done, #57 |
-| 19 | No-reset cyclic distributed model: exact condition for `FlushR /\ DConvQ` alone (gap 14) | open, small to medium |
+| 19 | No-reset cyclic distributed model: exact condition for `FlushR /\ DConvQ` alone (gap 14) | done, #90 (`conv_quiet_exact`, each conjunct necessary; `quiet_conv_iff` and `flush_fed_iff` recovered) |
 
 Tasks 16 and 17 were added by the 989-gate revision, task 18 by the 1198-gate revision, task 19 by
 the 1499-gate revision.

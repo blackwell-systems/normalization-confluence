@@ -320,3 +320,10 @@ all: LocalSigned.vo
 
 LocalSigned.vo: LocalSigned.v CohomologyGraph.vo SignedCycles.vo DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo
 	coqc -Q . NC LocalSigned.v
+
+# Convergence among quiescent interleavings alone on monotone cycles without resets: the exact
+# condition with the propagation dynamics' own canonical state (DistributedConvergenceExact.v).
+all: DistributedConvergenceExact.vo
+
+DistributedConvergenceExact.vo: DistributedConvergenceExact.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedCycles.vo DistributedCyclesExact.vo
+	coqc -Q . NC DistributedConvergenceExact.v

@@ -7,6 +7,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/DistributedConvergenceExact.v` (#90): convergence among quiescent interleavings alone in
+  the no-reset distributed model on monotone cycles (`FlushR /\ DConvQ`), exactly; closes audit gap
+  14. Axiom-free. The canonical state is the quiescent state propagation settles in (a ghost is
+  allowed) instead of the FedMachine's least fixed point, read as a relation: `Flushes`,
+  `FlushDetR` (E: every reachable state flushes to at most one quiescent state), `FlushXUR` (S: an
+  event at a stale state and at its flush flush to a common state), the quiescent machine `QM` and
+  `QMConv` (H: trace-equivalent events have the same quiescent-machine outcomes).
+  `conv_quiet_exact`: `FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv` (no lattice
+  hypothesis; the forward direction for every `r`: `conv_flushdet`, `conv_flushxu`, `conv_qmconv`);
+  `fair_conv_exact` (with `FairFlushR`); `flushdet_event_iff`. Each conjunct necessary:
+  `flip_conv_noflush`, `fork_conv_nodet`, `copy_conv_noxu`, `fm_conv_noqm`. Ghost-free case:
+  `noghost_flushdet`, `noghost_flushxu_iff` (`FlushXUR` is `XUcR`), `noghost_qmconv_iff` (`QMConv`
+  is `FMConv`; `noghost_qm`: the quiescent machine is the FedMachine), `quiet_conv_recovered`
+  (`quiet_conv_iff` at `r = false`), `agree_conv_noghost` (agreement is convergence plus
+  `NoGhostR`), `flush_fed_recovered` (`flush_fed_iff` at `r = false`). Sound states:
+  `sand_flushdet`, `sandr_flushdet`, `soundr_flushdet`, `soundr_conv_iff`. Instances:
+  `conv_ghost_instance` (`conv_ghost_normal` satisfies all four conjuncts and converges on the
+  quiescent machine's ghost), `ghost_conv_not_fed` (from a ghost start, `FairFlushR` and `DConvQ`
+  hold while `XUcR`, `FMConv`, `NoGhostR` and `DAgreeQ` all fail), `raise_only_conv`. Docs:
+  `coq/docs/distributed.md` (new section), a `coq/README.md` row, `REGIME-AUDIT.md` (gap 14 row,
+  section 8, the cyclic frontier, header), `docs/ROADMAP.md`, `README.md` (open-gap list), and
+  `docs/THEORY.md` (canonical execution: a canonicalizer chosen by the dynamics). Gate raised from
+  2012 to 2067.
 - `coq/LocalSigned.v` (#83): local (state-dependent) interaction graphs of Boolean resolver
   networks, every `n`, axiom-free. Local fidelity: `rrt_sub`, `local_fidelity` (Remy, Ruet and
   Thieffry 2008: no local positive cycle gives at most one fixed point), `local_fidelity_canon`

@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2012 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2012 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2067 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2067 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -135,6 +135,7 @@ is on the same page.
 | `DistributedExact.v` | Acyclic, exact: `dist_exact`, `dist_exact_local`, `dist_exact_tc`, `dist_exact_global`, `dist_global_exact_roots`, `dist_xu_c2_converge`; `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | [The exact condition](docs/distributed.md#the-distributed-model-the-exact-condition-distributedexactv) |
 | `DistributedCycles.v` | Monotone cycles: `q1_sound_iff`, `q1_unique_iff`; reset epochs `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`; under `LowR` `low_agree_iff`, `low_conv_iff`; relative to `FlushR` and `NoGhostR` `quiet_agree_iff`, `quiet_conv_iff`; the ghost `dist_cyc_ghost` | [On monotone cycles](docs/distributed.md#the-distributed-model-on-monotone-cycles-distributedcyclesv) |
 | `DistributedCyclesExact.v` | No resets, unconditional: `flush_agree_iff`, `fair_agree_iff`, `flush_fed_iff`, `fair_fed_iff`; each conjunct needed (`copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `ghost_exact`); gsm's per-target check: `lens_noreset_iff`, `lens_noreset_fair_iff` | [No-reset model, exactly](docs/distributed.md#the-no-reset-model-on-monotone-cycles-exactly-distributedcyclesexactv) |
+| `DistributedConvergenceExact.v` | No resets, convergence alone (gap 14): `conv_quiet_exact` (`FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the canonical state is where propagation settles, ghost allowed), `fair_conv_exact`; each conjunct needed (`flip_conv_noflush`, `fork_conv_nodet`, `copy_conv_noxu`, `fm_conv_noqm`); ghost-free case `quiet_conv_recovered`, `agree_conv_noghost`, `flush_fed_recovered`; `soundr_conv_iff`; `conv_ghost_instance`, `ghost_conv_not_fed` | [Convergence alone](docs/distributed.md#convergence-alone-on-monotone-cycles-distributedconvergenceexactv) |
 
 ### 9 and 10. Monotone cycles ([docs/monotone-cycles.md](docs/monotone-cycles.md))
 
@@ -231,7 +232,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2012
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2067
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

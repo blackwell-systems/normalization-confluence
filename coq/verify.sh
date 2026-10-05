@@ -2061,6 +2061,62 @@ Print Assumptions NC.LocalSigned.sd_sch_fair.
 Print Assumptions NC.LocalSigned.shih_dong_not_fair.
 Print Assumptions NC.LocalSigned.ring_local_conditions.
 Print Assumptions NC.LocalSigned.global_to_local_instance.
+Require Import NC.DistributedConvergenceExact.
+Print Assumptions NC.DistributedConvergenceExact.fa_split.
+Print Assumptions NC.DistributedConvergenceExact.flushes_quiet.
+Print Assumptions NC.DistributedConvergenceExact.flushes_qt.
+Print Assumptions NC.DistributedConvergenceExact.flushes_fst.
+Print Assumptions NC.DistributedConvergenceExact.flushes_prop.
+Print Assumptions NC.DistributedConvergenceExact.flush_ok.
+Print Assumptions NC.DistributedConvergenceExact.flush_run.
+Print Assumptions NC.DistributedConvergenceExact.flush_evs.
+Print Assumptions NC.DistributedConvergenceExact.flushR_flushes.
+Print Assumptions NC.DistributedConvergenceExact.ev_after_flush.
+Print Assumptions NC.DistributedConvergenceExact.ev_ok.
+Print Assumptions NC.DistributedConvergenceExact.ev_evs.
+Print Assumptions NC.DistributedConvergenceExact.qm_word.
+Print Assumptions NC.DistributedConvergenceExact.qm_snoc.
+Print Assumptions NC.DistributedConvergenceExact.qm_exists.
+Print Assumptions NC.DistributedConvergenceExact.qm_det.
+Print Assumptions NC.DistributedConvergenceExact.qm_track.
+Print Assumptions NC.DistributedConvergenceExact.conv_flushdet.
+Print Assumptions NC.DistributedConvergenceExact.conv_flushxu.
+Print Assumptions NC.DistributedConvergenceExact.conv_qmconv.
+Print Assumptions NC.DistributedConvergenceExact.conv_quiet_suff.
+Print Assumptions NC.DistributedConvergenceExact.conv_quiet_exact.
+Print Assumptions NC.DistributedConvergenceExact.flushdet_event_iff.
+Print Assumptions NC.DistributedConvergenceExact.noghost_flushes.
+Print Assumptions NC.DistributedConvergenceExact.noghost_flushdet.
+Print Assumptions NC.DistributedConvergenceExact.noghost_ev_flush.
+Print Assumptions NC.DistributedConvergenceExact.noghost_ev_flush2.
+Print Assumptions NC.DistributedConvergenceExact.flushR_ev2.
+Print Assumptions NC.DistributedConvergenceExact.noghost_flushxu_iff.
+Print Assumptions NC.DistributedConvergenceExact.noghost_qm.
+Print Assumptions NC.DistributedConvergenceExact.noghost_qmconv_iff.
+Print Assumptions NC.DistributedConvergenceExact.quiet_conv_recovered.
+Print Assumptions NC.DistributedConvergenceExact.agree_conv_noghost.
+Print Assumptions NC.DistributedConvergenceExact.flush_fed_recovered.
+Print Assumptions NC.DistributedConvergenceExact.sw_mono'.
+Print Assumptions NC.DistributedConvergenceExact.sw_fixed'.
+Print Assumptions NC.DistributedConvergenceExact.sw_up'.
+Print Assumptions NC.DistributedConvergenceExact.sand_flushdet.
+Print Assumptions NC.DistributedConvergenceExact.sandr_flushdet.
+Print Assumptions NC.DistributedConvergenceExact.soundr_flushdet.
+Print Assumptions NC.DistributedConvergenceExact.soundr_flushR.
+Print Assumptions NC.DistributedConvergenceExact.soundr_conv_iff.
+Print Assumptions NC.DistributedConvergenceExact.fair_conv_exact.
+Print Assumptions NC.DistributedConvergenceExact.f1_reach.
+Print Assumptions NC.DistributedConvergenceExact.f1_noflush.
+Print Assumptions NC.DistributedConvergenceExact.flip_conv_noflush.
+Print Assumptions NC.DistributedConvergenceExact.fork_conv_nodet.
+Print Assumptions NC.DistributedConvergenceExact.copy_conv_noxu.
+Print Assumptions NC.DistributedConvergenceExact.fm_conv_noqm.
+Print Assumptions NC.DistributedConvergenceExact.conv_ghost_instance.
+Print Assumptions NC.DistributedConvergenceExact.existsb_perm.
+Print Assumptions NC.DistributedConvergenceExact.x_inv.
+Print Assumptions NC.DistributedConvergenceExact.x_quiet.
+Print Assumptions NC.DistributedConvergenceExact.ghost_conv_not_fed.
+Print Assumptions NC.DistributedConvergenceExact.raise_only_conv.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2071,8 +2127,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2012 ]; then
-  echo "FAIL: expected 2012 axiom-free results, got $N"
+if [ "$N" -lt 2067 ]; then
+  echo "FAIL: expected 2067 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
