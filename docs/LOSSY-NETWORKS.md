@@ -139,6 +139,7 @@ one of them, except `CoordinatedCycles.v`, which drives in B and checks in A.
 | `Cohomology.v` | A | single cycle: section iff the loop composite has a fixed point (`has_section`, `fixed_point_iff_trivial_holonomy`, `flip_no_section`) |
 | `CohomologyGraph.v` | A (group labels) | `section_iff_coboundary`, `cycle_basis_criterion`, `sat_iff_trivial_holonomy`, `tree_has_section`, `tree_unique`, `H1_classification`, `betti_number` |
 | `CohomologyMin.v` | A | minimum coordination counts, `theta_separation` |
+| `LossyMinimum.v` | A (any maps) | minimum coordination: `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_decide`, `lmin_reduction`, `lossy_min_is_gfes` |
 | `CohomologyGeneral.v` | A (any maps) | `thm_obstruction_general`, `thm_obstruction_reachable`, `diagnose_*`, `c15_*`, `out_tree_section`, `out_tree_unique`, `rooted_criterion`, `rooted_coordination_suffices`, `c22_cycle_basis_fails`, `c13_two_ways_not_exhaustive` |
 | `Categorical.v` | B | `consistent_iff_equalizer`: `Consistent s` iff every target's shared component equals its resolver value `res s B` |
 | `FederationOrder.v` | B | `run` is a sequence of single-vertex updates `f i s (s i)` reading `src i`; `order_independent` on acyclic networks |
@@ -524,8 +525,8 @@ the existing work ("these are the tools; the conditions and theorems built with 
 
 Ranked by value to the theory and gsm per unit of difficulty.
 
-Status as of the current gate: P1 and P6 are done; P2 and P4 are open and listed in
-[REGIME-AUDIT.md](../REGIME-AUDIT.md) as gaps 3 and 11; P3 and P5 are not audit gaps (they are
+Status as of the current gate: P1 and P6 are done, and P4 is done in reading A (#70, closing
+[REGIME-AUDIT.md](../REGIME-AUDIT.md) gap 11); P2 is open and listed there as gap 3; P3 and P5 are not audit gaps (they are
 research directions, not missing exact conditions for a listed regime).
 
 ### P1. The root-set criterion, mechanized, with the hardness that makes it optimal
@@ -596,18 +597,29 @@ research directions, not missing exact conditions for a listed regime).
 
 ### P4. Minimum coordination for lossy networks
 
-- **Status: open**, REGIME-AUDIT.md gap 11 (minimum coordination on non-invertible networks;
-  `LossyHardness.v` is about existence, not this optimization).
+- **Status: done in reading A**, #70 (`LossyMinimum.v`), closing REGIME-AUDIT.md gap 11. Exact
+  characterization through the root-set criterion: a deletion set is feasible iff its residual
+  passes it (`lfeasible_iff_root_set`), and the minimum is the least such deletion
+  (`lmin_root_set`), decided on finite fibers (`lmin_decide`). Hardness: the 3-SAT network of 3.2
+  has minimum 0 iff the formula is satisfiable and 1 otherwise (`lmin_reduction`,
+  `net_lmin_dichotomy`), so even telling 0 from 1 is NP-hard and no efficient algorithm
+  approximates the minimum within any factor unless P = NP (standard argument); membership in NP
+  by a checkable certificate (`min_le_np_certificate`). On group-labeled networks it is the group
+  feedback edge set minimum (`lossy_min_is_gfes`); in general it is not cycle-based
+  (`lossy_min_exceeds_cycle_bounds`: the C22 tree has minimum 1, which every cycle-only lower
+  bound misses). The invertible plan-model form is `plan_min_exact` (`CoordinationMinimum.v`,
+  #72). Still open: the reading-B variants below (signed-cycle feedback sets), which build on
+  P2's signed-cycle machinery.
 - **Statement.** The minimum number of edges whose deletion leaves an A-section (or, in reading B,
   makes every remaining cycle non-negative so a fixed point is guaranteed, or non-positive so it is
-  unique). The audit lists the non-invertible minimum as "none known".
+  unique). Before #70 the audit listed the non-invertible minimum as "none known".
 - **Why it matters.** It is the lossy analogue of the group feedback edge set result and would give
   gsm's `CoordinationPlan` a target beyond "cut every cycle".
 - **Difficulty.** Medium to large. NP-hardness is inherited from the Z/2 case; the signed variants
   are feedback problems on signed digraphs, whose complexity has been studied (Montalva, Aracena,
   Gajardo 2008) and should be checked before claiming anything.
-- **Mechanization needs.** The `feasible` predicate of `CohomologyGeneral.v` over `msection`;
-  `rooted_coordination_suffices` already gives the upper bound.
+- **Mechanization needs.** Reading A done as above (feasibility over `msection`, deletion by
+  position). Reading B needs the signed-digraph feedback notions and the P2 machinery.
 
 ### P5. Structural tractability, stated in the theory's terms
 
