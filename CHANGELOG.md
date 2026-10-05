@@ -328,7 +328,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   `docs/COMPANION-OUTLINE.md`: status notes at the top mark their status columns as a 254-theorem
   era snapshot and point to `REGIME-AUDIT.md`; tables unchanged. `docs/SUBSUMPTION.md` and
   `coq/docs/federation-repair.md`: count 1783 to 1968.
-- Docs wave for the local interaction graphs at the 2012-theorem gate (#DOCSPR). No theorem added,
+- Docs wave for the local interaction graphs at the 2012-theorem gate (#84). No theorem added,
   removed or renamed. `REGIME-AUDIT.md`: header current at `69ef03a` and gate 2012; the
   current-state paragraph and history record #83; section 12's rootless resolver row gains the
   local certificates (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), the breaks
