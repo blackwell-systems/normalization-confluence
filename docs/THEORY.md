@@ -444,7 +444,8 @@ propagation order (`prop_minimal_qualified_iff`). Each qualifier is proved neces
   on any finite rootless network the root reappears as structure: the reached consistent state is
   unique iff (given `H^1 = 0`) every weakly connected component contains a registry no other
   registry writes, or `G` is trivial (`net_unique_iff`), and a unique normal form from every start
-  needs that registry upstream of the whole component, an authority root (`net_unique_normal_form_iff`).
+  holds iff `H^1 = 0` and that registry can be chosen upstream of the whole component, an authority
+  root, or `G` is trivial (`net_unique_normal_form_iff`).
 
 The same criterion holds on walks, with no spanning tree. In `SignedCycles.v` a walk may cross an
 edge backward with the inverse label, and a section transports along every walk
