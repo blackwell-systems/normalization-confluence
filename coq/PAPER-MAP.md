@@ -1,9 +1,10 @@
 # Paper-to-Coq map (ROADMAP item 7)
 
-> **Status note.** The status columns below were written at the 254-theorem gate and predate later
-> merges (work packages WP1 to WP9 and the exactness work after them). The tables are kept as
-> written. For current status, regime by regime, see [REGIME-AUDIT.md](../REGIME-AUDIT.md); for the
-> modules and their headline theorems, the [module index](README.md#modules-by-regime).
+> **Status note.** The status columns below are a historical snapshot from the 254-theorem gate
+> and predate later merges (work packages WP1 to WP9 and the exactness work after them; the gate is
+> now 1968). Many rows marked NOT or PARTIAL are mechanized now. The tables are kept as written.
+> [REGIME-AUDIT.md](../REGIME-AUDIT.md) is the current status, regime by regime; for the modules
+> and their headline theorems, see the [module index](README.md#modules-by-regime).
 
 An exact map from every numbered result in the three papers to the Coq development, written as the
 first step of ROADMAP item 7 ("every result in the papers is mechanized"). Audited against `main`

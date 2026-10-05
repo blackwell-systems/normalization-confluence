@@ -196,9 +196,13 @@ the federated cohomological obstruction; and minimal coordination, where a cycle
 and the exact minimum is a group feedback edge set number. The base theorem, the CRDT subsumption, the
 limit and compositionality core, the cohomological criterion in the invertible fragment, the exact
 converses (CC, causal delivery, and C1/C2 for event interleavings), at-least-once delivery, and the
-soundness of coordinating non-monotone cycles from an authority root are mechanized end to end; the
-paper's necessity counterexamples for acyclicity and M1, the calculus beyond footprint disjointness,
-and the minimal-coordination complexity are paper-level.
+soundness of coordinating non-monotone cycles from an authority root are mechanized end to end. So
+are the paper's necessity counterexamples for acyclicity and M1 (`prop_cycle_necessary`,
+`prop_m1_necessary`), the calculus beyond footprint disjointness (`base_thm_strong_absorption`,
+`calc_decomp_normalizer`, `base_thm_product`), and minimum coordination with its hardness
+reductions (`plan_min_exact`, `maxcut_reduction`; `lmin_root_set`, `lmin_reduction`). Cited, not
+mechanized: the NP-completeness of 3-SAT and Max-Cut, and the fixed-parameter and planar results
+for group feedback edge sets.
 
 ## Related work for the cohomological layer
 
@@ -216,7 +220,12 @@ work uses the same mathematics or studies related objects.
   Theory Ser. B* 47(1), 1989, 32-52, Lemma 5.3) shows that a gain graph is balanced (every cycle has
   identity gain) iff it is switching-equivalent to the all-identity labeling. The `Z/2` case is
   Harary's balance of signed graphs ("On the notion of balance of a signed graph," *Michigan Math.
-  J.* 2(2), 1953, 143-146).
+  J.* 2(2), 1953, 143-146). Both are now mechanized here in closed-walk form, not only cited:
+  Harary's theorem for every finite signed graph, parallel edges and self-loops allowed
+  (`harary_balance`: a switching to all-positive exists iff no closed walk carries an odd number
+  of negative edges), and the gain-graph criterion for any group under the regular action, on any
+  finite edge list with no spanning-tree premise (`holonomy_free_section`,
+  `invertible_merge_is_holonomy`). The classical form with simple cycles is not mechanized.
 
 - **Cohomology of global-section obstructions.** Abramsky and Brandenburger ("The sheaf-theoretic
   structure of non-locality and contextuality," *New J. Phys.* 13, 113036, 2011) characterize
@@ -257,12 +266,15 @@ work uses the same mathematics or studies related objects.
   proves that `π_1` of a finite connected graph is free of rank `|E| + 1 - |V|`. A search of mathlib,
   the Rocq graph-theory library (Doczkal and Pous) and the HoTT library found no formalization of
   the gain-graph balance criterion or of `H^1` as tuples of fundamental holonomies modulo
-  simultaneous conjugation (a search result, not a proof of absence).
+  simultaneous conjugation (a search result, not a proof of absence). This repository now
+  mechanizes both: `H1_classification` and, for balance, `harary_balance` and
+  `holonomy_free_section`.
 
 **What the cohomological layer contributes.** The topology underneath is classical and credited as
 such: `π_1` of a connected graph is free of rank `|E| - |V| + 1` (Hatcher), and a group-labeled graph
 is balanced, switching-equivalent to the identity labeling, iff every cycle has trivial holonomy
-(Harary for `Z/2`; Zaslavsky for an arbitrary gain group). On that base, this work contributes the
+(Harary for `Z/2`; Zaslavsky for an arbitrary gain group; both proved here in closed-walk form,
+`harary_balance`, `holonomy_free_section`). On that base, this work contributes the
 following. Labels refer to the companion paper,
 [`categorical_structure_of_federated_convergence.tex`](../categorical_structure_of_federated_convergence.tex).
 
@@ -276,8 +288,9 @@ following. Labels refer to the companion paper,
    witness when it does not (`thm:obstruction`). gsm implements it as `Federation.DiagnoseCycle`.
 3. **Minimal coordination.** In the invertible fragment, coordinating a cycle basis suffices for a
    convergent implementation that stays coordination-free everywhere else (`prop:minimal`), and the
-   exact minimum is the group feedback edge set number of the holonomy-labeled nerve (its complexity
-   results are cited from the literature). The companion paper reports finding no prior work that
+   exact minimum is the group feedback edge set number of the holonomy-labeled nerve, which the best
+   coordination plan attains (`plan_min_exact`); NP-hardness is a mechanized reduction from Max-Cut
+   (`maxcut_reduction`), and the fixed-parameter and planar results are cited. The companion paper reports finding no prior work that
    localizes the coordination requirement to a cycle basis. Soundness of the holonomy-minimal plan
    (drive along a spanning tree from an authority root, keep balanced non-tree edges as checks,
    coordinate the unbalanced ones) is mechanized: a unique normal form given the root
@@ -293,11 +306,117 @@ following. Labels refer to the companion paper,
 
 These results sit on a convergence framework whose extracted, axiom-free checker re-certifies, in
 process, every registry machine gsm returns (from `Build`, `SynthesizeWith`, and `BuildCompositional`
-per footprint component; a federation's components are each built by `Build`). Scope: the cohomological classification is for the invertible
-fragment. At the paper level are `prop:gluing` itself and the sheaf assembly over the full cover,
-the rank on the nerve as a 2-complex (the triangle relations), the non-invertible case (where
-`thm:obstruction` is a fixed-point condition rather than group cohomology), and the cited
-complexity results.
+per footprint component; a federation's components are each built by `Build`). Scope: the
+cohomological classification is for the invertible fragment. Since mechanized: sheaf gluing on the
+registry-level site (`sheaf_iff_refines`, `cert_sheaf`), `H^1` on the nerve as a 2-complex with the
+triangle relations (`nerve_H1_classification`, `nerve_H1_Z2_count`), and the non-invertible case,
+where `thm:obstruction` is a fixed-point condition rather than group cohomology
+(`thm_obstruction_general`, `root_set_criterion_graph`). Still at the paper level: `prop:gluing` on
+the companion paper's variable-level and monotone-overlap site. Cited: the complexity results for
+group feedback edge sets.
+
+## Related work for canonical execution
+
+The canonical-execution framework ([THEORY.md](THEORY.md#canonical-execution)) splits canonicity
+into E (effective canonicalization), S (state descent), H (history descent) and P (composition).
+Each layer has a classical ancestor.
+
+- **Newman's lemma, localized.** Newman ("On theories with a combinatorial definition of
+  'equivalence'," *Ann. of Math.* 43(2), 1942, 223-243) proves that a terminating, locally
+  confluent relation is confluent; Huet ("Confluent reductions: abstract properties and
+  applications to term rewriting systems," *J. ACM* 27(4), 1980, 797-821) gives the abstract proof
+  by well-founded induction and the critical-pair analysis. The framework's peak layer is that
+  lemma localized to the configurations reachable from a start (`peak_exact`), and its split of
+  peaks into state peaks and history peaks (`classified_peak_exact`) is a classification of
+  critical pairs.
+- **Rewriting modulo an equivalence (Church-Rosser modulo).** Huet (ibid.) also proves
+  Church-Rosser theorems modulo an equivalence relation, and Peterson and Stickel ("Complete sets
+  of reductions for some equational theories," *J. ACM* 28(2), 1981, 233-264) and Jouannaud and
+  Kirchner ("Completion of a set of rules modulo a set of equations," *SIAM J. Comput.* 15, 1986,
+  1155-1194) build completion modulo equations on it. History descent has the same shape: the
+  canonical semantics must be constant on equivalence classes of executions, and under
+  presentation adequacy it is checked one generator edge at a time (`history_descent_exact`), as
+  Church-Rosser modulo is checked through local coherence with the equivalence.
+- **Trace theory.** Cartier and Foata (*Problèmes combinatoires de commutation et
+  réarrangements*, Lecture Notes in Mathematics 85, Springer, 1969) introduce partially commutative
+  monoids; Mazurkiewicz ("Concurrent program schemes and their interpretations," DAIMI PB-78,
+  Aarhus University, 1977) reads them as concurrent executions; Diekert and Rozenberg (eds., *The
+  Book of Traces*, World Scientific, 1995) is the standard reference. Under causal delivery the
+  framework's history generators are adjacent swaps of concurrent events, so the history quotient
+  is a trace monoid (`run_tequiv`, `causal_tequiv`). The at-least-once instance adds a duplicate
+  generator at its legal landing point, which leaves the trace setting.
+- **Quotient monoid actions.** A monoid action factors through the quotient by a congruence
+  exactly when it is constant on the congruence classes, and for a congruence generated by a
+  relation it suffices to check the generating pairs (standard semigroup theory; Howie,
+  *Fundamentals of Semigroup Theory*, London Mathematical Society Monographs, New Series 12,
+  Oxford University Press, 1995). History descent under presentation adequacy is this fact for
+  the run semantics, restricted to admissible executions; state descent
+  (`state_descent_iff_respects_canon`) is the same fact one level down, for the kernel of the
+  canonicalizer on states.
+- **Descent.** Grothendieck's descent asks when local data, with gluing data, come from global
+  data; Janelidze and Tholen ("Facets of descent, I," *Appl. Categ. Structures* 2, 1994, 245-281)
+  give an elementary account. The framework uses the word in a weaker sense: state and history
+  descent say that canonical outcomes descend along quotient maps (a raw state to its canonical
+  form, an execution to its class), and state gluing (`sheaf_iff_refines`) is descent of objects
+  along a cover. Reading interaction locality as descent of morphisms is an observation in
+  THEORY.md, not a formalized descent theorem.
+
+**What is new.** Not the ingredients. New: the E/S/H/P decomposition as one exact statement for
+single systems (`canonical_execution_exact`, `esh_exact`); presentation adequacy as the named
+hypothesis that makes history descent checkable per generator (`history_descent_exact`); and
+locality completeness (`LC`) as the named hypothesis under which composition is exact
+(`factor_exact`, each premise shown needed by `factor_needs_sound`, `factor_needs_exposed` and
+`factor_needs_realizable`). The validation is that six existing exact results are rederived
+through it as short corollaries (THEORY.md, "Evidence"), and that it locates the open problems:
+locality fails on cycles (`cyclic_lc_sound_fails`), which is the cyclic frontier of
+[REGIME-AUDIT.md](../REGIME-AUDIT.md#the-cyclic-frontier). It has not yet produced a new exact
+result for an unstudied regime.
+
+## Related work for signed cycles
+
+`SignedCycles.v` and `SignedResolver.v` take the signed-graph view of rootless networks: the
+constraint reading (sections, reading A) through balance, and the resolver reading (dynamics,
+reading B) through Thomas-type conditions. The research note
+[LOSSY-NETWORKS.md](LOSSY-NETWORKS.md) has the full survey with theorem numbers.
+
+- **Balance and gain graphs.** Harary (1953) and Zaslavsky (1989), above. Proved here for finite
+  signed graphs and, under the regular action, for any group, in closed-walk form (`harary_balance`,
+  `holonomy_free_section`, `invertible_merge_is_holonomy`).
+- **Thomas's rules.** Thomas ("On the relation between the logical structure of systems and their
+  ability to generate multiple steady states or sustained oscillations," in *Numerical Methods in
+  the Study of Critical Phenomena*, Springer Series in Synergetics 9, 1981, 180-193) proposed that
+  a positive circuit is necessary for several steady states and a negative circuit for sustained
+  oscillations. Proofs: Remy, Ruet and Thieffry ("Graphic requirements for multistability and
+  attractive cycles in a Boolean dynamical framework," *Adv. in Appl. Math.* 41(3), 2008, 335-350)
+  for Boolean networks with local interaction graphs; Richard and Comet ("Necessary conditions for
+  multistationarity in discrete dynamical systems," *Discrete Appl. Math.* 155(18), 2007,
+  2403-2413) for the multivalued first rule; Richard ("Negative circuits and sustained oscillations
+  in asynchronous automata networks," *Adv. in Appl. Math.* 44(4), 2010, 378-392) for the
+  multivalued second rule, with the corollary that no negative circuit gives a fixed point; and
+  Aracena ("Maximum number of fixed points in regulatory Boolean networks," *Bull. Math. Biol.*
+  70(5), 2008, 1398-1409) for a bound on the number of fixed points by the fewest vertices meeting
+  every positive cycle. The local negative-circuit form of the fixed-point statement holds under
+  extra hypotheses (Richard, "Local negative circuits and fixed points in non-expansive Boolean
+  networks," *Discrete Appl. Math.* 159(11), 2011, 1085-1093) and fails in general: Ruet
+  ("Negative local feedbacks in Boolean networks," *Discrete Appl. Math.* 221, 2017, 1-17) gives
+  and-nets without local negative cycles and without fixed points.
+- **Robert's theorem.** Robert (*Discrete Iterations: A Metric Study*, Springer Series in
+  Computational Mathematics 6, 1986): an acyclic interaction graph gives a unique fixed point,
+  reached by iteration. In the federation model this is acyclic convergence (`frun_solves`,
+  `solve_unique`, `order_independent`).
+
+**What is new.** Not balance, the Thomas-type necessary conditions or Robert's theorem. New, and
+mechanized: sufficient signed certificates for effective canonicalization (E) of rootless resolver
+networks, on the global interaction graph: with a switching, every fair schedule from a low start
+settles at the switched least fixed point (`signed_settlement`), and with at most one fixed point
+it does so from every start (`signed_fidelity`), each hypothesis shown needed by a counterexample;
+the global-sign collapse, that on a balanced graph Thomas's sign condition for uniqueness (no
+positive directed cycle) leaves no directed cycle at all (`balanced_no_positive_acyclic`), so the
+sign route to uniqueness reduces there to Robert's acyclic case; and the loop-versus-merge
+separation (`obstruction_loop_vs_merge`): invertible obstructions are always loops, while a lossy
+obstruction can be a merge on a tree with no loop at all. Not claimed: an exact condition, or the
+local (state-dependent) interaction graph version, where Ruet's counterexample applies; that is
+open (REGIME-AUDIT gap 3).
 
 ## The ideas it connects (and makes rigorous)
 
