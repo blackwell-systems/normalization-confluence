@@ -214,6 +214,12 @@ all: RootSet.vo
 RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
 	coqc -Q . NC RootSet.v
 
+# The 3-SAT reduction for lossy networks: correctness, parsimony and size (LossyHardness.v).
+all: LossyHardness.vo
+
+LossyHardness.vo: LossyHardness.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo
+	coqc -Q . NC LossyHardness.v
+
 # The exact event-order condition under root-set coordination (RootSetEvents.v).
 all: RootSetEvents.vo
 
