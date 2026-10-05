@@ -1021,6 +1021,54 @@ Print Assumptions NC.RootSet.scc_forest.
 Print Assumptions NC.RootSet.scc_component.
 Print Assumptions NC.RootSet.scc_consistent_roots.
 Print Assumptions NC.RootSet.scc_unique_section.
+Require NC.CvRDTExact.
+Print Assumptions NC.CvRDTExact.cf_cc_exact_from.
+Print Assumptions NC.CvRDTExact.cf_cc_exact_from_wfc.
+Print Assumptions NC.CvRDTExact.cf_reach_iff.
+Print Assumptions NC.CvRDTExact.cf_un_perm.
+Print Assumptions NC.CvRDTExact.mergeconv_alo.
+Print Assumptions NC.CvRDTExact.merge_conv_alo_exact.
+Print Assumptions NC.CvRDTExact.merge_action_exact.
+Print Assumptions NC.CvRDTExact.cvrdt_on_conv.
+Print Assumptions NC.CvRDTExact.cvrdt_on_inflationary.
+Print Assumptions NC.CvRDTExact.conv_cvrdt_on.
+Print Assumptions NC.CvRDTExact.cvrdt_on_exact.
+Print Assumptions NC.CvRDTExact.cvrdt_exact_all.
+Print Assumptions NC.CvRDTExact.cvrdt_action.
+Print Assumptions NC.CvRDTExact.cvrdt_merge_conv.
+Print Assumptions NC.CvRDTExact.cvrdt_alo.
+Print Assumptions NC.CvRDTExact.cvrdt_cc.
+Print Assumptions NC.CvRDTExact.cvrdt_unique_normal_forms.
+Print Assumptions NC.CvRDTExact.cvrdt_SEC_via_cc.
+Print Assumptions NC.CvRDTExact.cvrdt_set_SEC.
+Print Assumptions NC.CvRDTExact.cvrdt_SEC_recovered.
+Print Assumptions NC.CvRDTExact.cvrdt_absorbs_duplicates_recovered.
+Print Assumptions NC.CvRDTExact.merge_inflationary.
+Print Assumptions NC.CvRDTExact.merge_monotone.
+Print Assumptions NC.CvRDTExact.run_upper.
+Print Assumptions NC.CvRDTExact.run_least.
+Print Assumptions NC.CvRDTExact.cvrdt_lfp.
+Print Assumptions NC.CvRDTExact.cvrdt_on_join.
+Print Assumptions NC.CvRDTExact.cvrdt_causal_cmrdt.
+Print Assumptions NC.CvRDTExact.cvrdt_compensation_free.
+Print Assumptions NC.CvRDTExact.ignore_conv.
+Print Assumptions NC.CvRDTExact.ignore_not_comm.
+Print Assumptions NC.CvRDTExact.ignore_cvrdt_on.
+Print Assumptions NC.CvRDTExact.zero_conv.
+Print Assumptions NC.CvRDTExact.zero_not_idem.
+Print Assumptions NC.CvRDTExact.naive_cvrdt_iff_fails.
+Print Assumptions NC.CvRDTExact.clamp_reach_qualifier.
+Print Assumptions NC.CvRDTExact.add_cc_not_alo.
+Print Assumptions NC.CvRDTExact.lww_not_conv.
+Print Assumptions NC.CvRDTExact.cvrdt_all.
+Print Assumptions NC.CvRDTExact.maxreg_exact.
+Print Assumptions NC.CvRDTExact.gcounter_exact.
+Print Assumptions NC.CvRDTExact.gset_exact.
+Print Assumptions NC.CvRDTExact.clamp_cvrdt_on.
+Print Assumptions NC.CvRDTExact.cf_star_run.
+Print Assumptions NC.CvRDTExact.maxreg_dup.
+Print Assumptions NC.CvRDTExact.gcounter_dup.
+Print Assumptions NC.CvRDTExact.gset_dup.
 Require NC.LossyHardness.
 Print Assumptions NC.LossyHardness.sat_check_spec.
 Print Assumptions NC.LossyHardness.satisfies_ext.
@@ -1196,8 +1244,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1151 ]; then
-  echo "FAIL: expected 1151 axiom-free results, got $N"
+if [ "$N" -lt 1198 ]; then
+  echo "FAIL: expected 1198 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
