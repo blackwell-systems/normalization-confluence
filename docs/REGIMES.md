@@ -3,7 +3,11 @@
 The papers prove convergence under several different conditions, tuned to the shape of your
 network and the nature of your repair. This page is the practitioner's map: find your situation,
 read off whether it converges and why. It is a companion to the papers, not a replacement; each
-row points at the theorem that proves it.
+row points at the theorem that proves it. Where an original paper statement was corrected, this
+guide follows the mechanized theorem; each paper's version 2 lists the corrections in its appendix
+"Errata and corrections" ([base](../normalization_confluence_2026.pdf),
+[federation](../normalization_confluence_in_federated_registry_networks.pdf),
+[categorical](../categorical_structure_of_federated_convergence.pdf)).
 
 Role of this page: how to pick a regime as a user. What is proved in each regime (an exact
 condition, a hardness result or an open gap, each with its Coq theorem) is
@@ -12,31 +16,76 @@ condition, a hardness result or an open gap, each with its Coq theorem) is
 
 ## The one-sentence idea
 
-A set of operations converges (every processor that sees the same events reaches the same valid
-state, regardless of order) when disagreement is *prevented*. There are three ways to prevent
-it, from most to least restrictive:
+A governed system **converges** when every processor that sees the same events reaches the same
+valid state under every admissible delivery order: any order for free delivery, causally
+consistent orders under causal delivery, orders that fire events only at valid states in the
+guarded model. Tolerating duplicate deliveries is a separate property (at-least-once delivery,
+below), not part of this definition.
 
-```
-  operation commutativity      invariant confluence          normalization confluence
-  (CRDTs)                       (I-confluence)                (this work)
-  operations commute            all orderings preserve         operations may VIOLATE
-  for all states                invariants; no repair          invariants; COMPENSATION
-                                 ever needed                    repairs, and repaired
-                                                                results converge
-  strongest requirement  ----------------------------------->  weakest requirement
-```
-
-Normalization confluence is the widest of the three: it *allows* operations that individually
-break invariants, and asks only that (a) compensation always terminates (WFC) and (b) the
+Normalization confluence reaches that state **through repair**: it allows operations that
+individually break invariants, and asks that (a) compensation always terminates (WFC) and (b) the
 *repaired* results are order-independent (CC). CRDTs are the special case where no repair is ever
-needed.
+needed (see the CRDT paragraph under "Why the boundaries are where they are").
 
-## Single registry
+**Related regimes.** CRDT conditions characterize replica convergence under particular state- or
+operation-delivery models: for op-based CRDTs (CmRDTs), concurrent operations commute under causal
+delivery; for state-based CRDTs (CvRDTs), states form a monotone semilattice and merge is the least
+upper bound. Invariant confluence (I-confluence; Bailis et al., arXiv 1402.2237) characterizes when
+application invariants are preserved under coordination-free merging of independently reached
+valid states. Normalization confluence is about convergence through repair. The three are related,
+not points on one ordered axis; the precise relationship (the compensation-free fragment) is
+stated in [SUBSUMPTION.md](SUBSUMPTION.md).
+
+## The main map: execution semantics first, topology second
+
+Which condition applies depends first on **how events execute** (one registry or many; free or
+causal delivery; events fired only at valid states or at any time; repair to a fixed point on a
+cycle) and only then on the network's **topology**. "Exact" is a mechanized iff; "sufficient" is
+the cheap condition, usually what gsm checks.
+
+| Execution semantics | Topology | Exact condition | Sufficient (and gsm) | Refutations and qualifiers |
+|---|---|---|---|---|
+| **Single registry, free delivery** | one registry | With canonical repair (`rho_star` returns a valid state): CC1 and CC2 at the states reachable from `s0` (`cc_exact_from`); for causal or guarded enabledness that persists under compensation, joinability of critical pairs at reachable configurations, JC (`jc_exact`) | Static WFC plus CC at every state: `governance_unique_normal_forms` (the Convergence Theorem, `cor:unique-nf`); gsm's `Registry.Build` | Canonical repair is needed (`rho_star_qualifier`); CC1 is not necessary under guarded enabledness (`masked_cc1`) |
+| **Single registry, causal delivery** | one registry | CCR: concurrent pairs commute after every causally consistent prefix (`causal_exact`); globally, for every start: concurrent pairs commute at every state, with irreflexive happens-before (`causal_convergence_exact`) | WFC, CC2, and CC1 only for concurrent pairs: `causal_governance_confluent`, `causal_convergence`; gsm's declared `Independent` pairs | Reachability of the state is not enough (`naive_causal_converse_fails`) |
+| **Federation, repair normal form** (no events) | acyclic: trees (one incoming morphism per registry, M1) and resolved multi-source networks (R1, R2); a tree is the single-source special case of a resolved acyclic network | Unconditional inside the regime: unique repair normal form, reached in every order (`frun_solves`, `solve_unique`, `order_independent`, `fed_lem_resolved_termination`) | M1 per morphism; R1 (source determinacy) and R2 (validity preservation) per resolver; gsm's `Federation` (`verifyEdge`, `verifyResolved`) | Each hypothesis is needed: `prop_cycle_necessary` (acyclicity), `prop_m1_necessary`, `r1_necessary`, `r2_necessary` |
+| **Federation, FedMachine (guarded) execution**: events fire only at federally valid states | acyclic (trees as the single-source case) | C1 and C2 at reachable witnesses (`C1R1`, `C2R`): `fed_thm_fed_convergence_exact` (trees), `fed_thm_resolved_convergence_exact` (resolved networks); `fed_exact` | Static C1 and C2: `static_c1_c2_gc`; gsm's cross-order check (C1) and repaired-CC check (C2) | Static C1 is not necessary (`naive_converse_fails`) |
+| **Federation, unrestricted rewrite system**: events may fire before compensation finishes | acyclic | CC1 and CC2 of the governed steps at reachable states: `fed_grs_exact` (first clause of `fed_thm_fed_convergence_exact`); no per-edge form | XU: `fed_thm_fed_convergence_corrected`, `fed_thm_resolved_convergence_corrected` | The paper's original statements, with component CC and M1 only, are false (`fed_thm_fed_convergence_refuted`, `fed_thm_resolved_convergence_refuted`); C1 and C2 do not suffice here (`fed_grs_c1_c2_insufficient`). gsm runs the guarded model and has no XU check for it |
+| **Cyclic repair network**: repair iterated to a common fixed point | any topology, cycles included; repair **monotone** on a lattice | A valid least fixed point: valid **iff** some Kleene iterate is valid (`lfp_valid_iff_reached`; under ACC `lfp_valid_exact`; gsm's normalizer `Ncyc_valid_exact`). Reaching it: at a finite stage **iff** the Kleene chain is eventually constant (`kleene_reach_exact`); chaotic schedules iff Kleene does (`chaotic_reach_exact`) | Bottom validity (`net_lfp_valid`); ACC or finite height (`kleene_reach_of_acc`, `kleene_reach_of_finite_height`), or continuity at the Kleene chain (`kleene_sup_lfp`); gsm's image-validity check (`gsm_check_Ncyc_valid`); every repair schedule reaches the same fixed point (`cyc_N_lfp`, `chaotic_reaches_lfp`) | Without bottom validity the least fixed point can be reached and invalid (`fed_thm_monotone_cycles_lfp_invalid`); without continuity the supremum formula fails (`fed_thm_monotone_cycles_kleene_formula_fails`); bottom validity and ACC are not necessary (`bottom_validity_not_necessary`, `acc_not_necessary`), nor is gsm's check (`gsm_check_not_necessary`) |
+| **Cyclic event execution**: events interleave with repair to the fixed point | monotone cycles | GC: independent governed steps commute at every reachable federated state (`gc_iff`, `net_events_converge_iff`, `cyc_events_converge_iff`) | gsm's per-target C1cyc and C2cyc over image sets: `cyc_check_gc`, `cyc_check_gc_lfp`; multi-edge and resolver targets through the joint image (`multi_edge_c1`, `resolver_joint_c1`) | Monotone repair with a valid least fixed point does not give event-order convergence (`fed_thm_monotone_cycles_events_refuted`); GC has no per-edge reduction |
+| **Collapsed sub-federation**: a convex block `J` replaced by one effective registry | acyclic, convex `J` | Collapse preserves semantics; it does not manufacture convergence. Every run of the collapsed network equals the same run of the original (`collapse_c_runs_agree`), so one converges **iff** the other does (`collapse_c_traceconv`), exactly when C1 and C2 hold at reachable witnesses (`collapse_c_exact`); the effective registry's guarded CC: `collapse_a_guarded_exact` | Modular route: C1 and C2 on `J`'s events and on the rest (`collapse_modular_converges`); gsm's `Federation.Embed` and certificates | CC is not inherited by the effective registry (`collapse_a_refuted`). All in `Collapse.v`; cyclic monotone blocks are paper only |
+
+### Monotone cycles: three separate questions
+
+The monotone rows above answer three different questions, and each has its own condition.
+
+1. **Does a valid least fixed point exist?** On a lattice with ACC the least fixed point of the
+   federated repair operator exists; it is federally valid if every component is valid with bottom
+   shared values and the resolvers preserve validity (`net_lfp_valid`), and exactly when some Kleene iterate is valid (`lfp_valid_iff_reached`,
+   `coq/MonotoneExact.v`). Without bottom validity it can be invalid even though a valid fixed point
+   exists (`fed_thm_monotone_cycles_lfp_invalid`).
+2. **Does iteration reach it?** Kleene iteration reaches it at a finite stage **iff** the Kleene
+   chain is eventually constant (`kleene_reach_exact`); ACC or finite height suffice
+   (`kleene_reach_of_acc`, `kleene_reach_of_finite_height`) and are not necessary
+   (`acc_not_necessary`); on a complete lattice without ACC, continuity at the chain gives the
+   supremum formula (`kleene_sup_lfp`), which fails without it
+   (`fed_thm_monotone_cycles_kleene_formula_fails`). When it is reached, **every repair schedule
+   reaches the same one** (`cyc_N_lfp`, `cyc_sweep_order_independent`, `chaotic_reaches_lfp`). This
+   is a statement about the order of repair steps, not about the order of events.
+3. **Do event interleavings converge?** Exactly under GC (`gc_iff`), for which gsm's per-target
+   checks suffice (`cyc_check_gc_lfp`). Questions 1 and 2 do not imply it
+   (`fed_thm_monotone_cycles_events_refuted`).
+
+The constructive finite-lattice core is mechanized in `coq/Federation.v` (axiom-free), and
+`coq/ChaoticACC.v` extends it to lattices with no infinite ascending chain (ACC). gsm's
+image-validity check is proved sound (`gsm_check_Ncyc_valid`) but is not necessary
+(`gsm_check_not_necessary`). On a complete lattice without ACC, existence of the least fixed point
+is classical Knaster-Tarski, outside the axiom-free gate; this is a design exclusion, and gsm's
+finite domains satisfy ACC.
+
+## Single registry: other delivery models
 
 | You have | You need | Converges? | Proof |
 |---|---|---|---|
-| One registry | **WFC** (repair terminates) + **CC** (repaired results are order-independent) | **Yes**, unique normal form | Convergence Theorem (`cor:unique-nf`) |
-| One registry, **causal delivery** (an event is applied only after the events it depends on) | **WFC** + **CC2** + **CC1 only for concurrent pairs** (distinct events enabled together); causally ordered pairs need not commute | **Yes**, unique normal form | `causal_governance_confluent`, `causal_convergence` |
 | One registry, **at-least-once delivery** (duplicates) | exactly-once commutation at reachable states + each event idempotent at every reachable state where it is first delivered (under causal delivery: CCR + the same per event, with causally consistent redelivery) | **Yes, if and only if**, same state as exactly-once | `alo_exact`, `causal_alo_exact_idem`; sufficient forms `alo_commuting_converges`, `causal_alo_converges` |
 | One registry, a duplicated **non-idempotent** event | | **No** (diverges) when the failure is at a reachable state; an event needs deduplication iff its duplicate is not absorbed (`safe_free_exact`) | `non_idempotent_diverges`, `notidem_needs_dedup`, `late_duplicate_diverges` |
 | One registry, **guarded enabledness that a compensation step can disable** (a buffered event stops being enabled after repair) | termination from the start + **JC'**: JC's event/event clause, and for each event enabled at an invalid state, repairing after it joins with repairing first; JC alone is neither sufficient nor necessary here | **Yes, if and only if**; normal forms may leave disabled events in the buffer | `jcg_exact`, `jcsplit_exact`, `gnf_iff`; `dc_jc_insufficient`, `nv_jc_not_necessary` (`EnabledAfterComp.v`) |
@@ -45,7 +94,7 @@ needed.
 
 WFC = every compensation chain is finite. CC = two independent events, each followed by repair,
 commute (CC1), and repairing before vs after an event gives the same result (CC2). This is the
-core theorem; everything below reduces to it. Mechanized in `coq/Governance.v` (axiom-free), and
+core theorem for a single registry. Mechanized in `coq/Governance.v` (axiom-free), and
 in `coq/GovernanceWF.v` with the WFC potential in any well-founded order (ordinals, lexicographic
 products), not only the natural numbers, so the state space need not be finite.
 
@@ -87,17 +136,14 @@ trace-equivalent under concurrency, and `Trace.v`'s `run_tequiv` shows trace-equ
 reach the same state. So when the declared-independent pairs cover the concurrent ones, gsm's check
 of only those pairs is the causal-delivery form of CC1. All axiom-free.
 
-## Networks of registries (federation)
+## Networks: coordination, lossy transports and distributed deployments
 
-Registries are connected by **morphisms** (directed constraints: a source fixes part of a
-target). Whether the network converges depends on its **topology** and on whether repair is
-**monotone**.
+The main map covers acyclic federations, monotone cycles and collapse. The rows below cover
+non-monotone cycles (with and without coordination), lossy transports, and deployments in which
+propagation runs as separate steps.
 
 | Topology | Repair | You need | Converges? | Proof |
 |---|---|---|---|---|
-| **Tree** (each registry has at most one incoming morphism) | any (may be non-monotone) | morphism **validity preservation** (M1); everything else is *derived* from acyclicity | **Yes**, unique repair normal form; every event order converges **iff** C1 and C2 hold at reachable witnesses (guarded model) | `frun_solves`, `solve_unique`, `order_independent`; `fed_exact`, `fed_thm_fed_convergence_exact` |
-| **Acyclic, multi-source** (a target merges several sources via a resolver) | any | resolver **source determinacy** (R1) + **validity preservation** (R2) | **Yes**, unique repair normal form; event order as for trees | `fed_lem_resolved_termination`; `fed_thm_resolved_convergence_exact` |
-| **Any topology, including cycles** | **monotone** on an ordered (lattice) shared domain with ACC (finite lattices qualify) | monotone morphisms/resolvers; the least fixed point is valid **iff** some Kleene iterate is valid (sufficient: valid at bottom, or gsm's image-validity check) | **Yes**, to the least fixed point; every event order converges **iff** GC (per-target C1 and C2 over images suffice) | `cyc_N_lfp`, `chaotic_reaches_lfp`, `lfp_valid_iff_reached`, `gsm_check_Ncyc_valid`; `gc_iff`, `cyc_check_gc_lfp` |
 | **Single cycle**, invertible transports, coherently oriented | **non-monotone**, coordination-free, no authority root | a consistent state exists **iff** the holonomy is trivial | Unique **iff** the group is trivial; otherwise there is no unique normal form (two orders reach different consistent states, or none exists) | `rootless_nf_exists_iff`, `rootless_unique_normal_form_iff` (`RootlessCycles.v`) |
 | **Cyclic**, any other network without a root | **non-monotone**, coordination-free | no exact condition yet (open; see `REGIME-AUDIT.md`) | **May diverge** | counterexample `prop_cycle_necessary`; a consistent state can still exist (`c13_two_ways_not_exhaustive`) |
 | **Cyclic**, invertible transports | **non-monotone**, with a computed coordination | values driven along a spanning tree from an **authority root**; balanced non-tree edges kept as checked constraints; unbalanced edges coordinated | **Yes**, unique **given the root**; event order converges **iff** independent root events commute at the reachable root values | `coordinated_sound`, `coordinated_unique_nf` (`CoordinatedCycles.v`); `coordinated_events_exact` (`CoordinatedExact.v`) |
@@ -105,30 +151,22 @@ target). Whether the network converges depends on its **topology** and on whethe
 | **Any graph**, non-invertible transports, **event order** under root-set coordination | values driven along an outward spanning forest from the root set | for each root, its independent events commute at every value reachable from its start value by its own events | **Yes, if and only if**: one condition per root, roots never interact | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global` (`RootSetEvents.v`) |
 | **Acyclic**, **distributed** deployment (local events and propagation steps interleave; a target may read stale sources) | any | XU at every reachable stale combination plus C2 at reachable states (equivalently, plus FedMachine convergence); static XU plus C2 suffices, and is exact for every valid start when every target's sources are roots | **Yes, if and only if**, after the final flush; strictly weaker than XU, strictly stronger than FedMachine convergence | `dist_exact`, `dist_exact_tc`, `dist_exact_global`, `dist_global_exact_roots`, `dist_xu_c2_converge`; `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` (`DistributedExact.v`) |
 | **Monotone cycles**, **distributed**, with **reset epochs** (a barrier resets every shared value to bottom, then propagation to quiescence) | monotone | each event's local outcome is the same at every reachable stale state as at its flushed form (`XUcR`), plus FedMachine convergence; gsm's per-target C1cyc and C2cyc over a set covering the reachable shared values suffice | **Yes, if and only if**, after a final epoch; the reset must be a barrier (a staggered reset re-creates a ghost) | `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `dist_cyc_epoch_fix` (`DistributedCycles.v`) |
-| **Monotone cycles**, **distributed**, **no resets** | monotone | under `LowR` (every reachable state at or below the least fixed point of its locals; inflationary events from such a start give it): `XUcR` plus FedMachine convergence. Without `LowR`: the same plus `NoGhostR`, assuming every reachable state can be flushed (`FlushR`) | **Yes, if and only if** under `LowR`; otherwise exact only relative to `FlushR` and `NoGhostR` (open; see `REGIME-AUDIT.md` gap 1) | `low_agree_iff`, `low_conv_iff`, `infl_evlow`, `evlow_lowr`, `lens_quiet`; `quiet_agree_iff`, `quiet_conv_iff`, `uniq_agree` (`DistributedCycles.v`) |
+| **Monotone cycles**, **distributed**, **no resets** | monotone | the deployment flushes, every reachable quiescent state is the FedMachine state, and quiescent interleavings agree **iff** `XUcR`, FedMachine convergence, `FlushR` (every reachable state has a propagation word to quiescence; or `FairFlushR`, every fair schedule gets there) and `NoGhostR` (every reachable quiescent state holds the least fixed point of its locals); each conjunct is necessary. Under `LowR` (every reachable state at or below the least fixed point of its locals; inflationary events from such a start give it) the last two hold and the condition is `XUcR` plus FedMachine convergence | **Yes, if and only if**, with no reachable hypothesis; convergence among interleavings alone, when they may agree on a ghost, has a sufficient condition only (`conv_ghost_normal`; open, `REGIME-AUDIT.md` gap 14) | `flush_agree_iff`, `flush_fed_iff`, `fair_agree_iff`, `fair_fed_iff`, `lens_noreset_iff` (`DistributedCyclesExact.v`); `low_agree_iff`, `low_conv_iff`, `infl_evlow`, `evlow_lowr`, `lens_quiet` (`DistributedCycles.v`) |
+| **Monotone cycles**, **distributed**, no resets: checking `FlushR` and `NoGhostR` | monotone | `FlushR` exactly: a fair run reaches quiescence iff it reaches a sound state (`h <= F l h`). Checkable routes: events that keep states sound or sandwiched (inflationary events that write no shared value), `EvLow` events, or every single propagation step yielding a sound state; gsm starts are sound and low. `NoGhostR` exactly: the start and every post-event state are ghost-free, or some invariant has no quiescent ghost; under `SoundR` it is `LowR`, checked per event; an invariant whose states have a unique fixed point or are low suffices (a unique fixed point for every locals assignment: `uniq_agree`) | exact characterizations; the cheap checks are sufficient, not necessary (`ghost_exact` flushes fairly from a state that is neither sound nor sandwiched) | `fair_flush_sound_iff`, `flushat_sound_iff`, `sand_settles`, `evsand_sandr`, `evsound_soundr`, `infl_evsound`, `evlow_fairflush`, `step_sound_fairflush`, `nc_sound_low`; `noghost_event_iff`, `ghost_witness`, `noghost_inv_iff`, `noghost_soundr_iff`, `lowr_post_iff`, `soundr_fed_iff`, `unique_or_low_noghost`, `latched_exact` (`DistributedCyclesExact.v`) |
 | **Monotone cycles**, **distributed**, no resets, a clear event on a feedback loop (the ghost) | monotone | every check gsm runs passes: C1cyc, C2cyc, `XUcR` from every start, FedMachine convergence | **No**: nodes can settle at a fixed point above the least one (a ghost) that the FedMachine never produces, and no schedule leaves it; reset epochs fix it | `dist_cyc_ghost`, `q1_stuck`, `dist_cyc_epoch_fix` (`DistributedCycles.v`) |
-| **Sub-federation** (convex), acyclic | any | C1 and C2 at reachable witnesses inside the block; convexity | collapses to a single **effective registry**; outer network converges **iff** the collapsed one does | `collapse_a_guarded_exact`, `collapse_c_exact` (`Collapse.v`); cyclic monotone blocks are paper only |
 
-The monotone-cycles row is the deepest result: when the shared domain is a lattice and repair is
-monotone, the federated repair operator has a **least fixed point** reached by Kleene iteration
-from the bottom element, and every order reaches the same one (Knaster-Tarski + chaotic
-iteration). Its constructive finite-lattice core is mechanized in `coq/Federation.v` (axiom-free),
-and `coq/ChaoticACC.v` extends it to lattices with no infinite ascending chain (ACC).
-`coq/MonotoneExact.v` makes the rest exact: the least fixed point is reached at a finite stage iff
-the Kleene chain is eventually constant (`kleene_reach_exact`), and it is valid iff some Kleene
-iterate is valid (`lfp_valid_iff_reached`). gsm's image-validity check is proved sound
-(`gsm_check_Ncyc_valid`) but is not necessary (`gsm_check_not_necessary`). On a complete lattice
-without ACC, existence of the least fixed point is classical Knaster-Tarski, outside the axiom-free
-gate; this is a design exclusion, and gsm's finite domains satisfy ACC.
+**Events across registries, by regime.** Repair normal forms and event order are separate
+questions; this list collects the event-order results, including those in the tables above:
 
-**Events across registries.** The rows above are about the normalizer. Local events on different
-registries interleaving with propagation are a separate question:
-
-- *Acyclic.* Per-registry conditions plus C1 (cross-registry CC) and C2 (repaired CC) give
+- *Acyclic.* In the guarded execution (the FedMachine: events fire only at federally valid
+  states), per-registry conditions plus C1 (cross-registry CC) and C2 (repaired CC) give
   convergence of every interleaving (`fed_interleavings_converge`, `coq/FederationEvents.v`). C1 and
   C2 at witnesses realized by reachable states are also necessary (`fed_exact`, `fed_exact_full`,
   `coq/FederationEventsConverse.v`); static C1 and C2, which gsm checks, are sufficient but not
-  necessary (`naive_converse_fails`). With propagation as separate steps (the distributed model),
+  necessary (`naive_converse_fails`). In the unrestricted rewrite system (an event may fire before
+  compensation finishes) C1 and C2 do not suffice (`fed_grs_c1_c2_insufficient`); the exact
+  condition is reachable governed CC (`fed_grs_exact`), and XU suffices
+  (`fed_thm_fed_convergence_corrected`). With propagation as separate steps (the distributed model),
   every interleaving converges after the final flush **iff** XU holds at every reachable stale
   combination and C2 at reachable states (`dist_exact`, `coq/DistributedExact.v`). Static XU plus
   C2 suffices (`dist_xu_c2_converge`; gsm checks static XU, gsm PR #34) and is exact for every
@@ -142,14 +180,22 @@ registries interleaving with propagation are a separate question:
   reset epochs make the model exact: every run agrees with the FedMachine after a final epoch **iff**
   `XUcR` (`epoch_agree_iff`, `epoch_conv_iff`), and gsm's cyclic C1 and C2 over a widened value set
   give it (`lens_epoch`). Without resets the model is exact under `LowR` (`low_agree_iff`,
-  `low_conv_iff`); in general only relative to the reachable hypotheses `FlushR` and `NoGhostR`
-  (`quiet_agree_iff`, `quiet_conv_iff`). The ghost `dist_cyc_ghost` passes every check gsm runs and
-  still settles away from the FedMachine, which is why gsm reports cyclic projection deployments
-  not certified.
+  `low_conv_iff`), and in general with no reachable hypothesis (`coq/DistributedCyclesExact.v`): the
+  deployment flushes, agrees with the FedMachine at quiescence and converges **iff** `XUcR`,
+  FedMachine convergence, `FlushR` and `NoGhostR` (`flush_fed_iff`, `fair_fed_iff`), each necessary.
+  `FlushR` is exactly reaching a sound state (`fair_flush_sound_iff`); `NoGhostR` is exactly
+  ghost-freedom after every event (`noghost_event_iff`), or an invariant with no quiescent ghost
+  (`noghost_inv_iff`). With gsm's cyclic C1 and C2, certification reduces to `FlushR` and
+  `NoGhostR` (`lens_noreset_iff`). The ghost `dist_cyc_ghost` passes every check gsm runs and still
+  settles away from the FedMachine (`ghost_exact`), which is why gsm reports cyclic projection
+  deployments not certified. Convergence among interleavings alone does not need `NoGhostR`
+  (`conv_ghost_normal`); its exact condition is open.
 - *Monotone cycles.* Interleavings converge **iff** the global condition GC holds: independent
   governed steps commute at every reachable federated state (`gc_iff`,
   `coq/FederationEventsCycles.v`). GC has no per-edge reduction on a cycle; gsm's per-target C1 and
-  C2 over image sets imply it (`cyc_check_gc_lfp`, `coq/FederationEventsCyclesCheck.v`).
+  C2 over image sets imply it (`cyc_check_gc_lfp`, `coq/FederationEventsCyclesCheck.v`). Monotone
+  repair alone does not give it: `fed_thm_monotone_cycles_events_refuted` has a valid least fixed
+  point and no per-registry conflict, and two trace-equivalent event sequences still diverge.
 - *Coordinated non-monotone cycles.* Event order converges **iff** independent events at the
   authority root commute at every root value reachable from the start (`coordinated_events_exact`,
   `coq/CoordinatedExact.v`).
@@ -182,43 +228,63 @@ P = NP. Event order under root-set coordination is exact (`forest_events_exact`,
 
 ```mermaid
 flowchart TD
-  A[Governed system] --> B{Single registry?}
-  B -- yes --> C{WFC and CC hold?}
-  C -- yes --> C1[Converges: unique normal form]
-  C -- no --> C0{Causal delivery, and CC1 holds for concurrent pairs?}
-  C0 -- yes --> C1
-  C0 -- no --> C2[No guarantee]
-  B -- no, a network --> D{Repair monotone on a lattice?}
-  D -- yes --> D1[Converges on ANY topology, cycles included<br/>least fixed point by Kleene iteration]
-  D -- no --> E{Network acyclic?}
-  E -- no --> E0{Coordinate unbalanced edges<br/>from an authority root?}
-  E0 -- no --> E1[May diverge: cyclic + non-monotone<br/>a single invertible cycle is unique only for the trivial group]
-  E0 -- yes --> E2[Converges: unique given the root]
-  E -- yes --> F{Single incoming morphism per node?}
-  F -- yes, a tree --> F1[Converges: needs only morphism validity preservation]
-  F -- no, multi-source DAG --> F2[Converges: needs resolver determinacy + validity]
+  A[Governed system] --> B{How do events execute?}
+  B -- one registry --> S{Delivery?}
+  S -- free --> S1[Exact: reachable CC1 and CC2 with canonical repair, or JC<br/>sufficient: WFC and CC at every state]
+  S -- causal --> S2[Exact: CCR<br/>sufficient: WFC, CC2, CC1 on concurrent pairs]
+  S -- with duplicates --> S3[At-least-once: exactly-once commutation<br/>plus idempotence at reachable first deliveries]
+  B -- a network --> T{Acyclic?}
+  T -- yes --> G{Events fire only at federally valid states?}
+  G -- yes, FedMachine --> G1[Repair normal form: M1, or R1 and R2<br/>events: C1 and C2 at reachable witnesses<br/>sufficient: static C1 and C2]
+  G -- no, unrestricted --> G2[Events: reachable governed CC<br/>sufficient: XU; C1 and C2 do not suffice]
+  T -- no, cyclic --> M{Repair monotone on a lattice?}
+  M -- yes --> M1[(1) valid least fixed point: bottom validity, or a valid Kleene iterate<br/>(2) reached: Kleene chain eventually constant; ACC suffices<br/>(3) events: GC; per-target C1cyc and C2cyc suffice]
+  M -- no --> R{Coordinate from an authority root or a root set?}
+  R -- yes --> R1[Unique given the root values<br/>events: each root's events commute at its reachable values]
+  R -- no --> R0[May diverge; a single invertible cycle is unique only for the trivial group]
 ```
+
+Deployments that run propagation as separate steps (the distributed rows) add a further
+condition on top of these: XU at reachable stale states, and on cycles reset epochs or the
+no-reset conditions `FlushR` and `NoGhostR`.
 
 ## Why the boundaries are where they are
 
-- **Why acyclicity for non-monotone repair.** A cycle lets two registries constrain each other
-  in opposite directions. The counterexample (`prop:cycle-necessary`) uses the negation morphism
-  `phi(x) = 1 - x`: repair keeps flipping the shared value, so compensation never settles. Break
-  the cycle (a tree or DAG) and repair has a definite direction to flow.
-- **Why monotonicity escapes it.** If repair only ever moves the shared value **up** a lattice
-  order (monotone), even a cycle cannot flip it back and forth: the values climb a chain that
-  must stop at the least fixed point. Acyclicity was never the real requirement; taming
-  non-monotone repair was. Monotone repair and acyclic structure are two independent routes to
-  the same convergence.
-- **Why CRDTs are the easy corner.** A join-semilattice whose merge is its join is monotone and
-  never needs to repair an invariant, so a state-based CRDT is exactly the monotone-cycles case
-  with compensation switched off. The op-based side is sharper still: under causal delivery, the
-  compensation-free fragment (normalization is the identity) is *exactly* the op-based CRDTs, in
-  both directions (`compensation_free_exact`), and standard op-based CRDTs converge as an instance
-  (`causal_cmrdt_SEC`). Normalization confluence adds business invariants on top, and that is
-  strictly more: `witness_causal_not_cmrdt` converges causally without being a CRDT, and
-  `witness_beyond_all_pairs` (an add, a causally later remove, an independent counter) converges
-  although its operations do not all commute.
+- **What acyclicity gives.** On an acyclic network propagation has a finite direction: a
+  topological order of the registries is a normalization order, so repair settles in one round
+  (`fed_lem_fed_termination`, `fed_lem_resolved_termination`). A cycle lets two registries constrain each other in opposite
+  directions; with the negation morphism `phi(x) = 1 - x`, repair keeps flipping the shared value
+  and compensation never settles (`prop_cycle_necessary`).
+- **What monotonicity gives.** If repair only moves shared values **up** a lattice order, even a
+  cycle cannot flip them back and forth: cyclic propagation has fixed-point structure, and every
+  repair schedule climbs to the same least fixed point when one is reached (the three questions
+  above). Acyclicity and monotonicity are two independent routes to a unique **repair** normal form.
+- **What neither gives.** Neither acyclicity nor monotonicity by itself establishes that event
+  interleavings converge. Event interactions need their own conditions: C1 and C2 at reachable
+  witnesses in the guarded acyclic model (`fed_exact`), reachable governed CC or XU in the
+  unrestricted model (`fed_grs_exact`, `fed_thm_fed_convergence_corrected`), and GC or the
+  per-target checks on cycles (`gc_iff`, `cyc_check_gc_lfp`). The refutations show each gap:
+  `fed_thm_fed_convergence_refuted` (a tree), `fed_thm_monotone_cycles_events_refuted` (a monotone
+  cycle).
+
+Topology constrains which interactions are possible; it does not replace the interaction
+conditions.
+
+**Where CRDTs sit.** For unordered at-least-once delivery, convergence of a compensation-free
+system (merges as events, no repair) is exactly a commutative and idempotent action on the
+reachable states (`merge_action_exact`), and with a finite event range and decidable equality,
+exactly a join-semilattice representation on the reachable states in which each merge is the join
+with its payload (`cvrdt_on_exact`). CvRDTs occupy that compensation-free monotone corner. The
+federated monotone-cycle results address a different problem: a common network repair fixed point
+when constraints between registries form cycles. Under causal delivery, convergence for every start
+is exactly commutation of concurrent pairs at every state (`causal_convergence_exact`), and standard
+op-based CRDTs converge as an instance (`causal_cmrdt_SEC`); `compensation_free_exact` is the
+structural statement that, with normalization the identity, that commutation condition is the
+op-based CRDT condition. Normalization confluence adds business invariants on top, and that is
+strictly more: `witness_causal_not_cmrdt` converges causally without being a CRDT, and
+`witness_beyond_all_pairs` (an add, a causally later remove, an independent counter) converges
+although its operations do not all commute. The precise relationship is in
+[SUBSUMPTION.md](SUBSUMPTION.md).
 
 ## Where each regime lives in the code and proofs
 
@@ -232,7 +298,7 @@ flowchart TD
 | Stream processors | n/a | `coq/Stream.v`, `coq/StreamExact.v` |
 | Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | `coq/FederationOrder.v`, `coq/Categorical.v`, `coq/CategoricalBridge.v` (order-independence, retraction); `coq/FederationGRS.v` (the authority and resolution theorems in corrected form) |
 | Events across registries (acyclic) | cross-registry order check (C1, C2) | `coq/FederationEvents.v`, `coq/FederationEventsConverse.v` |
-| Distributed deployment (propagation steps) | XU check for projection merging (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`; cyclic and multi-source targets reported not certified) | `coq/DistributedExact.v` (acyclic, exact), `coq/DistributedCycles.v` (monotone cycles: repair alone, reset epochs, no resets) |
+| Distributed deployment (propagation steps) | XU check for projection merging (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`; cyclic and multi-source targets reported not certified) | `coq/DistributedExact.v` (acyclic, exact), `coq/DistributedCycles.v` (monotone cycles: repair alone, reset epochs, no resets), `coq/DistributedCyclesExact.v` (monotone cycles without resets, exactly; `FlushR`, `NoGhostR`) |
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core), `coq/Chaotic.v`, `coq/ChaoticACC.v`, `coq/MonotoneFederation.v`, `coq/MonotoneExact.v` (validity, reachability, gsm's check), `coq/FederationEventsCycles.v`, `coq/FederationEventsCyclesCheck.v`, `coq/FederationEventsCyclesMulti.v` |
 | Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order) |
 | Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles) |

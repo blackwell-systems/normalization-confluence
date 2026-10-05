@@ -31,14 +31,14 @@ the source of truth).
 deciding consistency of a lossy network without a spanning root is NP-complete: the 3-SAT
 reduction is machine-checked (correct in both directions, parsimonious, linear in size, with a
 checkable certificate; `coq/LossyHardness.v`), and NP-completeness follows from it by the standard
-argument. NP-hardness of minimum coordination is cited from the literature. The gaps still open are
-the distributed propagation model on monotone cycles without reset epochs, where the exact
-condition is mechanized under `LowR` and otherwise only relative to two reachable hypotheses
-(`FlushR`, `NoGhostR`; the acyclic model and cycles with reset epochs are exact), rootless
-networks beyond a single invertible cycle, rootless propagation on lossy networks, and cyclic
-monotone collapse (paper only); least fixed points without ACC are a design exclusion, and minimum
-coordination, the `H^1` rank on the 2-complex and sheaf gluing are open optimization and structure
-questions.
+argument. NP-hardness of minimum coordination is cited from the literature. The distributed
+propagation model is exact on acyclic networks and on monotone cycles with or without reset epochs
+(on cycles, for convergence together with agreement with gsm's synchronous `FedMachine`). The
+gaps still open are rootless networks beyond a single invertible cycle, rootless propagation on
+lossy networks, cyclic monotone collapse (paper only), and, on monotone cycles without resets,
+convergence among interleavings alone, when they may all settle on a state the `FedMachine` never
+produces; least fixed points without ACC are a design exclusion, and minimum coordination, the
+`H^1` rank on the 2-complex and sheaf gluing are open optimization and structure questions.
 [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's status with its Coq theorem.
 
 **Dayna Blackwell** | dayna@blackwell-systems.com

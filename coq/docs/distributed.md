@@ -194,7 +194,8 @@ without shared-value feedback, `sa := lb`, `sb := la || sa`, with the same raise
 
 The gap left in Q2: without `LowR`, the exact statements keep the reachable hypotheses `FlushR`
 (and `NoGhostR` for `DConvQ`). `FlushR` can fail on a general lattice, and the only per-event check
-offered for `NoGhostR` is `EvLow` (or a unique fixed point).
+offered for `NoGhostR` is `EvLow` (or a unique fixed point). `DistributedCyclesExact.v` (#64)
+closes this gap: see [the no-reset model, exactly](#the-no-reset-model-on-monotone-cycles-exactly-distributedcyclesexactv).
 
 **Q3. Reset epochs.** An epoch is `AReset` followed by `K` sweeps of every target (`EP_run`:
 it computes `Nc t`; `epoch_flush`: any reset followed by propagation to quiescence ends at `Nc t`,
@@ -274,7 +275,8 @@ Each right-hand conjunct is necessary: an instance where it alone fails.
 `conv_ghost_normal`: `NoGhostR` is not necessary for `DConvQ` alone. On a cycle where A's flag also
 keeps itself (`sa := lb || sa || sb`), from the FedMachine normal form, every quiescent
 interleaving of the same events agrees, yet each one after an event is a ghost. Convergence among
-interleavings is weaker than agreement with the FedMachine by exactly `NoGhostR`.
+interleavings is weaker than agreement with the FedMachine; the exact condition for convergence
+alone is open ([REGIME-AUDIT.md](../../REGIME-AUDIT.md) gap 14).
 
 **2. `FlushR` exactly.**
 
