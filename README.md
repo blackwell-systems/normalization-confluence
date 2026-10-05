@@ -24,21 +24,26 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (1524 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (1783 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
 deciding consistency of a lossy network without a spanning root is NP-complete: the 3-SAT
 reduction is machine-checked (correct in both directions, parsimonious, linear in size, with a
 checkable certificate; `coq/LossyHardness.v`), and NP-completeness follows from it by the standard
-argument. NP-hardness of minimum coordination is cited from the literature. The distributed
+argument. Minimum coordination is exact for invertible and for lossy networks (on invertible networks the best
+coordination plan is the group feedback edge set number; on lossy networks the minimum is decided
+through root sets), and its NP-hardness has a machine-checked reduction too: from Max-Cut on
+invertible networks, and from 3-SAT on lossy ones, where even telling minimum 0 from 1 is hard;
+NP-completeness of 3-SAT and Max-Cut is cited. `H^1` on the nerve as a 2-complex is classified,
+with its count over Z/2, and sheaf gluing is exact on sub-federation covers. The distributed
 propagation model is exact on acyclic networks and on monotone cycles with or without reset epochs
 (on cycles, for convergence together with agreement with gsm's synchronous `FedMachine`). The
 gaps still open are rootless networks beyond a single invertible cycle, rootless propagation on
 lossy networks, cyclic monotone collapse (paper only), and, on monotone cycles without resets,
 convergence among interleavings alone, when they may all settle on a state the `FedMachine` never
-produces; least fixed points without ACC are a design exclusion, and minimum coordination, the
-`H^1` rank on the 2-complex and sheaf gluing are open optimization and structure questions.
+produces; sheaf gluing on the companion paper's variable-level and monotone-overlap site is paper
+only, and least fixed points without ACC are a design exclusion.
 [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's status with its Coq theorem.
 
 **Dayna Blackwell** | dayna@blackwell-systems.com

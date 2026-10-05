@@ -7,9 +7,14 @@ an arbitrary graph, the cycle-basis criterion, `H^1` as a quotient (tuples of fu
 modulo simultaneous conjugation) with its rank `|E| - |V| + 1`, and the `S_3` separation
 (`coq/Cohomology.v`, `coq/CohomologyGraph.v`, `coq/CohomologyMin.v`); chaotic iteration under the
 ascending chain condition rather than finite height (`coq/ChaoticACC.v`); and soundness of
-coordinating a non-monotone cycle from an authority root (`coq/CoordinatedCycles.v`). Still paper-level: the rank on
-the nerve as a 2-complex (the triangle relations), the non-invertible case (a dynamical fixed-point
-condition rather than group cohomology), and the cited complexity results. The convergence
+coordinating a non-monotone cycle from an authority root (`coq/CoordinatedCycles.v`). Since
+mechanized as well: `H^1` on the nerve as a 2-complex with the triangle relations
+(`coq/CohomologyNerve.v`), the non-invertible case (`coq/CohomologyGeneral.v`, `coq/RootSet.v`),
+minimum coordination tied to the plan model with a Max-Cut reduction
+(`coq/CoordinationMinimum.v`) and for lossy networks (`coq/LossyMinimum.v`), and sheaf gluing on the
+registry-level site (`coq/SheafGluing.v`). Still paper-level: the variable-level and monotone-overlap
+sheaf site, and the cited complexity results (NP-completeness of 3-SAT and Max-Cut, the
+fixed-parameter, planar and approximation results for group feedback edge sets). The convergence
 facts this builds on (Newman, WFC/CC, federation M1, resolver R1/R2, monotone convergence,
 compositional collapse) are the papers' results and are in part in the Coq development. What this
 note adds is a categorical account of the federation layer that turns compositionality from a
@@ -372,8 +377,14 @@ genuinely Cech `H^1` in the invertible case; the practical loop-composite diagno
 in gsm as `Federation.DiagnoseCycle` (it names the offending cycle and reports whether the loop
 repair settles or orbits from a representative seed). The cohomology-proper classification, the
 `H^1` class itself in the invertible case, abelian or not, is now mechanized on the nerve's
-1-skeleton (10.1, `coq/CohomologyGraph.v`); what remains open is its refinement on the nerve as a
-2-complex and an analogue for non-invertible transitions beyond the reachable-fixed-point test.
+1-skeleton (10.1, `coq/CohomologyGraph.v`) and on the nerve as a 2-complex
+(`coq/CohomologyNerve.v`: `nerve_H1_classification`, `nerve_H1_Z2_count`). The positive gluing is
+mechanized on the registry-level site (`coq/SheafGluing.v`: `sheaf_iff_refines`, `cert_sheaf`),
+where the exact condition is R1 plus a cover in which every constraint inside the union lies
+inside one member, and SC rather than R2 makes certificates land in the sections (`cert_needs_sc`). For
+non-invertible transitions the reachable-fixed-point test and the root-set criterion are
+mechanized (`coq/CohomologyGeneral.v`, `coq/RootSet.v`); deciding existence is NP-complete
+(`coq/LossyHardness.v`).
 
 ### 10.1 The completion: `H^0`, `H^1`, and the two routes to convergence
 
@@ -434,8 +445,9 @@ with an explicit cycle-basis of generators (a sufficient set of loops to fix) an
 the vanishing of `H^1` and the monotone least-fixed-point are the two categorical routes to
 convergence, recovering gsm's stated dichotomy as one picture. Proven here for the invertible/torsor
 fragment, and mechanized axiom-free on an arbitrary finite group-labeled graph, abelian or not
-(`coq/CohomologyGraph.v`); open beyond it are the rank on the nerve as a 2-complex (the triangle
-relations) and the non-invertible case.
+(`coq/CohomologyGraph.v`), and on the nerve as a 2-complex, with the triangle relations
+(`coq/CohomologyNerve.v`). The non-invertible case has no cohomological account in polynomial time
+unless P = NP; its exact criterion is the root set (`coq/RootSet.v`, `coq/LossyHardness.v`).
 
 **Related work.** Fundamental groups of graphs (Hatcher, *Algebraic Topology*, 2002, Proposition
 1A.2); balance of gain graphs (Zaslavsky, *J. Combin. Theory Ser. B* 47, 1989, Lemma 5.3) and of
@@ -617,8 +629,10 @@ NP-hard even in the abelian case, Unique-Games-hard to approximate within a cons
 size, and polynomial on planar or edge-disjoint nerves. The `S_3` separation is machine-checked end to
 end: the finite crux in `coq/Cohomology.v` (`S3Sep`) and the graph-level counts `min_G = 2`,
 `min_{G^ab} = 1`, the strict gap, and the functoriality `G`-section implies abelian section in
-`coq/CohomologyMin.v`. The deployment tiers and the general complexity results remain at the paper
-level.
+`coq/CohomologyMin.v`. The minimum is tied to the coordination plan exactly (`plan_min_exact`,
+`coq/CoordinationMinimum.v`), and NP-hardness over Z/2 has its Max-Cut reduction mechanized
+(`maxcut_reduction`). The deployment tiers and the remaining complexity results (approximation,
+FPT, planar) stay at the paper level, cited.
 
 ## 11. Further directions (stubs)
 
@@ -642,7 +656,9 @@ level.
    cycle basis suffices to coordinate. The exact minimum is the group feedback edge set number (10.3:
    NP-hard even abelian, FPT in the core size, polynomial on planar or edge-disjoint nerves). The
    practical loop-composite diagnostic is implemented in gsm (`Federation.DiagnoseCycle`); the
-   cohomology-proper `H^1` classification is mechanized in the invertible fragment
-   (`coq/CohomologyGraph.v`), and the non-invertible case is open.
+   cohomology-proper `H^1` classification is mechanized in the invertible fragment, on the graph
+   and on the 2-complex (`coq/CohomologyGraph.v`, `coq/CohomologyNerve.v`), sheaf gluing on the
+   registry-level site (`coq/SheafGluing.v`), and the non-invertible case through root sets
+   (`coq/RootSet.v`, `coq/LossyMinimum.v`).
 4. **Squier / higher-dimensional rewriting (§11)**: reframes confluence as coherence; strong for the
    single-registry paper's credibility.

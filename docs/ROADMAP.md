@@ -8,10 +8,10 @@ Role of this page: what is next. What is proved today, regime by regime, is
 [REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 1524 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 1783 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54 to #60, #62, #64) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #60, #62, #64, #70 to #73) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](../REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -41,6 +41,10 @@ proven until it lands in a module and passes the gate.
 | Distributed propagation model, acyclic: exact condition (audit gap 1, acyclic part) | `DistributedExact.v` | `dist_exact`, `dist_exact_local`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots`, `dist_xu_c2_converge`, `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | #60 |
 | Distributed propagation model on monotone cycles: repair alone, reset epochs, events without resets (audit gap 1, cyclic part; residual open) | `DistributedCycles.v` | `q1_sound_iff`, `q1_unique_iff`, `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `low_agree_iff`, `low_conv_iff`, `quiet_agree_iff`, `quiet_conv_iff`, `dist_cyc_ghost`, `dist_cyc_epoch_fix` | #62 |
 | Distributed model on monotone cycles without resets, exactly (audit gap 1, residual; gap 1 closed) | `DistributedCyclesExact.v` | `flush_agree_iff`, `flush_fed_iff`, `fair_agree_iff`, `fair_fed_iff`; `FlushR`: `fair_flush_sound_iff`, `flushat_sound_iff`, `sand_settles`; `NoGhostR`: `noghost_event_iff`, `noghost_inv_iff`, `noghost_soundr_iff`, `soundr_fed_iff`; gsm: `lens_noreset_iff`, `lens_noreset_fair_iff`; necessity `copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `flip2_fair_livelock`, `ghost_exact` | #64 |
+| Minimum coordination on lossy networks (audit gap 11; `LOSSY-NETWORKS.md` P4, reading A) | `LossyMinimum.v` | `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_decide`, `lmin_reduction`, `net_lmin_dichotomy`, `min_le_np_certificate`, `lossy_min_is_gfes`, `lossy_min_exceeds_cycle_bounds` | #70 |
+| `H^1` on the nerve as a 2-complex (audit gap 12; WP10, rank half) | `CohomologyNerve.v` | `nerve_H1_classification`, `nerve_H1_abelian`, `nerve_H1_Z2_count`, `nerve_Z2_full_iff`, `nerve_section_iff_coboundary`, `triangle_kills_flip` | #71 |
+| Minimum coordination tied to the plan model (audit gap 10) | `CoordinationMinimum.v` | `plan_min_exact`, `feasible_plan`, `plan_coord_feasible`, `plan_min_attained`, `plan_min_root_independent`, `maxcut_reduction`, `maxcut_plan_reduction`; `plan_min_connected_needed`, `plan_min_nodup_needed`, `s3_tree_choice` | #72 |
+| Sheaf gluing over sub-federation covers (audit gap 13, narrowed; WP10, sheaf half) | `SheafGluing.v` | `separation`, `gluing`, `sheaf_exact`, `sheaf_iff_refines`, `cert_restrict_iff`, `cert_sheaf`; `triangle_fails`, `r1_failure`, `gluing_cex_overlap`, `cert_needs_sc` | #73 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
@@ -245,12 +249,19 @@ counterexample. `PAPER-MAP.md`'s status columns record the 254-theorem gate it w
 have not been re-run since the packages landed. What the version-2 papers still state at paper
 level:
 
-- **Sheaf gluing** (Cat `prop:gluing`, the sheaf assembly over the full cover) and **the rank of
-  `H^1` on the nerve as a 2-complex** (Cat section 6): WP10, optional, not started.
+- **Sheaf gluing** (Cat `prop:gluing`, the sheaf assembly over the full cover): mechanized on the
+  registry-level site, #73 (`SheafGluing.v`: exact, `sheaf_iff_refines`; certificates on covers
+  closed under sources, `cert_sheaf`), with SC in the role the paper gives R2 (`cert_needs_sc`). The
+  paper's variable-level site and its monotone-overlap regime stay at paper level (audit gap 13,
+  narrowed). **The rank of `H^1` on the nerve as a 2-complex** (Cat section 6): done, #71
+  (`CohomologyNerve.v`). The paper text still calls both paper level; that is a paper wording fix.
 - **The cyclic monotone case of `thm:collapse`** (Fed, after `thm:collapse` and in
   `rem:fed-mechanized`).
 - **The lattice-compensation CC pattern** (Base 8.2, corrected with a short paper proof).
-- Out of scope by design: cited complexity results (group feedback edge set; Cat section 8), the
+- Out of scope by design: cited complexity results (NP-completeness of 3-SAT and Max-Cut, and the
+  fixed-parameter, planar and approximation results for group feedback edge sets; Cat section 8;
+  the reductions themselves are mechanized, `LossyHardness.v`, `LossyMinimum.v`,
+  `CoordinationMinimum.v`), the
   asymptotic cost of normalization (Base `thm:complexity`; the per-event step bound is mechanized),
   and the decidability remark for R1, R2, C1 and C2 (item 5).
 
@@ -296,11 +307,17 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence ([LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#32-the-reduction-from-3-sat) 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
 
-Optimization and counting, which do not bear on when state converges: minimum coordination on
-invertible cycles tied to the authority-root plan model (its NP-hardness is cited), minimum
-coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and sheaf gluing
-(audit gaps 10 to 13). Open convergence items after #64: gaps 2, 3, 5 and 14, plus the design
-exclusion of gap 8. Gap 1 is closed.
+Optimization and counting, which do not bear on when state converges (audit gaps 10 to 13):
+
+| Item | Status | Size |
+|---|---|---|
+| Minimum coordination on invertible networks tied to the authority-root plan model (gap 10) | done, #72: `plan_min_exact` (connected networks; the best plan's cost is the group feedback edge set number, for every root); NP-hard by a mechanized Max-Cut reduction (`maxcut_reduction`), Max-Cut's NP-completeness cited | n/a |
+| Minimum coordination on non-invertible networks (gap 11; `LOSSY-NETWORKS.md` P4, reading A) | done, #70: `lmin_root_set`, `lmin_decide`; NP-hard even to tell minimum 0 from 1, by a mechanized 3-SAT reduction (`lmin_reduction`); in NP (`min_le_np_certificate`). The reading-B variants of P4 go with gap 3 | n/a |
+| `H^1` on the 2-complex (gap 12) | done, #71: `nerve_H1_classification` (any group), `nerve_H1_Z2_count` (over Z/2). Scope: the dimension formula for other coefficients, and the identification of the presented group with the fundamental group, are not mechanized | n/a |
+| Sheaf gluing, positive assembly (gap 13) | narrowed, #73: exact on the registry-level site (`sheaf_iff_refines`, `cert_sheaf`). Open (paper only): the variable-level and monotone-overlap site; a sheaf condition for relative certificates on covers not closed under sources | medium |
+
+Open convergence items after #64: gaps 2, 3, 5 and 14, plus the design exclusion of gap 8. Gap 1
+is closed. Of the optimization and counting gaps, only gap 13's residual remains.
 
 ## Removable caveats, lower value
 
@@ -331,10 +348,17 @@ exclusion of gap 8. Gap 1 is closed.
   it is, the plan must name its root.
 - **Synthesis.** gsm's `Registry.Synthesize` (exhaustive search for a convergent repair, or a witness
   that none exists) is implemented but not mechanized.
-- **Rank of `H^1` on the full nerve.** The mechanized rank is for the graph (the nerve's
-  1-skeleton). Triangles add relations that can lower it. Rarely matters in practice.
-- **Complexity results.** NP-hardness and fixed-parameter tractability of the minimum coordination
-  are cited from the group feedback set literature; they are not this work's results.
+- **Rank of `H^1` on the full nerve.** Done, #71: with the triangle relations, `H^1` is classified
+  for any group (`nerve_H1_classification`) and counted over Z/2 (`nerve_H1_Z2_count`); triangles
+  can only lower the count (`nerve_Z2_cell_lowers`).
+- **Complexity results.** NP-hardness of minimum coordination now has mechanized reductions (Max-Cut
+  for invertible networks, `maxcut_reduction`, #72; 3-SAT for lossy ones, `lmin_reduction`, #70).
+  Fixed-parameter tractability, planar tractability and approximation hardness are cited from the
+  group feedback set literature; they are not this work's results.
+- **gsm's coordination plan at the minimum.** `plan_min_attained` says some rooted spanning tree's
+  plan attains the minimum; gsm's `CoordinationPlan` cuts every cycle. A gsm search for the
+  minimum-cost plan would be exact for small networks and is NP-hard in general
+  (`maxcut_plan_reduction`).
 
 ## Fundamental limits (stated, not removable)
 

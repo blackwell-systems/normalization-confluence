@@ -213,16 +213,23 @@ holonomy-minimal plan (an authority root, a spanning tree that drives values, ba
 non-tree edges as checks, unbalanced edges coordinated), it has one, unique given the root
 (`coordinated_sound`); keeping an unbalanced edge leaves no consistent state
 (`coordination_needed`). The root matters (`root_choice_matters`), and without one two orders reach
-different consistent states (`copyback_without_authority`, `rootless_two_orders`). For
+different consistent states (`copyback_without_authority`, `rootless_two_orders`). How few edges to
+coordinate: the best plan over rooted spanning trees coordinates exactly the minimum number of
+edges any feasible coordination needs (the group feedback edge set number), for every root
+(`plan_min_exact`, `coq/CoordinationMinimum.v`); finding it is NP-hard (a mechanized Max-Cut
+reduction, `maxcut_reduction`). gsm's `CoordinationPlan` cuts every cycle, which is sound and can
+coordinate more than the minimum. For
 non-invertible (lossy) transports the authority root generalizes to a root set: a consistent state
 exists iff some assignment of root values drives a state satisfying every edge
 (`root_set_criterion_graph`, `coq/RootSet.v`), and sections correspond one to one with consistent
 root assignments (`root_set_count`). Deciding existence is NP-complete in general: the 3-SAT
-reduction of the research note of PR #52 is mechanized (`net_section_iff_sat`, parsimonious by
+reduction of the research note [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md) is mechanized (`net_section_iff_sat`, parsimonious by
 `net_count`, linear by `net_size`, with the certificate `np_certificate`; `coq/LossyHardness.v`), and
 NP-completeness follows by the standard argument, so no efficient exact criterion exists unless
 P = NP. Event order under root-set coordination is exact (`forest_events_exact`,
-`coq/RootSetEvents.v`).
+`coq/RootSetEvents.v`). The fewest edges to coordinate on a lossy network is the least deletion
+whose residual passes the root-set criterion (`lmin_root_set`, decided by `lmin_decide`,
+`coq/LossyMinimum.v`); even telling 0 from 1 is NP-hard (`lmin_reduction`).
 
 ## The decision, as a flowchart
 
@@ -298,13 +305,13 @@ although its operations do not all commute. The precise relationship is in
 | State-based CRDTs | n/a | `coq/CRDT.v`, `coq/CvRDTExact.v` (exact condition) |
 | At-least-once delivery | non-idempotent events reported (`Report.NotIdempotent`: sound at reachable witnesses, complete when exactly-once delivery converges, may over-report at unreachable states) | `coq/AtLeastOnce.v`, `coq/AtLeastOnceExact.v` |
 | Stream processors | n/a | `coq/Stream.v`, `coq/StreamExact.v` |
-| Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | `coq/FederationOrder.v`, `coq/Categorical.v`, `coq/CategoricalBridge.v` (order-independence, retraction); `coq/FederationGRS.v` (the authority and resolution theorems in corrected form) |
+| Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | `coq/FederationOrder.v`, `coq/Categorical.v`, `coq/CategoricalBridge.v` (order-independence, retraction); `coq/FederationGRS.v` (the authority and resolution theorems in corrected form); `coq/SheafGluing.v` (when local consistency on sub-federations glues: R1 and a cover that refines the constraints) |
 | Events across registries (acyclic) | cross-registry order check (C1, C2) | `coq/FederationEvents.v`, `coq/FederationEventsConverse.v` |
 | Distributed deployment (propagation steps) | XU check for projection merging (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`; cyclic and multi-source targets reported not certified) | `coq/DistributedExact.v` (acyclic, exact), `coq/DistributedCycles.v` (monotone cycles: repair alone, reset epochs, no resets), `coq/DistributedCyclesExact.v` (monotone cycles without resets, exactly; `FlushR`, `NoGhostR`) |
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core), `coq/Chaotic.v`, `coq/ChaoticACC.v`, `coq/MonotoneFederation.v`, `coq/MonotoneExact.v` (validity, reachability, gsm's check), `coq/FederationEventsCycles.v`, `coq/FederationEventsCyclesCheck.v`, `coq/FederationEventsCyclesMulti.v` |
-| Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order) |
+| Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order), `coq/CoordinationMinimum.v` (the minimum number of coordinated edges, attained by a plan) |
 | Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles) |
-| Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order) |
+| Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order), `coq/LossyMinimum.v` (minimum coordination) |
 | Compositional collapse | `Federation.Embed` | `coq/Collapse.v` (acyclic blocks); cyclic monotone blocks are paper only |
 
 Regime by regime status, including the gaps still open, is in [REGIME-AUDIT.md](../REGIME-AUDIT.md).

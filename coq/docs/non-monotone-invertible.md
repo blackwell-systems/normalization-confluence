@@ -75,8 +75,11 @@ completion, the cycle-basis generation, and `H^1` as a quotient with its rank ar
   nerve's triangles (2-cells) impose further relations that can lower the count; they are modeled in
   `CohomologyNerve.v` (below).
 
-Paper-level (not mechanized): the complexity of choosing the spanning tree that minimizes the
-coordinated set (the group feedback edge set results, cited from the literature).
+Choosing the spanning tree that minimizes the coordinated set is mechanized in
+`CoordinationMinimum.v` (below): the best plan's cost is the group feedback edge set number
+(`plan_min_exact`), and finding it is NP-hard by a mechanized Max-Cut reduction
+(`maxcut_reduction`, with NP-completeness of Max-Cut cited). The fixed-parameter, planar and
+approximation results for group feedback edge sets stay cited from the literature.
 
 ## `H^1` on the nerve as a 2-complex (`CohomologyNerve.v`)
 

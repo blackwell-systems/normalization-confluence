@@ -71,11 +71,15 @@ exact split.
      form (`Categorical.v`); the gluing counterexample; in the invertible fragment, the section
      criterion, the cycle-basis criterion, `H^1` as a quotient with `|E| - |V| + 1` generators, and
      the sufficiency of coordinating a cycle basis (`Cohomology.v`, `CohomologyGraph.v`); the `S_3`
-     separation (`CohomologyMin.v`).
+     separation (`CohomologyMin.v`); `H^1` on the nerve as a 2-complex (`CohomologyNerve.v`); sheaf
+     gluing over sub-federation covers (`SheafGluing.v`); the non-invertible case
+     (`CohomologyGeneral.v`, `RootSet.v`, `LossyHardness.v`); minimum coordination, tied to the
+     plan model on invertible networks and through root sets on lossy ones, with its hardness
+     reductions (`CoordinationMinimum.v`, `LossyMinimum.v`).
    - [paper] The authority and resolution theorems as stated, the necessity of acyclicity and M1,
-     R1/R2 as the gluing axiom and the sheaf assembly over the full cover, the rank on the nerve as
-     a 2-complex, the non-invertible case (a fixed-point condition on the loop composite), and the
-     group-feedback-edge-set complexity (cited from the literature).
+     the sheaf assembly on the variable-level and monotone-overlap site, and the cited complexity
+     results (NP-completeness of 3-SAT and Max-Cut; fixed-parameter, planar and approximation
+     results for group feedback edge sets).
    - [implemented] The loop-composite diagnostic, as `Federation.DiagnoseCycle`.
 3. **Synthesis.** An exhaustive search finds a convergent repair or, when it completes, a witness
    that none exists.
@@ -204,10 +208,21 @@ be monotone even when its repair operator `Phi_J` is monotone and the component 
 
 The federated question has the shape of a gluing problem. Local normal forms are sections over
 registries, and agreement on shared components is the compatibility condition on overlaps; the
-papers state R1/R2 (source-determinacy and validity preservation) as the gluing axiom. The positive
-sheaf assembly over the full cover is paper only (open gap 13). The negative half is mechanized:
-two normalizers that agree on every valid state still glue to an order-dependent system on the
-shared state (`gluing_order_dependent`), so local agreement alone does not glue.
+papers state R1/R2 (source-determinacy and validity preservation) as the gluing axiom. Mechanized
+in `SheafGluing.v` on the registry-level site (open sets are sub-federations, sections over `U`
+are the states consistent on `U`): separation holds with no hypothesis (`separation`), and under
+R1 a compatible family of local sections glues, uniquely, when every constraint inside the union
+lies inside one member of the cover (`gluing`, `sheaf_exact`). That condition is exact, uniformly
+in the data: gluing holds on a cover for every R1 federation on the graph iff the cover refines the
+constraints (`sheaf_iff_refines`). It is a condition on members, not overlaps (`chain_glues`), and
+each hypothesis is needed (`triangle_fails`, `r1_failure`). Certificates (the federated normalizer
+restricted to a sub-federation) glue on covers closed under sources (`cert_sheaf`), restriction is
+exact exactly for such sub-federations (`cert_restrict_iff`), and SC, not validity preservation,
+is what makes a certificate land in its sections (`cert_needs_sc`). The negative half: two
+normalizers that agree on every valid state still glue to an order-dependent system on the shared
+state (`gluing_order_dependent`, wrapped as `gluing_cex_overlap`), so local agreement alone does
+not glue. Still paper only (gap 13, narrowed): the companion paper's variable-level site and its
+monotone-overlap regime.
 
 ### Cohomology and topology
 
@@ -218,6 +233,18 @@ fundamental group of a connected graph is free of rank `|E| - |V| + 1`, so `H^1(
 `k = |E| - |V| + 1`. Mechanized combinatorially, without constructing `pi_1`: the non-tree edges of
 a spanning tree number `|E| - |V| + 1` (`betti_number`), and two tree-fixed labelings are
 cohomologous iff their non-tree labels are simultaneously conjugate (`H1_classification`).
+
+On the nerve as a 2-complex, each 2-cell (a triangle, or any closed walk) adds a relation: its
+holonomy must be trivial. Mechanized in `CohomologyNerve.v`: for any group, `H^1(K; G)` is the
+assignments of the non-tree generators satisfying every cell's relation word, up to simultaneous
+conjugation, that is `Hom(<X | relation words>, G)` modulo conjugation (`nerve_H1_classification`;
+abelian `G`: no quotient, `nerve_H1_abelian`). There is no rank for non-abelian `G`; the
+classification replaces it. Over Z/2 the count is exact: `2^((|E| - |V| + 1) - rank)` classes, the
+rank being the number of independent cell relations (`nerve_H1_Z2_count`); with no cells it is
+`2^(|E| - |V| + 1)` (`nerve_Z2_no_cells`), and the cells lower it exactly when they impose a
+relation (`nerve_Z2_full_iff`). The cells change the count, never existence: a section exists iff
+the labeling is a coboundary, independent of the cells (`nerve_section_iff_coboundary`). Classical
+and not mechanized: that the presented group is the fundamental group of the complex.
 
 A global section exists iff the labeling is a coboundary, that is, iff its class in `H^1` is
 trivial (`section_iff_coboundary`, any graph, any group), iff every fundamental cycle of a spanning
@@ -246,10 +273,19 @@ abelianized sizing gives a lower bound only, and it can be strictly too small.
 When the obstruction is nonzero, the question becomes how little to coordinate. Coordinating every
 non-tree edge of a spanning tree always suffices (`tree_has_section`). For invertible labels the
 minimum set of edges whose removal leaves a section is the group feedback edge set number of the
-labeled graph; it is NP-hard even in the abelian case, a result cited from the literature and not
-mechanized. Mechanized pieces: `edge_disjoint_lower_bound`, `edge_disjoint_min`,
-`min_G_ge_min_image`, `theta_separation`. Linking this minimum to the plan model (tree, root,
-coordinated set) is open (gap 10); the minimum for lossy transports is open (gap 11).
+labeled graph, and it is exactly what the coordination plan achieves at its best: on a connected
+network, some plan rooted at `r` coordinates at most `k` edges iff some feasible coordination
+deletes at most `k` edges, for every root (`plan_min_exact`, `plan_min_attained`,
+`plan_min_root_independent`). It is NP-hard already over Z/2: Max-Cut reduces to it, with the
+reduction mechanized (`maxcut_reduction`, `maxcut_plan_reduction`) and Max-Cut's NP-completeness
+cited. Earlier bounds: `edge_disjoint_lower_bound`, `edge_disjoint_min`, `min_G_ge_min_image`,
+`theta_separation`. For lossy transports the minimum is the least deletion whose residual passes
+the root-set criterion (`lmin_root_set`, decided by `lmin_decide`); on group-labeled networks it is
+the group feedback edge set minimum (`lossy_min_is_gfes`), but in general it is not cycle-based:
+a tree of two constant maps needs one deletion, which every cycle-only lower bound misses
+(`lossy_min_exceeds_cycle_bounds`). Telling minimum 0 from minimum 1 is NP-hard, by the 3-SAT
+reduction (`lmin_reduction`), so no efficient approximation within any factor exists unless
+P = NP; the problem is in NP (`min_le_np_certificate`).
 
 ### Beyond groups: the lossy side
 
@@ -300,8 +336,8 @@ witnesses on acyclic federations (`fed_exact_full`), and the global condition GC
 |---|---|---|
 | **Existence** | A global section (`H^0` non-empty) | Invertible: exact, the class in `H^1` is trivial (`section_iff_coboundary`, `cycle_basis_criterion`). Lossy: exact by root sets (`root_set_criterion_graph`), and NP-complete without a spanning root (`net_section_iff_sat`, `np_certificate`) |
 | **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
-| **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`) |
-| **Surgery** | The least coordination that removes the obstruction | Invertible: the group feedback edge set number, NP-hard (cited), with mechanized bounds (`edge_disjoint_lower_bound`, `min_G_ge_min_image`, `theta_separation`); its link to the plan model is open (gap 10). Lossy: open (gap 11), with the upper bound `rooted_coordination_suffices` |
+| **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`; on the 2-complex, `nerve_H1_classification`, `nerve_H1_Z2_count`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`) |
+| **Surgery** | The least coordination that removes the obstruction | Invertible: the group feedback edge set number, which the best coordination plan attains (`plan_min_exact`); NP-hard by a mechanized Max-Cut reduction (`maxcut_reduction`). Lossy: the least deletion passing the root-set criterion (`lmin_root_set`, `lmin_decide`), not cycle-based (`lossy_min_exceeds_cycle_bounds`); NP-hard even to tell 0 from 1 (`lmin_reduction`) |
 
 [REGIME-AUDIT.md](../REGIME-AUDIT.md) asks these questions of every regime: existence and
 convergence are its convergence rows, surgery its optimization rows, and the obstruction is what
