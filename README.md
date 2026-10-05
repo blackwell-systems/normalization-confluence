@@ -55,7 +55,9 @@ cheap sufficient conditions at build time (see [Companion Tools](#companion-tool
 
 **Researchers: what is new, and against what?** The [papers](#publications), then
 [docs/THEORY.md](docs/THEORY.md) (the theory overview: the third regime, what is new and what is
-not, each item marked mechanized, paper or implemented, and the key concepts),
+not, each item marked mechanized, paper or implemented, the key concepts, and a
+[mathematical structure](docs/THEORY.md#mathematical-structure) section placing the theory in pure
+mathematics),
 [docs/LANDSCAPE.md](docs/LANDSCAPE.md) (placement against prior work),
 [docs/SUBSUMPTION.md](docs/SUBSUMPTION.md) (CRDTs as the compensation-free fragment) and
 [docs/CATEGORICAL-STRUCTURE.md](docs/CATEGORICAL-STRUCTURE.md) (working notes for the companion

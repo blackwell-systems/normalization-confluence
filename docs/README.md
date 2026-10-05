@@ -7,7 +7,7 @@ Every page in this repository, with its role in one line. The front page is
 
 | Page | Role |
 |---|---|
-| [THEORY.md](THEORY.md) | Theory overview: the third regime, what is new (each item marked mechanized, paper or implemented) and what is not, the key concepts, and how the three convergence regimes nest. |
+| [THEORY.md](THEORY.md) | Theory overview: the third regime, what is new (each item marked mechanized, paper or implemented) and what is not, the key concepts, and how the three convergence regimes nest. Its [Mathematical structure](THEORY.md#mathematical-structure) section places the theory in pure mathematics (rewriting, fixed points, category theory, sheaves, cohomology, traces), marking what is mechanized and what is classical. |
 | [REGIMES.md](REGIMES.md) | A decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges. Role: the field guide, how to pick a regime as a user. |
 | [../REGIME-AUDIT.md](../REGIME-AUDIT.md) | What is proved, regime by regime: for each question, the exact condition with its Coq theorem, the hardness result, or the gap stated in the open, the cheap sufficient condition, and what gsm checks. The certification of the headline; it stays at the root. |
 | [ROADMAP.md](ROADMAP.md) | The caveats removed so far (finite state, exactly-once delivery, sufficiency-only conditions, non-monotone cycles), the qualifiers found, what remains open, and which caveats are fundamental limits. Role: what is next. |
