@@ -261,3 +261,9 @@ all: CRDTBoundary.vo
 
 CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
 	coqc -Q . NC CRDTBoundary.v
+
+# Minimum coordination for lossy networks: characterization, decision, hardness (LossyMinimum.v).
+all: LossyMinimum.vo
+
+LossyMinimum.vo: LossyMinimum.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo
+	coqc -Q . NC LossyMinimum.v

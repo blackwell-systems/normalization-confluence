@@ -1564,6 +1564,74 @@ Print Assumptions NC.CRDTBoundary.crdt_boundary.
 Print Assumptions NC.CRDTBoundary.boundary_nonvacuous.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff_nonvacuous.
+Require NC.LossyMinimum.
+Print Assumptions NC.LossyMinimum.memb_spec.
+Print Assumptions NC.LossyMinimum.resid_from_ext.
+Print Assumptions NC.LossyMinimum.resid_from_none.
+Print Assumptions NC.LossyMinimum.resid_from_all.
+Print Assumptions NC.LossyMinimum.resid_from_app.
+Print Assumptions NC.LossyMinimum.resid_from_incl.
+Print Assumptions NC.LossyMinimum.resid_from_length.
+Print Assumptions NC.LossyMinimum.resid_nil.
+Print Assumptions NC.LossyMinimum.resid_all.
+Print Assumptions NC.LossyMinimum.cset_all.
+Print Assumptions NC.LossyMinimum.cset_nil.
+Print Assumptions NC.LossyMinimum.resid_from_map.
+Print Assumptions NC.LossyMinimum.cset_map.
+Print Assumptions NC.LossyMinimum.lmin_unique.
+Print Assumptions NC.LossyMinimum.lmin_zero_iff_section.
+Print Assumptions NC.LossyMinimum.lmin_le_iff.
+Print Assumptions NC.LossyMinimum.delete_all_feasible.
+Print Assumptions NC.LossyMinimum.lmin_le_length.
+Print Assumptions NC.LossyMinimum.lfeasible_root_set.
+Print Assumptions NC.LossyMinimum.trivial_forest.
+Print Assumptions NC.LossyMinimum.lfeasible_iff_root_set.
+Print Assumptions NC.LossyMinimum.lmin_root_set.
+Print Assumptions NC.LossyMinimum.forest_residual_feasible.
+Print Assumptions NC.LossyMinimum.lossy_lmin_le_nontree.
+Print Assumptions NC.LossyMinimum.filter_subsets.
+Print Assumptions NC.LossyMinimum.subsets_spec.
+Print Assumptions NC.LossyMinimum.least_from_spec.
+Print Assumptions NC.LossyMinimum.nodup_same_length.
+Print Assumptions NC.LossyMinimum.sec_b_spec.
+Print Assumptions NC.LossyMinimum.lfeasible_decide_forest.
+Print Assumptions NC.LossyMinimum.lmin_le_b_spec.
+Print Assumptions NC.LossyMinimum.lmin_b_correct.
+Print Assumptions NC.LossyMinimum.lmin_decide.
+Print Assumptions NC.LossyMinimum.lmin_exists.
+Print Assumptions NC.LossyMinimum.nodup_b_spec.
+Print Assumptions NC.LossyMinimum.cset_b_spec.
+Print Assumptions NC.LossyMinimum.min_le_np_certificate.
+Print Assumptions NC.LossyMinimum.verts_length.
+Print Assumptions NC.LossyMinimum.nodup_length_le.
+Print Assumptions NC.LossyMinimum.min_cert_size.
+Print Assumptions NC.LossyMinimum.lmin_le_np.
+Print Assumptions NC.LossyMinimum.lmin_zero_iff_sat.
+Print Assumptions NC.LossyMinimum.min_le_zero_iff_sat.
+Print Assumptions NC.LossyMinimum.net_unpinned.
+Print Assumptions NC.LossyMinimum.net_one_suffices.
+Print Assumptions NC.LossyMinimum.net_lmin_dichotomy.
+Print Assumptions NC.LossyMinimum.lmin_reduction.
+Print Assumptions NC.LossyMinimum.msection_lift.
+Print Assumptions NC.LossyMinimum.resid_lift.
+Print Assumptions NC.LossyMinimum.lfeasible_lift_iff.
+Print Assumptions NC.LossyMinimum.lossy_min_is_gfes.
+Print Assumptions NC.LossyMinimum.lift_cycle_basis.
+Print Assumptions NC.LossyMinimum.group_tree_lmin_zero.
+Print Assumptions NC.LossyMinimum.group_lmin_le_nontree.
+Print Assumptions NC.LossyMinimum.c22_lmin_b.
+Print Assumptions NC.LossyMinimum.c22_lmin.
+Print Assumptions NC.LossyMinimum.lossy_min_exceeds_cycle_bounds.
+Print Assumptions NC.LossyMinimum.cycle_bounds_nonvacuous.
+Print Assumptions NC.LossyMinimum.c22_group_lmin.
+Print Assumptions NC.LossyMinimum.diamond_lmin.
+Print Assumptions NC.LossyMinimum.two_lmin.
+Print Assumptions NC.LossyMinimum.scc_lmin.
+Print Assumptions NC.LossyMinimum.tri_lmin.
+Print Assumptions NC.LossyMinimum.bow_lmin.
+Print Assumptions NC.LossyMinimum.fsat_lmin.
+Print Assumptions NC.LossyMinimum.funsat_lmin.
+Print Assumptions NC.LossyMinimum.c22_certificate.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1574,8 +1642,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1524 ]; then
-  echo "FAIL: expected 1524 axiom-free results, got $N"
+if [ "$N" -lt 1591 ]; then
+  echo "FAIL: expected 1591 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
