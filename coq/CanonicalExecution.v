@@ -23,7 +23,10 @@
         normalization_descent_from: the same from s0 when StateDescent holds only at the states
         rawrun reaches from s0.
       - state_descent_iff_cc2: with N := RhoStar.rho_star (built from WFC), StateDescent is
-        exactly CC2. This is RhoStar.strong_absorption_iff_cc2 read in the new vocabulary.
+        exactly CC2 in its all-events form (every event at every invalid state, both sides compared
+        under rho_star), not the paper's Axiom CC2, which is required only for enabled events
+        (RhoStar.base_rem_absorption_enabled gives that direction). This is
+        RhoStar.strong_absorption_iff_cc2 read in the new vocabulary.
 
    2. Rewrite presentations (section Peaks). A step relation R, a start c0, SN from c0.
       - peak_exact: SN R c0 -> (CR R c0 <-> every peak at a configuration reachable from c0 is
@@ -32,7 +35,9 @@
       - classified_peak_exact: a classifier assigns each reachable non-trivial peak a kind
         (StatePeak, HistoryPeak, StructuralPeak); given completeness of the classifier,
         SN R c0 -> (CR R c0 <-> all StatePeaks join /\ all HistoryPeaks join /\ all
-        StructuralPeaks join).
+        StructuralPeaks join). The kinds are labels: the theorem holds for any complete
+        classifier, and nothing in it ties StatePeak to S or HistoryPeak to H. That reading is
+        supplied by each instance's choice of classifier.
 
    3. Execution equivalence (section ExecEquiv). Admissible executions are the elements t of an
       execution type T with Adm t (for instance: a delivery order with a proof that it is causally
@@ -52,8 +57,18 @@
           (agreement of every settled run with the canonical semantics /\ convergence of
            settled runs with EqH-equivalent events)
           IFF CanonicalFidelity /\ StateDescentR /\ HistoryDescentC.
-      - esh_exact: Settlement /\ agreement /\ convergence IFF E /\ S /\ H.
-      - esh_sufficient: the backward direction needs no Settlement. *)
+      - esh_exact: Settlement /\ agreement /\ convergence IFF E /\ S /\ H. Settlement is a
+        conjunct of both sides (E is Settlement /\ CanonicalFidelity): esh_exact is
+        canonical_execution_exact with its premise moved into the iff, and does not derive
+        Settlement.
+      - esh_sufficient: the backward direction needs no Settlement.
+      Qualifier for the whole section (hypothesis ok_inj, a premise of every exported theorem
+      that uses it): every event is an admissible action after every admissible word. So
+      "reachable" in StateDescentR means reachable by any word of events and admissible internal
+      actions, and HistoryDescentC ranges over all EqH-related event words; event-level
+      admissibility (enabledness, causal delivery) is not expressible here. The regimes that
+      restrict the event order (causal and at-least-once delivery) go through
+      history_descent_exact instead, where admissibility is the predicate Adm. *)
 
 Require Import NC.Newman NC.GovernanceConverse NC.GovernanceWFConverse NC.RhoStar.
 From Coq Require Import List.
@@ -125,7 +140,8 @@ Section Canonicalizer.
   Qed.
 End Canonicalizer.
 
-(* With N := rho* built from WFC (RhoStar.v), N is a canonicalizer and state descent is CC2. *)
+(* With N := rho* built from WFC (RhoStar.v), N is a canonicalizer and state descent is CC2 in
+   its all-events form (every event, every invalid state), not the enabled-events Axiom CC2. *)
 Theorem rho_star_canonicalizer :
   forall {State : Type} (rho : State -> State) (valid : State -> Prop)
     (valid_dec : forall s, {valid s} + {~ valid s}) (Phi : State -> nat),
@@ -290,7 +306,7 @@ Section Effective.
   Variable inj : Ev -> Act.
   Hypothesis kind_inj : forall e, kind (inj e) = Some e.
   Variable okA : Act -> Prop.                  (* admissible actions *)
-  Hypothesis ok_inj : forall e, okA (inj e).
+  Hypothesis ok_inj : forall e, okA (inj e).      (* every event admissible everywhere *)
   Variable Flush : list Act -> Prop.           (* flush words: admissible and internal *)
   Hypothesis flush_ok : forall c, Flush c -> Forall okA c.
   Hypothesis flush_internal : forall c, Flush c -> Forall (fun a => kind a = None) c.
@@ -309,7 +325,8 @@ Section Effective.
   Definition CanonicalFidelity (s0 : Cf) : Prop :=
     forall w, OKw w -> Settled (xrun w s0) -> xrun w s0 = N (xrun w s0).
   Definition EffectiveCanon (s0 : Cf) : Prop := Settlement s0 /\ CanonicalFidelity s0.
-  (* S: state descent at every reachable configuration. *)
+  (* S: state descent at every reachable configuration. Reachable means by any admissible action
+     word, and under ok_inj every event is admissible after every admissible word. *)
   Definition StateDescentR (s0 : Cf) : Prop :=
     forall p e, OKw p -> N (ev e (xrun p s0)) = N (ev e (N (xrun p s0))).
   (* H: history descent of the canonical semantics. *)
@@ -421,7 +438,8 @@ Section Effective.
         (proj_internal c2 (flush_internal c2 Hc2)), !app_nil_r, !proj_inj. exact He.
   Qed.
 
-  (* The headline: settled agreement with the canonical semantics iff E /\ S /\ H. *)
+  (* The headline: settled agreement with the canonical semantics iff E /\ S /\ H. Settlement
+     appears on both sides; the content is canonical_execution_exact. *)
   Theorem esh_exact : forall s0,
     (Settlement s0 /\ CanonAgree s0 /\ CanonConv s0) <->
     (EffectiveCanon s0 /\ StateDescentR s0 /\ HistoryDescentC s0).

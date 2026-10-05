@@ -23,15 +23,23 @@
    D. fed_exact_kernel: FederationEventsConverse.fed_exact. The history layer (trace
       convergence <-> commutation at each reachable independent swap) goes through
       history_descent_exact; C1R1 is reachable state descent of the overwrite canonicalizer
-      N_{j,z} := f j z (c1r1_state_descent), C2R is the one-swap history condition of the local
-      governed run (c2at_history). Splitting the swap condition into C1R1 and C2R needs the
-      model's locality lemma (FederationEventsConverse.gc_iff_reach). XU, XUat (hence XUR) and
-      XUc are state descent on larger exposure domains (xu_state_descent, xuat_state_descent,
-      xuc_state_descent).
+      N_{j,z} := f j z (c1r1_state_descent), pointwise (StateDescentAt) and with a canonicalizer
+      that depends on the point: z := applyF a s is the environment after a, and the point is
+      the target value s (reg e) before a. N_{j,z} is idempotent only on valid target values
+      with Inv z (overwrite_canonicalizer), so this is not the kernel's StateDescentR for one
+      fixed N. C2at is the one-swap history condition of the local governed run (c2at_history,
+      pointwise; C2R quantifies it over reachable states). Splitting the swap condition into C1R1
+      and C2R needs the model's locality lemma (FederationEventsConverse.gc_iff_reach); the rerun
+      through the P layer is CanonicalLocality.fed_exact_P. XU, XUat, XUR and XUc are pointwise
+      state descent on larger exposure domains (xu_state_descent, xuat_state_descent,
+      xur_state_descent, xuc_state_descent).
    E. pjc_exact_kernel, stream_exact_kernel, stream_free_history: the processor discipline
       normalizes before it applies, so its StatePeak class is empty (stream_state_peaks_empty)
       and confluence is the HistoryPeak condition PJC alone; under free delivery stream agreement
-      is history descent of the governed run from rho* s0 over duplicate-free reorderings.
+      is history descent of the governed run from rho* s0 over duplicate-free reorderings
+      (stream_free_history). That last theorem rereads StreamExact.stream_exact_free (its proof
+      rewrites by it); the kernel's own part, with no hypotheses and no use of stream_exact_free,
+      is stream_free_hd_iff_pcc: that history descent iff PCC.
    F. flush_fed_iff_kernel: DistributedCyclesExact.flush_fed_iff as an instance of
       CanonicalExecution.esh_exact (Settlement = FlushR, CanonicalFidelity = NoGhostR,
       StateDescentR = XUcR, HistoryDescentC = FMConv (Nc s0)); it needs none of the order
@@ -802,7 +810,7 @@ Section FedInstance.
     grun (f (reg e1) s) sig [e1; e2] (s (reg e1)) = grun (f (reg e1) s) sig [e2; e1] (s (reg e1)).
   Proof. intros s e1 e2. split; intros H; exact H. Qed.
 
-  (* XU (FederationEvents) is state descent of every N_{reg e, z} on valid target states;
+  (* XU (FederationEvents) is pointwise state descent of every N_{reg e, z} on valid target states;
      XUat (DistributedExact, hence XUR) is state descent at a stale reachable state, with the
      image of the flushed sources. *)
   Theorem xu_state_descent :
@@ -815,6 +823,19 @@ Section FedInstance.
     DistributedExact.XUat V f rho E reg sig o t e <->
     StateDescentAt (f (reg e) (FederationEvents.N V f rho o t)) sig e (t (reg e)).
   Proof. intros t e. split; intros H; symmetry; exact H. Qed.
+
+  (* XUR (DistributedExact) is xuat_state_descent at every state a distributed run reaches: the
+     "hence XUR" of the section head, stated. The canonicalizer is the point's own
+     N_{reg e, N t}, so this is pointwise state descent (StateDescentAt), not the kernel's
+     StateDescentR for one fixed N. *)
+  Theorem xur_state_descent : forall s0,
+    DistributedExact.XUR V f rho E reg sig o s0 <->
+    (forall p e, Forall (FederationEvents.okact E o) p ->
+       StateDescentAt (f (reg e) (FederationEvents.N V f rho o (FederationEvents.drun V f E reg sig p s0)))
+         sig e (FederationEvents.drun V f E reg sig p s0 (reg e))).
+  Proof.
+    intros s0. split; intros H p e Hp; apply xuat_state_descent; apply H; exact Hp.
+  Qed.
 End FedInstance.
 
 (* ============================================================================================ *)
@@ -956,6 +977,22 @@ Section StreamFree.
       rewrite (H p a b (proj1 (AtLeastOnceExact.causal_nohb _) Hc)). reflexivity.
   Qed.
 
+  (* The kernel's own contribution under free delivery, with no use of
+     StreamExact.stream_exact_free: history descent of the governed run from rho* s0 over the
+     duplicate-free reorderings is exactly PCC (history_descent_exact, causal_adequate at the
+     empty happens-before, pcc_gen_iff). stream_free_history below is stream_exact_free composed
+     with this theorem; its processor half (stream agreement iff PCC) is cited, not rederived. *)
+  Theorem stream_free_hd_iff_pcc : forall s0,
+    HistoryDescent (causal AtLeastOnceExact.nohb) (@Permutation Event) (fun w => gr (rho_star s0) w) eq <->
+    StreamExact.PCC apply rho_star s0.
+  Proof.
+    intros s0. rewrite <- pcc_gen_iff.
+    apply history_descent_exact; [reflexivity | intros; symmetry; assumption
+      | intros; etransitivity; eassumption | apply causal_adequate].
+  Qed.
+
+  (* A rereading, not a rederivation: the proof rewrites by StreamExact.stream_exact_free itself
+     and then applies the kernel (stream_free_hd_iff_pcc). *)
   Theorem stream_free_history : forall s0,
     StreamExact.StreamAgree event_eq_dec apply rho valid StreamExact.fen s0 <->
     HistoryDescent (causal AtLeastOnceExact.nohb) (@Permutation Event) (fun w => gr (rho_star s0) w) eq.

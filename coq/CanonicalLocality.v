@@ -28,8 +28,13 @@
       - reflects_realizable: Reflects plus "every exposed local or interface ambiguity is a
         component of an exposed global one" (Covered) gives Realizable.
       Each hypothesis is needed: factor_needs_sound (LCExposed, Realizable, LocalRes and
-      InterfaceRes hold, GlobalRes fails) and factor_needs_realizable (LC and GlobalRes hold,
+      InterfaceRes hold, GlobalRes fails), factor_needs_exposed (LCSound, Realizable, LocalRes
+      and InterfaceRes hold, GlobalRes fails) and factor_needs_realizable (LC and GlobalRes hold,
       LocalRes fails).
+      The theorem is thin by design: LCSound is the backward direction stated per global
+      ambiguity and Realizable the forward direction stated per local or interface ambiguity, so
+      all of factor_exact's content is in its premises. In an instance, both carry model content
+      (for the federation, pair_commute and pair_commute_nec).
 
    2. The acyclic federation (section FedFactor), Common (FederationEvents.v) and a valid
       consistent start s0. Global ambiguities: an independent pair (a, b) at a reachable state s,
@@ -60,23 +65,30 @@
       morphisms copy the other registry: every field of Common holds except the topological
       order; at every reachable state every local and interface ambiguity is resolved (C1R1 and
       C2R hold), yet two declared-independent events of registry 1 diverge after one swap
-      (GCF fails, so LCSound fails). On a cycle the local canonicalizer of registry 1 reads
+      (GCF fails). cyclic_lc_fails states that much; cyclic_lc_sound_fails states the step to
+      LC: with the decomposition of section FedFactor, LCExposed and both component resolutions
+      hold and LCSound, hence LC, fails. On a cycle the local canonicalizer of registry 1 reads
       registry 0, which reads registry 1: the event's own write comes back through its sources.
 
    4. The cyclic instance (cyc_factor_sound). On the monotone-cycle model of
       FederationEventsCyclesCheck.v (normal form (l, Lsh l)), FederationEventsCyclesCheck.commute_nf
       proves LCSound for the decomposition whose local ambiguities are the C2cyc witnesses and
       whose interface ambiguities are the C1cyc witnesses, every global ambiguity decomposing into
-      all of them (a static decomposition, not a pointwise one). So factor_sound gives GC on the
-      image of the normalizer from C1cyc and C2cyc: the soundness half only. Realizability of the
+      all of them (a static decomposition, not a pointwise one). So factor_sound gives, from
+      C1cyc and C2cyc, commutation of every independent pair at every normal form
+      (cyc_factor_sound), hence GC from every normal form (cyc_factor_sound_gc): the soundness
+      half only. Realizability of the
       static witnesses is not proved (and FederationEventsConverse.naive_converse_fails shows the
       static witnesses are not realizable in general).
 
-   5. Shared hypothesis with state gluing (common_r1). Common's c_local (a repair reads only its
-      sources) is SheafGluing.R1 for the repair read at any fixed target values. That is the one
-      hypothesis the two P halves are proved to share here; SheafGluing's Refines (every
-      constraint inside one cover member) has no counterpart in factor_exact, where the
-      constraints that cross the boundary become interface ambiguities instead. *)
+   5. Shared hypothesis with state gluing. Common's c_local (a repair reads only its sources) is
+      SheafGluing.R1 for the repair read at any fixed target values: common_r1 is the direction
+      from Common, c_local_iff_r1 the equivalence with c_local alone. That is the one hypothesis
+      the two P halves are proved to share here; SheafGluing's Refines (every constraint inside
+      one cover member) has no counterpart in factor_exact, where the constraints that cross the
+      boundary become interface ambiguities instead. fed_state_and_interaction states the two
+      halves side by side on one acyclic federation (a conjunction, not a combined descent
+      theorem). *)
 
 Require Import NC.CanonicalExecution NC.Trace.
 Require NC.FederationEvents NC.FederationEventsConverse NC.CanonicalInstances.
@@ -189,6 +201,28 @@ Proof.
   split; [intros g _; exact I |].
   split; [intros H; exact (H tt I) |].
   intros [H _]. destruct (H tt I) as [g [_ Hg]]. exact (Hg I).
+Qed.
+
+(* Without LCExposed: a global ambiguity whose components are never exposed. LCSound and
+   Realizable hold, LocalRes and InterfaceRes hold vacuously, and GlobalRes fails. With
+   factor_needs_sound and factor_needs_realizable, each of the three premises of factor_exact
+   (LCExposed and LCSound, which make up LC, and Realizable) is needed. *)
+Theorem factor_needs_exposed :
+  LCSound (fun _ : unit => True) (fun _ => False) (fun _ : unit => False) (fun _ : unit => False)
+    (fun _ _ => True) (fun _ _ => True) /\
+  Realizable (fun _ : unit => True) (fun _ => False) (fun _ : unit => False) (fun _ => False)
+    (fun _ : unit => False) (fun _ => False) /\
+  LocalRes (fun _ : unit => False) (fun _ => False) /\
+  InterfaceRes (fun _ : unit => False) (fun _ => False) /\
+  ~ LCExposed (fun _ : unit => True) (fun _ : unit => False) (fun _ : unit => False)
+      (fun _ _ => True) (fun _ _ => True) /\
+  ~ GlobalRes (fun _ : unit => True) (fun _ => False).
+Proof.
+  split; [intros g _ [HL _]; exact (HL tt I) |].
+  split; [split; intros x Hx; destruct Hx |].
+  split; [intros l Hl; destruct Hl |]. split; [intros i Hi; destruct Hi |].
+  split; [intros H; destruct (H tt I) as [HL _]; exact (HL tt I) |].
+  intros H. exact (H tt I).
 Qed.
 
 (* ============================================================================================ *)
@@ -508,6 +542,42 @@ Proof.
   intros H. pose proof (H [] CyNeg CyOn (or_intror Logic.I) 1) as D. discriminate D.
 Qed.
 
+(* The name cyclic_lc_fails is about LC, but its statement is about C1R1, C2R and GCF; the step
+   "so LCSound fails" was prose. Here it is stated: on the cycle, with the decomposition of
+   section FedFactor, LCSound (hence LC) fails at the global ambiguity (cy_s0, CyNeg, CyOn), while
+   LCExposed and both component resolutions hold. *)
+Theorem cyclic_lc_sound_fails :
+  LCExposed (fGAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+    (fLAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+    (fJAmb bool cy_f cy_rho cyev cy_reg cy_sig [0; 1] cy_s0) (fDL bool cyev cy_reg) (fDJ bool cyev cy_reg) /\
+  LocalRes (fLAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0) (fRL bool cy_f cyev cy_reg cy_sig) /\
+  InterfaceRes (fJAmb bool cy_f cy_rho cyev cy_reg cy_sig [0; 1] cy_s0) (fRJ bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) /\
+  ~ LCSound (fGAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+      (fRG bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) (fRL bool cy_f cyev cy_reg cy_sig)
+      (fRJ bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) (fDL bool cyev cy_reg) (fDJ bool cyev cy_reg) /\
+  ~ LC (fGAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+      (fRG bool cy_f cy_rho cyev cy_reg cy_sig [0; 1])
+      (fLAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0) (fRL bool cy_f cyev cy_reg cy_sig)
+      (fJAmb bool cy_f cy_rho cyev cy_reg cy_sig [0; 1] cy_s0)
+      (fRJ bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) (fDL bool cyev cy_reg) (fDJ bool cyev cy_reg).
+Proof.
+  destruct cyclic_lc_fails as (_ & _ & _ & _ & _ & _ & _ & _ & _ & H1 & H2 & _ & _ & Hg).
+  assert (HL : LocalRes (fLAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+                 (fRL bool cy_f cyev cy_reg cy_sig))
+    by exact (proj1 (fed_local _ _ _ _ _ _ _ _ _) H2).
+  assert (HJ : InterfaceRes (fJAmb bool cy_f cy_rho cyev cy_reg cy_sig [0; 1] cy_s0)
+                 (fRJ bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]))
+    by exact (proj1 (fed_interface _ _ _ _ _ _ _ _) H1).
+  assert (HS : ~ LCSound (fGAmb bool cy_f cy_rho cyev cy_reg cy_sig cy_I [0; 1] cy_s0)
+      (fRG bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) (fRL bool cy_f cyev cy_reg cy_sig)
+      (fRJ bool cy_f cy_rho cyev cy_reg cy_sig [0; 1]) (fDL bool cyev cy_reg) (fDJ bool cyev cy_reg)).
+  { intros H. apply Hg. apply (proj2 (fed_global _ _ _ _ _ _ _ _ _)).
+    apply (factor_sound _ _ _ _ _ _ _ _ (conj (fed_lc_exposed _ _ _ _ _ _ _ _ _) H) HL HJ). }
+  split; [exact (fed_lc_exposed _ _ _ _ _ _ _ _ _) |].
+  split; [exact HL |]. split; [exact HJ |]. split; [exact HS |].
+  intros [_ H]. exact (HS H).
+Qed.
+
 (* ============================================================================================ *)
 (* 4. The cyclic instance: soundness of the static decomposition (FederationEventsCyclesCheck) *)
 (* ============================================================================================ *)
@@ -582,6 +652,26 @@ Section CycFactor.
     - intros [[[a b] x] h] [E12 [Hab [Hv Hh]]]. exact (H2 a b x h E12 Hab Hv Hh).
     - intros [[[e x] h] h'] [Hv [Hh Hh']]. exact (H1 e x h h' Hv Hh Hh').
   Qed.
+
+  (* cyc_factor_sound's conclusion is commutation of every independent pair at every normal form
+     Nr t. The docs read it as "GC on the image of the normalizer"; this is that reading, stated:
+     GC (FederationEventsCycles.GC, for the governed step Nr o cev) from every normal form. *)
+  Lemma cyc_grun_nf : forall p t, exists t', FederationEventsCycles.grun (Loc * Sh) E Nr
+    (FederationEventsCyclesCheck.cev Loc Sh Lc Hc Rg lget lset sget sset E reg sig) p (Nr t) = Nr t'.
+  Proof.
+    induction p as [| e p IH]; intros t; [exists t; reflexivity |].
+    exact (IH (FederationEventsCyclesCheck.cev Loc Sh Lc Hc Rg lget lset sget sset E reg sig e (Nr t))).
+  Qed.
+
+  Theorem cyc_factor_sound_gc :
+    FederationEventsCyclesCheck.C1cyc Lc Hc Rg cvalid E reg sig Hs ->
+    FederationEventsCyclesCheck.C2cyc Lc Hc Rg cvalid E reg sig I Hs ->
+    forall t, FederationEventsCycles.GC (Loc * Sh) E Nr
+      (FederationEventsCyclesCheck.cev Loc Sh Lc Hc Rg lget lset sget sset E reg sig) nreg I (Nr t).
+  Proof.
+    intros H1 H2 t p a b Hab. destruct (cyc_grun_nf p t) as [t' ->].
+    exact (cyc_factor_sound H1 H2 (Nr t', a, b) (conj (ex_intro _ t' eq_refl) Hab)).
+  Qed.
 End CycFactor.
 
 (* ============================================================================================ *)
@@ -596,4 +686,34 @@ Theorem common_r1 : forall V src f valid rho E reg sig o,
 Proof.
   intros V src f valid rho E reg sig o HC y B s t H.
   exact (FederationEvents.c_local _ _ _ _ _ _ _ _ _ HC B s t (y B) H).
+Qed.
+
+(* common_r1 is one direction from all of Common. The identification the docs state ("c_local is
+   R1 for the repair read at any fixed target values") is this equivalence, with c_local alone. *)
+Theorem c_local_iff_r1 : forall (V : Type) (src : nat -> list nat) (f : nat -> (nat -> V) -> V -> V),
+  (forall j z1 z2 x, (forall k, In k (src j) -> z1 k = z2 k) -> f j z1 x = f j z2 x) <->
+  (forall y : nat -> V, SheafGluing.R1 src (fun B s => f B s (y B))).
+Proof.
+  intros V src f. split.
+  - intros H y B s t Hst. exact (H B s t (y B) Hst).
+  - intros H j z1 z2 x Hz. exact (H (fun _ => x) j z1 z2 Hz).
+Qed.
+
+(* The two P halves side by side on one acyclic federation: a conjunction, not a combined
+   descent theorem. Under Common and a valid consistent start, the repair read at any fixed
+   target values glues on every refining cover (SheafGluing.gluing, through common_r1), and trace
+   convergence is exactly interface state descent plus local history descent (fed_exact_P). *)
+Theorem fed_state_and_interaction : forall V src f valid rho E reg sig I o,
+  FederationEvents.Common V src f valid rho E reg sig o ->
+  forall s0, FederationEvents.Inv V valid s0 -> FederationEvents.Cons V f o s0 ->
+  (forall (y : nat -> V) (rho' : nat -> V -> V) (get : nat -> V -> V) (C : list (list nat)),
+     SheafGluing.Refines src C -> SheafGluing.GluesFor src rho' get (fun B s => f B s (y B)) C) /\
+  (FederationEventsConverse.TraceConv V f rho E reg sig I o s0 <->
+   FederationEventsConverse.C1R1 V f rho E reg sig o s0 /\ FederationEventsConverse.C2R V f rho E reg sig I o s0).
+Proof.
+  intros V src f valid rho E reg sig I o HC s0 Hi Hc. split.
+  - intros y rho' get C Hr fam d Hcov Hcomp Hl. subst C.
+    exact (proj1 (SheafGluing.gluing src rho' get _ (common_r1 V src f valid rho E reg sig o HC y)
+                    fam d Hcomp Hl Hr)).
+  - exact (fed_exact_P V src f valid rho E reg sig I o HC s0 Hi Hc).
 Qed.
