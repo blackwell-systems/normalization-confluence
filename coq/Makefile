@@ -171,3 +171,9 @@ all: FederationEventsCyclesMulti.vo
 
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
+
+# Exact event-order condition under the coordination plan (CoordinatedExact.v).
+all: CoordinatedExact.vo
+
+CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
+	coqc -Q . NC CoordinatedExact.v

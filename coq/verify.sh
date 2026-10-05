@@ -754,6 +754,30 @@ Print Assumptions NC.FederationEventsCyclesMulti.prod_nf.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_converges.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_gc.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_instance.
+Require NC.CoordinatedExact.
+Print Assumptions NC.CoordinatedExact.coordinated_network_shape.
+Print Assumptions NC.CoordinatedExact.coordinated_c1_static.
+Print Assumptions NC.CoordinatedExact.coordinated_c1r1.
+Print Assumptions NC.CoordinatedExact.coordinated_c2at_iff.
+Print Assumptions NC.CoordinatedExact.applyF_root.
+Print Assumptions NC.CoordinatedExact.coordinated_root_run.
+Print Assumptions NC.CoordinatedExact.coordinated_root_reach.
+Print Assumptions NC.CoordinatedExact.root_only_run.
+Print Assumptions NC.CoordinatedExact.coordinated_gc_iff.
+Print Assumptions NC.CoordinatedExact.coordinated_fed_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_fed_exact_full.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_perm_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact_global.
+Print Assumptions NC.CoordinatedExact.old_implies_rootcc.
+Print Assumptions NC.CoordinatedExact.coordinated_runs_kept.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact_plan.
+Print Assumptions NC.CoordinatedExact.coordinated_events_converge_recovered.
+Print Assumptions NC.CoordinatedExact.klein_group.
+Print Assumptions NC.CoordinatedExact.k_rrun_fixed.
+Print Assumptions NC.CoordinatedExact.old_condition_not_necessary.
+Print Assumptions NC.CoordinatedExact.copyback_events_exact.
+Print Assumptions NC.CoordinatedExact.negation_events_exact.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -764,8 +788,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 729 ]; then
-  echo "FAIL: expected 729 axiom-free results, got $N"
+if [ "$N" -lt 752 ]; then
+  echo "FAIL: expected 752 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
