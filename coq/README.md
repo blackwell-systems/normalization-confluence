@@ -24,13 +24,14 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
 ```
 
 Expected tail: `PASS: all 1783 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1560 gated results and fails if any of them depends on an
+The gate runs `Print Assumptions` on all 1783 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
 certification-soundness results and the verified-checker results behind the table and rules oracles,
 the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over sub-federation covers, the cohomological layer
-(`Cohomology.v` to `CohomologyGeneral.v`, `RootSet.v`), and the federation modules (acyclic event
+(`Cohomology.v` to `CohomologyGeneral.v`, `CohomologyNerve.v`, `RootSet.v`) with minimum
+coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
 rootless cycles, the distributed propagation model (acyclic and on monotone cycles), the federated
 rewrite system and compositional collapse). The [module index](#modules-by-regime) below lists
@@ -172,19 +173,15 @@ is on the same page.
 
 ### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
-No module: nothing is mechanized on the 2-complex itself (the rank of `H^1` with triangle relations
-is paper level). What exists is on the 1-skeleton, `H1_classification`, `gauge_fix` and
-`betti_number` in `CohomologyGraph.v`. Sheaf gluing is mechanized over sub-federation covers in
-`SheafGluing.v` (section 6 above), with the negative half, `gluing_order_dependent` in
-`Cohomology.v`, placed as the counterexample to certificate compatibility.
-
 | Module | Headline theorems | Details |
 |---|---|---|
 | `CohomologyNerve.v` | `nerve_H1_classification` (classes = relation-satisfying generator assignments up to simultaneous conjugation), `nerve_H1_abelian`, `nerve_H1_Z2_count` (`2^((\|E\| - \|V\| + 1) - rank)` classes), `nerve_Z2_full_iff`, `nerve_section_iff_coboundary`; `triangle_kills_flip` | [`H^1` on the 2-complex](docs/non-monotone-invertible.md#h1-on-the-nerve-as-a-2-complex-cohomologynervev) |
 
 The 1-skeleton results are `H1_classification`, `gauge_fix` and `betti_number` in
-`CohomologyGraph.v` (section 11 above). The positive sheaf-gluing assembly is paper level; the
-negative half of gluing is `gluing_order_dependent` in `Cohomology.v`.
+`CohomologyGraph.v` (section 11 above). Sheaf gluing is mechanized over sub-federation covers in
+`SheafGluing.v` (section 6 above), with the negative half, `gluing_order_dependent` in
+`Cohomology.v`, placed as the counterexample to certificate compatibility; the paper's
+variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` gap 13).
 
 ### 14. Compositional collapse ([docs/collapse.md](docs/collapse.md))
 
@@ -229,7 +226,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1560
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1783
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

@@ -343,11 +343,13 @@ Kept at paper level after the first mechanization pass, and since mechanized:
   (`c15_exact_refuter`), and one seed is definitive on the regular action
   (`c15_regular_definitive`) but not in general (`c15_definitive_claim_false`).
 
-Still at paper level: the rank on the nerve as a 2-complex (`REGIME-AUDIT.md`, section 13). The
-sheaf gluing assembly is mechanized for consistent states on every refining cover and for
+The rank on the nerve as a 2-complex is mechanized: `H^1` with the triangle relations is classified
+for any group and counted over Z/2 (`nerve_H1_classification`, `nerve_H1_Z2_count`,
+[`CohomologyNerve.v`](non-monotone-invertible.md#h1-on-the-nerve-as-a-2-complex-cohomologynervev)).
+The sheaf gluing assembly is mechanized for consistent states on every refining cover and for
 certificates on covers closed under sources, with its boundary stated
 ([`SheafGluing.v`](#sheaf-gluing-over-sub-federation-covers-sheafgluingv)).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate
-(currently 1560 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1783 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.

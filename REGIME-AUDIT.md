@@ -7,8 +7,8 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Audited at `main` `aa6af87` (gate: `coq/verify.sh`, 1499 axiom-free results) and
-gsm `main` `e4c148f` (gsm #34 adds the XU check read in section 8; gsm #36 and #37 since then are
+It adds no proofs. Audited at `main` `70646f6` (gate: `coq/verify.sh`, 1783 axiom-free results) and
+gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39 since then are
 documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not matched by
 name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
@@ -28,8 +28,17 @@ the iff (#64 `DistributedCyclesExact.v`). The distributed model is now exact in 
 development covers (acyclic; monotone cycles with reset epochs; monotone cycles without resets),
 for convergence together with agreement with the FedMachine. #64 also showed that convergence among
 quiescent interleavings alone, without that agreement, is not characterized; that is recorded as
-gap 14. The tables below are the current state; the conclusion re-answers the old questions and
-confirms the wording.
+gap 14. A fifth wave took up the optimization and counting gaps, 10 to 13. Minimum coordination on
+invertible networks is tied to the plan model exactly, with a mechanized Max-Cut reduction (#72
+`CoordinationMinimum.v`, gap 10 closed); minimum coordination on lossy networks has an exact
+characterization, a decision procedure, a mechanized 3-SAT reduction and an NP certificate (#70
+`LossyMinimum.v`, gap 11 closed); `H^1` on the nerve as a 2-complex is classified for any group and
+counted over Z/2 (#71 `CohomologyNerve.v`, gap 12 closed); and sheaf gluing is exact on the
+registry-level site for consistent states, with certificates gluing on covers closed under sources
+(#73 `SheafGluing.v`, gap 13 narrowed to the paper's variable-level and monotone-overlap site). The
+research note on lossy networks (#52) is now [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md). The
+tables below are the current state; the conclusion re-answers the old questions and confirms the
+wording.
 
 ## How to read the tables
 
@@ -159,7 +168,7 @@ group elements.
 | No authority root, any other invertible graph (several cycles, mixed orientation) | **None mechanized** | none | n/a | **open** (medium) |
 | What must be coordinated, relative to a spanning tree | Exactly the unbalanced non-tree edges: `plan_exact`, `coordination_needed`; soundness `coordinated_sound`, `coordinated_unique_nf`; balance is static `balanced_any_section`; root dependence `root_choice_matters` | Coordinate all unbalanced edges | `CoordinationPlan` cuts a feedback edge set by DFS (every cycle, not only unbalanced ones) and names the authority; `BuildCoordinated` | gsm's plan is sound but not the holonomy-minimal one. - |
 | Event order under the coordination | From a start consistent with the driving network, J-trace-equivalent sequences all converge iff independent root events commute at every root value reachable by root events: `coordinated_events_exact`, `coordinated_perm_exact`, `coordinated_events_exact_plan`; from every start iff they commute at every value: `coordinated_events_exact_global` | Root events commute at every value: `coordinated_events_converge` (recovered as `coordinated_events_converge_recovered`; not necessary for a fixed start: `old_condition_not_necessary`) | `BuildCoordinated` runs the acyclic C1 and C2 on the residual (on the driving network C1 holds unconditionally, `coordinated_c1_static`, and C2 is the root-event condition, `coordinated_c2at_iff`) | - (closed by #47) |
-| **Optimization:** minimum coordination over all trees and roots | The minimum deletion set with a feasible residual is the group feedback edge set number. That equality is definitional given `section_iff_coboundary` and `feasible`; no theorem links it to the plan model (tree, root, `C`). Mechanized pieces: `edge_disjoint_lower_bound`, `edge_disjoint_min`, `min_G_ge_min_image`, `theta_separation` (`S_3`: `min_G = 2 > 1 = min_{G^ab}`) | Unbalanced edges of any rooted tree: size at most `betti_number` | `CoordinationPlan` (upper bound, "not necessarily the minimum") | **hardness** (NP-hard, cited: Cat section 8) and **open** (plan-model link, medium) |
+| **Optimization:** minimum coordination over all trees and roots | For a connected network (some plan rooted at `r` exists), any group with decidable equality, regular action: some plan rooted at `r` coordinates at most `k` edges iff some feasible coordination deletes at most `k` edges, so the minimum plan cost over rooted spanning trees is the group feedback edge set number: `plan_min_exact` (lower bounds `plan_min_lower_iff`; attained, `plan_min_attained`; the same for every root, `plan_min_root_independent`; with membership deletion on a duplicate-free network, `plan_min_exact_set`). Each plan's coordinated set is feasible (`plan_coord_feasible`), and every feasible set yields a plan no costlier (`feasible_plan`; the residual need not be connected). Earlier pieces: `edge_disjoint_lower_bound` (per plan: `plan_cost_ge_disjoint`), `edge_disjoint_min`, `min_G_ge_min_image`, `theta_separation` (`S_3`: `min_G = 2 > 1 = min_{G^ab}`); over `S_3` the tree choice matters (`s3_tree_choice`) | Unbalanced edges of any rooted tree: size at most `betti_number` (`plan_cost_le_betti`) | `CoordinationPlan` (upper bound, "not necessarily the minimum"; it cuts every cycle, not the minimum-cost plan) | Qualifiers: connectivity is needed (`plan_min_connected_needed`; on a disconnected network the theorem applies per component), and `NoDup` for the set form (`plan_min_nodup_needed`). **hardness** (mechanized reduction): a graph `H` with every edge labeled by the Z/2 flip has a feasible coordination with `\|F\| + k <= \|H\|` iff `H` has a cut of at least `k` edges (`maxcut_reduction`; plans: `maxcut_plan_reduction`; same size: `signed_size`), so minimum coordination is NP-hard already over Z/2 and in the plan model, with NP-completeness of Max-Cut cited (Karp 1972); a plan is the NP certificate (`section_decide`). - (closed by #72; was gap 10) |
 
 ## 12. Non-invertible transports
 
@@ -176,15 +185,15 @@ edge is an equation and the consistent states are the sections (`msection`).
 | Counting and uniqueness given root values | Sections correspond bijectively to consistent root assignments: `root_set_bijection`, counted by `root_set_count`; sections are determined by their root values (`out_forest_unique`) | n/a | n/a | - (closed by #54) |
 | Event order under root-set coordination (non-invertible driving forest) | From a start consistent with the forest's driving network, J-trace-equivalent sequences all converge iff, for each root `r`, `r`'s independent events commute at every value reachable from `s0 r` by `r`'s own events: `forest_events_exact`; permutation form `forest_perm_exact`; from every consistent start iff they commute at every value, iff static C1 and C2: `forest_events_exact_global`, `forest_global_iff_static`. One condition per root: roots never interact (`forest_runs_by_root`, `forest_cross_commute`, `forest_run_single_root`; events on driven registries are overwritten, `forest_driven_noop`), and the only coupling is through constraints (`forest_runs_kept`). The group case is recovered (`coordinated_events_exact_recovered`) | Every root's events commute at every value (`forest_events_exact_global`); C1 holds unconditionally on the forest (`forest_c1_static`) | n/a | Qualifier: commuting at the start value is not enough (`tw_reachable_matters`). - (closed by #59) |
 | Rootless propagation (resolver reading B): does every fair order reach one consistent state | **None mechanized** for non-invertible labels. The Boolean instances `copyback_without_authority` and the negation loop are invertible (section 11) | none | n/a (a non-monotone cycle fails `Build`) | **open** (medium for Boolean fibers, large in general; [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2) |
-| **Optimization:** minimum coordination | **None known**; "the minimum is not a cohomological rank" (Cat section 8) | `rooted_coordination_suffices` (upper bound) | n/a | **open** (NP-hardness inherited from the Z/2 case, cited; `LossyHardness.v` is about existence, not this optimization) |
+| **Optimization:** minimum coordination (fewest edges whose deletion leaves a section; edges deleted by position, so parallel copies are distinct) | `F` is feasible iff the residual passes the root-set criterion, for any root set and spanning forest of the residual: `lfeasible_root_set`, `lfeasible_iff_root_set`; the minimum is the least `\|F\|` whose residual passes it: `lmin_root_set` (unique: `lmin_unique`). Decided on a finite fiber with decidable equality: `lmin_decide` (`is_lmin G k <-> lmin_b G = k`), `lmin_b_correct`, `lmin_le_b_spec`, `lmin_exists`. On group-labeled networks under the regular action it is the group feedback edge set minimum: `lossy_min_is_gfes`, per fundamental cycle `lift_cycle_basis` | Delete the non-forest edges: `lossy_lmin_le_nontree` (an outward forest `T` followed by `X`: minimum at most `\|X\|`), `rooted_coordination_suffices` | n/a | Qualifier: the minimum is not cycle-based; every lower bound that sees only cycles is 0 on the C22 tree, whose minimum is 1 (`lossy_min_exceeds_cycle_bounds`, `c22_lmin`), while the same tree with group labels has minimum 0 (`c22_group_lmin`). **hardness** (mechanized reduction): the 3-SAT network has minimum 0 iff the formula is satisfiable and 1 otherwise (`lmin_zero_iff_sat`, `net_lmin_dichotomy`, `lmin_reduction`, with `\|net f\| = 6\|f\| + 1`), so "minimum `<= k`" is NP-hard already at `k = 0`, and no efficient algorithm approximates the minimum within any factor unless P = NP, by the standard argument; membership in NP by a checkable certificate (`min_le_np_certificate`, `min_cert_size`, `lmin_le_np`). The resolver-reading variants of [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p4-minimum-coordination-for-lossy-networks) P4 (delete edges until every remaining cycle is non-negative, or non-positive) are a different question, tied to rootless reading-B convergence (gap 3). - (closed by #70; was gap 11) |
 
 ## 13. The full nerve as a 2-complex
 
 | Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
 |---|---|---|---|---|
-| Convergence (existence of a section) | Decided on the graph: `section_iff_coboundary` covers every labeled graph, so triangles add no convergence question | n/a | n/a | - |
-| **Counting:** rank of `H^1` with triangle relations | **None mechanized.** On the 1-skeleton: `H1_classification`, `gauge_fix`, `betti_number` (`\|E\| - \|V\| + 1`) | n/a | n/a | **paper** (Cat section 6) and **open** (Cat conclusion: "the classification on the full 2-dimensional nerve") |
-| Sheaf gluing (R1/R2 as the gluing axiom, positive assembly) | **None mechanized**; the negative half is `gluing_order_dependent` | n/a | n/a | **paper** (Cat `prop:gluing`, section 5) |
+| Convergence (existence of a section) | Decided on the graph: `section_iff_coboundary` covers every labeled graph, so triangles add no convergence question; on the complex, a section exists iff the labeling is a coboundary iff it is cohomologous to the identity labeling, independent of the cells, and a labeling with a section is a cocycle of every complex on its graph: `nerve_section_iff_coboundary` | n/a | n/a | - |
+| **Counting:** `H^1` with triangle relations (2-cells: closed walks, triangles the length-3 case) | Any group: for a spanning tree `T` with extra edges `X`, the tree-fixed labelings that are cocycles are exactly the generator assignments satisfying every cell's relation word; every cocycle is cohomologous to one; two are cohomologous iff simultaneously conjugate; conjugation preserves the relations: `nerve_H1_classification`. So `H^1(K; G)` is `Hom(<X \| relation words>, G)` modulo conjugation; there is no rank for non-abelian `G`, and the classification replaces it. Abelian `G`: classes are exactly the relation-satisfying assignments (`nerve_H1_abelian`). Over Z/2: exactly `2^((\|E\| - \|V\| + 1) - rank)` classes, `rank` the number of independent cell relations (`nerve_H1_Z2_count`; `rank` depends only on the solution set, `rel_rank_solution_set`); no cells recovers `betti_number` (`nerve_Z2_no_cells`); the count is `2^(\|E\| - \|V\| + 1)` iff the cells impose no relation (`nerve_Z2_full_iff`); a cell never raises it (`nerve_Z2_cell_lowers`). Gauge invariance: `hol_gauge`, `cocycle_gauge`. On the 1-skeleton: `H1_classification`, `gauge_fix`, `betti_number` | n/a | n/a | Scope: the dimension formula is mechanized over Z/2 only (for other coefficients the classification gives the solution-space description); that the presented group `<X \| relation words>` is the fundamental group of the complex is standard and not mechanized. Non-vacuity: `triangle_kills_flip`, `square_dependent_cell`. - (closed by #71; was gap 12) |
+| Sheaf gluing (R1/R2 as the gluing axiom, positive assembly), registry-level site: open sets are sub-federations, a cover of `W` is a list of them concatenating to `W`, sections over `U` are the states consistent on `U` | Separation with no hypothesis (`separation`). Under R1, a compatible family of local sections glues to a section over the union, unique there, when the cover refines the constraints (`Refines`: every constraint inside the union has its whole footprint in one member): `gluing`, `sheaf_condition`; on a refining cover a family is the restriction of a global section iff it is compatible and local: `sheaf_exact`; for fixed data, gluing iff local consistency on every member implies consistency on the union: `gluing_iff_local_global`. Exact and uniform in the data: gluing holds on `C` for every R1 federation on the graph iff `Refines C` (`sheaf_iff_refines`; the value type inhabited with two distinct shared values). Certificates: restriction of the global normalizer to `U` is `U`'s certificate iff `U` is closed under sources (`cert_restrict_iff`; relative form for every `U`: `cert_restrict`); on a cover by closed members the certificates are a compatible family of local sections whose gluing is the certificate of the union, lands in its sections and fixes them (`cert_glue`, `cert_sheaf`, `cert_retraction`) | Closed covers refine every constraint (`cert_sheaf`); the condition is on members, not overlaps (`chain_glues`) | n/a (gsm's resolver check `verifyResolved` covers R1; gsm has no cover-level check) | Qualifiers, each broken by an instance: `Refines` (`triangle_fails`), R1 (`r1_failure`; without R1 the sections are not a presheaf of `U`-states), certificate compatibility on the overlap (`gluing_cex_overlap`, wrapping `gluing_order_dependent`). The paper's "R2 makes the merged normal form land in the agreed valid set" holds with SC in R2's role; validity preservation (M1/R2) is not the condition (`cert_needs_sc`). **paper** (narrowed, gap 13): the paper's variable-level site (two subsystems may write one variable) and the monotone-overlap (cyclic, least-fixed-point) site of Cat section 5 are not mechanized; on covers not closed under sources only the relative restriction equation is proved, with no sheaf condition for relative certificates. Narrowed by #73 |
 
 ## 14. Compositional collapse
 
@@ -232,14 +241,14 @@ FedMachine, and for that property the answer is exact (`flush_fed_iff`, `lens_no
 `XUcR` and `FMConv` refute agreement (`copy_xu_fails`) or the joint property (`fm_conv_fails`), not
 `DConvQ` alone, so which of the three conjuncts a convergence-alone condition keeps is also open.
 
-Optimization and counting (unchanged since the first audit):
+Optimization and counting (unchanged from the first audit until the fifth wave, #70 to #73):
 
 | # | Question | Kind |
 |---|---|---|
-| 10 | Minimum coordination on invertible cycles tied to the authority-root plan model (section 11); its complexity is cited | open (medium); hardness cited |
-| 11 | Minimum coordination on non-invertible networks (section 12) | open (none known) |
-| 12 | Rank of `H^1` on the 2-complex (section 13) | paper and open |
-| 13 | Sheaf gluing, positive assembly (section 13) | paper |
+| 10 | Minimum coordination on invertible networks tied to the authority-root plan model (section 11) | **closed**, #72: exact, `plan_min_exact` (connected networks; the minimum plan cost over rooted spanning trees is the group feedback edge set number, for every root); hardness by a mechanized Max-Cut reduction (`maxcut_reduction`, `maxcut_plan_reduction`), NP-completeness of Max-Cut cited |
+| 11 | Minimum coordination on non-invertible networks (section 12) | **closed**, #70: exact, `lmin_root_set`, decided by `lmin_decide`; it is the group feedback edge set minimum on group-labeled networks (`lossy_min_is_gfes`) and not cycle-based in general (`lossy_min_exceeds_cycle_bounds`); hardness by a mechanized 3-SAT reduction (`lmin_reduction`: minimum 0 vs 1 is NP-hard, so no approximation within any factor unless P = NP), membership in NP (`min_le_np_certificate`) |
+| 12 | `H^1` on the 2-complex (section 13) | **closed**, #71: `nerve_H1_classification` (any group: `Hom(<X \| relation words>, G)` modulo conjugation), `nerve_H1_Z2_count` (over Z/2, `2^((\|E\| - \|V\| + 1) - rank)` classes). Not mechanized, as scope rather than gap: the dimension formula over coefficients other than Z/2, and the identification of the presented group with the fundamental group of the complex (standard) |
+| 13 | Sheaf gluing, positive assembly (section 13) | **narrowed**, #73: on the registry-level site gluing of consistent states is exact (`sheaf_iff_refines`, `sheaf_exact`; R1 and covers that refine the constraints), and certificates glue on covers closed under sources (`cert_sheaf`; restriction exact, `cert_restrict_iff`). Remaining, **paper**: the Cat paper's variable-level site and its monotone-overlap regime (cyclic, least fixed points); a sheaf condition for relative certificates on covers not closed under sources. Size: medium |
 
 Items 6, 7 and 9 were already in the first audit's tables (as qualifiers or "minor") but not in its
 conclusion; they were listed in the 989-gate revision because the headline asks that every
@@ -269,27 +278,29 @@ Yes, regime by regime:
 | Invertible, coordinated: what to coordinate; event order | `plan_exact`; `coordinated_events_exact` | | |
 | Non-invertible: single cycle; rooted; root set; event order under root-set coordination | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count`; `forest_events_exact` | existence NP-complete: reduction mechanized (`net_section_iff_sat`, `net_count`, `net_size`, `np_certificate`, #57), NP-completeness by the standard argument | 3 (rootless dynamics) |
 | Collapse | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) | | 5 (cyclic) |
-| Minimum coordination | | invertible: NP-hard (group feedback edge set), cited | 10, 11 |
-| 2-complex rank, sheaf gluing | | | 12, 13 |
+| Minimum coordination: invertible (plan model); lossy | `plan_min_exact`; `lmin_root_set`, `lmin_decide`, `lossy_min_is_gfes` | invertible: NP-hard, Max-Cut reduction mechanized (`maxcut_reduction`, #72), Max-Cut NP-completeness cited; lossy: NP-hard, even minimum 0 vs 1, 3-SAT reduction mechanized (`lmin_reduction`, #70), with an NP certificate (`min_le_np_certificate`) | |
+| 2-complex: `H^1` with triangle relations; sheaf gluing | `nerve_H1_classification`, `nerve_H1_Z2_count`; `sheaf_iff_refines`, `sheaf_exact`, `cert_sheaf` (registry-level site) | | 13 (narrowed: variable-level and monotone-overlap site, paper) |
 
 No regime is left that is neither exact, hardness-backed, nor listed. Two readings of the wording
 need care, and both hold:
 
-- "Machine-checked" applies to the exact conditions. Of the two hardness results, the one a
-  convergence regime rests on (NP-completeness of root-set existence) now has its reduction
-  machine-checked: `LossyHardness.v` (#57) proves that the 3-SAT construction is correct in both
-  directions (`net_section_iff_sat`), parsimonious (`net_bijection`, `net_count`), linear in size
-  (`net_size`), and that a section has a polynomially checkable certificate (`np_certificate`).
-  NP-completeness then follows by the standard argument (membership from the certificate, hardness
-  from the linear reduction and the NP-hardness of 3-SAT, which is not itself mechanized). The other
-  (NP-hardness of minimum coordination, the group feedback edge set problem) is still cited from the
-  literature. The README's precision paragraph said "the hardness results ... are cited, not
-  mechanized"; that sentence is now inaccurate for root-set existence and should say that the
-  reduction is machine-checked and NP-completeness follows by the standard argument, keeping
-  "cited" for minimum coordination. Updated in the same PR as this revision.
+- "Machine-checked" applies to the exact conditions. Every hardness result now has its reduction
+  machine-checked, with the NP-hardness of the source problem cited and the conclusion drawn by the
+  standard argument. Root-set existence: `LossyHardness.v` (#57) proves that the 3-SAT construction
+  is correct in both directions (`net_section_iff_sat`), parsimonious (`net_bijection`,
+  `net_count`), linear in size (`net_size`), and that a section has a polynomially checkable
+  certificate (`np_certificate`). Lossy minimum coordination: `LossyMinimum.v` (#70) reuses that
+  network, whose minimum is 0 or 1 exactly as the formula is satisfiable or not (`lmin_reduction`),
+  with a checkable certificate (`min_le_np_certificate`). Invertible minimum coordination:
+  `CoordinationMinimum.v` (#72) reduces Max-Cut (`maxcut_reduction`, `maxcut_plan_reduction`,
+  same size by `signed_size`). Cited, not mechanized: NP-completeness of 3-SAT and of Max-Cut, and
+  the fixed-parameter and planar tractability results for the group feedback edge set problem (Cat
+  section 8), which no row relies on. Until #72 the README's precision paragraph kept "cited" for
+  minimum coordination; it now says that its reduction is machine-checked too. Updated in the same
+  PR as this revision.
 - "A hardness result showing no efficient one exists" is used only where the exact condition is
-  also mechanized (root sets) or where the problem is an optimization (minimum coordination). No
-  convergence regime rests on hardness alone.
+  also mechanized (root sets; both minimum-coordination problems). No convergence regime rests on
+  hardness alone.
 
 ### Re-answering the first audit's questions
 
@@ -301,9 +312,10 @@ criterion without a spanning root (#54). Of the gaps the 989-gate revision added
 root-set coordination (#59), enabledness a compensation step can disable (#56) and the state-based
 CRDT instance (#58) closed, and the distributed propagation model (gap 1) became exact on acyclic
 federations (#60), on monotone cycles under reset epochs or `LowR` (#62), and on monotone cycles
-without resets with no reachable hypothesis left (#64). Items 2, 3, 5 and 14 above remain, so the map
-is not complete. The headline does not claim completeness; it claims that every regime's status is
-stated.
+without resets with no reachable hypothesis left (#64). On the optimization and counting side,
+gaps 10, 11 and 12 closed (#72, #70, #71) and gap 13 narrowed (#73). Items 2, 3, 5 and 14 above
+remain open for convergence, and gap 13's residual is paper only, so the map is not complete. The
+headline does not claim completeness; it claims that every regime's status is stated.
 
 **Is "exact conditions in every regime" accurate?** No. Items 2, 3 and 5 are regimes with a
 sufficient condition only, or none. Item 14 is a question in a regime the development models
@@ -332,7 +344,13 @@ top of gsm's C1cyc and C2cyc, exactly: `FlushR` and `NoGhostR`. The per-event an
 sufficient checks (`infl_evsound`, `evlow_fairflush`, `step_sound_fairflush`, `nc_sound_low`) are cheap;
 `NoGhostR` in general needs a global invariant (`noghost_inv_iff`, `unique_or_low_noghost`) or a
 global uniqueness check. gsm runs none of these, so "not certified" for cyclic projection deployments
-remains the correct report.
+remains the correct report (gsm #39 now says so in its documentation). New since the 1524 gate:
+`plan_min_exact` gives gsm's `CoordinationPlan` a precise target. It cuts every cycle, which is
+sound but not minimal; the minimum is attained by the plan of some rooted spanning tree
+(`plan_min_attained`), finding it is NP-hard (`maxcut_plan_reduction`), and for a fixed tree the
+plan's cost is the number of non-tree edges unbalanced against any tree section
+(`plan_cost_any_section`). gsm has no lossy minimum-coordination check; `lmin_b`
+is an exact but exponential procedure.
 
 ### Wording
 
@@ -346,7 +364,10 @@ The line does not say the hardness results are machine-checked, so #57 does not 
 changes the precision paragraph under it (previous section). #60 and #62 do not change it either:
 they move most of gap 1 into the exact column and leave a residual that is still listed. #64 does not
 change it: it closes gap 1 and adds gap 14, which the README lists, so every regime is still exact,
-hardness-backed, or listed open. The first audit proposed narrower lines
+hardness-backed, or listed open. The fifth wave (#70 to #73) does not change it: three listed gaps
+move to the exact column with mechanized hardness reductions, and the fourth (gap 13) narrows to a
+residual that stays listed. The precision paragraph changes (minimum coordination's hardness is now
+a mechanized reduction, not only a citation). The first audit proposed narrower lines
 that named the exact core; they are superseded because the exact core now covers every delivery
 model of a single registry, the CRDT fragment in both forms, and every cyclic regime except those
 in the list above.
@@ -368,10 +389,10 @@ From the first audit's list (numbering kept):
 | 9 | Distributed propagation model on monotone cycles | done: exact under reset epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`), #62; without resets, unconditionally (`flush_fed_iff`, `fair_fed_iff`), with `FlushR` and `NoGhostR` characterized (`fair_flush_sound_iff`, `noghost_event_iff`, `noghost_inv_iff`) and gsm's checks reduced to them (`lens_noreset_iff`), #64. Convergence alone, without agreement, open (gap 14) |
 | 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54; NP-completeness reduction mechanized, #57; event order done, #59; rootless dynamics open (gap 3) |
 | 11 | Complete lattices without ACC | stated as a design exclusion (gap 8) |
-| 12 | Minimum coordination linked to the plan model | open (gap 10), medium |
-| 13 | Non-invertible minimum coordination | open (gap 11), large |
-| 14 | Rank of `H^1` on the 2-complex | open (gap 12), large |
-| 15 | Sheaf gluing, positive assembly | open (gap 13), large |
+| 12 | Minimum coordination linked to the plan model | done, #72 (`plan_min_exact`, `feasible_plan`; Max-Cut reduction `maxcut_reduction`) |
+| 13 | Non-invertible minimum coordination | done, #70 (`lmin_root_set`, `lmin_decide`, `lmin_reduction`, `min_le_np_certificate`, `lossy_min_is_gfes`) |
+| 14 | Rank of `H^1` on the 2-complex | done, #71 (`nerve_H1_classification` for any group; `nerve_H1_Z2_count` over Z/2) |
+| 15 | Sheaf gluing, positive assembly | done on the registry-level site, #73 (`sheaf_iff_refines`, `sheaf_exact`, `cert_sheaf`, `cert_restrict_iff`); the variable-level and monotone-overlap site open (gap 13, narrowed), medium |
 | 16 | Repair-disabled enabledness (gap 6) | done, #56 |
 | 17 | The state-based CRDT instance (gap 7) | done, #58 |
 | 18 | The lossy-network 3-SAT reduction (correctness, parsimony, size, certificate) | done, #57 |
@@ -432,17 +453,35 @@ Found in the fourth revision (at the 1499 gate), fixed in the same PR:
   switched off". The page now follows the mechanized statements (main map by execution semantics,
   the three monotone questions, `merge_action_exact` and `cvrdt_on_iff` for CRDTs).
 
+Found in the fifth revision (at the 1783 gate), fixed in the same PR:
+
+- `coq/README.md`, section 13: after #71 and #73 merged, the section kept the paragraph "No module:
+  nothing is mechanized on the 2-complex itself (the rank of `H^1` with triangle relations is paper
+  level)" above the `CohomologyNerve.v` row, and the paragraph below it still called the positive
+  sheaf-gluing assembly "paper level"; both now point to `CohomologyNerve.v` and `SheafGluing.v`.
+  The `Print Assumptions` sentence and the build instructions said 1560 (the standalone count of
+  #73) while the expected tail and `verify.sh` say 1783.
+- `coq/docs/federation-repair.md`, categorical-layer roadmap: "Still at paper level: the rank on
+  the nerve as a 2-complex", stale after #71, and "currently 1560 theorems".
+- `coq/docs/non-monotone-invertible.md`: "Paper-level (not mechanized): the complexity of choosing
+  the spanning tree that minimizes the coordinated set", stale after #72 (`plan_min_exact`,
+  `maxcut_reduction`).
+- `docs/CATEGORICAL-STRUCTURE.md`: its status lines called the rank on the 2-complex, the
+  non-invertible case and the sheaf assembly paper level or open; the non-invertible case had been
+  mechanized since #36 and #54, and the other two since #71 and #73.
+- `docs/LOSSY-NETWORKS.md` (merged by #52 the same day): P4 said open; it is done in reading A by
+  #70.
+
+Resolved outside this repository since the 1499 gate: gsm #39 rewrote the no-reset cyclic prose
+that gsm #36 had introduced (it now cites `lens_noreset_iff` and the `FlushR` and `NoGhostR`
+routes), and gsm's README now states the current headline.
+
 Still open:
 
-- gsm #36 (the comment in `federation_projection.go`, the `MergeProjection` doc in `machine.go`, the
-  `RequireProjectionSafe` error, and the theory page, now `docs/theory.md` after gsm #37) says a
-  cyclic deployment without resets is certified only when every event is inflationary or the repair
-  has a unique fixed point for every locals assignment. After #64 the exact condition is
-  `FlushR` and `NoGhostR` on top of gsm's checks (`lens_noreset_iff`), with further sufficient routes
-  (`SoundR` with per-event `LowR`, `soundr_fed_iff`, `lowr_post_iff`; invariants,
-  `unique_or_low_noghost`; `latched_exact` is safe with neither inflationary events nor a unique
-  fixed point). gsm's report is still correct; its prose is incomplete (outside this repository).
 - The Cat paper (v2) treats the input-port refinement "at the paper level"; `Collapse.v` mechanizes
-  it (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`).
+  it (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`). It also calls
+  `prop:gluing`, the sheaf assembly and the rank on the 2-complex paper level; `SheafGluing.v` and
+  `CohomologyNerve.v` now mechanize them on the registry-level site and for the 2-complex, and
+  `cert_needs_sc` shows that SC, not R2, is what makes a certificate land in its sections, so
+  `prop:gluing`'s R2 clause needs a wording fix.
 - `coq/PAPER-MAP.md` was written at the 254-theorem gate; its status columns predate WP1 to WP9.
-- gsm's README repeats the earlier headline (outside this repository).
