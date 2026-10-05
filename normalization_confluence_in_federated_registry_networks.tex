@@ -47,7 +47,7 @@ Dayna Blackwell\\
 \small\href{mailto:dayna@blackwell-systems.com}{dayna@blackwell-systems.com}\\
 \small Licensed under CC-BY-4.0.}
 
-\date{4 October 2026 (Version 2)}
+\date{5 October 2026 (Version 2)}
 
 \begin{document}
 \maketitle
@@ -293,8 +293,12 @@ CRDTs~\cite{shapiro2011crdt} guarantee convergence through algebraic
 structure: replicas that apply the same set of commutative, associative,
 idempotent operations converge to the same state.  Our setting is strictly more
 general in one dimension: we do not require operations to commute, only that
-their \emph{compensated results} commute.  This permits operations that
-individually violate invariants, which CRDTs cannot accommodate.  Conversely,
+their \emph{compensated results} commute.  This admits raw operations that
+leave the valid states and are then repaired, a convergence mechanism CRDTs do
+not use: a CRDT converges by the algebra of its operations, with no repair.
+With compensation removed the two coincide, and the extension is strict on the
+same transition representation, not on observable behavior
+(\Cref{sec:design-space}).  Conversely,
 CRDTs require no finiteness or boundedness assumptions.  Neither approach
 dominates: CRDTs are preferable when operations can be designed to commute,
 while registry governance is preferable when business rules constrain valid
@@ -1005,7 +1009,7 @@ is formalized with its two rules; the lexicographic measure
 $(|B|, \Phi(\sigma))$ discharges termination and the three critical-pair cases
 (closed by CC1, CC2, and determinism of~$\rho_R$) discharge local confluence,
 yielding confluence and unique normal forms.  The gate script
-\texttt{coq/verify.sh} checks 715 named results, and \texttt{Print
+\texttt{coq/verify.sh} checks 2012 named results at the time of this version, and \texttt{Print
 Assumptions} reports ``Closed under the global context'' (no axioms, no
 admitted lemmas) for every one.  The results this paper relies on, by
 section:
@@ -2486,9 +2490,13 @@ the compositional collapse in \texttt{Collapse.v}; coordinated cycles in
 the manufacturer and supplier) in \texttt{PaperInstances.v}.  Each refuted
 statement of version~1 has a gated counterexample against its exact hypotheses
 (Appendix~\ref{app:errata}).  The theorems named in this paper are in the
-\texttt{Print Assumptions} gate of \texttt{coq/verify.sh} (715 theorems at the time of writing), and each is ``Closed under the global context'': no
+\texttt{Print Assumptions} gate of \texttt{coq/verify.sh} (2012 theorems at the time of this version), and each is ``Closed under the global context'': no
 axioms, no admitted lemmas.  Not mechanized: the cyclic monotone case of \Cref{thm:collapse}, and the
-decidability remark for R1, R2, C1 and C2.
+decidability remark for R1, R2, C1 and C2.  Results mechanized after this paper
+was written (among them the distributed propagation model, root sets for lossy
+networks, exact state-based CRDTs, exact at-least-once delivery and exact
+stream agreement) are not written up here; \texttt{REGIME-AUDIT.md} in the
+artifact lists them with their Coq names and the gaps that remain open.
 \end{remark}
 
 %========================================
@@ -2517,10 +2525,24 @@ regimes under which distributed processors converge without coordination:
 \end{enumerate}
 
 The regimes relate as follows.  Operation commutativity with every state
-valid implies CC (with $\rho_R^* = \mathrm{id}$), and conversely a
-compensation-free system meets the causal convergence condition exactly when
-it is an op-based CRDT, so normalization confluence strictly contains the
-op-based CRDTs.  Invariant confluence implies that compensation never fires,
+valid implies CC (with $\rho_R^* = \mathrm{id}$).  Conversely, for a
+compensation-free system the CRDT conditions are exact: under causal
+exactly-once delivery it converges from every start state iff its concurrent
+raw operations commute (the op-based condition), and under unordered
+at-least-once delivery it converges from~$\sigma_0$ iff its raw operations are
+commutative and idempotent on the states reachable from~$\sigma_0$,
+equivalently, for a finite event range with decidable state equality, iff
+they act by joins in a join-semilattice on those states (the state-based
+condition) (\coq{crdt_boundary}, parts (a), (b) and~(b$'$), from
+\coq{causal_convergence_exact}, \coq{merge_action_exact} and
+\coq{cvrdt_on_iff}).  The containment is strict on the same transition
+representation: a one-boolean machine whose raw transitions meet neither
+condition converges under both deliveries once compensation repairs them
+(\coq{crdt_boundary}, part~(c)).  Its governed behavior is itself trivially a
+CRDT, since every governed step sends every state to the one valid state
+(\coq{witness_governed_constant}); strictness says that these raw transitions
+cannot be used without compensation, not that the observable behavior escapes
+every CRDT.  Invariant confluence implies that compensation never fires,
 but it does not by itself make operations commute: in the
 sequential-application model of this paper, an invariant-confluent system
 satisfies CC exactly when its operations commute on the reachable states, and
@@ -3638,11 +3660,25 @@ which are corrected identically in its version~2.
   weaker requirements, and normalization confluence subsumes invariant
   confluence.  This was imprecise: an invariant-confluent system needs no
   compensation but its operations need not commute, so it can violate CC1.
+  Related Work also called operations that individually violate invariants
+  something ``CRDTs cannot accommodate''.  The difference is the convergence
+  mechanism (repair versus operation algebra), not what the behavior can be:
+  a governed machine's behavior can itself be a CRDT
+  (\coq{witness_governed_constant}).
   \emph{Corrected:} normalization confluence contains the
-  invariant-confluent systems that converge under reordering; the op-based
-  CRDT side is exact (\coq{compensation_free_exact},
-  \coq{cmrdt_governed_SEC}, \coq{witness_converges},
-  \coq{witness_not_cmrdt}).
+  invariant-confluent systems that converge under reordering.  On the CRDT
+  side, a compensation-free system converges under causal exactly-once
+  delivery iff it meets the op-based condition, and under unordered
+  at-least-once delivery iff it meets the state-based condition on the
+  reachable states (\coq{crdt_boundary}, parts (a), (b) and~(b$'$);
+  \coq{causal_convergence_exact}, \coq{merge_action_exact},
+  \coq{cvrdt_on_iff}); the embedding is \coq{cmrdt_governed_SEC}.
+  \coq{compensation_free_exact} only identifies governed steps with raw
+  operations once compensation is the identity, a structural step and not a
+  convergence theorem.  The containment is strict on the same transition
+  representation (\coq{crdt_boundary}, part~(c); \coq{witness_converges},
+  \coq{witness_not_cmrdt}), and the witness's governed behavior is itself a
+  CRDT (\coq{witness_governed_constant}).
 
 \item \textbf{Sharpened or newly mechanized, no statement refuted.}
   \Cref{def:rhostar}: $\rho_R^*$ is constructed from WFC, needs at most

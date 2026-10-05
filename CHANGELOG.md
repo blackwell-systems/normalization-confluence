@@ -285,6 +285,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- The three version-2 papers fold in the corrections queued for a version 3, before version 2 is
+  published; all three are dated 5 October 2026 and their PDFs are rebuilt. CRDT strictness
+  (Base and Fed, design-space section and Related Work): strict on the same transition
+  representation, with the witness's governed behavior itself a CRDT (`crdt_boundary`,
+  `witness_governed_constant`); "which CRDTs cannot accommodate" removed (errata item updated, it
+  was in version 1). `compensation_free_exact` is described as the structural step it is, with
+  behavioral exactness cited from `causal_convergence_exact` (part (a) of `crdt_boundary`) and, for
+  state-based CRDTs, `cvrdt_on_iff` (Base and Fed errata, Cat Related Work and errata). Cat
+  `prop:gluing` is retitled "Gluing on the registry-level site" and restated to match
+  `SheafGluing.v` (`separation`, `gluing`, `sheaf_exact`, `sheaf_iff_refines`, `cert_glue`,
+  `cert_sheaf`), with SC in the role version 1 gave R2 (`cert_needs_sc`) and overlaps alone shown
+  insufficient (`triangle_fails`, `r1_failure`, `gluing_cex_overlap`); new Cat errata item. Stale
+  "paper level" statements in Cat replaced by citations: `H^1` on the nerve as a 2-complex
+  (`nerve_H1_classification`, `nerve_H1_Z2_count`), the input-port refinement
+  (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`), the effective-registry
+  reading of Theorem 2 (`collapse_nf_agree`, `collapse_a_wfc`, `collapse_c_guarded_iff`) and the
+  Max-Cut reduction (`maxcut_reduction`); only the NP-completeness of Max-Cut and the other cited
+  complexity results stay cited. Each paper's mechanization remark gives the gate as 2012 and
+  points to `REGIME-AUDIT.md` for results mechanized after it was written. Still at paper level:
+  cyclic monotone collapse (gap 5), the Base 8.2 lattice-compensation pattern, the asymptotic cost
+  model, and Cat's variable-level and monotone-overlap sheaf site. `docs/ROADMAP.md` item 7 and
+  `REGIME-AUDIT.md` updated to say the paper wording now matches.
 - Axiom-free gate raised from 112 to 125 theorems, checked on Coq 8.18, Coq 8.20 and Rocq 9.3 (#19).
 - Axiom-free gate raised from 125 to 135 theorems (#21).
 - Axiom-free gate raised from 135 to 254 theorems: 166 (#23), 189 (#24), 205 (#25), 232 (#26), 254 (#27).

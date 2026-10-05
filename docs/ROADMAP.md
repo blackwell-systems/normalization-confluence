@@ -259,7 +259,9 @@ level:
   closed under sources, `cert_sheaf`), with SC in the role the paper gives R2 (`cert_needs_sc`). The
   paper's variable-level site and its monotone-overlap regime stay at paper level (audit gap 13,
   narrowed). **The rank of `H^1` on the nerve as a 2-complex** (Cat section 6): done, #71
-  (`CohomologyNerve.v`). The paper text still calls both paper level; that is a paper wording fix.
+  (`CohomologyNerve.v`). The papers now match: Cat `prop:gluing` is restated as registry-level
+  gluing with SC in R2's role and cites `SheafGluing.v`, and Cat section 6 cites
+  `nerve_H1_classification` and `nerve_H1_Z2_count`.
 - **The cyclic monotone case of `thm:collapse`** (Fed, after `thm:collapse` and in
   `rem:fed-mechanized`).
 - **The lattice-compensation CC pattern** (Base 8.2, corrected with a short paper proof).
@@ -270,9 +272,8 @@ level:
   asymptotic cost of normalization (Base `thm:complexity`; the per-event step bound is mechanized),
   and the decidability remark for R1, R2, C1 and C2 (item 5).
 
-The Cat paper still treats the input-port refinement as paper level, though `Collapse.v` mechanizes
-it (`port_c1_transfer`, `port_c2_transfer`, `port_interior_certificate`); that is a paper wording
-fix, not a gap.
+The Cat paper now cites `Collapse.v` for the input-port refinement (`port_c1_transfer`,
+`port_c2_transfer`, `port_interior_certificate`); the paper wording matches, and it was never a gap.
 
 The original item text follows. Known gaps at the time, from the README's [paper] markers:
 
