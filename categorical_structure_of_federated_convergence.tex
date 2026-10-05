@@ -48,7 +48,7 @@ Dayna Blackwell\\
 \small\href{mailto:dayna@blackwell-systems.com}{dayna@blackwell-systems.com}\\
 \small Licensed under CC-BY-4.0.}
 
-\date{Version 2, 4 October 2026\\[0.6ex]
+\date{Version 2, 5 October 2026\\[0.6ex]
 \small Version 2. See Appendix~\ref{app:errata} (Errata and corrections) for changes from version 1.}
 
 \begin{document}
@@ -69,10 +69,11 @@ We show that a federation's consistent states are a finite limit and, under an e
 shared-component stability hypothesis, its federated normalizer is the idempotent retraction onto
 that limit, independent of the topological order, so compositionality (a verified sub-federation
 collapses to an effective registry) follows from one structural fact rather than a per-topology
-argument. At the paper level, convergence certificates glue like a sheaf whose gluing condition is
-supplied by the source-determinacy and validity-preservation hypotheses the federation already
-certifies, and the obstruction to a global consistent state is cohomological in the invertible
-fragment: $\Hz$ is the consistent states and $\Ho$ is the holonomy of the morphism cycles. Acyclicity
+argument. On the site whose open sets are sub-federations, consistent states glue exactly when every
+constraint lies inside one member of the cover, given the source-determinacy hypothesis the
+federation already certifies, and the certificates of sub-federations closed under sources glue under
+shared-component stability. The obstruction to a global consistent state is cohomological in the
+invertible fragment: $\Hz$ is the consistent states and $\Ho$ is the holonomy of the morphism cycles. Acyclicity
 and monotone repair are two sufficient routes to a non-empty $\Hz$, though not the only ones. Around a
 cycle, a section exists iff the loop composite over the shared subspace has a fixed point; the
 reference engine's cycle diagnostic tests one seed, which proves existence when it settles and, for a
@@ -83,10 +84,10 @@ those edges suffices, localizing the global coordination criterion of CALM and i
 into a mixed-consistency partition. The exact minimum coordination is the group feedback edge set
 number of the labeled nerve: NP-hard even in the abelian case, fixed-parameter tractable in the size
 of the coordinated core, and never below the minimum for any homomorphic image of the transition
-group. The structural and cohomological results, the mathematics of the diagnostic and the
-coordination plan are mechanized axiom-free in Coq/Rocq, together with a counterexample for every
-statement of version~1 that this version corrects; the sheaf reading and the cited complexity
-results are not mechanized.
+group. The structural and cohomological results, the registry-level gluing, the mathematics of the
+diagnostic, the coordination plan and the reduction from Max-Cut are mechanized axiom-free in
+Coq/Rocq, together with a counterexample for every statement of version~1 that this version corrects;
+the variable-level sheaf reading and the cited complexity results are not mechanized.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
@@ -158,12 +159,15 @@ is clean.''
   limit, a convergent sub-federation collapses to an effective registry and the combined normalizer
   factors through it; compositionality is a corollary of one structural fact, not a per-topology
   theorem.
-\item \textbf{Convergence certificates glue like a sheaf, and $R1/R2$ supply the gluing condition
-  (Section~\ref{sec:sheaf}, at the paper level).} Local repair certificates glue to a global one when
-  the subsystems agree as normalizers on their overlap. The two regimes that force agreement,
-  single-writer authority and monotone overlap, are the federation's source-determinacy ($R1$) and
-  validity-preservation ($R2$) hypotheses. The existing federation design is read as the gluing
-  check, not extended by a new mechanism.
+\item \textbf{Convergence certificates glue like a sheaf (Section~\ref{sec:sheaf}).} Local repair
+  certificates glue to a global one when the subsystems agree as normalizers on their overlap. On the
+  registry-level site (open sets are sub-federations), under source-determinacy ($R1$), consistent
+  states glue exactly when every constraint lies inside one member of the cover; agreement on the
+  overlaps alone does not suffice. The certificates of sub-federations closed under sources glue to
+  the certificate of the union, and shared-component stability ($SC$), not validity preservation
+  ($R2$), is what makes them land in their sections. The existing federation design supplies these
+  hypotheses rather than needing a new mechanism. The variable-level form, with its single-writer
+  and monotone-overlap regimes, is stated at the paper level.
 \item \textbf{The obstruction is cohomological, and the two regimes are two routes past it
   (Section~\ref{sec:completion}).} $\Hz$ is the consistent states; $\Ho$ (in the invertible fragment)
   is the holonomy of the morphism cycles, generated by a cycle basis. An acyclic network (no cycles)
@@ -192,13 +196,15 @@ is clean.''
   particular the abelian count, that it can be strictly above the abelian count, so abelianized sizing
   is unsound, and that pairwise edge-disjoint obstructing cycles need one coordinated edge each. Off the
   invertible fragment a cycle basis no longer suffices, and the correct form is rooted.
-\item \textbf{Mechanization.} Everything above except the sheaf reading and the cited complexity
-  results is mechanized axiom-free in Coq/Rocq, extending the machine-checked development of the
+\item \textbf{Mechanization.} Everything above except the variable-level sheaf reading and the cited
+  complexity results is mechanized axiom-free in Coq/Rocq, extending the machine-checked development of the
   base results: the limit, the retraction on the paper's $L_F$ with full order-independence over
   arbitrary acyclic federations, compositionality as the fold-append law; the completion theorem on an arbitrary
   group-labeled graph, the cycle-basis criterion, $\Ho$ as tuples of fundamental holonomies modulo
-  simultaneous conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation; the general-map
-  obstruction and the diagnostic's bounds; the coordination plan with its event-order corollary; and
+  simultaneous conjugation with rank $|E| - |V| + 1$, $\Ho$ on the nerve as a 2-complex, and the
+  $S_3$ separation; the registry-level gluing and the input-port refinement; the general-map
+  obstruction and the diagnostic's bounds; the coordination plan with its event-order corollary and
+  the reduction from Max-Cut; and
   a counterexample for each statement of version~1 that this version corrects
   (Appendix~\ref{app:errata}).
 \end{enumerate}
@@ -246,9 +252,12 @@ that violate invariants and are repaired. The correspondence also holds against 
 op-based definition, where only concurrent operations commute under causal delivery: the base
 development proves convergence when governed steps commute on concurrent pairs only
 (\texttt{causal\_convergence}, with standard op-based CRDTs as the instance
-\texttt{causal\_cmrdt\_SEC}), shows the compensation-free fragment is exactly the op-based CRDTs
-(\texttt{compensation\_free\_exact}, both directions), keeps the inclusion strict
-(\texttt{witness\_causal\_not\_cmrdt}), and proves the rewrite-system convergence theorem
+\texttt{causal\_cmrdt\_SEC}); shows that without compensation, convergence from every start under
+causal delivery holds exactly when concurrent raw operations commute, the op-based condition
+(\texttt{causal\_convergence\_exact}, part (a) of \texttt{crdt\_boundary}; for state-based CRDTs
+under at-least-once delivery, \texttt{cvrdt\_on\_iff}); keeps the inclusion strict on the same
+transition representation (\texttt{witness\_causal\_not\_cmrdt}; the witness's governed behavior is
+itself trivially a CRDT, \texttt{witness\_governed\_constant}); and proves the rewrite-system convergence theorem
 \texttt{causal\_governance\_confluent} with the critical-pair condition required only for
 co-enabled distinct events, all axiom-free. Category-theoretic accounts of CRDT convergence exist at
 the level of the merge algebra; they do not give a cohomological obstruction or a
@@ -486,8 +495,12 @@ At the operator level this is the fold-append law: folding $J$ and then continui
 accumulated result equals folding the concatenation, because the accumulator after $J$ is exactly
 $\rho_J$'s output and each $K$-step reads only its own finalized sources. Mechanized as
 \texttt{rhoFold\_compositional}, via \texttt{rhoF\_from\_app}, axiom-free. The reading of the
-$J$-block as one effective registry is the paper-level consequence of combining this law with
-\Cref{thm:one} for $J$; it is not a separate mechanized statement.
+$J$-block as one effective registry combines this law with \Cref{thm:one} for $J$. It is mechanized
+on the event-level federation model of~\cite{blackwell2026federated} for convex sub-federations,
+which include every block closed under sources: the collapsed network has the same normal forms
+(\texttt{collapse\_nf\_agree}), the effective registry's repair reaches, in one round, a valid state
+whose internal repairs all hold, and is idempotent (\texttt{collapse\_a\_wfc}), and the collapsed network has unique normal
+forms iff the original does (\texttt{collapse\_c\_guarded\_iff}).
 \end{proof}
 
 This is what lets verification scale: a subsystem is checked once, in isolation, and reused as a
@@ -496,8 +509,11 @@ assume-guarantee refinement makes the black box parametric. A sub-federation may
 ports}: shared variables that no internal morphism writes, which an outer morphism may drive once the
 subsystem is embedded. A seam morphism into a port is verified against $M1/R2$ while the subsystem's
 interior is trusted from its certificate, and a write to any non-port (sealed) variable is rejected.
-We treat the port refinement at the paper level here; the operator-level collapse above is the
-mechanized core.
+The port refinement is mechanized on the same event-level model: the subsystem's event conditions
+$C1$ and $C2$ at its sealed members are the same statements in isolation and in the embedding
+(\texttt{port\_c1\_transfer}, \texttt{port\_c2\_transfer}), and together with $C1$ and $C2$
+re-checked for the events at the ports they give the subsystem's full certificate inside the
+embedding (\texttt{port\_interior\_certificate}).
 
 %========================================
 \section{Convergence Certificates Form a Sheaf}
@@ -530,8 +546,8 @@ normal-form map} on the shared variables. Then the shared variable has one unamb
 the union's repair is confluent, and the sections glue: the global normalizer runs each private
 part plus the agreed map on the overlap. This is checkable on the overlap alone, never on the joint
 product. In this sense convergence certificates behave as a sheaf on covers whose overlaps satisfy
-this agreement; we state this at the paper level and do not construct the site or the presheaf
-formally. The certificates are repair certificates: gluing them yields a unique normal form, and
+this agreement. On this variable-level site we state it at the paper level; \Cref{prop:gluing} gives
+the registry-level form, where open sets are sub-federations, and that form is mechanized. The certificates are repair certificates: gluing them yields a unique normal form, and
 event-order convergence of the glued system still needs the event-layer condition of
 \Cref{sec:background}.
 
@@ -552,21 +568,49 @@ in two ways:
   (\texttt{fed\_thm\_monotone\_cycles\_events\_refuted}).
 \end{itemize}
 
-\begin{proposition}[$R1 + R2$ is the gluing axiom]
-\label{prop:gluing}
 In a federation, distinct components do not literally share a writable variable; a shared writable
-variable is a multi-source target whose resolver merges its sources. The resolver hypotheses are
-exactly the sheaf gluing condition: source-determinacy ($R1$) makes the merged normal form
-single-valued (a unique repair value on the overlap), and validity-preservation ($R2$) makes it land
-in the agreed valid set. Hence the federation's resolver verification \emph{is} the sheaf gluing
-check, for the repair layer.
+variable is a multi-source target whose resolver merges its sources. So the federation's own site has
+sub-federations as its open sets. A cover of a sub-federation $W$ is a family of sub-federations
+whose union is $W$; a section over $U$ is a state consistent on $U$: every registry of $U$ holds a
+normal form, and every target whose constraint lies inside $U$ (the target and all its sources in
+$U$) has its shared component equal to its resolver value. A cover \emph{refines the constraints}
+when every constraint inside the union lies inside one member.
+
+\begin{proposition}[Gluing on the registry-level site]
+\label{prop:gluing}
+\begin{enumerate}[label=(\roman*)]
+\item Two states with the same restriction to every member of a cover agree on the union.
+\item Under $R1$, sections over $U$ depend only on the values in $U$, and on a cover that refines the
+  constraints a family of sections over the members is the restriction of a section over the union
+  iff it agrees on the overlaps. Given two distinct shared values, gluing holds on a cover for every
+  federation on the graph that satisfies $R1$ iff the cover refines the constraints.
+\item On a cover by sub-federations closed under sources, the members' certificates (the federated
+  normalizer run over each member) agree on the overlaps and glue to the certificate of the union.
+  Under local idempotence, the lens law and $SC$ (the hypotheses of \Cref{thm:one}), the glued
+  certificate lands in the sections over the union and fixes every one of them.
+\end{enumerate}
 \end{proposition}
 
-The existing federation design is thus validated by the sheaf structure rather than extended by a new
-primitive: the machinery that composes overlapping subsystems soundly is already present as $R1/R2$.
-The gluing counterexample (\Cref{ex:glue}) is mechanized axiom-free (module \texttt{Cohomology.v},
-\texttt{gluing\_order\_dependent}); \Cref{prop:gluing} and the sheaf assembly over the full cover
-are at the paper level.
+Agreement on the overlaps alone does not give gluing, and each hypothesis is needed: on a triangle
+covered by two overlapping members, an edge lying in no member leaves a compatible family of local
+sections with no global section (\texttt{triangle\_fails}); without $R1$, a refining cover and a
+compatible family can still fail to glue, and sections are not determined by the values in $U$
+(\texttt{r1\_failure}); and two certificates with the same valid set that disagree as normalizers on
+the overlap do not glue (\texttt{gluing\_cex\_overlap}, which is \Cref{ex:glue}). For certificates,
+the role version~1 gave $R2$ (making the merged normal form land in the sections) is played by $SC$:
+with validity preservation in place of $SC$, the certificate of a sub-federation closed under sources
+misses its sections (\texttt{cert\_needs\_sc}).
+
+The existing federation design thus supplies the gluing hypotheses rather than needing a new
+primitive: $R1$ is the resolver check, closure under sources is the upstream-block condition of
+\Cref{thm:two}, and $SC$ is the hypothesis of \Cref{thm:one}. \Cref{prop:gluing} is mechanized
+axiom-free on the registry-level site (module \texttt{SheafGluing.v}, artifact pull request~\#73):
+(i) \texttt{separation}; (ii) \texttt{gluing}, \texttt{sheaf\_exact}, \texttt{sheaf\_iff\_refines};
+(iii) \texttt{cert\_glue}, \texttt{cert\_sheaf}; the gluing counterexample of \Cref{ex:glue} is also
+\texttt{gluing\_order\_dependent} (module \texttt{Cohomology.v}). The variable-level site of this
+section, where two subsystems may write one variable, and its monotone-overlap regime (cycles and
+least fixed points; the registry-level mechanization is acyclic) stay at the paper level, as does a
+sheaf condition for certificates on covers not closed under sources.
 
 %========================================
 \section{The Cohomological Completion}
@@ -658,8 +702,8 @@ labeling is a cocycle): every labeling gauge-fixes to the identity on a spanning
 values being the fundamental holonomies (\texttt{gauge\_fix}, \texttt{gauge\_fixed\_holonomy}); two
 tree-fixed labelings are cohomologous iff those values are simultaneously conjugate, for any group
 (\texttt{H1\_classification}); and the number of generators is $|E| - |V| + 1$
-(\texttt{betti\_number}). The nerve's triangles add relations that can lower the rank further; those
-are not modeled.
+(\texttt{betti\_number}). The nerve's triangles add relations that can lower the rank further; on the
+nerve as a 2-complex this is mechanized too (see the scope paragraph below).
 
 \paragraph{The two regimes as two routes.} The two convergence regimes of the base work are two
 sufficient ways for the obstruction to vanish:
@@ -691,8 +735,12 @@ statement. Mechanized axiom-free: the single-cycle essence of
 \Cref{thm:completion}, the gluing counterexample, and the negation obstruction (\texttt{Cohomology.v});
 and \Cref{thm:completion} itself on an arbitrary graph together with the cycle-basis criterion
 (\texttt{CohomologyGraph.v}), along with $\Ho$ of the graph as a quotient and its rank, for any
-group; and the general-map obstruction (\texttt{CohomologyGeneral.v}). At the paper level: the rank on the nerve as a 2-complex, where the triangle relations can
-lower it. The operational fixed-point test is implemented (\Cref{sec:diagnostic}).
+group; the general-map obstruction (\texttt{CohomologyGeneral.v}); and $\Ho$ on the nerve as a
+2-complex, where the triangle relations can lower the rank: for any group, the classes are the
+assignments of the non-tree edges that satisfy the triangles' relation words, modulo simultaneous
+conjugation (\texttt{nerve\_H1\_classification}), and over $\mathbb{Z}/2$ there are exactly
+$2^{(|E| - |V| + 1) - r}$ of them, $r$ the number of independent triangle relations
+(\texttt{nerve\_H1\_Z2\_count}, module \texttt{CohomologyNerve.v}). The operational fixed-point test is implemented (\Cref{sec:diagnostic}).
 
 %========================================
 \section{The Obstruction Diagnostic}
@@ -814,7 +862,10 @@ partition.
 since one coordinated edge can break several obstructing cycles at once. The exact minimum is the
 \emph{group feedback edge set} number of the labeled nerve: delete the fewest shared variables so
 every residual cycle is balanced. This resolves its complexity. It is NP-hard even in the abelian
-case, since for $G = \mathbb{Z}/2$ it is edge bipartization, the complement of Max Cut. Under the
+case, since for $G = \mathbb{Z}/2$ it is edge bipartization, the complement of Max Cut. The
+reduction is mechanized: a graph $H$ with every edge labeled by the flip has a feasible coordination
+$F$ with $|F| + k \le |H|$ iff $H$ has a cut of at least $k$ edges (\texttt{maxcut\_reduction},
+module \texttt{CoordinationMinimum.v}); the NP-completeness of Max Cut is cited. Under the
 Unique Games Conjecture it has no constant-factor approximation ($O(\sqrt{\log n})$, the Min-Uncut
 bound, is the best known). But it is fixed-parameter tractable in the size of the coordinated core,
 which is the operative regime since one wants that core small, and for $G = \mathbb{Z}/2$ it is
@@ -888,9 +939,10 @@ non-tree edges of an outward tree still suffices but the minimum is not a cohomo
 Federated convergence has a structure, and naming it answers both a theoretical and a practical
 question. Theoretically, a federation's consistent states are a finite limit and, under
 shared-component stability, its normalizer is the idempotent retraction onto that limit for every
-topological order, so compositionality is a corollary rather than a separate theorem; at the paper
-level, the convergence certificates glue like a sheaf whose gluing condition is the federation's
-already-certified $R1/R2$; and the obstruction to a global consistent state is cohomological in the
+topological order, so compositionality is a corollary rather than a separate theorem; on the
+registry-level site, consistent states glue exactly on covers that refine the constraints, given the
+federation's already-certified $R1$, and certificates glue on covers closed under sources, with $SC$
+where version~1 had $R2$; and the obstruction to a global consistent state is cohomological in the
 invertible fragment, with $\Hz$ the consistent states and $\Ho$ the holonomy of the morphism cycles.
 The two regimes of the base work, acyclicity and monotone repair, are two sufficient routes past that
 obstruction: the first makes $\Ho$ vanish, the second sidesteps it by order. They are not the only
@@ -910,13 +962,18 @@ fixed-parameter tractable in the core size; it is never below the minimum for an
 of the transition group, and pairwise edge-disjoint obstructions need one edge each. Off the
 invertible fragment, a cycle basis no longer suffices and the rooted form takes its place.
 
-Every theorem stated here is mechanized axiom-free in Coq/Rocq except the sheaf reading of
-\Cref{sec:sheaf} and \Cref{prop:gluing}, the input-port refinement of \Cref{sec:compose}, the rank on
-the nerve as a 2-complex, and the cited complexity of the minimum. Each statement of version~1 that
-this version corrects has a mechanized counterexample and a mechanized corrected form
+Every theorem stated here is mechanized axiom-free in Coq/Rocq except the variable-level sheaf
+reading of \Cref{sec:sheaf} with its monotone-overlap regime, and the cited complexity results for the
+minimum (the NP-completeness of Max Cut, whose reduction to the minimum is mechanized, and the
+fixed-parameter, planar and approximation results). Each statement of version~1 that this version
+corrects has a mechanized counterexample and a mechanized corrected form
 (Appendix~\ref{app:errata}); every Coq name cited is in the axiom gate of \texttt{coq/verify.sh},
-which checks 715 theorems at the time of this version. The open problems are a cohomological
-account of the non-invertible case and the classification on the full 2-dimensional nerve.
+which checks 2012 theorems at the time of this version. Results mechanized after this paper was
+written (among them the distributed propagation model, root sets for lossy networks, exact
+state-based CRDTs, exact at-least-once delivery and exact stream agreement) are not written up here;
+\texttt{REGIME-AUDIT.md} in the artifact lists them with their Coq names and the gaps that remain
+open. The open problems are a cohomological account of the non-invertible case and the
+variable-level, monotone-overlap form of the sheaf of \Cref{sec:sheaf}.
 
 \appendix
 \section{Errata and corrections}
@@ -1054,9 +1111,32 @@ axiom-free and in the gate.
   values give monotonicity under the ascending chain condition (\texttt{fed\_rem\_convexity\_corrected}).
 
 \item \textbf{\Cref{sec:related}: the CRDT correspondence.}
-  \emph{Old:} the monotone regime ``coincides'' with state-based CRDTs, machine-checked.
+  \emph{Old:} the monotone regime ``coincides'' with state-based CRDTs, machine-checked; and the
+  compensation-free fragment is ``exactly the op-based CRDTs'', citing
+  \texttt{compensation\_free\_exact} as both directions. That theorem is structural: once
+  compensation is the identity, the governed step is the raw operation, so the two commutation
+  conditions coincide; it says nothing about convergence.
   \emph{Corrected:} every state-based CRDT is an instance of the monotone regime (\texttt{cvrdt\_SEC});
-  the converse is not claimed.
+  the converse is not claimed. Behavioral exactness for op-based CRDTs is
+  \texttt{causal\_convergence\_exact}, part (a) of \texttt{crdt\_boundary}: without compensation,
+  convergence under causal delivery from every start iff concurrent raw operations commute; for
+  state-based CRDTs it is \texttt{cvrdt\_on\_iff}. The inclusion is strict on the same transition
+  representation; the witness's governed behavior is itself a CRDT
+  (\texttt{witness\_governed\_constant}).
+
+\item \textbf{\Cref{prop:gluing}: ``$R1 + R2$ is the gluing axiom''.}
+  \emph{Old} (\Cref{sec:intro}, \Cref{sec:sheaf}, \Cref{sec:conclusion}): the resolver hypotheses
+  are exactly the sheaf gluing condition, $R1$ making the merged normal form single-valued and $R2$
+  making it land in the agreed valid set, so resolver verification is the gluing check.
+  \emph{Counterexamples:} with $R1$ and a compatible family on overlapping members, gluing fails when a
+  constraint lies in no member (\texttt{triangle\_fails}); with validity preservation in place of
+  $SC$, the certificate of a sub-federation closed under sources misses its sections
+  (\texttt{cert\_needs\_sc}). \emph{Corrected:} on the registry-level site, under $R1$, gluing holds
+  for every federation on the graph iff the cover refines the constraints (\texttt{separation},
+  \texttt{gluing}, \texttt{sheaf\_exact}, \texttt{sheaf\_iff\_refines}); certificates glue on covers
+  closed under sources, with $SC$ in the role given to $R2$ (\texttt{cert\_sheaf}); without $R1$
+  gluing can fail on a refining cover (\texttt{r1\_failure}). The variable-level and monotone-overlap
+  form stays at the paper level.
 
 \item \textbf{Mechanization claims of version~1.}
   \emph{Old:} \Cref{prop:one} and \Cref{thm:one} were described as mechanized, citing
