@@ -4,11 +4,15 @@ Goal: a theory in which every remaining caveat is either a deliberate design exc
 fundamental limit, and nothing is merely unproven. This page lists each caveat the development
 still carries, what removing it would prove, how, what it depends on, and when it counts as done.
 
+Role of this page: what is next. What is proved today, regime by regime, is
+[REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
+prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
+
 Status of the gate: 1370 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62) is in the Done table; what remains open is listed under "Open items"
-below and, regime by regime, in [REGIME-AUDIT.md](REGIME-AUDIT.md). Nothing on this page is claimed
+below and, regime by regime, in [REGIME-AUDIT.md](../REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
 ## Done
@@ -268,7 +272,7 @@ The original item text follows. Known gaps at the time, from the README's [paper
 ## Open items
 
 The convergence regimes that still lack an exact condition, consistent with
-[REGIME-AUDIT.md](REGIME-AUDIT.md) (its gap numbers in parentheses). Every other regime has a
+[REGIME-AUDIT.md](../REGIME-AUDIT.md) (its gap numbers in parentheses). Every other regime has a
 machine-checked exact condition, or a hardness result where no efficient one exists (for lossy
 networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 

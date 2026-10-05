@@ -5,6 +5,11 @@ network and the nature of your repair. This page is the practitioner's map: find
 read off whether it converges and why. It is a companion to the papers, not a replacement; each
 row points at the theorem that proves it.
 
+Role of this page: how to pick a regime as a user. What is proved in each regime (an exact
+condition, a hardness result or an open gap, each with its Coq theorem) is
+[REGIME-AUDIT.md](../REGIME-AUDIT.md); what is next is [ROADMAP.md](ROADMAP.md); prior work is
+[LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
+
 ## The one-sentence idea
 
 A set of operations converges (every processor that sees the same events reaches the same valid
@@ -234,7 +239,7 @@ flowchart TD
 | Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order) |
 | Compositional collapse | `Federation.Embed` | `coq/Collapse.v` (acyclic blocks); cyclic monotone blocks are paper only |
 
-Regime by regime status, including the gaps still open, is in [REGIME-AUDIT.md](REGIME-AUDIT.md).
+Regime by regime status, including the gaps still open, is in [REGIME-AUDIT.md](../REGIME-AUDIT.md).
 
 See the papers for the full statements and proofs, and `coq/README.md` for what is machine-checked.
 

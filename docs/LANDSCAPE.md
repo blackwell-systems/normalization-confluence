@@ -5,6 +5,10 @@ confluence relative to what you know: what problem it shares with them, what it 
 and which older ideas it connects. It is the "why is this new" companion to the papers and to
 [REGIMES.md](REGIMES.md) (which is the "what applies to my system" lookup).
 
+Role of this page: prior work, and where this work sits against it. What is proved per regime is
+[REGIME-AUDIT.md](../REGIME-AUDIT.md); what is next is [ROADMAP.md](ROADMAP.md). The map of all
+pages is [README.md](README.md).
+
 ## The shared problem: agreement without coordinating on every step
 
 Many systems need replicas or processors that receive the same events, possibly in different
@@ -258,7 +262,7 @@ such: `π_1` of a connected graph is free of rank `|E| - |V| + 1` (Hatcher), and
 is balanced, switching-equivalent to the identity labeling, iff every cycle has trivial holonomy
 (Harary for `Z/2`; Zaslavsky for an arbitrary gain group). On that base, this work contributes the
 following. Labels refer to the companion paper,
-[`categorical_structure_of_federated_convergence.tex`](categorical_structure_of_federated_convergence.tex).
+[`categorical_structure_of_federated_convergence.tex`](../categorical_structure_of_federated_convergence.tex).
 
 1. **The application to federated convergence.** Sections are convergence certificates of
    normalizers over subsystem overlaps, and the sheaf's gluing axiom is exactly the resolver
@@ -330,7 +334,7 @@ complexity results.
 ## Where it lives in a stack
 
 - **The theory**: the three papers in this repository, with a machine-checked Coq/Rocq proof in
-  [`coq/`](coq) (axiom-free, CI-gated).
+  [`coq/`](../coq) (axiom-free, CI-gated).
 - **The engine**: [`gsm`](https://github.com/blackwell-systems/gsm) verifies WFC and CC for a
   concrete registry at build time (globally, or per footprint component for large machines) and
   gives an O(1) runtime.

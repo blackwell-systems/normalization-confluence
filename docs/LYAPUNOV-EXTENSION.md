@@ -391,7 +391,7 @@ Programming," Automatica, 2008 (metric selection as SDP/SOS).
 
 ## Where this sits
 
-- Proven, discrete: the two papers and [`coq/`](coq); the map of regimes is [REGIMES.md](REGIMES.md).
+- Proven, discrete: the two papers and [`coq/`](../coq); the map of regimes is [REGIMES.md](REGIMES.md).
 - This note: the continuous *direction*, none of it established.
 - The discrete/continuous boundary is a first-class scoping tool, not a limitation to paper over:
   the collapse is a discrete phenomenon, extends cleanly only to convex-potential continuous flows,
