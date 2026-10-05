@@ -34,6 +34,8 @@ needed.
 | One registry, **causal delivery** (an event is applied only after the events it depends on) | **WFC** + **CC2** + **CC1 only for concurrent pairs** (distinct events enabled together); causally ordered pairs need not commute | **Yes**, unique normal form | `causal_governance_confluent`, `causal_convergence` |
 | One registry, **at-least-once delivery** (duplicates) | exactly-once commutation at reachable states + each event idempotent at every reachable state where it is first delivered (under causal delivery: CCR + the same per event, with causally consistent redelivery) | **Yes, if and only if**, same state as exactly-once | `alo_exact`, `causal_alo_exact_idem`; sufficient forms `alo_commuting_converges`, `causal_alo_converges` |
 | One registry, a duplicated **non-idempotent** event | | **No** (diverges) when the failure is at a reachable state; an event needs deduplication iff its duplicate is not absorbed (`safe_free_exact`) | `non_idempotent_diverges`, `notidem_needs_dedup`, `late_duplicate_diverges` |
+| One registry, **guarded enabledness that a compensation step can disable** (a buffered event stops being enabled after repair) | termination from the start + **JC'**: JC's event/event clause, and for each event enabled at an invalid state, repairing after it joins with repairing first; JC alone is neither sufficient nor necessary here | **Yes, if and only if**; normal forms may leave disabled events in the buffer | `jcg_exact`, `jcsplit_exact`, `gnf_iff`; `dc_jc_insufficient`, `nv_jc_not_necessary` (`EnabledAfterComp.v`) |
+| **State-based CRDT** merges (payload states as events, merge as the action, no repair) | merges commute and are idempotent at every state reachable from the start; equivalently, on the reachable states a join-semilattice for which each merge is the join with its payload | **Yes, if and only if**, under every order and any duplication | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact`; `naive_cvrdt_iff_fails`, `clamp_reach_qualifier` (`CvRDTExact.v`) |
 | **Stream processors** (incremental, time-indexed received sets) | under `Progress`: PJC at every duplicate-free event set (free delivery: PCC) | **Yes, if and only if**: settled processors with the same received set agree | `stream_exact`, `stream_exact_free` |
 
 WFC = every compensation chain is finite. CC = two independent events, each followed by repair,
@@ -44,9 +46,13 @@ products), not only the natural numbers, so the state space need not be finite.
 
 **Exact, not only sufficient.** `coq/GovernanceConverse.v` proves the converses. With canonical
 repair (`rho_star` returns a valid state) and free delivery, every configuration from `s0` has a
-unique normal form **iff** CC holds on the states reachable from `s0` (`cc_exact_from`). For any
-enabledness (causal, guarded) the exact condition is JC: the critical pairs are joinable at every
-reachable configuration (`jc_exact`); CC is the case where the join is an equality. Under causal
+unique normal form **iff** CC holds on the states reachable from `s0` (`cc_exact_from`). For
+causal or guarded enabledness that persists under compensation, the exact condition is JC: the
+critical pairs are joinable at every reachable configuration (`jc_exact`); CC is the case where the
+join is an equality. When a compensation step can disable a buffered event, `coq/EnabledAfterComp.v`
+gives the exact condition JC' (`jcg_exact`), which is JC when enabledness persists
+(`jcsplit_iff_jc`); JC alone is then neither sufficient (`dc_jc_insufficient`) nor necessary
+(`nv_jc_not_necessary`). Under causal
 delivery the exact condition is CCR: concurrent pairs commute after every causally consistent prefix
 (`causal_exact`). The naive converses are false (`rho_star_qualifier`, `masked_cc1`,
 `naive_causal_converse_fails`). `coq/GovernanceWFConverse.v` states the same converses over any
@@ -90,7 +96,8 @@ target). Whether the network converges depends on its **topology** and on whethe
 | **Single cycle**, invertible transports, coherently oriented | **non-monotone**, coordination-free, no authority root | a consistent state exists **iff** the holonomy is trivial | Unique **iff** the group is trivial; otherwise there is no unique normal form (two orders reach different consistent states, or none exists) | `rootless_nf_exists_iff`, `rootless_unique_normal_form_iff` (`RootlessCycles.v`) |
 | **Cyclic**, any other network without a root | **non-monotone**, coordination-free | no exact condition yet (open; see `REGIME-AUDIT.md`) | **May diverge** | counterexample `prop_cycle_necessary`; a consistent state can still exist (`c13_two_ways_not_exhaustive`) |
 | **Cyclic**, invertible transports | **non-monotone**, with a computed coordination | values driven along a spanning tree from an **authority root**; balanced non-tree edges kept as checked constraints; unbalanced edges coordinated | **Yes**, unique **given the root**; event order converges **iff** independent root events commute at the reachable root values | `coordinated_sound`, `coordinated_unique_nf` (`CoordinatedCycles.v`); `coordinated_events_exact` (`CoordinatedExact.v`) |
-| **Any graph**, non-invertible (lossy) transports | coordination from a **root set** (every registry reachable from some root) | some root assignment drives a state satisfying every edge | A consistent state exists **iff** that holds (deciding it is NP-complete in general, cited); unique given the root values | `root_set_criterion_graph`, `root_set_count`, `root_set_bijection` (`RootSet.v`) |
+| **Any graph**, non-invertible (lossy) transports | coordination from a **root set** (every registry reachable from some root) | some root assignment drives a state satisfying every edge | A consistent state exists **iff** that holds (deciding it is NP-complete in general: the 3-SAT reduction is mechanized, NP-completeness by the standard argument); unique given the root values | `root_set_criterion_graph`, `root_set_count`, `root_set_bijection` (`RootSet.v`); `net_section_iff_sat`, `net_size`, `np_certificate` (`LossyHardness.v`) |
+| **Any graph**, non-invertible transports, **event order** under root-set coordination | values driven along an outward spanning forest from the root set | for each root, its independent events commute at every value reachable from its start value by its own events | **Yes, if and only if**: one condition per root, roots never interact | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global` (`RootSetEvents.v`) |
 | **Sub-federation** (convex), acyclic | any | C1 and C2 at reachable witnesses inside the block; convexity | collapses to a single **effective registry**; outer network converges **iff** the collapsed one does | `collapse_a_guarded_exact`, `collapse_c_exact` (`Collapse.v`); cyclic monotone blocks are paper only |
 
 The monotone-cycles row is the deepest result: when the shared domain is a lattice and repair is
@@ -122,6 +129,11 @@ registries interleaving with propagation are a separate question:
 - *Coordinated non-monotone cycles.* Event order converges **iff** independent events at the
   authority root commute at every root value reachable from the start (`coordinated_events_exact`,
   `coq/CoordinatedExact.v`).
+- *Root-set coordination on lossy networks.* The same, one root at a time: event order converges
+  **iff** each root's independent events commute at every value that root's own events reach
+  (`forest_events_exact`, `coq/RootSetEvents.v`). Events on different roots commute
+  (`forest_cross_commute`), and events on driven registries are overwritten
+  (`forest_driven_noop`).
 
 **Non-monotone cycles under coordination.** A non-monotone cycle has no coordination-free unique
 normal form in general: on a single coherently oriented invertible cycle without a root, a unique
@@ -135,9 +147,12 @@ different consistent states (`copyback_without_authority`, `rootless_two_orders`
 non-invertible (lossy) transports the authority root generalizes to a root set: a consistent state
 exists iff some assignment of root values drives a state satisfying every edge
 (`root_set_criterion_graph`, `coq/RootSet.v`), and sections correspond one to one with consistent
-root assignments (`root_set_count`). Deciding existence is NP-complete in general (a 3-SAT
-reduction, cited in the research note of PR #52, not mechanized), so no efficient exact criterion
-exists unless P = NP. Event order under root-set coordination is not yet mechanized.
+root assignments (`root_set_count`). Deciding existence is NP-complete in general: the 3-SAT
+reduction of the research note of PR #52 is mechanized (`net_section_iff_sat`, parsimonious by
+`net_count`, linear by `net_size`, with the certificate `np_certificate`; `coq/LossyHardness.v`), and
+NP-completeness follows by the standard argument, so no efficient exact criterion exists unless
+P = NP. Event order under root-set coordination is exact (`forest_events_exact`,
+`coq/RootSetEvents.v`).
 
 ## The decision, as a flowchart
 
@@ -187,7 +202,8 @@ flowchart TD
 |---|---|---|
 | Single registry | `Registry.Build` (verifies WFC + CC) | `coq/Governance.v`, `coq/Gsm.v` |
 | Single registry, causal delivery | declared `Independent` pairs (CC1 checked only on those) | `coq/GovernanceCausal.v`, `coq/CausalReplay.v`, `coq/Trace.v` (`run_tequiv`, bridged by `causal_tequiv`) |
-| Single registry, exact condition | (`Build` checks the sufficient form) | `coq/GovernanceConverse.v`, `coq/GovernanceWFConverse.v` (any well-founded potential) |
+| Single registry, exact condition | (`Build` checks the sufficient form) | `coq/GovernanceConverse.v`, `coq/GovernanceWFConverse.v` (any well-founded potential), `coq/EnabledAfterComp.v` (enabledness a compensation step can disable) |
+| State-based CRDTs | n/a | `coq/CRDT.v`, `coq/CvRDTExact.v` (exact condition) |
 | At-least-once delivery | non-idempotent events reported (`Report.NotIdempotent`: sound at reachable witnesses, complete when exactly-once delivery converges, may over-report at unreachable states) | `coq/AtLeastOnce.v`, `coq/AtLeastOnceExact.v` |
 | Stream processors | n/a | `coq/Stream.v`, `coq/StreamExact.v` |
 | Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | `coq/FederationOrder.v`, `coq/Categorical.v`, `coq/CategoricalBridge.v` (order-independence, retraction); `coq/FederationGRS.v` (the authority and resolution theorems in corrected form) |
@@ -195,7 +211,7 @@ flowchart TD
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core), `coq/Chaotic.v`, `coq/ChaoticACC.v`, `coq/MonotoneFederation.v`, `coq/MonotoneExact.v` (validity, reachability, gsm's check), `coq/FederationEventsCycles.v`, `coq/FederationEventsCyclesCheck.v`, `coq/FederationEventsCyclesMulti.v` |
 | Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order) |
 | Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles) |
-| Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets) |
+| Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order) |
 | Compositional collapse | `Federation.Embed` | `coq/Collapse.v` (acyclic blocks); cyclic monotone blocks are paper only |
 
 Regime by regime status, including the gaps still open, is in [REGIME-AUDIT.md](REGIME-AUDIT.md).

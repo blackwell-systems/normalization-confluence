@@ -7,7 +7,7 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Audited at `main` `bc50702` (gate: `coq/verify.sh`, 989 axiom-free results) and
+It adds no proofs. Audited at `main` `94ec0bd` (gate: `coq/verify.sh`, 1198 axiom-free results) and
 gsm `main` `a71a1b0`. Every Coq name cited was read as a statement in `coq/*.v`, not matched by
 name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
@@ -16,8 +16,11 @@ which called the map "complete" with "exact conditions in every regime", and fou
 inaccurate; its conclusion listed the convergence regimes that had a sufficient condition only, or none. Since then seven mechanization PRs
 closed most of those gaps: #47 (`CoordinatedExact.v`), #48 (`RootlessCycles.v`), #49
 (`GovernanceWFConverse.v`), #50 (`MonotoneExact.v`), #51 (`StreamExact.v`), #54 (`RootSet.v`) and
-#55 (`AtLeastOnceExact.v`). The tables below are the current state; the conclusion re-answers the
-old questions and confirms the new wording.
+#55 (`AtLeastOnceExact.v`). The second revision (at the 989 gate) listed gaps 1 to 13 below; a second
+wave closed gaps 4, 6 and 7 (#59 `RootSetEvents.v`, #56 `EnabledAfterComp.v`, #58 `CvRDTExact.v`)
+and mechanized the 3-SAT reduction behind the lossy-network hardness result (#57 `LossyHardness.v`).
+The tables below are the current state; the conclusion re-answers the old questions and confirms the
+wording.
 
 ## How to read the tables
 
@@ -30,7 +33,8 @@ Each row is one question asked of one regime. Columns:
 - **gsm.** Whether gsm `main` implements a check (file or API named).
 - **Gap.** `paper` (proved in a paper, not mechanized), `open` (not proved anywhere, or listed open
   by the development itself), `design` (excluded by the model or the axiom-free constraint),
-  `hardness` (a cited complexity result says no efficient exact condition exists), or `-`.
+  `hardness` (a complexity result says no efficient exact condition exists; each row says whether it
+  is mechanized or cited), or `-`.
 
 Three kinds of question are kept apart, because the convergence claim is about the first:
 
@@ -43,7 +47,7 @@ Three kinds of question are kept apart, because the convergence claim is about t
 | Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
 |---|---|---|---|---|
 | Free delivery: unique normal form for every buffer from `s0` | CC1 and CC2 on states reachable from `s0`, with canonical repair: `cc_exact_from`, `cc_exact`, `cc_exact_global`; with `rho*` built from WFC: `wfc_cc_exact_from`; with no termination hypothesis: `canonical_cc_exact_from` | CC1 and CC2 at every state: `governance_unique_normal_forms`, `paper_governance_unique_normal_forms`; reachable form implies JC: `cc_reach_jc` | `Registry.Build` (exhaustive CC; footprint path `disjoint_events_commute`); re-certified by the table and rules oracles | Qualifier: canonical repair needed (`rho_star_qualifier`). - |
-| Causal or guarded enabledness: confluence from `c0` | JC at configurations reachable from `c0`: `jc_exact`; with termination only from `c0`, over any well-founded order: `sn_jc_exact` | CC1 on co-enabled pairs plus CC2, on reachable states: `cc_reach_jc`, `cc_reach_unique_normal_forms`; deps-based enabledness: `paper_causal_governance_unique_normal_forms` | CC1 checked on declared `Independent` pairs only | Qualifier: `jc_exact` and `sn_jc_exact` assume enabledness persists under compensation (`enabled_after_comp`). Enabledness that a repair step can disable has no exact condition: open. CC1 not necessary: `masked_cc1`. |
+| Causal or guarded enabledness: confluence from `c0` | For any enabledness, including enabledness a compensation step can disable, with termination from `c0`: JC' (JC's event/event clause, and for each `e` enabled at an invalid `sigma`, `(rho* (apply e sigma), B - e)` joinable with `(rho sigma, B)`) at configurations reachable from `c0`: `jcg_exact`; JC' is exactly joinability of every critical pair at every reachable configuration: `jcg_iff_critical`, `cr_iff_critical`; split form (JC's clause where `e` stays enabled, the direct join where compensation disables it): `jcsplit_exact`. When enabledness persists under compensation (`enabled_after_comp`), JC' is JC (`jcsplit_iff_jc`, `jcg_iff_jc`) and the earlier theorems are recovered: `jc_exact_recovered`, `sn_jc_exact_recovered` (types checked against `jc_exact`, `sn_jc_exact`) | CC1 on co-enabled pairs plus CC2, on reachable states: `cc_reach_jc`, `cc_reach_unique_normal_forms`; deps-based enabledness: `paper_causal_governance_unique_normal_forms` | CC1 checked on declared `Independent` pairs only | Without `enabled_after_comp`, JC is neither sufficient (`dc_jc_insufficient`: JC holds, yet `(Pending, [Settle])` has two normal forms, one stuck) nor necessary (`nv_jc_not_necessary`: a compensation disables an event, JC' holds and every configuration is confluent, JC fails). Normal forms are (state, residual buffer) pairs: `gnf_iff`; the buffer may be non-empty (`stuck_nf_iff`). CC1 not necessary: `masked_cc1`. - (closed by #56) |
 | Any well-founded potential (infinite state, ordinal or lexicographic `Phi`): unique normal form | `wf_jc_exact`, `lex_jc_exact`, `comp_wf_jc_exact` (no potential), `canonical_jc_exact`; free delivery `wf_cc_exact_from`, `canonical_cc_exact_from`; with `rho*` constructed: `wf_cc_exact_from_built`, `comp_wf_cc_exact_from_built`. The `nat` statements are recovered: `jc_exact_from_wf`, `cc_exact_from_from_wf` | `governance_wf_confluent`, `causal_governance_wf_confluent`, `governance_lex_confluent`, instance `zw_confluent` | n/a (gsm needs finite state to decide) | - (closed by #49) |
 | WFC itself (termination) | The system terminates from every configuration iff compensation is well-founded: `terminating_iff_comp_wf`; iff some potential into some well-founded order exists: `comp_wf_iff_wfc`. Canonical repair implies it: `canonical_comp_wf`; with decidable validity a `nat` potential exists: `comp_wf_nat_potential` | `repair_terminates`; `base_lem_finite_implies_ubc` | WFC cycle detection in `Build` | - (closed by #49) |
 
@@ -66,7 +70,7 @@ Three kinds of question are kept apart, because the convergence claim is about t
 | Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
 |---|---|---|---|---|
 | Op-based, causal delivery: convergence of a compensation-free system | `compensation_free_exact` (causal condition iff op-based CRDT) composed with `causal_convergence_exact` | `cmrdt_SEC`, `causal_cmrdt_SEC` | Rules oracle certifies the compensation-free classification | - |
-| State-based: convergence of merges | Not stated for the CvRDT model; the general exact theorems apply by instantiation (merges as events, identity repair) but no instance is proved | `cvrdt_SEC`, `cvrdt_absorbs_duplicates` (commutative, associative, idempotent join) | n/a | open (small: the instance). Not proved as an instance of `thm:monotone-cycles` either (Fed remark says so) |
+| State-based: convergence of merges | Merges as events of a compensation-free registry (identity repair): deliveries over the event set with the same set of events, in any order and with any duplication, reach one state from `s0` iff the merges commute and are idempotent at every state reachable from `s0`: `merge_action_exact`; equivalently `alo_exact`'s conditions: `merge_conv_alo_exact`. With finitely many payloads and decidable state equality, iff the reachable states carry a join-semilattice for which each merge is the join with its payload: `cvrdt_on_exact` (backward direction `cvrdt_on_conv`, unqualified). Free delivery through the registry's exact theorems: `cf_cc_exact_from`, `cf_cc_exact_from_wfc` | `cvrdt_SEC`, `cvrdt_absorbs_duplicates` (commutative, associative, idempotent join), recovered as `cvrdt_SEC_recovered`, `cvrdt_absorbs_duplicates_recovered`; monotone case: `cvrdt_lfp` (the delivered state is the least upper bound of `s0` and the payloads) | n/a | Qualifiers: the naive iff with a join-semilattice on all of S is false (`naive_cvrdt_iff_fails`); reachability is needed (`clamp_reach_qualifier`); both clauses are needed (`add_cc_not_alo`, `lww_not_conv`). Not proved as an instance of `thm:monotone-cycles` (Fed remark says so); the exact condition is stated directly. - (closed by #58) |
 | Strictness of the inclusion | n/a | `witness_not_cmrdt`, `witness_leaves_valid_space`, `witness_causal_not_cmrdt` | n/a | - |
 
 ## 5. Stream processors
@@ -140,11 +144,11 @@ edge is an equation and the consistent states are the sections (`msection`).
 | Single cycle: does a consistent state exist | Loop composite has a fixed point: `thm_obstruction_general`, `sections_are_fixed_points`; "some seed reaches a fixed point": `thm_obstruction_reachable`, `reaches_fixed_iff_section` | Finite fiber: `g^N x0` fixed for some seed (`diagnose_bounded`, `diagnose_dichotomy`) | `DiagnoseCycle` | - |
 | Reading the diagnostic | No section iff no seed reaches a fixed point: `c15_exact_refuter`; one seed is definitive only when fixed points are all-or-nothing (`c15_free_definitive`) | A settling seed proves existence: `c15_convergent_result_sound` | `DiagnoseCycle` tests one representative seed | gsm's one-seed result is not a refuter off the regular action (`c15_definitive_claim_false`); documented. - |
 | Graph with an out-arborescence from a root: consistent state with a given root value | Driven state satisfies every non-tree edge: `rooted_criterion` (recovered from the root-set form: `rooted_criterion_recovered`); uniqueness `out_tree_unique` | Delete every non-tree edge: `rooted_coordination_suffices` | n/a | Edge need depends on the root value (`noninvertible_balance_not_static`). - |
-| General graph (no spanning root): does a consistent state exist | Root sets are exactly the sets with an outward spanning forest: `root_set_iff_forest`. For any root set and spanning forest, a section exists iff some root assignment drives a state satisfying every edge: `root_set_criterion_graph`; with root values fixed: `root_set_criterion_values`; agreement form (two roots agree wherever both reach): `root_set_agreement`; decided by search over the product of root domains: `root_set_decide`. Existence is NP-complete in general (3-SAT reduction, `LOSSY-NETWORKS.md` section 3.2, PR #52; cited, not mechanized) | One root (`rooted_criterion`) is polynomial | n/a | **hardness** (cited): no efficient exact criterion unless P = NP; the exact one is mechanized. - (closed by #54) |
+| General graph (no spanning root): does a consistent state exist | Root sets are exactly the sets with an outward spanning forest: `root_set_iff_forest`. For any root set and spanning forest, a section exists iff some root assignment drives a state satisfying every edge: `root_set_criterion_graph`; with root values fixed: `root_set_criterion_values`; agreement form (two roots agree wherever both reach): `root_set_agreement`; decided by search over the product of root domains: `root_set_decide`. Existence is NP-complete in general: the 3-SAT reduction of `LOSSY-NETWORKS.md` section 3.2 (PR #52) is mechanized in `LossyHardness.v` (#57): a network `net f` built from a 3-CNF `f` has a section iff `f` is satisfiable (`net_section_iff_sat`), sections and satisfying assignments correspond one to one and have equal counts (`net_bijection`, `net_count`, a parsimonious reduction), the construction is linear (`net_size`: `6\|f\| + 1` edges, each a 9-entry table), and a section is certified by an edge-by-edge check of one value per vertex (`np_certificate`, membership in NP). NP-completeness follows from these by the standard argument; the gadget is needed (`no_filter_trivial`, `no_pin_trivial`) | One root (`rooted_criterion`) is polynomial | n/a | **hardness** (mechanized reduction): no efficient exact criterion unless P = NP; the exact one is mechanized. - (closed by #54; reduction #57) |
 | Counting and uniqueness given root values | Sections correspond bijectively to consistent root assignments: `root_set_bijection`, counted by `root_set_count`; sections are determined by their root values (`out_forest_unique`) | n/a | n/a | - (closed by #54) |
-| Event order under root-set coordination (non-invertible driving forest) | **None mechanized.** `CoordinatedExact.v` is stated for group transports only; the driving forest is acyclic, so `fed_exact` should instantiate as it did there | none | n/a | **open** (small; `LOSSY-NETWORKS.md` P6) |
+| Event order under root-set coordination (non-invertible driving forest) | From a start consistent with the forest's driving network, J-trace-equivalent sequences all converge iff, for each root `r`, `r`'s independent events commute at every value reachable from `s0 r` by `r`'s own events: `forest_events_exact`; permutation form `forest_perm_exact`; from every consistent start iff they commute at every value, iff static C1 and C2: `forest_events_exact_global`, `forest_global_iff_static`. One condition per root: roots never interact (`forest_runs_by_root`, `forest_cross_commute`, `forest_run_single_root`; events on driven registries are overwritten, `forest_driven_noop`), and the only coupling is through constraints (`forest_runs_kept`). The group case is recovered (`coordinated_events_exact_recovered`) | Every root's events commute at every value (`forest_events_exact_global`); C1 holds unconditionally on the forest (`forest_c1_static`) | n/a | Qualifier: commuting at the start value is not enough (`tw_reachable_matters`). - (closed by #59) |
 | Rootless propagation (resolver reading B): does every fair order reach one consistent state | **None mechanized** for non-invertible labels. The Boolean instances `copyback_without_authority` and the negation loop are invertible (section 11) | none | n/a (a non-monotone cycle fails `Build`) | **open** (medium for Boolean fibers, large in general; `LOSSY-NETWORKS.md` P2) |
-| **Optimization:** minimum coordination | **None known**; "the minimum is not a cohomological rank" (Cat section 8) | `rooted_coordination_suffices` (upper bound) | n/a | **open** (NP-hardness inherited from the Z/2 case, cited) |
+| **Optimization:** minimum coordination | **None known**; "the minimum is not a cohomological rank" (Cat section 8) | `rooted_coordination_suffices` (upper bound) | n/a | **open** (NP-hardness inherited from the Z/2 case, cited; `LossyHardness.v` is about existence, not this optimization) |
 
 ## 13. The full nerve as a 2-complex
 
@@ -167,7 +171,8 @@ edge is an equation and the consistent states are the sections (`msection`).
 ### The open gaps
 
 Every row above is `-` (exact, or unconditional inside its regime), `hardness`, or one of these.
-This is the list the headline's "a gap stated in the open" refers to.
+This is the list the headline's "a gap stated in the open" refers to. Numbering is kept from the
+989-gate revision, so closed gaps keep their numbers.
 
 Convergence:
 
@@ -176,12 +181,14 @@ Convergence:
 | 1 | Distributed model with explicit propagation: acyclic has only a sufficient condition (`dist_interleavings_converge`); cyclic is not modeled (section 8) | open | medium (acyclic), large (cyclic) |
 | 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | open | medium |
 | 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open | medium to large |
-| 4 | Event order under non-invertible root-set coordination (section 12) | open | small |
+| 4 | Event order under non-invertible root-set coordination (section 12) | **closed**, #59 (`forest_events_exact`) | n/a |
 | 5 | Cyclic monotone sub-federations under collapse (section 14) | paper only | medium to large |
-| 6 | Single registry with enabledness that a compensation step can disable (section 1) | open | small to medium |
-| 7 | State-based CRDT merges as an instance of the exact theorems (section 4) | open | small |
+| 6 | Single registry with enabledness that a compensation step can disable (section 1) | **closed**, #56 (`jcg_exact`) | n/a |
+| 7 | State-based CRDT merges as an instance of the exact theorems (section 4) | **closed**, #58 (`merge_action_exact`, `cvrdt_on_exact`) | n/a |
 | 8 | Least fixed points on complete lattices without ACC (section 9) | design exclusion: classical Knaster-Tarski is outside the axiom-free gate; gsm's finite domains satisfy ACC, so nothing gsm accepts depends on it | n/a |
 | 9 | Infinite streams: eventual agreement (section 5) | design: the naive claim is refuted (`base_thm_convergence_transient_counterexample`) | n/a |
+
+Open convergence gaps after this wave: 1, 2, 3 and 5. Gaps 8 and 9 are design exclusions.
 
 Optimization and counting (unchanged since the first audit):
 
@@ -193,21 +200,21 @@ Optimization and counting (unchanged since the first audit):
 | 13 | Sheaf gluing, positive assembly (section 13) | paper |
 
 Items 6, 7 and 9 were already in the first audit's tables (as qualifiers or "minor") but not in its
-conclusion; they are listed here because the new headline asks that every non-exact regime be
-named.
+conclusion; they were listed in the 989-gate revision because the headline asks that every
+non-exact regime be named. Items 6 and 7 are now closed.
 
-### Is the new headline accurate?
+### Is the headline accurate?
 
 Yes, regime by regime:
 
-| Regime | Exact (machine-checked) | Hardness (cited) | Open gap (listed above) |
+| Regime | Exact (machine-checked) | Hardness | Open gap (listed above) |
 |---|---|---|---|
 | Single registry, free delivery | `cc_exact_from`, `canonical_cc_exact_from` | | |
-| Single registry, causal or guarded enabledness persisting under repair | `jc_exact`, `sn_jc_exact` | | 6 (repair-disabled enabledness) |
+| Single registry, causal or guarded enabledness, including enabledness a compensation step can disable | `jcg_exact`, `jcsplit_exact`; under `enabled_after_comp`: `jc_exact`, `sn_jc_exact` | | |
 | Single registry, any well-founded potential; termination itself | `wf_jc_exact`, `wf_cc_exact_from`, `terminating_iff_comp_wf`, `comp_wf_iff_wfc` | | |
 | Causal replay | `causal_exact` | | |
 | At-least-once, free and causal; per-event deduplication | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `safe_at_exact` | | |
-| CRDT fragment | `compensation_free_exact` (op-based) | | 7 (state-based instance) |
+| CRDT fragment, op-based and state-based | `compensation_free_exact` (op-based); `merge_action_exact`, `cvrdt_on_exact` (state-based) | | |
 | Stream processors | `stream_exact`, `stream_exact_free` | | 9 (infinite streams, design) |
 | Acyclic federations, repair normal form | unconditional in the regime | | |
 | Acyclic federations, event order (guarded; unguarded) | `fed_exact`, `fed_guarded_exact`; `fed_grs_exact` | | |
@@ -217,17 +224,26 @@ Yes, regime by regime:
 | Invertible cycles: existence; root-driven convergence | `section_iff_coboundary`; `prop_minimal_qualified_iff` | | |
 | Invertible, rootless single cycle | `rootless_unique_normal_form_iff` | | 2 (other graphs) |
 | Invertible, coordinated: what to coordinate; event order | `plan_exact`; `coordinated_events_exact` | | |
-| Non-invertible: single cycle; rooted; root set | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count` | existence NP-complete (`LOSSY-NETWORKS.md` 3.2) | 3 (rootless dynamics), 4 (event order) |
+| Non-invertible: single cycle; rooted; root set; event order under root-set coordination | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count`; `forest_events_exact` | existence NP-complete: reduction mechanized (`net_section_iff_sat`, `net_count`, `net_size`, `np_certificate`, #57), NP-completeness by the standard argument | 3 (rootless dynamics) |
 | Collapse | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) | | 5 (cyclic) |
-| Minimum coordination | | invertible: NP-hard (group feedback edge set) | 10, 11 |
+| Minimum coordination | | invertible: NP-hard (group feedback edge set), cited | 10, 11 |
 | 2-complex rank, sheaf gluing | | | 12, 13 |
 
 No regime is left that is neither exact, hardness-backed, nor listed. Two readings of the wording
 need care, and both hold:
 
-- "Machine-checked" applies to the exact conditions only. The hardness results (NP-completeness of
-  root-set existence, NP-hardness of minimum coordination) are cited from the literature and from
-  the research note, not mechanized; the README says so.
+- "Machine-checked" applies to the exact conditions. Of the two hardness results, the one a
+  convergence regime rests on (NP-completeness of root-set existence) now has its reduction
+  machine-checked: `LossyHardness.v` (#57) proves that the 3-SAT construction is correct in both
+  directions (`net_section_iff_sat`), parsimonious (`net_bijection`, `net_count`), linear in size
+  (`net_size`), and that a section has a polynomially checkable certificate (`np_certificate`).
+  NP-completeness then follows by the standard argument (membership from the certificate, hardness
+  from the linear reduction and the NP-hardness of 3-SAT, which is not itself mechanized). The other
+  (NP-hardness of minimum coordination, the group feedback edge set problem) is still cited from the
+  literature. The README's precision paragraph said "the hardness results ... are cited, not
+  mechanized"; that sentence is now inaccurate for root-set existence and should say that the
+  reduction is machine-checked and NP-completeness follows by the standard argument, keeping
+  "cited" for minimum coordination. Updated in the same PR as this revision.
 - "A hardness result showing no efficient one exists" is used only where the exact condition is
   also mechanized (root sets) or where the problem is an optimization (minimum coordination). No
   convergence regime rests on hardness alone.
@@ -238,20 +254,22 @@ need care, and both hold:
 convergence gaps, these closed: at-least-once delivery (#55), ordinal and lexicographic potentials
 (#49), the stream level (#51), event order under coordination (#47), lfp validity and finite
 reachability (#50), rootless single invertible cycles (#48), and the non-invertible existence
-criterion without a spanning root (#54). Items 1 to 7 above remain, so the map is not complete. The
-new headline does not claim completeness; it claims that every regime's status is stated.
+criterion without a spanning root (#54). Of the gaps the 989-gate revision added, event order under
+root-set coordination (#59), enabledness a compensation step can disable (#56) and the state-based
+CRDT instance (#58) closed. Items 1, 2, 3 and 5 above remain, so the map is not complete. The
+headline does not claim completeness; it claims that every regime's status is stated.
 
-**Is "exact conditions in every regime" accurate?** No. Items 1 to 7 are regimes with a sufficient
-condition only, or none; item 1 is a regime the development models (`FederationEvents.v`), so even
-"exact in every regime it covers" fails. Items 8 and 9 are design exclusions. The new headline's
-three-way disjunction (exact, hardness, open) is accurate.
+**Is "exact conditions in every regime" accurate?** No. Items 1, 2, 3 and 5 are regimes with a
+sufficient condition only, or none; item 1 is a regime the development models
+(`FederationEvents.v`), so even "exact in every regime it covers" fails. Items 8 and 9 are design
+exclusions. The headline's three-way disjunction (exact, hardness, open) is accurate.
 
 **"A checker for the practical ones."** Accurate, with two qualifications. gsm checks the cheap
 sufficient conditions (CC with declared pairs, `NotIdempotent`, M1, R1/R2, C1 and C2 on acyclic and
 monotone-cyclic networks with joint images, monotonicity and image validity over visited states);
-it checks none of the exact reachable-state conditions (JC, CCR, GC), which is the stated design.
-Only the single-registry result is oracle-certified; the federation checks are Go code (ROADMAP
-item 5). Two earlier caveats are now resolved: gsm's lfp-validity check is proved sound
+it checks none of the exact reachable-state conditions (JC, JC', CCR, GC), which is the stated
+design. Only the single-registry result is oracle-certified; the federation checks are Go code
+(ROADMAP item 5). Two earlier caveats are now resolved: gsm's lfp-validity check is proved sound
 (`gsm_check_Ncyc_valid`, #50; gsm's comment in `federation_monotone.go` that its condition is "not
 part of the Coq lemmas" can now cite it), and `NotIdempotent` is placed exactly: sound at reachable
 witnesses, complete when exactly-once delivery converges, and able to over-report at unreachable
@@ -259,15 +277,17 @@ states (#55).
 
 ### Wording
 
-Recommended, and adopted in the README:
+The headline stays as adopted in the README, re-confirmed at this gate:
 
 > **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
 > condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
 > checker for the practical ones.**
 
-The first audit proposed narrower lines that named the exact core; they are superseded because the
-exact core now covers every delivery model of a single registry and every cyclic regime except
-those in the list above.
+The line does not say the hardness results are machine-checked, so #57 does not change it; it
+changes the precision paragraph under it (previous section). The first audit proposed narrower lines
+that named the exact core; they are superseded because the exact core now covers every delivery
+model of a single registry, the CRDT fragment in both forms, and every cyclic regime except those
+in the list above.
 
 ### Mechanization tasks
 
@@ -284,15 +304,17 @@ From the first audit's list (numbering kept):
 | 7 | Distributed propagation model, acyclic exact converse | open (gap 1), medium |
 | 8 | Cyclic monotone collapse | open (gap 5), medium to large |
 | 9 | Distributed propagation model on monotone cycles | open (gap 1), large |
-| 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54 (NP-completeness cited); event order open (gap 4), small; rootless dynamics open (gap 3) |
+| 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54; NP-completeness reduction mechanized, #57; event order done, #59; rootless dynamics open (gap 3) |
 | 11 | Complete lattices without ACC | stated as a design exclusion (gap 8) |
 | 12 | Minimum coordination linked to the plan model | open (gap 10), medium |
 | 13 | Non-invertible minimum coordination | open (gap 11), large |
 | 14 | Rank of `H^1` on the 2-complex | open (gap 12), large |
 | 15 | Sheaf gluing, positive assembly | open (gap 13), large |
+| 16 | Repair-disabled enabledness (gap 6) | done, #56 |
+| 17 | The state-based CRDT instance (gap 7) | done, #58 |
+| 18 | The lossy-network 3-SAT reduction (correctness, parsimony, size, certificate) | done, #57 |
 
-New: 16, repair-disabled enabledness (gap 6), small to medium; 17, the state-based CRDT instance
-(gap 7), small.
+Tasks 16 and 17 were added by the 989-gate revision, task 18 by this one.
 
 ## Side findings (documentation drift)
 
@@ -311,6 +333,14 @@ Found while auditing. Fixed in the same PR as this revision:
   than twice that, and repeated a sentence fragment; the categorical-layer roadmap said the
   non-invertible case "is not mechanized", but `CohomologyGeneral.v` and `RootSet.v` now mechanize
   its single-cycle, rooted and root-set forms.
+
+Found in the second-wave revision (at the 1198 gate), fixed in the same PR:
+
+- `coq/README.md`: two count lines (the `Print Assumptions` sentence and the build instructions) said
+  1017 while the expected tail and the roadmap line said 1198; the categorical-layer roadmap still
+  called root-set NP-completeness "cited, not mechanized" after #57.
+- `REGIMES.md`: "for any enabledness (causal, guarded) the exact condition is JC" omitted the
+  `enabled_after_comp` qualifier of `jc_exact`; it now points to `jcg_exact` for the general case.
 
 Still open:
 

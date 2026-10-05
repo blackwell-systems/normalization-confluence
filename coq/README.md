@@ -24,7 +24,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
 ```
 
 Expected tail: `PASS: all 1198 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1017 gated results and fails if any of them depends on an
+The gate runs `Print Assumptions` on all 1198 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -2243,7 +2243,9 @@ Kept at paper level after the first mechanization pass, and since mechanized:
   `thm_obstruction_reachable`, `CohomologyGeneral.v`); with a root, iff the driven state satisfies
   every non-tree edge (`rooted_criterion`); and on any graph, iff some assignment of a root set's
   values drives a consistent state (`root_set_criterion_graph`, `RootSet.v`), where deciding it is
-  NP-complete in general (cited, not mechanized).
+  NP-complete in general (the 3-SAT reduction's correctness, parsimony and size, and the NP
+  certificate, are mechanized in `LossyHardness.v`; NP-completeness follows by the standard
+  argument).
 - The operational core of that story is `gsm`'s `Federation.DiagnoseCycle` (the loop-composite
   fixed-point / orbit test). Its reading is mechanized: no section iff no seed reaches a fixed point
   (`c15_exact_refuter`), and one seed is definitive on the regular action
@@ -2265,7 +2267,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1017
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1198
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
