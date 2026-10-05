@@ -2,7 +2,8 @@
 
 Detailed results for the acyclic-federation repair modules: the categorical core (limit, retraction,
 compositionality, order-independence), the bridge to the companion paper's statements, the federated
-theorems in corrected form, and the categorical-layer roadmap. Each module's one-line summary is in
+theorems in corrected form, sheaf gluing over sub-federation covers, and the categorical-layer
+roadmap. Each module's one-line summary is in
 the [module index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#6-acyclic-federation-the-repair-normal-form), section 6.
 
@@ -112,6 +113,105 @@ shared component with the resolver value and then normalizes locally. All axiom-
 The gate also covers the Cat-cited `Categorical.v` names that were not in it: `fixed_is_equalizer`,
 `retract_fixes_fixed`, `rhoL_idempotent`, `rhoL_image_iff_L`, `rhoL_L_iff_fixed`, `rhoFold_sound`,
 `rhoFold_complete`, `rhoF_from_app`.
+
+## Sheaf gluing over sub-federation covers (`SheafGluing.v`)
+
+Audit gap 13 (the sheaf half): the categorical paper's Section 5, `prop:gluing` ("R1 + R2 is the
+gluing axiom") and "the sheaf assembly over the full cover", which the paper states at the paper
+level. Built on `CategoricalBridge.v` (the federation model of Theorem 1), `FederationOrder.v`,
+`Collapse.v` and `Cohomology.v`, with no category-theory library: the site is finite and every
+statement is about lists of registries. All axiom-free.
+
+**The site and the presheaf.** An open set is a sub-federation `U`, a finite list of registries; a
+cover of `W` is a list `C` of sub-federations with `concat C = W`. The presheaf `F` sends `U` to the
+states consistent on `U` (`Sec U s`): every registry of `U` holds a normal form
+(`InImage (rho i)`), and every target `B` whose constraint lies inside `U` (`Internal U B`: `B` in
+`U`, `B` a target, all of `src B` in `U`, the paper's "rules whose footprint lies in `U`") has its
+shared component equal to its resolver value. Sections over `U` are compared on `U` only
+(`Agree U`), and restriction to `U'` included in `U` keeps the state (`sec_restrict`). `R1`
+(source-determinacy: a resolver reads only its sources) makes `F(U)` depend on the values in `U`
+alone (`sec_local`), so `F` is a presheaf of `U`-states; without `R1` it need not be
+(`r1_failure`, last conjunct).
+
+**Separation and gluing, separately.**
+
+- `separation`: two states restricting to the same sections on every member agree on the union.
+  No hypothesis.
+- `gluing`, `sheaf_condition`: under `R1`, if the cover refines the constraints (`Refines C`: every
+  target whose constraint lies inside the union has its whole footprint, the target and all its
+  sources, inside one member), a family of local sections agreeing on the overlaps (`Compatible`)
+  glues (`glue`, first member wins) to a section over the union restricting to each member; it is
+  unique on the union by `separation`.
+- `sheaf_exact`: on a refining cover, a family is the restriction of a global section iff it is a
+  compatible family of local sections.
+- `gluing_iff_local_global`: for fixed data under `R1`, gluing holds on `C` iff every state whose
+  restriction to each member is a section is a section over the union.
+- `sheaf_iff_refines` (exact and uniform in the data): gluing holds on `C` for every federation on
+  the graph that satisfies `R1` iff `C` refines the constraints. Qualifier in the statement: the
+  value type is inhabited and there are two distinct shared values (the refuting federation needs
+  them).
+
+The precise hypothesis is a condition on members, not on overlaps. "The overlaps contain every
+morphism's source and target" is stronger than needed: in `chain_glues` the overlap `{1}` of the
+cover `{0,1}`, `{1,2}` of the chain `0 -> 1 -> 2` contains no constraint, and gluing holds. What
+the overlaps carry is the compatibility of the family.
+
+**Which hypothesis each counterexample breaks.**
+
+| Counterexample | Hypothesis broken | What fails |
+|---|---|---|
+| `triangle_fails` | `Refines`: the edge `0 -> 2` of the triangle lies in no member of the cover `{0,1}`, `{1,2}`, though the members overlap at `1` | a compatible family of local sections with no global section restricting to it |
+| `r1_failure` | `R1`: registry 2's resolver reads registry 0, not a declared source; `Refines` holds for the declared footprints | no global section restricts to a compatible family; and `F` is not a presheaf of `U`-states (two states agreeing on `{1,2}`, one a section over `{1,2}`, one not) |
+| `gluing_cex_overlap` (`Cohomology.v`'s `gluing_order_dependent`) | compatibility of the certificates on the overlap: two subsystems write one variable | the state sections agree on the overlap (the same valid set), the normalizers do not, no certificate restricts to both, and the union is order-dependent |
+
+A federation has one writer per registry (a multi-source target merges its writers through its
+resolver), so on a closed cover its certificates are always compatible (`cert_glue`). That is the
+formal content of `prop:gluing`'s "R1 makes the merged normal form single-valued".
+
+**Certificates.** On `CategoricalBridge.v`'s model (resolvers read the source values in order, so
+`R1` holds by construction, `resL_R1`), the certificate of `U` is `rhoU o U`: the federated
+normalizer run over the members of `U` in `o`'s order, registries outside `U` read as external
+inputs.
+
+- `cert_restrict_closed`: if `U` is closed under sources (`ClosedIn U`), the global normalizer
+  restricted to `U` is `U`'s certificate, for any order. No other hypothesis.
+- `cert_restrict`: for every `U` (with `o` topological), the global normal form on `U` is `U`'s
+  certificate run on the state whose external inputs are replaced by their global normal forms
+  (`patch`). `cert_pointwise` is the case `U = [i]`: each registry's normal form is one step from
+  its sources' normal forms.
+- `cert_restrict_iff` (exact): in a federation `o` closed under sources, the plain restriction
+  equation holds for every data satisfying Theorem 1's hypotheses (idempotence, the lens law and
+  `SC`) iff `U` is closed under sources.
+- `sec_iff_LF`, `cert_retraction`: on a closed `U` the sections are `L_F` of `U`'s order, and under
+  idempotence, the lens law and `SC` (the corrected Theorem 1 hypothesis, as in
+  `cat_thm_one_sound` and `cat_thm_one_complete`) the certificate lands in `F(U)` and fixes it.
+- `cert_glue`, `cert_sheaf`: on a cover by closed members, the certificates form a compatible family
+  of local sections over a refining cover (`closed_refines`: a closed cover refines every
+  constraint); their gluing is the certificate of the union and the global normalizer there; it
+  lands in the sections over the union and fixes every one of them.
+- `cert_needs_sc`: with `M1` (validity preservation) in place of `SC`, the certificate of the closed
+  sub-federation `{0,1}` misses its sections (the federation of `cat_thm_one_m1_counterexample`).
+  `prop:gluing`'s "R2 makes it land in the agreed valid set" holds with `SC` in the role the paper
+  gives `R2`; `R2` itself is not the condition.
+- `collapse_restrict`: `Collapse.v`'s convex form. For a convex `J`, the federated normal form on
+  `J` is `rho_J` run after the upstream block `P` (from `collapse_nf_factor`, which rests on
+  `collapse_nf_agree`). Convexity is what makes the patched inputs of `cert_restrict` computable
+  before `J` as one block; for a closed `J` the patch is invisible (`cert_restrict_closed`).
+
+**Non-vacuity.** `chain_glues` (the three-registry chain covered by two overlapping pairs; the
+union's consistency is a genuine constraint), `triangle_fails`, `r1_failure`,
+`sheaf_iff_refines_instance`, `vs_cert_sheaf` (the closed cover `{0,1}`, `{0,2}` of a fork
+`0 -> 1`, `0 -> 2`, overlap `{0}`, glued certificate computed to `(3,3)` everywhere),
+`chain_cert_nonclosed` (`{1,2}` is not closed: its certificate gives `(5,3)` at `1`, the global
+normal form `(3,3)`), `cert_restrict_iff_instance`, `collapse_restrict_instance`.
+
+**The boundary.** The sheaf condition for certificates is proved on covers by sub-federations
+closed under sources. On other covers a certificate depends on external inputs; only the relative
+restriction equation (`cert_restrict`) is proved, and no sheaf condition for relative certificates
+is stated. The site is the registry-level one; the paper's variable-level site, where two subsystems
+may write one variable, enters only through `gluing_cex_overlap`. The monotone-overlap regime
+(cycles, least fixed points) is not covered: everything here is acyclic. The certificates are repair
+certificates; event-order convergence of the glued system still needs the event-layer conditions.
 
 ## The federated theorems in corrected form (`FederationGRS.v`)
 
@@ -243,9 +343,11 @@ Kept at paper level after the first mechanization pass, and since mechanized:
   (`c15_exact_refuter`), and one seed is definitive on the regular action
   (`c15_regular_definitive`) but not in general (`c15_definitive_claim_false`).
 
-Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing assembly
-(`REGIME-AUDIT.md`, section 13).
+Still at paper level: the rank on the nerve as a 2-complex (`REGIME-AUDIT.md`, section 13). The
+sheaf gluing assembly is mechanized for consistent states on every refining cover and for
+certificates on covers closed under sources, with its boundary stated
+([`SheafGluing.v`](#sheaf-gluing-over-sub-federation-covers-sheafgluingv)).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate
-(currently 1524 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1560 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.

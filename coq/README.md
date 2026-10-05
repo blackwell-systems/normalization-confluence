@@ -23,13 +23,13 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1591 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1524 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 1783 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 1560 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
 certification-soundness results and the verified-checker results behind the table and rules oracles,
-the CRDT-subsumption results, the categorical core and bridge, the cohomological layer
+the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over sub-federation covers, the cohomological layer
 (`Cohomology.v` to `CohomologyGeneral.v`, `RootSet.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
 rootless cycles, the distributed propagation model (acyclic and on monotone cycles), the federated
@@ -114,6 +114,7 @@ what gsm checks) are on the linked page in [`docs/`](docs).
 | `Categorical.v` | `image_iff_fixed`, `fixed_is_equalizer`, `consistent_iff_equalizer`, `rhoFold_retraction`, `rhoFold_compositional` | [Categorical core](docs/federation-repair.md#categorical-core-categoricalv) |
 | `FederationOrder.v` | `order_independent` (any two topological orders agree, by bubbling) | [Categorical core](docs/federation-repair.md#categorical-core-categoricalv) |
 | `CategoricalBridge.v` | `cat_prop_one`, `cat_thm_one_sound`, `cat_thm_one_order_independent`; `cat_thm_one_m1_counterexample` | [Categorical bridge](docs/federation-repair.md#categorical-bridge-categoricalbridgev) |
+| `SheafGluing.v` | Sheaf gluing over sub-federation covers: `separation`, `gluing`, `sheaf_exact`, `sheaf_iff_refines`; certificates `cert_restrict_closed`, `cert_restrict`, `cert_restrict_iff`, `cert_sheaf`; broken hypotheses `triangle_fails`, `r1_failure`, `gluing_cex_overlap`, `cert_needs_sc` | [Sheaf gluing](docs/federation-repair.md#sheaf-gluing-over-sub-federation-covers-sheafgluingv) |
 | `FederationGRS.v` | `fed_lem_fed_termination`, `fed_grs_exact`, `fed_guarded_exact`, `fed_thm_fed_convergence_exact`; refuted: `fed_thm_fed_convergence_refuted`, `fed_grs_c1_c2_insufficient` | [The federated theorems in corrected form](docs/federation-repair.md#the-federated-theorems-in-corrected-form-federationgrsv) |
 
 The [categorical-layer roadmap](docs/federation-repair.md#roadmap-mechanizing-the-categorical-layer-companion-paper)
@@ -157,6 +158,7 @@ is on the same page.
 | `CoordinatedCycles.v` | `coordinated_sound`, `coordinated_unique_nf`, `plan_exact`, `coordination_needed`; `root_choice_matters`, `copyback_without_authority` | [Under a computed coordination](docs/non-monotone-invertible.md#non-monotone-cycles-under-a-computed-coordination-coordinatedcyclesv) |
 | `RootlessCycles.v` | `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | [Rootless propagation](docs/non-monotone-invertible.md#rootless-propagation-on-invertible-cycles-rootlesscyclesv) |
 | `CoordinatedExact.v` | `coordinated_events_exact`, `coordinated_events_exact_global`; `old_condition_not_necessary` | [Event order under the plan](docs/non-monotone-invertible.md#the-exact-event-order-condition-under-the-coordination-plan-coordinatedexactv) |
+| `CoordinationMinimum.v` | `plan_min_exact`, `feasible_plan`, `plan_coord_feasible`, `plan_min_attained`, `maxcut_reduction`; `plan_min_connected_needed`, `plan_min_nodup_needed`, `s3_tree_choice` | [Minimum coordination and the plan model](docs/non-monotone-invertible.md#minimum-coordination-and-the-plan-model-coordinationminimumv) |
 
 ### 12. Non-invertible (lossy) transports ([docs/non-invertible.md](docs/non-invertible.md))
 
@@ -168,12 +170,21 @@ is on the same page.
 | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | [Event order under root-set coordination](docs/non-invertible.md#the-exact-event-order-condition-under-root-set-coordination-rootseteventsv) |
 | `LossyMinimum.v` | Minimum coordination: `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_b_correct`, `lmin_zero_iff_sat`, `net_lmin_dichotomy`, `min_le_np_certificate`, `lossy_min_is_gfes`, `lossy_min_exceeds_cycle_bounds` | [Minimum coordination](docs/non-invertible.md#minimum-coordination-for-lossy-networks-lossyminimumv) |
 
-### 13. The full nerve as a 2-complex
+### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
-No module: nothing is mechanized on the 2-complex itself (the rank of `H^1` with triangle relations,
-and the positive sheaf-gluing assembly, are paper level). What exists is on the 1-skeleton,
-`H1_classification`, `gauge_fix` and `betti_number` in `CohomologyGraph.v`, and the negative half of
-gluing, `gluing_order_dependent` in `Cohomology.v` (section 11 above).
+No module: nothing is mechanized on the 2-complex itself (the rank of `H^1` with triangle relations
+is paper level). What exists is on the 1-skeleton, `H1_classification`, `gauge_fix` and
+`betti_number` in `CohomologyGraph.v`. Sheaf gluing is mechanized over sub-federation covers in
+`SheafGluing.v` (section 6 above), with the negative half, `gluing_order_dependent` in
+`Cohomology.v`, placed as the counterexample to certificate compatibility.
+
+| Module | Headline theorems | Details |
+|---|---|---|
+| `CohomologyNerve.v` | `nerve_H1_classification` (classes = relation-satisfying generator assignments up to simultaneous conjugation), `nerve_H1_abelian`, `nerve_H1_Z2_count` (`2^((\|E\| - \|V\| + 1) - rank)` classes), `nerve_Z2_full_iff`, `nerve_section_iff_coboundary`; `triangle_kills_flip` | [`H^1` on the 2-complex](docs/non-monotone-invertible.md#h1-on-the-nerve-as-a-2-complex-cohomologynervev) |
+
+The 1-skeleton results are `H1_classification`, `gauge_fix` and `betti_number` in
+`CohomologyGraph.v` (section 11 above). The positive sheaf-gluing assembly is paper level; the
+negative half of gluing is `gluing_order_dependent` in `Cohomology.v`.
 
 ### 14. Compositional collapse ([docs/collapse.md](docs/collapse.md))
 
@@ -219,7 +230,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1524
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1560
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

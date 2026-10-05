@@ -262,6 +262,24 @@ all: CRDTBoundary.vo
 CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
 	coqc -Q . NC CRDTBoundary.v
 
+# The positive sheaf assembly over sub-federation covers (SheafGluing.v).
+all: SheafGluing.vo
+
+SheafGluing.vo: SheafGluing.v Categorical.vo FederationOrder.vo CategoricalBridge.vo Cohomology.vo FederationEvents.vo Collapse.vo
+	coqc -Q . NC SheafGluing.v
+
+# Minimum coordination tied to the authority-root plan model; the Max-Cut reduction (CoordinationMinimum.v).
+all: CoordinationMinimum.vo
+
+CoordinationMinimum.vo: CoordinationMinimum.v CohomologyGraph.vo CoordinatedCycles.vo CohomologyGeneral.vo
+	coqc -Q . NC CoordinationMinimum.v
+
+# H^1 of the nerve as a 2-complex: triangle relations, classification and Z/2 count (CohomologyNerve.v).
+all: CohomologyNerve.vo
+
+CohomologyNerve.vo: CohomologyNerve.v CohomologyGraph.vo
+	coqc -Q . NC CohomologyNerve.v
+
 # Minimum coordination for lossy networks: characterization, decision, hardness (LossyMinimum.v).
 all: LossyMinimum.vo
 

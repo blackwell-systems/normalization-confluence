@@ -5,7 +5,7 @@ authority root, rootless cycles, and event order under the coordination plan. Ea
 summary is in the [module index](../README.md#modules-by-regime); the status of each question in
 this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#11-non-monotone-cycles-invertible-transports), section 11
-(and section 13 for the 1-skeleton results).
+(and section 13 for the 1-skeleton and 2-complex results).
 
 ## Cohomological layer (`Cohomology.v`)
 
@@ -72,12 +72,92 @@ completion, the cycle-basis generation, and `H^1` as a quotient with its rank ar
   `betti_number`: the number of those generators is `|E| - |V| + 1`, the first Betti number.
   `tri_flip_not_cohomologous_to_identity` discharges every hypothesis on the Z/2 triangle.
   Scope: this is `H^1` of the graph (the nerve's 1-skeleton, where every labeling is a cocycle). The
-  nerve's triangles (2-cells) impose further relations that can lower the rank; those are not
-  modeled.
+  nerve's triangles (2-cells) impose further relations that can lower the count; they are modeled in
+  `CohomologyNerve.v` (below).
 
-Paper-level (not mechanized): the rank on the nerve as a 2-complex (the triangle relations), and the
-complexity of choosing the spanning tree that minimizes the coordinated set (the group feedback edge
-set results, cited from the literature).
+Paper-level (not mechanized): the complexity of choosing the spanning tree that minimizes the
+coordinated set (the group feedback edge set results, cited from the literature).
+
+## `H^1` on the nerve as a 2-complex (`CohomologyNerve.v`)
+
+Closes the counting row of REGIME-AUDIT.md section 13 (gap 12): `H^1` with the triangle relations,
+axiom-free, for any group (abstract group laws as section hypotheses) and, for the count, over Z/2.
+
+**Model.** A 2-complex is a labeled graph (CohomologyGraph.v's edge lists) plus a list of 2-cells. A
+2-cell is a closed walk: a base vertex and a list of steps, each an edge index with an orientation
+(backward reads the inverse label); `wf_cells` requires each cell to be a closed walk on the graph.
+The nerve's triangles are the length-3 cells; the theory holds for any closed walk. `hol L w` is the
+holonomy (composite transport) of a walk, and `cocycle L C` says every cell of `C` has trivial
+holonomy: the cocycle condition on 2-cells. Gauge and `cohomologous` are CohomologyGraph.v's (the same
+0-cochains act), so `H^1` of the complex is the cocycles modulo gauge. Fix a spanning tree `T` grown
+from `r` with extra edges `X` (`|X| = |E| - |V| + 1`, `betti_number`), and write `triv T` for `T`
+relabeled by the identity. The relation word of a cell is `gen_word |T| w`: its walk with the tree
+steps erased and the non-tree edge `|T| + k` read as generator `k`.
+
+**Gauge covariance.** `hol_gauge`: a gauge `h` sends the holonomy `H` of a walk from `a` to `b` to
+`h(b) H h(a)^-1`, so `cocycle_gauge`: on closed walks the cocycle condition is gauge invariant (a
+property of the class). `hol_tree_fixed` / `relations_in_generators`: on a labeling that is the
+identity on the tree, a cell's holonomy is its relation word evaluated on the non-tree labels.
+
+**Non-abelian classification (`nerve_H1_classification`).** For a spanning tree `T`, extra edges
+`X` spanned by it, and cells `C` that are closed walks:
+
+1. `triv T ++ X'` is a cocycle iff the assignment `X'` of the generators satisfies every relation
+   word;
+2. every cocycle of the complex is cohomologous to `triv T ++ X'` for such an `X'`;
+3. two of them, `triv T ++ X1` and `triv T ++ X2`, are cohomologous iff `X2` is a simultaneous
+   conjugate `c X1 c^-1` (by `H1_classification`);
+4. simultaneous conjugation preserves the relations.
+
+So `H^1(K; G)` is in bijection with `Hom(<X | relation words>, G)` modulo conjugation, an assignment
+satisfying the words being by definition a homomorphism from the presented group (the presented group
+is the fundamental group of the 2-complex; that identification is standard and not itself
+mechanized). There is no rank for non-abelian `G`: this classification replaces it.
+`nerve_H1_abelian`: for commutative `G`, conjugation is trivial and the classes are exactly the
+relation-satisfying assignments.
+
+**Sections are decided on the graph (`nerve_section_iff_coboundary`).** A labeling has a section iff
+it is a coboundary iff it is cohomologous to `triv L`; none of this mentions the cells, and a labeling
+with a section is a cocycle of every complex on its graph (`section_cocycle`). The cells change the
+count of classes, never the existence question: a cocycle of the complex is in the zero class iff it
+has a section, exactly as on the graph.
+
+**The count over Z/2 (`nerve_H1_Z2_count`).** With `m = |X|`, a cell's relation is a linear functional
+on generator vectors in `(Z/2)^m` (`rel_fun_linear`). `ker m F` lists the common solutions and
+`rel_rank m F` counts the relations not implied by the ones after them in the list (a relation adds
+one exactly when it is nonzero somewhere on the solution set of the rest). The general counting facts:
+`ker_count` (`|ker| * 2^rank = 2^m`), `ker_count_pow` (`|ker| = 2^(m - rank)`), `rel_rank_le`
+(`rank <= m` and `rank <= #relations`), `rel_rank_solution_set` (the rank depends only on the
+solution set, so not on the order of the cells), `rel_rank_zero_iff` (rank 0 iff every relation
+vanishes identically). The theorem, for `Z2reps` (the solution list) and `Z2rank`:
+
+- `Z2reps` has no duplicates and has length `2^(m - rank)`, with `rank <= m` and `rank <= |C|`;
+- its members are exactly the vectors `a` whose labeling `triv T ++ assign Xs a` is a cocycle;
+- every cocycle of the complex is cohomologous to the labeling of some member;
+- distinct members are not cohomologous.
+
+So `|H^1(K; Z/2)| = 2^((|E| - |V| + 1) - rank)`, that is,
+`dim H^1 = dim Z^1(graph)/B^1 - rank of the triangle relations on the cycle space`.
+`nerve_Z2_no_cells` recovers `betti_number` (no cells: rank 0, `2^b` classes, with
+`b + |V| = |E| + 1`). `nerve_Z2_full_iff`: the count equals `2^(|E| - |V| + 1)` iff the rank is 0 iff
+every assignment is a cocycle (the cells impose no relation). `nerve_Z2_cell_lowers`: adding a cell
+never raises the count. Scope: the count is proved over Z/2 (decidable, explicit lists); for a general
+field the classification above gives the same solution-space description, but the dimension formula
+is mechanized only for Z/2.
+
+**Non-vacuity** (every hypothesis discharged, the counts computed):
+
+- Hollow triangle (`hollow_triangle`): no cell, rank 0, two classes `[false]`, `[true]`.
+- Filled triangle (`filled_triangle`): one cell `0 -> 1 -> 2 -> 0`, rank 1, one class.
+  `triangle_kills_flip`: the flip labeling is a nontrivial class of the graph
+  (`tri_flip_not_cohomologous_to_identity`) and a cocycle of the hollow triangle, but not a cocycle of
+  the filled one: the triangle kills it. `filled_cocycle_has_section`: through the general theorem,
+  every cocycle of the filled triangle has a section.
+- Square `0 - 1 - 2 - 3 - 0` with the diagonal `0 -> 2` (`|E| = 5`, `|V| = 4`, `b = 2`):
+  `square_hollow` (rank 0, four classes), `square_one_triangle` (rank 1, two),
+  `square_two_triangles` (rank 2, one: a disk), and `square_dependent_cell` (adding the square
+  boundary as a third cell keeps rank 2: the rank counts independent relations, not cells).
+  `nerve_instances_wf` applies `nerve_H1_Z2_count` to the filled triangle and the three-cell square.
 
 ## Non-monotone cycles under a computed coordination (`CoordinatedCycles.v`)
 
@@ -155,7 +235,9 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
   root value still coordinates it.
 
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
-that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
+that minimizes the coordinated set is the group feedback edge set problem: the minimum over trees
+equals the minimum feasible coordination, and the problem is NP-hard by a mechanized Max-Cut
+reduction ([`CoordinationMinimum.v`](#minimum-coordination-and-the-plan-model-coordinationminimumv)).
 
 ## Rootless propagation on invertible cycles (`RootlessCycles.v`)
 
@@ -278,3 +360,81 @@ permutations do not converge, every reached state satisfies the kept network `cc
 none satisfies `cc_T ++ neg_B ++ neg_C`. The two loops share the driving network (it depends only on
 `T` and `r`), so event convergence depends only on the root's events; `B` and `C` change only which
 constraints the reached states satisfy.
+
+## Minimum coordination and the plan model (`CoordinationMinimum.v`)
+
+`plan_exact` fixes a spanning tree and says exactly which edges the plan must coordinate relative to
+it. `CohomologyGeneral.v` defines a feasible coordination (a deletion set whose residual has a
+global section) and bounds its minimum from below. This file links the two: the minimum over rooted
+spanning trees of the plan's cost **is** the minimum feasible coordination (the group feedback edge
+set number), for every authority root. Any group with decidable equality, the regular action.
+
+**Definitions.**
+
+- `plan Es r T X`: `tree r T`, `Permutation Es (T ++ X)` (the tree is a sub-multiset of the network)
+  and `spans r T X`. Having a plan rooted at `r` is how connectivity is stated.
+- `coord r T X`: the non-tree edges unbalanced against the computed tree section `tsec r T`
+  (`tsec_section`); `plan_cost r T X` is its length. `plan_cost_any_section`: any section of the tree
+  gives the same count (balance is static, `balanced_any_section`). `plan_cost_le_betti`: at most
+  `|X|`.
+- `feasibleM Es F`: `Es` is `K ++ F` up to order and `K` has a global section (deletion of a
+  sub-multiset). `feasibleM_feasible`, `feasible_feasibleM`: it agrees with
+  `CohomologyGeneral.feasible` (deletion by membership) on duplicate-free networks.
+
+**Results.**
+
+- `plan_coord_feasible`: for every plan, the coordinated set is feasible (its residual `T ++ kept`
+  carries the tree section). `plan_coord_exact` is `plan_exact` for the computed split: a set of
+  non-tree edges can be kept iff it avoids `coord`.
+- **`feasible_plan`**: for every feasible `F` (with a plan rooted at `r` witnessing connectivity)
+  there is a plan rooted at `r` with `plan_cost <= |F|`. No connectivity of the residual is assumed.
+  The tree is grown from `r` through edges of the residual `K` first (`grow`, `attach`); when no
+  residual edge leaves the grown part, an edge of `F` is attached and the section of `K` is
+  multiplied on the right by one constant on every vertex not yet reached (`resc`, `resc_section`:
+  gauge freedom, valid because no residual edge crosses). So tree edges in `F` cost nothing, and only
+  non-tree edges of `F` can be unbalanced.
+- **`plan_min_exact`**: for a connected network and every `k`,
+  `(exists T X, plan Es r T X /\ plan_cost r T X <= k) <-> (exists F, feasibleM Es F /\ |F| <= k)`.
+  `plan_min_lower_iff`: every plan costs at least `k` iff every feasible set has at least `k` edges.
+  `plan_min_attained`: a minimum feasible `F` gives a plan of cost `|F|` that is optimal among all
+  plans. `plan_min_root_independent`: the optimum is the same for every root (the root still decides
+  the normal form, `root_choice_matters`, but not how much is coordinated).
+- `plan_min_exact_set`: the same iff with `CohomologyGeneral.feasible` on a duplicate-free network.
+  `plan_cost_ge_disjoint`: `edge_disjoint_lower_bound` recovered for every plan.
+- `section_decide`: relative to a tree, `T ++ X` has a section iff `tsec r T` satisfies every edge of
+  `X` (a decision procedure from `cycle_basis_criterion`); `planb_sound`, `permb_sound`,
+  `section_check` are the boolean checkers used by the instances.
+
+**The hypotheses are needed.**
+
+- `plan_min_connected_needed`: two disjoint edges. Deleting nothing is feasible, but no tree rooted
+  anywhere spans both edges (`tree_vertex_count`), so no plan exists and the tree form of the iff
+  fails at `k = 0`. On a disconnected network the theorem applies per component.
+- `plan_min_nodup_needed`: two copies each of the flip and the identity between 0 and 1. Deleting the
+  flip by membership (one entry, both copies) is feasible, yet every plan coordinates two edges, so
+  `plan_min_exact_set` needs `NoDup` (`plan_min_exact`, with sub-multisets, does not).
+
+**Complexity: the Max-Cut reduction.** `signed H` labels every edge of a graph `H` with the flip in
+Z/2 (`signed_size`: same vertices, same number of edges). `maxcut_reduction`: a feasible coordination
+with `|F| + k <= |H|` exists iff `H` has a cut of at least `k` edges, so the minimum coordination of
+`signed H` is `|H|` minus the maximum cut. `maxcut_plan_reduction`: the same for plans when
+`signed H` is connected. Mechanized: correctness and size of the reduction. Cited: the
+NP-completeness of Max-Cut (Karp 1972), from which minimum coordination is NP-hard already for Z/2
+and already in the plan model; membership in NP is the plan itself, checked by `section_decide`.
+`maxcut_triangle` is the non-vacuity instance (maximum cut 2, minimum coordination 1, attained by a
+plan).
+
+**Instances** (every hypothesis discharged).
+
+- `negation_plan_min`: gsm's negation 2-cycle rooted at A, cost 1, the minimum over every plan and
+  every feasible set.
+- `bowtie_plan_min`: the bowtie of `CohomologyGeneral.v`, cost 2, the minimum (`bowtie_min_two`).
+- `pendant_tree_uses_F`: the negation loop with a pendant edge 1 -> 2. Deleting the negation edge and
+  the pendant edge is feasible and leaves vertex 2 isolated, and every spanning tree uses the deleted
+  pendant edge: the tree must be allowed to contain edges of `F`, which `feasible_plan` does.
+- **`s3_tree_choice`**: an `S_3` network, four paths from 0 to 1 with holonomies `id`, `rho`, `rho`,
+  `tau` (`rho` a 3-cycle, `tau` a transposition). The plan of the tree through the direct edge
+  coordinates 3 edges; the plan of the tree through the first `rho` path coordinates 2; 2 is the
+  minimum over every plan and every feasible set (two edge-disjoint obstructing cycles,
+  `s3_cycle_no_section`, `s3_disjoint`). The abelian image under the sign (`s3_sign_hom`) needs only
+  one deletion, so the `S_3` minimum is strictly above the abelian one, as in `theta_separation`.
