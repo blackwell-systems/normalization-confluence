@@ -59,3 +59,5 @@ SheafGluing.v
 CoordinationMinimum.v
 CohomologyNerve.v
 LossyMinimum.v
+CanonicalExecution.v
+CanonicalInstances.v
