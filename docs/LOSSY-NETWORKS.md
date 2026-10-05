@@ -526,7 +526,7 @@ the existing work ("these are the tools; the conditions and theorems built with 
 Ranked by value to the theory and gsm per unit of difficulty.
 
 Status as of the current gate: P1 and P6 are done, and P4 is done in reading A (#70, closing
-[REGIME-AUDIT.md](../REGIME-AUDIT.md) gap 11); P2 is open and listed there as gap 3; P3 and P5 are not audit gaps (they are
+[REGIME-AUDIT.md](../REGIME-AUDIT.md) gap 11); P2 is open and listed there as gap 3 (sufficient signed-cycle certificates for E are now mechanized, see P2); P3 and P5 are not audit gaps (they are
 research directions, not missing exact conditions for a listed regime).
 
 ### P1. The root-set criterion, mechanized, with the hardness that makes it optimal
@@ -558,6 +558,40 @@ research directions, not missing exact conditions for a listed regime).
   the resolver reading). The invertible single-cycle case is done, #48 (`RootlessCycles.v`:
   `rootless_unique_iff`, `rootless_two_orders`, `rootless_not_unique`), which answers the
   copy-back generalization below for one coherently oriented invertible cycle; invertible
+  networks beyond one cycle are gap 2.
+- **Progress: sufficient certificates for E, not an identity** (`SignedCycles.v`,
+  `SignedResolver.v`). Resolver semantics made explicit: one value type with a least and a greatest
+  element and finite height; each vertex updated by its resolver from the current state; fair
+  asynchronous schedules as in `DistributedCycles.v`; the signed graph is the **global** interaction
+  graph (`Resp`: signs fixed across all states). Proved:
+  1. Harary balance for finite signed graphs (`harary_balance`, the Z/2 instance of
+     `holonomy_free_section`): a switching to all-positive exists iff no undirected cycle is
+     negative.
+  2. Attempt 1 (`signed_settlement`, `signed_settlement_harary`): balance makes every resolver
+     monotone after reversing the orders at the switched vertices (`switched_monotone`); then from
+     every start at or below the least fixed point of the switched order every fair schedule
+     settles there, sound starts settle at the least fixed point above them, and E (Settlement and
+     CanonicalFidelity of the canonical-execution kernel, canonicalizer the constant least fixed
+     point) holds from every such start. The start condition is needed for both halves:
+     `copyback_ghost` and `toggle_ghost` (a sound start above the least fixed point stays at a
+     ghost: fidelity fails) and `ring_needs_low_start` (a fair schedule never settles).
+  3. Attempt 2 (`signed_fidelity`): balance plus at most one fixed point gives settlement from
+     every start and E from every start. Uniqueness is a hypothesis: on a balanced graph Thomas's
+     condition "no positive directed cycle" forces an acyclic graph (`balanced_no_positive_acyclic`),
+     so the cited sign route (Richard and Comet 2007, Aracena 2008) adds nothing beyond Robert there;
+     `unique_pos_cycle` is covered by the hypothesis and by no sign condition.
+  Breaks recorded as theorems: `neg2_no_fixed_point` (unbalanced, no fixed point),
+  `unbalanced_unique_oscillates` (one fixed point but no balance: no settlement), `flip_needs_top`
+  (monotone with one fixed point on a value set without a top: no flush), `xor_no_certificate`
+  (a non-monotone lossy resolver admits only unbalanced certificates), `cyc3_unsignable` (a
+  permutation that no order with a least element signs). Out of scope and still open: local
+  (state-dependent) interaction graphs (Ruet 2017 refutes the local negative-cycle rule in
+  general; among Boolean networks whose global graph is not signable, an exhaustive search at two
+  vertices and a random sample of 300,000 at three vertices found none with every local graph
+  balanced and either no fixed point or a fair schedule that never settles; this search is not
+  mechanized), value sets without bounds, and an exact (iff) condition for E in reading B. The rest of the statement below stays
+  open.
+
   networks beyond one cycle are gap 2. P2 is part of the cyclic frontier: the acyclic case is
   Robert's theorem, and what is open is the cyclic one, an instance of the question of what
   additional structure makes the composition layer P exact on cycles
