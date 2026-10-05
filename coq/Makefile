@@ -262,6 +262,12 @@ all: CRDTBoundary.vo
 CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
 	coqc -Q . NC CRDTBoundary.v
 
+# H^1 of the nerve as a 2-complex: triangle relations, classification and Z/2 count (CohomologyNerve.v).
+all: CohomologyNerve.vo
+
+CohomologyNerve.vo: CohomologyNerve.v CohomologyGraph.vo
+	coqc -Q . NC CohomologyNerve.v
+
 # Minimum coordination for lossy networks: characterization, decision, hardness (LossyMinimum.v).
 all: LossyMinimum.vo
 
