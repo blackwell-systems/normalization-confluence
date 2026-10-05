@@ -558,7 +558,11 @@ research directions, not missing exact conditions for a listed regime).
   the resolver reading). The invertible single-cycle case is done, #48 (`RootlessCycles.v`:
   `rootless_unique_iff`, `rootless_two_orders`, `rootless_not_unique`), which answers the
   copy-back generalization below for one coherently oriented invertible cycle; invertible
-  networks beyond one cycle are gap 2.
+  networks beyond one cycle are gap 2. P2 is part of the cyclic frontier: the acyclic case is
+  Robert's theorem, and what is open is the cyclic one, an instance of the question of what
+  additional structure makes the composition layer P exact on cycles
+  ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier);
+  [THEORY.md](THEORY.md#canonical-execution)).
 - **Statement.** For a cyclic network in reading B, characterize when every fair asynchronous order
   from a given initial state reaches the same consistent state, without an authority root. Known:
   necessary conditions from Thomas's rules (a positive cycle for multiplicity, a negative cycle for

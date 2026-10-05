@@ -8,7 +8,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 [REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 1783 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 1926 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #70 to #73) is in the Done table; what remains open is listed under "Open items"
@@ -293,8 +293,28 @@ The convergence regimes that still lack an exact condition, consistent with
 machine-checked exact condition, or a hardness result where no efficient one exists (for lossy
 networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 
+**Lead item: make P exact on cycles.** The theory is exact for acyclic composition: in the
+canonical-execution framework ([THEORY.md](THEORY.md#canonical-execution)), E, S and H are exact
+for single systems and P (`factor_exact`) for acyclic composition, while on cycles P has the
+soundness direction only (`cyc_factor_sound`, `cyc_factor_sound_gc`) and locality fails without
+acyclicity (`cyclic_lc_sound_fails`). The remaining open convergence problems are instances of one
+question, what additional structure makes P exact on cycles: gap 2 (rootless invertible networks
+beyond a single cycle), gap 3 (rootless propagation on lossy networks, [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)
+P2), gap 5 (cyclic monotone collapse), gap 14 (convergence alone in the no-reset cyclic
+distributed model), and the monotone-overlap part of gap 13. Gap 13's other residues (relative
+certificates on covers not closed under sources, and the variable-level site) are not cyclic and
+stay separate. The cyclic raw material: GC and its exactness on monotone cycles (`gc_iff`,
+`net_events_converge_iff`), per-target checks over normal-form images (`cyc_check_gc_lfp`), reset
+epochs (`epoch_conv_iff`), rootless single cycles (`rootless_unique_iff`), root sets
+(`root_set_criterion_graph`) and P's soundness on cycles (`cyc_factor_sound_gc`). Each gap is
+checked against its own description in
+[REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier). Done when some
+gap in this list is settled by an exact form of P on cycles, or when a cyclic gap is shown to need
+something outside P.
+
 | Item | Status | Size |
 |---|---|---|
+| Make P exact on cycles: the cyclic frontier, of which gaps 2, 3, 5, 14 and gap 13's monotone-overlap part are instances | open; soundness half mechanized (`cyc_factor_sound`, `cyc_factor_sound_gc`), locality fails without acyclicity (`cyclic_lc_sound_fails`) | large |
 | Distributed propagation model (gap 1): acyclic exact converse; a model for monotone cycles | acyclic done, #60 (`dist_exact`); cycles modeled and exact under reset epochs and under `LowR`, #62 (`epoch_conv_iff`, `low_conv_iff`) | n/a |
 | Distributed model on monotone cycles without resets and without `LowR` (gap 1, residual): move `FlushR` and `NoGhostR` off the hypothesis side and characterize them | done, #64: `flush_fed_iff`, `fair_fed_iff` (each conjunct necessary), `FlushR` via `fair_flush_sound_iff`, `NoGhostR` via `noghost_event_iff` and `noghost_inv_iff`, gsm reduction `lens_noreset_iff` | n/a |
 | Distributed model on monotone cycles without resets: exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when they may agree on a common ghost (gap 14) | open; sufficient `XUcR`, `FMConv`, `NoGhostR` (`quiet_conv_suff`), and `NoGhostR` is not necessary (`conv_ghost_normal`) | small to medium |
@@ -374,7 +394,8 @@ is closed. Of the optimization and counting gaps, only gap 13's residual remains
 
 Items 1 to 4 and 6, the monotone-cycle event result, the C1/C2 converse and item 7's work packages
 have landed, so their theorem statements are fixed and item 5 can start. The open items above are
-independent of item 5 and of each other; the smallest two (event order under root-set coordination
+independent of item 5, and each can be attacked on its own, although the convergence gaps share one
+question (the lead item, P on cycles); the smallest two (event order under root-set coordination
 and the state-based CRDT instance) landed in #59 and #58, with #56 and #57. When item 5 and the open items land, every remaining caveat on
 this page is either a design exclusion (least fixed points without ACC) or a fundamental limit; the
 lower-value items above remain open.

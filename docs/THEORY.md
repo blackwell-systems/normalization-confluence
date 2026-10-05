@@ -1,9 +1,10 @@
 # Theory overview
 
 The theory in one page: the regime it adds, what is new and what is not, the key concepts, how
-the three convergence regimes nest, and where the theory sits in pure mathematics
-([Mathematical structure](#mathematical-structure)). "What's new here" marks each item mechanized,
-paper or implemented. For the
+the three convergence regimes nest, the decomposition through which six exact convergence results
+are rederived ([Canonical execution](#canonical-execution)), and where the theory sits in pure
+mathematics ([Mathematical structure](#mathematical-structure)). "What's new here" marks each item
+mechanized, paper or implemented. For the
 headline and its precision paragraph see the [front page](../README.md); for what is proved in each
 regime see [REGIME-AUDIT.md](../REGIME-AUDIT.md); for the full statements see the papers and
 [coq/README.md](../coq/README.md).
@@ -148,12 +149,171 @@ Normalization confluence occupies the gap between CRDTs (requires commutativity)
 
 These regimes are **nested, not merely adjacent**. CRDTs are the *compensation-free* corner: operations designed so repair is never needed. Drop that restriction, keep the convergence guarantee, and you have normalization confluence, so every CRDT is a governed machine whose max repair depth is zero, and the inclusion is **strict** on the same transition representation (there are convergent governed machines whose raw transitions, without compensation, satisfy no CRDT convergence condition; the claim is about representations, since such a machine's governed behavior can itself be a CRDT). This is not informal: it is machine-checked, axiom-free, in [`coq/CRDT.v`](../coq/CRDT.v) (`cmrdt_SEC`, `cvrdt_SEC`) and [`coq/CRDTBoundary.v`](../coq/CRDTBoundary.v) (the boundary theorem `crdt_boundary`, the witnesses `witness_ops_not_commute`, `witness_not_cvrdt_order`, `witness_not_cvrdt_exact`, and the qualifier `witness_governed_constant`), and stated in full in [SUBSUMPTION.md](SUBSUMPTION.md). The relationship also holds under causal delivery, where only concurrent operations must commute: standard op-based CRDTs converge as an instance, and the compensation-free fragment is *exactly* the op-based CRDTs ([`coq/CausalReplay.v`](../coq/CausalReplay.v): `causal_cmrdt_SEC`, `compensation_free_exact`), with the full rewrite-system theorem in [`coq/GovernanceCausal.v`](../coq/GovernanceCausal.v). So "a third regime alongside CRDTs" is the entry framing; the sharper claim the proofs support is that normalization confluence is the general regime and CRDTs are its compensation-free fragment.
 
+## Canonical execution
+
+> A system is canonical exactly when every ambiguity its execution model can expose is either
+> eliminated by canonicalization or proved semantically irrelevant; in acyclic compositions, those
+> obligations can be checked locally.
+
+That sentence states the framework through which six of the repository's exact convergence
+results are rederived as short corollaries (below). It is mechanized axiom-free in
+`CanonicalExecution.v` (the kernel), `CanonicalInstances.v` (the single-system instances) and
+`CanonicalLocality.v` (composition), all in the `coq/verify.sh` gate. Full statements,
+per-theorem qualifiers and the statement review are in
+[coq/docs/canonical-execution.md](../coq/docs/canonical-execution.md). Where
+[Mathematical structure](#mathematical-structure) places the theory area by area, this section
+gives a decomposition that cuts across the rewriting, trace and federation areas. Status per
+regime stays in [REGIME-AUDIT.md](../REGIME-AUDIT.md); nothing here changes a row there.
+
+### The decomposition: E, S, H and P
+
+An execution model can expose three kinds of ambiguity: which configuration the dynamics settles
+in, which representative of a state an event acts on, and which of several equivalent histories
+was run. Each layer below is the obligation that removes one of them; P says when the obligations
+of a composite can be checked on its parts.
+
+- **E, effective canonicalization.** The dynamics settles (Settlement), and the settled
+  configurations it reaches are the canonical ones designated by an idempotent canonicalizer `N`
+  (canonical fidelity). This eliminates the settling ambiguity by canonicalization.
+- **S, state descent (state coherence).** An event's canonical outcome does not depend on whether
+  it acts on a raw state or on its canonical form: `N (act e s) = N (act e (N s))`. Equivalently,
+  every event respects `N x = N y` (`state_descent_iff_respects_canon`), and then a raw run and the
+  governed run agree after canonicalization (`normalization_descent`). With `N := rho*` from WFC,
+  state descent is CC2 in its all-events form (`state_descent_iff_cc2`).
+- **H, history descent (history coherence).** The canonical semantics is constant on the semantic
+  equivalence classes of admissible executions. Under presentation adequacy (the semantic
+  equivalence is generated by a set of edges between admissible executions), this holds iff it
+  holds across each generator edge (`history_descent_exact`). This proves the history ambiguity
+  semantically irrelevant.
+- **Peaks.** For a rewrite presentation, under termination from the start, confluence is
+  joinability of the peaks at reachable configurations (`peak_exact`, Newman's lemma localized),
+  split by any complete classifier into state peaks and history peaks (`classified_peak_exact`).
+- **E, S and H together.** Under Settlement, every settled run agrees with the canonical semantics
+  and settled runs with equivalent histories agree iff canonical fidelity, state descent at every
+  reachable configuration and history descent hold (`canonical_execution_exact`). `esh_exact` is
+  the same statement with Settlement carried on both sides; `esh_sufficient` is the backward
+  direction, with no Settlement.
+- **P, composition.** Two theorems, kept separate.
+  - Interaction locality, `factor_exact`: global ambiguities decompose into local ambiguities
+    (inside one component) and interface ambiguities (across the composition boundary). Under
+    locality completeness `LC` (components of an exposed global ambiguity are exposed, and an
+    exposed global ambiguity whose components are resolved is resolved) and `Realizable` (every
+    exposed local or interface ambiguity is forced by an exposed global one), global resolution
+    holds iff local and interface resolution hold. Each of the three premises is needed
+    (`factor_needs_sound`, `factor_needs_exposed`, `factor_needs_realizable`). In the acyclic
+    federation the interface ambiguities have the S shape (C1R1: pointwise state descent of a
+    target's local canonicalizer) and the local ambiguities the H shape (C2R: the one-swap
+    condition of a local governed run); `LC` is the model's locality and topological-solving
+    argument (`fed_lc_sound`, `fed_reflects`), and `fed_factor_supply` discharges every premise on
+    the supply chain.
+  - State gluing, `SheafGluing.v`: local canonical states glue on a cover, for every federation
+    satisfying R1, iff the cover refines the constraints (`sheaf_iff_refines`, `gluing`).
+  - The shared hypothesis: the locality behind `LC` in the federation (a repair reads only its
+    sources, `c_local`) is equivalent to R1 at fixed target values (`c_local_iff_r1`; `common_r1`
+    is the direction from the federation's hypotheses). On an acyclic federation the two halves
+    hold together as a conjunction, `fed_state_and_interaction`; neither is used to prove the
+    other.
+  - An observation, not a theorem: state gluing reads as descent of objects (canonical states
+    along a cover) and interaction locality as descent of morphisms (commutation of steps along a
+    composition boundary). No combined descent statement is formalized.
+
+### Scope
+
+- **Exact for single systems:** E, S and H.
+- **Exact for acyclic composition:** P, through `factor_exact` and its federation instance.
+- **On cycles, P has the soundness direction only.** On the monotone-cycle model, local and
+  interface resolution give commutation of every independent pair at every normal form
+  (`cyc_factor_sound`) and the global condition GC from every normal form
+  (`cyc_factor_sound_gc`), through a static decomposition whose realizability is not proved.
+  Locality itself fails without acyclicity: on a two-registry copy cycle every exposed local and
+  interface ambiguity is resolved, yet two declared-independent events diverge, so `LCSound`, and
+  hence `LC`, fails (`cyclic_lc_sound_fails`; the divergence alone is `cyclic_lc_fails`). The
+  open convergence problems are the question this leaves: what additional structure makes P exact
+  on cycles ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier)).
+
+### Evidence: six exact results as short corollaries
+
+Each existing exact theorem below is rederived through the kernel with the same exported statement
+(premises up to order), with two exceptions. `flush_fed_iff_kernel` has `flush_fed_iff`'s
+conclusion with none of its order, rank or cover premises. `stream_exact_free` is reread, not
+rederived: the kernel proves its history half, `stream_free_hd_iff_pcc` (history descent over
+duplicate-free reorderings iff PCC, with no use of `stream_exact_free`). Line counts are proof
+bodies, as checked in the statement review.
+
+| | Existing result | Rederivation (proof-body lines) | Kernel route |
+|---|---|---|---|
+| A | `jc_exact`, `jcg_exact` (single registry) | `jc_exact_kernel` (14), `jcg_exact_kernel` (12) | `classified_peak_exact`: event/compensation peaks are state peaks, distinct event/event peaks history peaks |
+| B | `causal_exact` (causal delivery) | `causal_exact_kernel` (4) | `history_descent_exact`; generators are adjacent concurrent swaps, whose edge condition is CCR |
+| C | `alo_exact`, `causal_alo_exact`, `causal_alo_exact_idem` (at-least-once) | `alo_exact_kernel` (5), `causal_alo_exact_kernel` (3), `causal_alo_exact_idem_kernel` (3) | `history_descent_exact`; swaps plus one duplicate generator at its legal landing point (`gen_idem`, `gen_abs`). The cost is adequacy, about 250 lines of semantics-free word combinatorics |
+| D | `fed_exact`, `fed_exact_full`, `gc_iff_reach`, `reach_commute_iff` (acyclic federation, event order) | `fed_exact_P` (6), `gc_iff_reach_P` (2), `reach_commute_iff_P` (16), `fed_exact_full_P` (14) | H then P: `history_descent_exact`, then `factor_exact` and `factor_pointwise`; instance glue about 85 lines, with `LC` the model's locality lemma |
+| E | `pjc_exact`, `stream_exact` (stream processors); the history half of `stream_exact_free` | `pjc_exact_kernel` (10), `stream_exact_kernel` (15); `stream_free_hd_iff_pcc` | `classified_peak_exact` with an empty state-peak class; `history_descent_exact` for the free-delivery history half, whose swap edge condition is PCC |
+| F | `flush_fed_iff` and the ghost family (distributed model, monotone cycles, no resets) | `flush_fed_iff_kernel` (5) | `esh_exact`: Settlement is `FlushR`, canonical fidelity `NoGhostR`, state descent `XUcR`, history descent `FMConv`; `flip_esh`, `ghost_esh`, `copy_xu_esh` and `fm_conv_esh` each fail one layer, `conv_ghost_esh` holds H without E, and `raise_only_esh` holds all three |
+
+### Absent laws, explained
+
+The framework also says why some laws are absent from the published exact conditions.
+
+- **Streams have no state-descent condition.** A stream processor normalizes before every event,
+  so an event never acts on a raw invalid state, and the state-peak class of the stream classifier
+  is empty (`stream_state_peaks_empty`, with completeness `st_complete`). Confluence is then the
+  history-peak condition PJC alone. The statement is about that classification: peak kinds are
+  labels, and no theorem shows the S layer itself vacuous for streams.
+- **Causal at-least-once needs `AbsorbAt`, not plain idempotence.** In the history kernel a
+  redelivery is a generator, and the generator has to sit at its legal landing point: a copy at
+  the end of an exactly-once causal run that holds the event and none of its causal successors.
+  Its edge condition is exactly `AbsorbAt` (`gen_abs`); a copy right after the first delivery has
+  edge condition exactly `IdemAt` (`gen_idem`). A naive `aa = a` generator at every prefix does
+  not reproduce the published condition: its edge condition is idempotence at prefixes that
+  already contain duplicates.
+
+### The missing compositional ingredient
+
+The first validation run rederived the history layer of `fed_exact` (`fed_exact_kernel`, 7 lines)
+and then stopped: splitting a cross-registry swap into a state-descent obligation (C1R1) and a
+history obligation (C2R) needed locality (an event on registry `j` changes nothing outside `j` and
+its downstream registries) and topological solving (the re-normalized state is the unique solution
+of the component equations). Neither is expressible in E, S or H; both say how a global
+canonicalizer decomposes into local canonicalizers along a dependency order. That diagnosis named
+P, and `factor_exact` supplied it with `LC` as a named obligation, after which D passes. The same
+diagnosis locates the cyclic frontier: on a cycle an event's own write comes back through its
+sources, so the environment of a local canonicalizer is not fixed by the event's registry, and that
+is where `LC` fails (`cyclic_lc_sound_fails`).
+
+### Qualifiers
+
+- `esh_exact` (with `canonical_execution_exact` and `esh_sufficient`) assumes every event is
+  admissible after every admissible word, so its reachability is under unrestricted event
+  delivery. Regimes that restrict event order (B, C) go through `history_descent_exact`, whose
+  admissibility predicate expresses causal delivery; of the six results only F instantiates
+  `esh_exact`.
+- `state_descent_iff_cc2` is the all-events form of CC2 (every event at every invalid state), not
+  the paper's Axiom CC2, which asks it only for enabled events.
+- C1R1 is pointwise state descent with a point-dependent canonicalizer (`c1r1_state_descent`): the
+  canonicalizer `f j z` depends on the environment `z` after the other event, and it is idempotent
+  only on valid target values. It is not state descent at every reachable configuration for one
+  fixed `N`.
+- `stream_free_hd_iff_pcc` is the kernel rederivation of `stream_exact_free`'s history half.
+  `stream_free_history` rewrites by `stream_exact_free` itself, so it is a restatement, not a
+  rederivation.
+- `factor_exact` is logically thin by design: `LCSound` and `Realizable` are its two directions
+  stated per ambiguity, so its content is its premises. The composition argument lives in each
+  instance's proof of `LC`.
+
+### What it is not yet
+
+The framework has rederived the six existing exact results and explained the absent laws above. It
+has not yet produced a new exact result for an unstudied regime. The natural test is the cyclic
+frontier: a structure that makes P exact on cycles would settle open gaps rather than rederive
+closed ones.
+
 ## Mathematical structure
 
 In one line: a local-to-global theory of canonical forms, built from convergent rewriting,
 fixed-point theory, categorical descent and cohomological obstruction, with the boundary of each
 stated exactly. This section places the theory in pure mathematics and says, area by area, what is
-mechanized and what is classical or paper-only. A name in backticks is a Coq theorem in
+mechanized and what is classical or paper-only. The decomposition that rederives six exact
+convergence results (E, S, H and P) is the previous section,
+[Canonical execution](#canonical-execution). A name in backticks is a Coq theorem in
 [`coq/`](../coq), checked by the axiom-free gate in `coq/verify.sh` unless the text says otherwise.
 Status per regime is in [REGIME-AUDIT.md](../REGIME-AUDIT.md); where the two differ, the audit
 wins.
