@@ -47,6 +47,7 @@ New here? A few pointers orient you:
 - [REGIMES.md](REGIMES.md): a decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges.
 - [ROADMAP.md](ROADMAP.md): the caveats removed so far (finite state, exactly-once delivery, sufficiency-only conditions, non-monotone cycles), the qualifiers found, what remains open, and which caveats are fundamental limits.
 - [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md): a forward-looking research note (nothing proven) mapping the discrete conditions to a continuous state space, WFC as a Lyapunov function and CC as contraction, with the convex-gradient sweet spot where the collapse survives and the multi-basin boundary where it provably does not.
+- [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md): a forward-looking research note on lossy (non-invertible) networks without a spanning root: the constraint and resolver readings, NP-completeness and root sets in the first, Thomas's signed-cycle rules in the second.
 - [coq/](coq): the machine-checked, axiom-free proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm runs as an in-process, fail-closed gate: a checker over emitted step tables and a checker over the rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification. See [coq/extraction/](coq/extraction).
 
 ---
