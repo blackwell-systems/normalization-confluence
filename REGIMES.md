@@ -98,6 +98,10 @@ target). Whether the network converges depends on its **topology** and on whethe
 | **Cyclic**, invertible transports | **non-monotone**, with a computed coordination | values driven along a spanning tree from an **authority root**; balanced non-tree edges kept as checked constraints; unbalanced edges coordinated | **Yes**, unique **given the root**; event order converges **iff** independent root events commute at the reachable root values | `coordinated_sound`, `coordinated_unique_nf` (`CoordinatedCycles.v`); `coordinated_events_exact` (`CoordinatedExact.v`) |
 | **Any graph**, non-invertible (lossy) transports | coordination from a **root set** (every registry reachable from some root) | some root assignment drives a state satisfying every edge | A consistent state exists **iff** that holds (deciding it is NP-complete in general: the 3-SAT reduction is mechanized, NP-completeness by the standard argument); unique given the root values | `root_set_criterion_graph`, `root_set_count`, `root_set_bijection` (`RootSet.v`); `net_section_iff_sat`, `net_size`, `np_certificate` (`LossyHardness.v`) |
 | **Any graph**, non-invertible transports, **event order** under root-set coordination | values driven along an outward spanning forest from the root set | for each root, its independent events commute at every value reachable from its start value by its own events | **Yes, if and only if**: one condition per root, roots never interact | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global` (`RootSetEvents.v`) |
+| **Acyclic**, **distributed** deployment (local events and propagation steps interleave; a target may read stale sources) | any | XU at every reachable stale combination plus C2 at reachable states (equivalently, plus FedMachine convergence); static XU plus C2 suffices, and is exact for every valid start when every target's sources are roots | **Yes, if and only if**, after the final flush; strictly weaker than XU, strictly stronger than FedMachine convergence | `dist_exact`, `dist_exact_tc`, `dist_exact_global`, `dist_global_exact_roots`, `dist_xu_c2_converge`; `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` (`DistributedExact.v`) |
+| **Monotone cycles**, **distributed**, with **reset epochs** (a barrier resets every shared value to bottom, then propagation to quiescence) | monotone | each event's local outcome is the same at every reachable stale state as at its flushed form (`XUcR`), plus FedMachine convergence; gsm's per-target C1cyc and C2cyc over a set covering the reachable shared values suffice | **Yes, if and only if**, after a final epoch; the reset must be a barrier (a staggered reset re-creates a ghost) | `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`, `dist_cyc_epoch_fix` (`DistributedCycles.v`) |
+| **Monotone cycles**, **distributed**, **no resets** | monotone | under `LowR` (every reachable state at or below the least fixed point of its locals; inflationary events from such a start give it): `XUcR` plus FedMachine convergence. Without `LowR`: the same plus `NoGhostR`, assuming every reachable state can be flushed (`FlushR`) | **Yes, if and only if** under `LowR`; otherwise exact only relative to `FlushR` and `NoGhostR` (open; see `REGIME-AUDIT.md` gap 1) | `low_agree_iff`, `low_conv_iff`, `infl_evlow`, `evlow_lowr`, `lens_quiet`; `quiet_agree_iff`, `quiet_conv_iff`, `uniq_agree` (`DistributedCycles.v`) |
+| **Monotone cycles**, **distributed**, no resets, a clear event on a feedback loop (the ghost) | monotone | every check gsm runs passes: C1cyc, C2cyc, `XUcR` from every start, FedMachine convergence | **No**: nodes can settle at a fixed point above the least one (a ghost) that the FedMachine never produces, and no schedule leaves it; reset epochs fix it | `dist_cyc_ghost`, `q1_stuck`, `dist_cyc_epoch_fix` (`DistributedCycles.v`) |
 | **Sub-federation** (convex), acyclic | any | C1 and C2 at reachable witnesses inside the block; convexity | collapses to a single **effective registry**; outer network converges **iff** the collapsed one does | `collapse_a_guarded_exact`, `collapse_c_exact` (`Collapse.v`); cyclic monotone blocks are paper only |
 
 The monotone-cycles row is the deepest result: when the shared domain is a lattice and repair is
@@ -120,8 +124,23 @@ registries interleaving with propagation are a separate question:
   C2 at witnesses realized by reachable states are also necessary (`fed_exact`, `fed_exact_full`,
   `coq/FederationEventsConverse.v`); static C1 and C2, which gsm checks, are sufficient but not
   necessary (`naive_converse_fails`). With propagation as separate steps (the distributed model),
-  XU plus each registry's own CC is sufficient (`dist_interleavings_converge`); no exact condition
-  is mechanized for that model, and it is not modeled on cycles.
+  every interleaving converges after the final flush **iff** XU holds at every reachable stale
+  combination and C2 at reachable states (`dist_exact`, `coq/DistributedExact.v`). Static XU plus
+  C2 suffices (`dist_xu_c2_converge`; gsm checks static XU, gsm PR #34) and is exact for every
+  valid start when the sources are roots (`dist_global_exact_roots`); the exact condition is
+  strictly weaker than XU (`levels_exact_not_xu`) and strictly stronger than FedMachine
+  convergence (`dist_strictly_stronger_than_fed`).
+- *Distributed model on monotone cycles* (`coq/DistributedCycles.v`). Repair alone reaches the
+  FedMachine's least fixed point exactly from below it (`q1_sound_iff`, `q1_below`); above another
+  fixed point it stays there (`q1_stuck`), and from an arbitrary stale start the result can depend
+  on the schedule (`dist_schedule_dependence`) or never settle (`dist_ring_livelock`). With events,
+  reset epochs make the model exact: every run agrees with the FedMachine after a final epoch **iff**
+  `XUcR` (`epoch_agree_iff`, `epoch_conv_iff`), and gsm's cyclic C1 and C2 over a widened value set
+  give it (`lens_epoch`). Without resets the model is exact under `LowR` (`low_agree_iff`,
+  `low_conv_iff`); in general only relative to the reachable hypotheses `FlushR` and `NoGhostR`
+  (`quiet_agree_iff`, `quiet_conv_iff`). The ghost `dist_cyc_ghost` passes every check gsm runs and
+  still settles away from the FedMachine, which is why gsm reports cyclic projection deployments
+  not certified.
 - *Monotone cycles.* Interleavings converge **iff** the global condition GC holds: independent
   governed steps commute at every reachable federated state (`gc_iff`,
   `coq/FederationEventsCycles.v`). GC has no per-edge reduction on a cycle; gsm's per-target C1 and
@@ -208,6 +227,7 @@ flowchart TD
 | Stream processors | n/a | `coq/Stream.v`, `coq/StreamExact.v` |
 | Tree / DAG federation | `Federation` with directed morphisms; `Resolver` for multi-source | `coq/FederationOrder.v`, `coq/Categorical.v`, `coq/CategoricalBridge.v` (order-independence, retraction); `coq/FederationGRS.v` (the authority and resolution theorems in corrected form) |
 | Events across registries (acyclic) | cross-registry order check (C1, C2) | `coq/FederationEvents.v`, `coq/FederationEventsConverse.v` |
+| Distributed deployment (propagation steps) | XU check for projection merging (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`; cyclic and multi-source targets reported not certified) | `coq/DistributedExact.v` (acyclic, exact), `coq/DistributedCycles.v` (monotone cycles: repair alone, reset epochs, no resets) |
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core), `coq/Chaotic.v`, `coq/ChaoticACC.v`, `coq/MonotoneFederation.v`, `coq/MonotoneExact.v` (validity, reachability, gsm's check), `coq/FederationEventsCycles.v`, `coq/FederationEventsCyclesCheck.v`, `coq/FederationEventsCyclesMulti.v` |
 | Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order) |
 | Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles) |
