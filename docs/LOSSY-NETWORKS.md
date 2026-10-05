@@ -628,6 +628,20 @@ research directions, not missing exact conditions for a listed regime).
   local results answer it only through E (Settlement in its existential, flush form: some update
   word reaches the fixed point from every reachable state), not in its fair form; that fair form
   from local conditions is still open.
+- **Computational evidence for one candidate (October 2026; not mechanized, not proved).** Add
+  out-degree at most one in every local graph (`OutDeg1`, non-expansiveness by
+  `outdeg_nonexpansive`) to "no cycle in any local graph". An exhaustive SAT search finds no
+  network on n = 3, 4, 5 or 6 vertices with any cycle in its asynchronous state graph, so there
+  every schedule, fair or not, settles at the unique fixed point.
+  - **Cross-checks:** brute force at n = 3, two encodings, three solvers. Dropping either
+    condition gives counterexamples at once.
+  - **Proved by hand:** a cycle with a single unstable vertex is impossible (a Hamming-distance
+    argument with `outdeg_nonexpansive`).
+  - **What a proof may need:** the search suggests no local cycle is needed only at the states a
+    cycle visits.
+  - **General case:** open; the conjectured key lemma is F2. Shih and Ho 1999 (Adv. Appl. Math.
+    22(1):60-102) could not be read and may already contain the result.
+  - **Details and scripts:** [research/gap3-fair-settlement](../research/gap3-fair-settlement/README.md).
 - **Novelty check for `shih_dong_not_fair`.** The weaker fact is in the literature: Richard,
   "Positive and negative cycles in Boolean networks," J. Theoret. Biol. 463 (2019) 67-76, section
   3, records that under Shih and Dong's hypothesis (no cycle in any local graph) Robert's

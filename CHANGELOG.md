@@ -285,6 +285,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Gap 3 computational evidence (not mechanized): `research/gap3-fair-settlement/` (SAT search scripts, n = 6 logs, report). Under no local cycle plus out-degree at most one, no asynchronous state-graph cycle exists for n = 3 to 6, so fair schedules settle there; the general case is open (conjectured lemma F2; Shih and Ho 1999 unread). Noted in `REGIME-AUDIT.md` (gap 3 row), `docs/ROADMAP.md` and `docs/LOSSY-NETWORKS.md` P2. No theorem added, removed or renamed.
 - `docs/ROADMAP.md`: planned artifact, the Convergence Atlas (a public, illustrated catalog of the regime map with counterexample plates, generated from `REGIME-AUDIT.md`). No theorem added, removed or renamed.
 - The three version-2 papers fold in the corrections queued for a version 3, before version 2 is
   published; all three are dated 5 October 2026 and their PDFs are rebuilt. CRDT strictness
