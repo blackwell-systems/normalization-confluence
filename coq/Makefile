@@ -172,6 +172,12 @@ all: FederationEventsCyclesMulti.vo
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
 
+# Rootless propagation on invertible cycles (RootlessCycles.v).
+all: RootlessCycles.vo
+
+RootlessCycles.vo: RootlessCycles.v CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo Cohomology.vo
+	coqc -Q . NC RootlessCycles.v
+
 # Exact event-order condition under the coordination plan (CoordinatedExact.v).
 all: CoordinatedExact.vo
 
