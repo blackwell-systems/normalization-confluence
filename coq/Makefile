@@ -172,6 +172,12 @@ all: FederationEventsCyclesMulti.vo
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
 
+# Monotone cycles: exact validity and exact reachability of the lfp (MonotoneExact.v).
+all: MonotoneExact.vo
+
+MonotoneExact.vo: MonotoneExact.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo FederationEventsCycles.vo MonotoneFederation.vo
+	coqc -Q . NC MonotoneExact.v
+
 # The exact condition for stream agreement (StreamExact.v).
 all: StreamExact.vo
 

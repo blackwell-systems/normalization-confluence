@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 851 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 915 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -893,6 +893,47 @@ F31), axiom-free:
   (a one-registry sub-federation whose repair is trivially monotone, while `rho_Fed^J` is the
   component's non-monotone normalizer). Corrected: `fed_rem_convexity_corrected` (phase 1 monotone
   and `Phi` monotone in the locals too), non-vacuity `convexity_corrected_instance`.
+
+## Monotone cycles: exact validity and exact reachability of the lfp (`MonotoneExact.v`)
+
+Closes the two section-9 rows of REGIME-AUDIT that had only sufficient conditions, on the network
+model of `MonotoneFederation.v` (Phase-1 locals `l` fixed, `Phi l` the repair built from morphisms
+and resolvers, `R2` and valid locals where stated). Axiom-free.
+
+- Validity of the least fixed point, exact. `lfp_valid_iff_reached`: if the lfp `m` is reached by
+  Kleene iteration (`m = Phi^K(bot)` for some `K`), then `m` is federally valid iff SOME Kleene
+  iterate is valid. `lfp_valid_exact`: the same under ACC with no reachability hypothesis;
+  `Ncyc_valid_exact`: for gsm's cyclic normalizer, per input `t`, the normal form is federally
+  valid iff some Kleene iterate at `t`'s Phase-1 locals is valid. `fixed_valid_iff_images`: a fixed
+  point is federally valid iff every target's image at that fixed point's own source states is
+  valid (no R2, no monotonicity). The former sufficient condition (bottom valid) is the case
+  `k = 0`: `net_lfp_valid_recovered`. It is not necessary: `bottom_validity_not_necessary`.
+  The reachability qualifier is needed: `lfp_valid_iff_needs_reach` (on the chain `w+2`, R2 holds
+  and every iterate is valid, but the lfp `w` is never reached and is invalid).
+- gsm's check, stated exactly. `GsmCheck` is `verifyMonotoneVisited`'s validity test: for every
+  target, every combination of visited source states and every visited target state, the target
+  with the image written is valid, where a component's visited states are its valid local parts
+  with any shared value (its valid states when no morphism writes it), `Vis`.
+  `gsm_check_fixed_valid`: `GsmCheck` makes EVERY fixed point federally valid (valid locals; no
+  R2, monotonicity or reachability needed), hence the lfp (`gsm_check_lfp_valid`) and gsm's
+  normal form (`gsm_check_Ncyc_valid`, with no bottom-validity hypothesis). It is sound and not
+  necessary: `gsm_check_not_necessary` (gsm rejects, bottom valid, lfp valid). Bottom validity and
+  `GsmCheck` are incomparable (the two instances). The exact check is `ImageValidAt l m` at the
+  computed lfp `m`, for every valid local combination `l`.
+- Finite reachability, exact. `kleene_reach_exact` (given the stabilization test): the lfp is
+  reached at a finite stage iff the Kleene chain is eventually constant iff productive Kleene steps
+  from bottom are strongly normalizing (`SN kstep bot`) iff there is no infinite strictly ascending
+  chain along the Kleene chain (`Acc chain_asc bot`); `kleene_reaches_iff` for a given lfp;
+  constructive form without decidability `kleene_reach_nn`. Corollaries: `kleene_reach_of_acc`,
+  `kleene_reach_of_acc_below` (ACC below any fixed point), `kleene_reach_of_finite_height`.
+  Neither ACC nor ACC below the lfp is necessary: `acc_not_necessary`. `kleene_sup_not_sn`: the
+  never-reached lfp of `kleene_sup_instance` fails the exact condition.
+- Chaotic iteration on the network. `chaotic_reach_exact`: some finite chaotic schedule reaches the
+  lfp iff Kleene reaches it iff gsm's round-robin sweeps reach it; `rounds_reach_by_kleene`: the
+  round-robin needs no more rounds than Kleene needs steps. "Every schedule terminates" (strong
+  normalization of productive coordinate updates) is strictly stronger:
+  `chaotic_sn_strictly_stronger` (Kleene and the round-robin reach the lfp in two steps, while
+  updating one coordinate alone climbs forever).
 
 ## rho* constructed from WFC (`RhoStar.v`)
 
@@ -1803,7 +1844,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 851 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 915 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
