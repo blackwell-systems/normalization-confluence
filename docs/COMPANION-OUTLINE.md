@@ -1,7 +1,7 @@
 # Companion paper: outline and decisions
 
 > **Status note.** The mechanization-status lines on this page are a historical snapshot from the
-> outline stage and the 254-theorem gate (the gate is now 1968), and much of what they list as
+> outline stage and the 254-theorem gate (the gate is now 2012), and much of what they list as
 > paper level is now mechanized. They are kept as written.
 > [REGIME-AUDIT.md](../REGIME-AUDIT.md) is the current status, regime by regime.
 

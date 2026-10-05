@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (1968 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2012 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -41,7 +41,8 @@ propagation model is exact on acyclic networks and on monotone cycles with or wi
 (on cycles, for convergence together with agreement with gsm's synchronous `FedMachine`). The
 gaps still open are rootless networks beyond a single invertible cycle, rootless propagation on
 lossy networks (where sufficient signed-cycle certificates are mechanized, with Harary's balance
-theorem proved for finite signed graphs), cyclic monotone collapse (paper only), and, on monotone
+theorem proved for finite signed graphs, and sufficient certificates on Boolean local interaction
+graphs, which give settlement by some update order but not under every fair schedule), cyclic monotone collapse (paper only), and, on monotone
 cycles without resets, convergence among interleavings alone, when they may all settle on a state
 the `FedMachine` never produces. All four are cyclic; the audit states them as one question, what
 makes composition exact on cycles. Sheaf gluing on the companion paper's variable-level and
