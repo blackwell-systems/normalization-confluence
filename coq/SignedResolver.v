@@ -51,8 +51,11 @@
                            signed_fidelity_harary derives it from balance.
    Uniqueness is a hypothesis, not derived from signs: SignedCycles.balanced_no_positive_acyclic
    shows that balance plus Thomas's sign condition (no positive directed cycle) leaves no directed
-   cycle at all, so on a balanced graph the sign route to uniqueness (Richard and Comet 2007,
-   Aracena 2008; cited, not mechanized) covers only acyclic networks (Robert). unique_pos_cycle
+   cycle at all, so on a balanced graph the global sign route to uniqueness (Aracena 2008, and
+   the global corollary of Richard and Comet 2007, whose theorem is local: no positive circuit in
+   any local interaction graph gives at most one fixed point, multivalued; cited, not mechanized
+   here; the Boolean local form is LocalSigned.local_fidelity) covers only acyclic networks
+   (Robert). unique_pos_cycle
    is a monotone network with a positive cycle and one fixed point, to which signed_fidelity
    applies; every global certificate of it contains that positive cycle
    (unique_pos_cycle_every_certificate), so the global "no positive directed cycle" condition never

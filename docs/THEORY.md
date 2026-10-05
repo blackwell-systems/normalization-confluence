@@ -505,8 +505,27 @@ hypothesis is shown needed by a counterexample (`neg2_no_fixed_point`, `copyback
 `ring_low_start_E`, `unbalanced_unique_oscillates`, `flip_needs_top_resolver`,
 `xor_no_certificate`, `cyc3_unsignable`). On a balanced graph Thomas's sign condition for
 uniqueness (no positive directed cycle) leaves no directed cycle at all
-(`balanced_no_positive_acyclic`), so uniqueness is a hypothesis rather than a sign condition. Local
-(state-dependent) interaction graphs are the open part (REGIME-AUDIT gap 3). The research note on lossy networks,
+(`balanced_no_positive_acyclic`), so uniqueness is a hypothesis rather than a sign condition.
+
+**Local interaction graphs** (`LocalSigned.v`, Boolean value set, every `n`). The local graph
+`G(x)` is the discrete Jacobian at a state `x`: an arc `j -> i` when flipping `x_j` changes the
+resolver of `i`, signed by the direction of the change. Local fidelity: no positive cycle in any
+`G(x)` gives at most one fixed point (`rrt_sub`, `local_fidelity`; Remy, Ruet and Thieffry 2008)
+and CanonicalFidelity from every start, with no global sign hypothesis (`local_fidelity_canon`).
+This strictly extends the global route: the global condition implies the local one
+(`global_to_local`), and a 3-vertex network with no cycle in any `G(x)` has a positive 2-cycle in
+every global certificate (`local_weaker_than_global`). Local settlement: no negative cycle in any
+`G(x)` does not give a fixed point (`local_neg_free_no_fixed_point`, 6 vertices, the least
+possible by Tonello, Farcot and Chaouiya), but together with non-expansiveness or with one vertex
+on every local positive cycle it gives, from every state, an update word reaching a fixed point
+(`richard_t3`, `richard_t4`; Richard 2011, Theorems 3 and 4), and no cycle in any `G(x)` gives a
+unique fixed point reachable from every state, hence all of E (`shih_dong_E`; Shih and Dong 2005).
+The Settlement certified is E's existential (flush) form. Fair-schedule settlement does not
+follow from any of these local conditions: a 4-vertex network with no local cycle has a fair
+schedule of period 8 that never settles (`shih_dong_not_fair`), while Robert's theorem gives fair
+convergence when the global graph is acyclic. What stays open (REGIME-AUDIT gap 3): fair
+settlement from local conditions, multivalued local graphs, value sets without bounds, and an
+exact condition. The research note on lossy networks,
 [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver
 readings, root sets, and signed-cycle (Thomas-type) conditions.
 
@@ -539,7 +558,7 @@ witnesses on acyclic federations (`fed_exact_full`), and the global condition GC
 | Question | Mathematical form | Answer |
 |---|---|---|
 | **Existence** | A global section (`H^0` non-empty) | Invertible: exact, the class in `H^1` is trivial (`section_iff_coboundary`, `cycle_basis_criterion`). Lossy: exact by root sets (`root_set_criterion_graph`), and NP-complete without a spanning root (`net_section_iff_sat`, `np_certificate`) |
-| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root); rootless lossy resolver networks, sufficient only: signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
+| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root); rootless lossy resolver networks, sufficient only: signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`), and on Boolean local interaction graphs (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), whose Settlement is existential, not fair-schedule (`shih_dong_not_fair`). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
 | **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`; on the 2-complex, `nerve_H1_classification`, `nerve_H1_Z2_count`), equivalently a closed walk with non-trivial holonomy on any edge list (`invertible_merge_is_holonomy`); at Z/2, Harary balance (`harary_balance`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`), and also a merge with no loop at all (`obstruction_loop_vs_merge`) |
 | **Surgery** | The least coordination that removes the obstruction | Invertible: the group feedback edge set number, which the best coordination plan attains (`plan_min_exact`); NP-hard by a mechanized Max-Cut reduction (`maxcut_reduction`). Lossy: the least deletion passing the root-set criterion (`lmin_root_set`, `lmin_decide`), not cycle-based (`lossy_min_exceeds_cycle_bounds`); NP-hard even to tell 0 from 1 (`lmin_reduction`) |
 

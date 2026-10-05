@@ -7,6 +7,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/LocalSigned.v` (#83): local (state-dependent) interaction graphs of Boolean resolver
+  networks, every `n`, axiom-free. Local fidelity: `rrt_sub`, `local_fidelity` (Remy, Ruet and
+  Thieffry 2008: no local positive cycle gives at most one fixed point), `local_fidelity_canon`
+  (CanonicalFidelity from every start, no global sign hypothesis), `local_signed_fidelity` (the
+  uniqueness hypothesis of `signed_fidelity` derived), `local_in_global`, `global_to_local`
+  (instance `global_to_local_instance`), and `local_weaker_than_global` (no local cycle, a positive
+  2-cycle in every global certificate, E holds). Local settlement, in the reachability form (from
+  every state some update word reaches a fixed point, so E's Settlement holds from every start):
+  `richard_t3` (Richard 2011, Theorem 3, following Richard's proof; `outdeg_nonexpansive`),
+  `t4_full`, `richard_t4` (Theorem 4), `sd_path`, `shih_dong_E` (Shih and Dong 2005: a unique fixed
+  point and all of E). Breaks: `local_neg_free_no_fixed_point` (Tonello's 6-vertex network, no
+  local negative cycle, no fixed point), `ring_local_conditions` (Theorems 3 and 4 hold, two fixed
+  points, a fair schedule that never settles), `shih_dong_not_fair` (no local cycle, E holds, a fair
+  period-8 schedule never settles). Documented in `coq/docs/non-invertible.md`, a `coq/README.md`
+  row and `docs/LOSSY-NETWORKS.md` P2 (progress on gap 3, which stays open). Gate raised from 1968
+  to 2012.
 - Statement review of `SignedCycles.v` and `SignedResolver.v` (#81), same method as #78: every
   exported theorem checked with `Check`/`About` (section variables and hypotheses as premises)
   against its name, comments, the #80 description, `coq/docs/non-invertible.md` and the P2
@@ -312,6 +328,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   `docs/COMPANION-OUTLINE.md`: status notes at the top mark their status columns as a 254-theorem
   era snapshot and point to `REGIME-AUDIT.md`; tables unchanged. `docs/SUBSUMPTION.md` and
   `coq/docs/federation-repair.md`: count 1783 to 1968.
+- Docs wave for the local interaction graphs at the 2012-theorem gate (#84). No theorem added,
+  removed or renamed. `REGIME-AUDIT.md`: header current at `69ef03a` and gate 2012; the
+  current-state paragraph and history record #83; section 12's rootless resolver row gains the
+  local certificates (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), the breaks
+  (`local_neg_free_no_fixed_point`, `ring_local_conditions`, `shih_dong_not_fair`), the strict
+  extension over the global route (`global_to_local`, `local_weaker_than_global`) and the
+  qualifier that local conditions certify E with Settlement in its existential (flush) form, not
+  fair-schedule settlement (the analogue of `FairFlushR`); gap 3 progress and what remains open
+  (fair settlement from local conditions, multivalued local graphs, value sets without bounds, an
+  exact condition); the cyclic frontier row and raw-material list; the mechanization-task row;
+  seventh-revision side findings. `docs/ROADMAP.md`: gate 2012, a Done row for `LocalSigned.v`, and
+  gap 3's status and next steps (fair-schedule settlement on local graphs, multivalued local
+  fidelity after Richard and Comet 2007, value sets without bounds, an exact condition).
+  `docs/THEORY.md` ("Mathematical structure"): a local-interaction-graph paragraph after the signed
+  certificates, and the four-questions convergence cell. `README.md`: count 1968 to 2012 and the
+  gap-3 clause of the open-gap list (headline and gap count unchanged). `docs/LANDSCAPE.md`: Robert's
+  asynchronous statement, and placements for Shih and Dong 2005 (with Shih and Ho 1999), Remy, Ruet
+  and Thieffry 2008, Richard 2011 Theorems 3 and 4, Tonello 2017 (DAM 2019) and Tonello, Farcot and
+  Chaouiya 2018 (SIAM J. Appl. Dyn. Syst. 2019), each citation checked; a novelty check for
+  `shih_dong_not_fair` (the weaker fact that local acyclicity does not make the asynchronous state
+  graph acyclic is recorded in Richard 2019, attributed to a 4-component example of Shih and Dong
+  2005; the fair-schedule form was not found in the literature searched, with the search scope
+  stated); "What is new" updated. `docs/LOSSY-NETWORKS.md` P2: the same novelty result and journal
+  references for the Tonello papers, Remy, Ruet and Thieffry 2008 checked against the primary text
+  (Theorems 3.2 and 4.4), a Shih and Dong entry, and new references (Robert 1995, Shih and Ho 1999,
+  Richard 2015 and 2019). Richard and Comet 2007 described as the local theorem it is (its global
+  form is a corollary) in `docs/LOSSY-NETWORKS.md`, `docs/LANDSCAPE.md`,
+  `coq/docs/non-invertible.md` and the header comment of `coq/SignedResolver.v` (comment only; no
+  statement changed; `make` and `verify.sh` pass at 2012). `coq/docs/non-invertible.md`: the
+  literature relation of `shih_dong_not_fair`. Counts 1968 to 2012 in `docs/SUBSUMPTION.md`,
+  `docs/COMPANION-OUTLINE.md`, `coq/README.md`, `coq/PAPER-MAP.md` and
+  `coq/docs/federation-repair.md`.
 - Docs pass at the 1499-theorem gate: `REGIME-AUDIT.md` closes gap 1 (the distributed model is exact on acyclic federations and on monotone cycles with reset epochs and without resets; section 8's no-reset row now cites `flush_fed_iff`, `fair_fed_iff` and the characterizations of `FlushR` and `NoGhostR`), adds gap 14 (convergence among quiescent interleavings alone on no-reset cycles, where `NoGhostR` is not necessary, `conv_ghost_normal`), and re-confirms the headline line; the `README.md` open-gap list and `docs/ROADMAP.md` updated to match, and two stale sentences in `coq/docs/distributed.md` corrected. `docs/REGIMES.md` revised as a field guide: related regimes in place of the strongest-to-weakest diagram, the convergence definition stated per admissible delivery order, a main map ordered by execution semantics then topology (guarded and unrestricted acyclic execution, cyclic repair, cyclic events, collapse) with exact, sufficient and refuted conditions, the monotone narrative split into three questions, the boundaries section and the CRDT paragraph rewritten, and a pointer to the papers' errata (#66).
 - Version 2 of all three papers, dated 4 October 2026. Each body states only the corrected results, and a new appendix "Errata and corrections" gives, for each changed statement, the old statement, its counterexample and the corrected theorem with Coq names. Every cited Coq name is in the gate.
   - Base paper, `normalization_confluence_2026.tex` (#41): `thm:footprint-cc1` corrected (an exact form under disjoint footprints and repair locality; at valid states CC1 iff commutation up to `N`; at every state, footprint absorption in place of disjointness), with the new `cor:cc1-under-cc2`; the "Practical import" remark and 8.2 pattern 1 corrected; the naive-revert witness moved to `(pending, 1)`; Stream Convergence (c) restated for processors that have finished processing equal received sets, the "disagreements are transient" sentence removed, and `cor:quiescent` stated for fair processors; the new `thm:cc-exact` replaces "CC is necessary"; `thm:strong-absorption` stated as an iff; `def:rhostar` constructed; the three-regime hierarchy stated precisely. 23 pages to 30.

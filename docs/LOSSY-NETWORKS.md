@@ -363,9 +363,9 @@ A local statement is stronger than the global one, since `G(F)(x)` is a subgraph
 |---|---|---|---|
 | Thomas's rules (conjecture) | a positive cycle is necessary for several stable states; a negative cycle is necessary for sustained oscillation | informal | [verified: Thomas 1981] |
 | Robert | `G(F)` acyclic implies a unique fixed point, reached by iteration | Boolean in the restatement; any finite fibers | [verified: Robert 1986, as restated by Bridoux et al. 2022, section 2.6]; in the federation model [mechanized: `frun_solves`, `solve_unique`, `order_independent`] |
-| Shih and Dong | if no local graph `G(F)(x)` has a cycle, `F` has a unique fixed point | Boolean, local | [verified: Shih and Dong 2005] |
-| First rule, local | two fixed points imply a positive circuit in some `G(F)(x)` | Boolean, local | [verified: Remy, Ruet, Thieffry 2008, Theorem 3.2] |
-| First rule, multivalued | no positive circuit in the interaction graph implies at most one fixed point | multivalued | [verified: Richard and Comet 2007, as restated in Richard 2009] |
+| Shih and Dong | if no local graph `G(F)(x)` has a cycle, `F` has a unique fixed point | Boolean, local | [verified: Shih and Dong 2005, abstract (full text not accessible to us), as restated in Richard 2011, Theorem 1, and Richard 2019, Theorem 2] |
+| First rule, local | two fixed points imply a positive circuit in some `G(F)(x)` | Boolean, local | [verified: Remy, Ruet, Thieffry 2008, Theorem 3.2, primary text (HAL hal-00692086)] |
+| First rule, multivalued | two fixed points (or several attractors of the asynchronous dynamics) imply a positive circuit in some local interaction graph `G_F(x)`; hence no positive circuit in any local graph, and a fortiori none in the global interaction graph, implies at most one fixed point | multivalued, local | [verified: Richard and Comet 2007, as restated in Richard 2009, Theorem 1, and Richard 2010, Theorem 3 ("local version of first Thomas' conjecture")] |
 | Second rule | an attractive cycle of the asynchronous dynamics implies a negative circuit in the union of the local graphs along it | Boolean | [verified: Remy, Ruet, Thieffry 2008, Theorem 4.4] |
 | Second rule, multivalued, and the fixed-point corollary | a cyclic attractor of `Gamma(F)` implies a negative circuit in `G(F)`; hence **no negative circuit in `G(F)` implies a fixed point** | multivalued, global | [verified: Richard 2010, Theorem 1 and Corollary 1] |
 | Aracena's duality | for a signed interaction digraph `D`: only negative cycles gives at most one fixed point; only positive cycles gives at least one; strongly connected with only negative cycles gives none; strongly connected with only positive cycles gives at least two | Boolean, global | [verified: Aracena 2008, as restated in Bridoux et al. 2022, Theorem 1] |
@@ -429,7 +429,9 @@ dependence has a sign:
   a free parameter: different orders give different signed graphs, and one good order suffices
   **[our conjecture: the search over orders is the useful object]**.
 - **Uniqueness without an authority.** If `G(F)` has no positive circuit, there is at most one
-  B-consistent state [verified: Richard and Comet 2007]. Free vertices are positive self-loops
+  B-consistent state [verified: Richard and Comet 2007, whose theorem is local and stronger: no
+  positive circuit in any local graph `G_F(x)` suffices; Boolean case mechanized as
+  `local_fidelity`]. Free vertices are positive self-loops
   (section 1), so the condition applies to the network with its sources pinned. It would be the
   first condition in the theory that gives a unique consistent state on a cycle **without** naming
   a root on that cycle.
@@ -582,7 +584,8 @@ research directions, not missing exact conditions for a listed regime).
   3. Attempt 2 (`signed_fidelity`, `signed_fidelity_harary`): balance plus at most one fixed
      point gives settlement from every start and E from every start. Uniqueness is a hypothesis: on a balanced graph Thomas's
      condition "no positive directed cycle" forces an acyclic graph (`balanced_no_positive_acyclic`),
-     so the cited sign route (Richard and Comet 2007, Aracena 2008) adds nothing beyond Robert there;
+     so the cited global sign route (Aracena 2008, and the global corollary of Richard and Comet
+     2007, whose theorem is local) adds nothing beyond Robert there;
      `unique_pos_cycle` is covered by the hypothesis, and every global certificate of it has a
      positive cycle (`unique_pos_cycle_every_certificate`).
   Breaks recorded as theorems: `neg2_no_fixed_point` (unbalanced, no fixed point),
@@ -621,15 +624,42 @@ research directions, not missing exact conditions for a listed regime).
   Consequence for gap 3: on fidelity the local route strictly extends the global certificates; on
   settlement, local conditions certify E's Settlement half (and, without any local cycle, all of
   E), while fair-schedule settlement still needs the global switching or global acyclicity. The
-  certificates stay sufficient, not exact.
+  certificates stay sufficient, not exact. Since P2's statement asks for every fair order, the
+  local results answer it only through E (Settlement in its existential, flush form: some update
+  word reaches the fixed point from every reachable state), not in its fair form; that fair form
+  from local conditions is still open.
+- **Novelty check for `shih_dong_not_fair`.** The weaker fact is in the literature: Richard,
+  "Positive and negative cycles in Boolean networks," J. Theoret. Biol. 463 (2019) 67-76, section
+  3, records that under Shih and Dong's hypothesis (no cycle in any local graph) Robert's
+  synchronous convergence and the acyclicity of the asynchronous state graph are both lost, and
+  attributes this to a 4-component example in Shih and Dong 2005. So "local acyclicity does not
+  make every asynchronous path reach the fixed point" is known (and the weak form, a shortest path
+  to the fixed point from every state, holds: Richard, Theoret. Comput. Sci. 583 (2015) 1-26,
+  Corollaries 3 and 4). What `shih_dong_not_fair` adds is the fair-schedule form: a periodic
+  schedule updating every vertex twice per period of 8, every update changing the state, that
+  never reaches the fixed point. That form was not found in the literature we searched; we could
+  not read Shih and Dong's own 4-component example (the full text was not accessible to us), so it
+  may already exhibit it. Not mechanized, a cross-check: over all 3-vertex Boolean networks (680
+  have no local cycle) the asynchronous state graph is acyclic and the synchronous iteration
+  converges in every case, so 4 vertices is the least for the known phenomenon and for the fair
+  form. Search scope (October 2026): Shih and Ho 1999 and Shih and Dong 2005 (abstracts and
+  restatements), Remy, Ruet and Thieffry 2008, Richard 2010, 2011, 2015 and 2019, Richard and Ruet
+  2013, Ruet 2016 and 2017, Tonello 2017, Tonello, Farcot and Chaouiya 2018, Melliti, Regnault,
+  Richard and Sené 2013, the fixing-word papers (Gadouleau and Richard 2018; Aracena, Gadouleau,
+  Richard and Salinas 2020), and web searches on fair, periodic and chaotic asynchronous iterations
+  with local interaction graphs. Placement in [LANDSCAPE.md](LANDSCAPE.md#related-work-for-signed-cycles).
 - **Citations checked for the local results** (statements, settings and hypotheses, from the
   papers or, where marked, the authors' own restatements):
   - Remy, Ruet and Thieffry, *Graphic requirements for multistability and attractive cycles in a
-    Boolean dynamical framework*, Adv. Appl. Math. 41 (2008) 335-350: Boolean; if `G(F)(x)` has no
-    positive circuit for every `x`, `F` has at most one fixed point (local graphs; fixed points
-    are the same for the synchronous and asynchronous dynamics); an attractive cycle forces a
-    negative circuit in the global graph (the first statement restated in Richard 2011, Theorem 2,
-    both in Ruet 2017, section 2.4). Mechanized here: `local_fidelity`.
+    Boolean dynamical framework*, Adv. Appl. Math. 41 (2008) 335-350, checked against the primary
+    text (author version, HAL hal-00692086): Boolean; Theorem 3.2: if `F` has two fixed points `a`
+    and `b`, then some `G(F)(x)` has a positive circuit, more precisely a positive circuit whose
+    vertices all lie in the set of coordinates where `a` and `b` differ; so if no `G(F)(x)` has a positive circuit, `F` has at
+    most one fixed point (the paper presents this as the signed counterpart of Shih and Dong, with
+    a stronger hypothesis and a stronger conclusion). Theorem 4.4: an attractive cycle of the
+    asynchronous dynamics forces a negative circuit in the union of the local graphs along the
+    cycle, hence in the global graph. (Also restated in Richard 2011, Theorem 2, and Ruet 2017,
+    section 2.4.) Mechanized here: `rrt_sub`, `local_fidelity`.
   - Richard, *Local negative circuits and fixed points in non-expansive Boolean networks*, Discrete
     Appl. Math. 159 (2011) 1085-1093 (arXiv 0910.0750): Boolean, local graphs. Theorem 3: if no
     `G(F)(x)` has a negative circuit and every vertex of every `G(F)(x)` has out-degree at most one
@@ -654,11 +684,20 @@ research directions, not missing exact conditions for a listed regime).
     forces a negative circuit in the global graph (Theorem 1), hence no global negative circuit
     gives a fixed point; Example 6 (`{0, ..., 3}^2`, with Comet) has no negative circuit in any
     local graph and no fixed point.
-  - Tonello, *On the conversion of multivalued to Boolean dynamics* (arXiv 1703.06746), section 5:
-    the 6-component Boolean conversion of Example 6, no local negative cycle, no fixed point
-    (mechanized here as `local_neg_free_no_fixed_point`); Tonello, Farcot and Chaouiya (arXiv
-    1803.02095): up to 5 components, a cyclic attractor forces a local negative circuit (by SAT;
-    cited), so 6 is the least dimension of a Boolean counterexample.
+  - Tonello, *On the conversion of multivalued to Boolean dynamics*, Discrete Appl. Math. 259
+    (2019) 193-204 (arXiv 1703.06746, 2017), section 5: the 6-component Boolean conversion of
+    Example 6, no local negative cycle, no fixed point (mechanized here as
+    `local_neg_free_no_fixed_point`); Tonello, Farcot and Chaouiya, *Local negative circuits and
+    cyclic attractors in Boolean networks with at most five components*, SIAM J. Appl. Dyn. Syst.
+    18(1) (2019) 68-79 (arXiv 1803.02095, 2018): up to 5 components, a cyclic attractor forces a
+    local negative circuit (by SAT; cited); a network without a fixed point has a cyclic
+    attractor, so 6 is the least dimension of a Boolean counterexample.
+  - Shih and Dong, *A combinatorial analogue of the Jacobian problem in automata networks*, Adv.
+    Appl. Math. 34(1) (2005) 30-46: Boolean, local graphs; no cycle in any `G(F)(x)` gives a
+    unique fixed point (abstract; restated in Richard 2011, Theorem 1, and Richard 2019, Theorem 2;
+    the full text was not accessible to us). Conjectured by Shih and Ho, *Solution of the Boolean
+    Markus-Yamabe problem*, Adv. Appl. Math. 22(1) (1999) 60-102. Mechanized here, with paths
+    (`sd_path`), as `shih_dong_E`.
 
   networks beyond one cycle are gap 2. P2 is part of the cyclic frontier: the acyclic case is
   Robert's theorem, and what is open is the cyclic one, an instance of the question of what
@@ -842,10 +881,14 @@ multiple steady states or sustained oscillations," in Numerical Methods in the S
 Phenomena, Springer Series in Synergetics 9, Springer, 1981, pp. 180-193.
 F. Robert, *Discrete Iterations: A Metric Study*, Springer Series in Computational Mathematics 6,
 1986.
+F. Robert, *Les systèmes dynamiques discrets*, Mathématiques et Applications 19, Springer, 1995.
+M.-H. Shih, J.-L. Ho, "Solution of the Boolean Markus-Yamabe problem," Advances in Applied
+Mathematics 22(1) (1999) 60-102.
 M.-H. Shih, J.-L. Dong, "A combinatorial analogue of the Jacobian problem in automata networks,"
 Advances in Applied Mathematics 34(1) (2005) 30-46.
 E. Remy, P. Ruet, D. Thieffry, "Graphic requirements for multistability and attractive cycles in a
-Boolean dynamical framework," Advances in Applied Mathematics 41(3) (2008) 335-350.
+Boolean dynamical framework," Advances in Applied Mathematics 41(3) (2008) 335-350 (author
+version: HAL hal-00692086).
 A. Richard, J.-P. Comet, "Necessary conditions for multistationarity in discrete dynamical
 systems," Discrete Applied Mathematics 155(18) (2007) 2403-2413.
 A. Richard, "Positive circuits and maximal number of fixed points in discrete dynamical systems,"
@@ -860,8 +903,15 @@ P. Ruet, "Local cycles and dynamical properties of Boolean networks," Mathematic
 Computer Science 26(4) (2016) 702-718.
 P. Ruet, "Negative local feedbacks in Boolean networks," Discrete Applied Mathematics 221 (2017)
 1-17 (arXiv:1512.01573).
+A. Richard, "Fixed point theorems for Boolean networks expressed in terms of forbidden
+subnetworks," Theoretical Computer Science 583 (2015) 1-26 (arXiv:1302.6346).
+A. Richard, "Positive and negative cycles in Boolean networks," Journal of Theoretical Biology 463
+(2019) 67-76 (arXiv:2201.08600).
+E. Tonello, "On the conversion of multivalued to Boolean dynamics," Discrete Applied Mathematics
+259 (2019) 193-204 (arXiv:1703.06746).
 E. Tonello, E. Farcot, C. Chaouiya, "Local negative circuits and cyclic attractors in Boolean
-networks with at most five components," arXiv:1803.02095.
+networks with at most five components," SIAM Journal on Applied Dynamical Systems 18(1) (2019)
+68-79 (arXiv:1803.02095).
 S. Kosub, "Dichotomy results for fixed-point existence problems for Boolean dynamical systems,"
 Mathematics in Computer Science 1(3) (2008) 487-505.
 F. Bridoux, A. Durbec, K. Perrot, A. Richard, "Complexity of fixed point counting problems in

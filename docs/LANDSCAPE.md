@@ -390,7 +390,8 @@ reading B) through Thomas-type conditions. The research note
   attractive cycles in a Boolean dynamical framework," *Adv. in Appl. Math.* 41(3), 2008, 335-350)
   for Boolean networks with local interaction graphs; Richard and Comet ("Necessary conditions for
   multistationarity in discrete dynamical systems," *Discrete Appl. Math.* 155(18), 2007,
-  2403-2413) for the multivalued first rule; Richard ("Negative circuits and sustained oscillations
+  2403-2413) for the multivalued first rule, also in local form (no positive circuit in any local
+  interaction graph gives at most one fixed point); Richard ("Negative circuits and sustained oscillations
   in asynchronous automata networks," *Adv. in Appl. Math.* 44(4), 2010, 378-392) for the
   multivalued second rule, with the corollary that no negative circuit gives a fixed point; and
   Aracena ("Maximum number of fixed points in regulatory Boolean networks," *Bull. Math. Biol.*
@@ -402,21 +403,78 @@ reading B) through Thomas-type conditions. The research note
   and-nets without local negative cycles and without fixed points.
 - **Robert's theorem.** Robert (*Discrete Iterations: A Metric Study*, Springer Series in
   Computational Mathematics 6, 1986): an acyclic interaction graph gives a unique fixed point,
-  reached by iteration. In the federation model this is acyclic convergence (`frun_solves`,
-  `solve_unique`, `order_independent`).
+  reached by iteration; Robert also shows (*Les systèmes dynamiques discrets*, Mathématiques et
+  Applications 19, Springer, 1995) that the asynchronous state graph is then acyclic, so every
+  asynchronous path, and hence every fair schedule, ends at the fixed point (as restated in
+  Richard 2019, Theorem 1, below). In the federation model this is acyclic convergence
+  (`frun_solves`, `solve_unique`, `order_independent`).
+- **Local interaction graphs** (`LocalSigned.v`: Boolean, every `n`; the local graph is the
+  discrete Jacobian at a state). Placements, each checked against the paper or the authors' own
+  restatement:
+  - Shih and Dong ("A combinatorial analogue of the Jacobian problem in automata networks," *Adv.
+    in Appl. Math.* 34(1), 2005, 30-46): no cycle in any local graph gives a unique fixed point,
+    conjectured by Shih and Ho ("Solution of the Boolean Markus-Yamabe problem," *Adv. in Appl.
+    Math.* 22(1), 1999, 60-102) as a Boolean analogue of the Jacobian conjecture. Mechanized as
+    `shih_dong_E`, with the path form `sd_path` (from every state an update word reaches the fixed
+    point; the geodesic form is Richard, "Fixed point theorems for Boolean networks expressed in
+    terms of forbidden subnetworks," *Theoret. Comput. Sci.* 583, 2015, 1-26, Corollary 4, under a
+    hypothesis that generalizes Shih and Dong's).
+  - Remy, Ruet and Thieffry 2008, above (checked against the primary text, HAL hal-00692086,
+    Theorem 3.2): two fixed points force a positive cycle in some local graph, so no positive cycle
+    in any local graph gives at most one fixed point. Mechanized as `rrt_sub`, `local_fidelity`.
+  - Richard 2011, above: Theorem 3 (no negative cycle in any local graph and out-degree at most one
+    everywhere, equivalently non-expansive for the Hamming distance, gives a fixed point) and
+    Theorem 4 (no local negative cycle and one vertex on every local positive cycle gives a fixed
+    point). Mechanized as `richard_t3` (with `outdeg_nonexpansive`) and `richard_t4`, both in the
+    stronger reachability form (some update word reaches a fixed point from every state).
+  - Tonello ("On the conversion of multivalued to Boolean dynamics," *Discrete Appl. Math.* 259,
+    2019, 193-204; arXiv 1703.06746, 2017): a 6-component Boolean version of Richard's
+    multivalued Example 6 (Richard 2010, above) with no local negative cycle and no fixed point.
+    Mechanized as `local_neg_free_no_fixed_point`. Tonello, Farcot and Chaouiya ("Local negative
+    circuits and cyclic attractors in Boolean networks with at most five components," *SIAM J.
+    Appl. Dyn. Syst.* 18(1), 2019, 68-79; arXiv 1803.02095, 2018): by a SAT encoding, up to five
+    components a cyclic attractor forces a local negative circuit, so six is the least dimension of
+    such a counterexample. Cited, not mechanized.
+  - Asynchronous convergence under local acyclicity. Richard ("Positive and negative cycles in
+    Boolean networks," *J. Theoret. Biol.* 463, 2019, 67-76, section 3) records that under Shih
+    and Dong's hypothesis Robert's synchronous convergence and the acyclicity of the asynchronous
+    state graph are both lost, attributing this to a 4-component example of Shih and Dong 2005
+    (we could not access that paper's full text, so the example itself was not read). So it is
+    known that local acyclicity, unlike global acyclicity, does not force every asynchronous path
+    to the fixed point. `shih_dong_not_fair` is the fair-schedule form: a 4-vertex network with no
+    local cycle and a periodic schedule, every vertex updated twice per period of 8, along which
+    every update changes the state and the fixed point is never reached. A fair-schedule
+    statement of this kind was not found in the literature we searched (scope below); it may
+    coincide with Shih and Dong's own example, which we could not check. An exhaustive check over
+    all 3-vertex Boolean networks (680 have no local cycle; not mechanized) finds an acyclic
+    asynchronous state graph and a convergent synchronous iteration in every case, so 4 vertices
+    is the least for both the known phenomenon and its fair form.
 
-**What is new.** Not balance, the Thomas-type necessary conditions or Robert's theorem. New, and
-mechanized: sufficient signed certificates for effective canonicalization (E) of rootless resolver
-networks, on the global interaction graph: with a switching, every fair schedule from a low start
-settles at the switched least fixed point (`signed_settlement`), and with at most one fixed point
-it does so from every start (`signed_fidelity`), each hypothesis shown needed by a counterexample;
-the global-sign collapse, that on a balanced graph Thomas's sign condition for uniqueness (no
-positive directed cycle) leaves no directed cycle at all (`balanced_no_positive_acyclic`), so the
-sign route to uniqueness reduces there to Robert's acyclic case; and the loop-versus-merge
-separation (`obstruction_loop_vs_merge`): invertible obstructions are always loops, while a lossy
-obstruction can be a merge on a tree with no loop at all. Not claimed: an exact condition, or the
-local (state-dependent) interaction graph version, where Ruet's counterexample applies; that is
-open (REGIME-AUDIT gap 3).
+  Search scope for the last item (October 2026): Shih and Ho 1999 and Shih and Dong 2005 (abstracts
+  and their restatements; full texts not accessible), Remy, Ruet and Thieffry 2008, Richard 2010,
+  2011, 2015 and 2019, Richard and Ruet 2013, Ruet 2016 and 2017, Tonello 2017, Tonello, Farcot and
+  Chaouiya 2018, Melliti, Regnault, Richard and Sené 2013 (global graphs without negative cycles),
+  the fixing-word papers (Gadouleau and Richard 2018; Aracena, Gadouleau, Richard and Salinas 2020,
+  where a word fixes a network if it reaches a fixed point from every state), and web searches for
+  fair, periodic and chaotic asynchronous iterations with local interaction graphs.
+
+**What is new.** Not balance, the Thomas-type necessary conditions, Robert's theorem or the local
+fixed-point theorems (Shih and Dong; Remy, Ruet and Thieffry; Richard's Theorems 3 and 4), which
+are classical; here they are mechanized for every `n` and tied to E. New, and mechanized:
+sufficient signed certificates for effective canonicalization (E) of rootless resolver networks,
+on the global interaction graph: with a switching, every fair schedule from a low start settles at
+the switched least fixed point (`signed_settlement`), and with at most one fixed point it does so
+from every start (`signed_fidelity`), each hypothesis shown needed by a counterexample; the
+global-sign collapse, that on a balanced graph Thomas's sign condition for uniqueness (no positive
+directed cycle) leaves no directed cycle at all (`balanced_no_positive_acyclic`), so the sign
+route to uniqueness reduces there to Robert's acyclic case; the loop-versus-merge separation
+(`obstruction_loop_vs_merge`): invertible obstructions are always loops, while a lossy obstruction
+can be a merge on a tree with no loop at all; and, on local graphs, the reading of the classical
+theorems as certificates for E's two halves (CanonicalFidelity from `local_fidelity_canon`,
+existential Settlement from `richard_t3`, `richard_t4` and `shih_dong_E`), with the split between
+existential and fair-schedule settlement made explicit (`shih_dong_not_fair`,
+`ring_local_conditions`). Not claimed: an exact condition, fair-schedule settlement from local
+conditions, or multivalued local graphs; those are open (REGIME-AUDIT gap 3).
 
 ## The ideas it connects (and makes rigorous)
 

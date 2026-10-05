@@ -459,9 +459,13 @@ every signed edge are vertices) and both attempts assume the greatest element. L
 - `signed_fidelity` (attempt 2): with `Resp`, a switching and at most one fixed point, every fair
   schedule from **every** start settles at it, and E holds from every start (`q1_unique_iff` after
   the change of order; it uses the greatest element). `signed_fidelity_harary` derives the
-  switching from balance. Uniqueness is a hypothesis. The sign route to
-  uniqueness (no positive directed cycle: Richard and Comet 2007, Aracena 2008, cited) collapses on
-  balanced graphs to acyclicity (`balanced_no_positive_acyclic`), that is, to Robert.
+  switching from balance. Uniqueness is a hypothesis. The global sign route to uniqueness (no
+  positive directed cycle in the global graph: Aracena 2008, and the global corollary of Richard
+  and Comet 2007, cited) collapses on balanced graphs to acyclicity
+  (`balanced_no_positive_acyclic`), that is, to Robert. Richard and Comet's theorem is itself
+  local (multivalued: no positive circuit in any local interaction graph gives at most one fixed
+  point; restated as a local theorem in Richard 2010, Theorem 3); its Boolean case is
+  `local_fidelity` below, which strictly extends the global route (`local_weaker_than_global`).
 - Non-vacuity: `neg_chain_settles` (a negative edge and a non-trivial switching; every start is
   low), `unique_pos_cycle` (a positive directed cycle with one fixed point; every global
   certificate of it contains that cycle, `unique_pos_cycle_every_certificate`, so the "no positive
@@ -549,7 +553,11 @@ signs fixed across all states; `SgCycle sg c b` is an elementary cycle of `sg` w
   but the fair periodic schedule `2, 3, 0, 1, 3, 2, 0, 1, ...` from `(1, 1, 0, 1)` returns there
   every 8 steps and never settles. Robert's theorem (an acyclic **global** graph) does give fair
   convergence; the local hypothesis does not. An exhaustive search (not mechanized) over all
-  3-vertex networks finds no such example, so 4 vertices is the least.
+  3-vertex networks finds no such example, so 4 vertices is the least. Relation to the
+  literature: that local acyclicity does not make the asynchronous state graph acyclic is known
+  (Richard 2019, attributing it to a 4-component example of Shih and Dong 2005); the fair-schedule
+  form was not found in the literature searched
+  ([LOSSY-NETWORKS.md, P2, novelty check](../../docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)).
 - `ring_local_conditions`: the positive 3-ring satisfies `NoLocalNeg`, `OutDeg1` and the
   Theorem 4 hypothesis (vertex 0 is on every local positive cycle), and has E's Settlement from
   every start; it has two fixed points, a fair schedule from `(1, 0, 0)` that never settles, and
