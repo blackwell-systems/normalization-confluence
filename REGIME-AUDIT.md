@@ -7,9 +7,9 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Current at `main` `MERGESHA` (gate: `coq/verify.sh`, 2012 axiom-free results;
+It adds no proofs. Current at `main` `69ef03a` (gate: `coq/verify.sh`, 2012 axiom-free results;
 the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were read
-at `dc610a9`, and the rows #83 changed at `MERGESHA`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+at `dc610a9`, and the rows #83 changed at `69ef03a`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
 since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
 matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
@@ -590,5 +590,15 @@ Found in the seventh revision (at the 2012 gate), fixed in the same PR:
   from local conditions, multivalued local graphs, value sets without bounds and an exact
   condition.
 - Current-count lines said 1968 (`README.md`, `docs/ROADMAP.md`, `docs/SUBSUMPTION.md`,
-  `docs/COMPANION-OUTLINE.md`, `coq/README.md`, `coq/PAPER-MAP.md`,
+  `docs/COMPANION-OUTLINE.md`, two of the three in `coq/README.md`, `coq/PAPER-MAP.md`,
   `coq/docs/federation-repair.md`).
+- Richard and Comet 2007 was described as a global result (the "no positive directed cycle" sign
+  route) in the `SignedResolver.v` header comment, `coq/docs/non-invertible.md` and two places in
+  `docs/LOSSY-NETWORKS.md` (the section 4.1 table and section 4.3). Its theorem is local
+  (multivalued: no positive circuit in any local interaction graph gives at most one fixed point,
+  as restated in Richard 2010, Theorem 3); the global statement is its corollary. Comments and
+  prose only; no statement changed.
+- `docs/LOSSY-NETWORKS.md`: Remy, Ruet and Thieffry 2008 had been checked only through Richard's
+  and Ruet's restatements; it is now checked against the primary text (HAL hal-00692086, Theorems
+  3.2 and 4.4). Shih and Dong 2005 is marked as checked through its abstract and restatements,
+  since its full text was not accessible.

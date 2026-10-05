@@ -390,7 +390,8 @@ reading B) through Thomas-type conditions. The research note
   attractive cycles in a Boolean dynamical framework," *Adv. in Appl. Math.* 41(3), 2008, 335-350)
   for Boolean networks with local interaction graphs; Richard and Comet ("Necessary conditions for
   multistationarity in discrete dynamical systems," *Discrete Appl. Math.* 155(18), 2007,
-  2403-2413) for the multivalued first rule; Richard ("Negative circuits and sustained oscillations
+  2403-2413) for the multivalued first rule, also in local form (no positive circuit in any local
+  interaction graph gives at most one fixed point); Richard ("Negative circuits and sustained oscillations
   in asynchronous automata networks," *Adv. in Appl. Math.* 44(4), 2010, 378-392) for the
   multivalued second rule, with the corollary that no negative circuit gives a fixed point; and
   Aracena ("Maximum number of fixed points in regulatory Boolean networks," *Bull. Math. Biol.*
@@ -418,8 +419,9 @@ reading B) through Thomas-type conditions. The research note
     point; the geodesic form is Richard, "Fixed point theorems for Boolean networks expressed in
     terms of forbidden subnetworks," *Theoret. Comput. Sci.* 583, 2015, 1-26, Corollary 4, under a
     hypothesis that generalizes Shih and Dong's).
-  - Remy, Ruet and Thieffry 2008, above: no positive cycle in any local graph gives at most one
-    fixed point. Mechanized as `rrt_sub`, `local_fidelity`.
+  - Remy, Ruet and Thieffry 2008, above (checked against the primary text, HAL hal-00692086,
+    Theorem 3.2): two fixed points force a positive cycle in some local graph, so no positive cycle
+    in any local graph gives at most one fixed point. Mechanized as `rrt_sub`, `local_fidelity`.
   - Richard 2011, above: Theorem 3 (no negative cycle in any local graph and out-degree at most one
     everywhere, equivalently non-expansive for the Hamming distance, gives a fixed point) and
     Theorem 4 (no local negative cycle and one vertex on every local positive cycle gives a fixed

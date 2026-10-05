@@ -329,7 +329,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   era snapshot and point to `REGIME-AUDIT.md`; tables unchanged. `docs/SUBSUMPTION.md` and
   `coq/docs/federation-repair.md`: count 1783 to 1968.
 - Docs wave for the local interaction graphs at the 2012-theorem gate (#DOCSPR). No theorem added,
-  removed or renamed. `REGIME-AUDIT.md`: header current at `MERGESHA` and gate 2012; the
+  removed or renamed. `REGIME-AUDIT.md`: header current at `69ef03a` and gate 2012; the
   current-state paragraph and history record #83; section 12's rootless resolver row gains the
   local certificates (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), the breaks
   (`local_neg_free_no_fixed_point`, `ring_local_conditions`, `shih_dong_not_fair`), the strict
@@ -351,7 +351,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   graph acyclic is recorded in Richard 2019, attributed to a 4-component example of Shih and Dong
   2005; the fair-schedule form was not found in the literature searched, with the search scope
   stated); "What is new" updated. `docs/LOSSY-NETWORKS.md` P2: the same novelty result and journal
-  references for the Tonello papers. Counts 1968 to 2012 in `docs/SUBSUMPTION.md`,
+  references for the Tonello papers, Remy, Ruet and Thieffry 2008 checked against the primary text
+  (Theorems 3.2 and 4.4), a Shih and Dong entry, and new references (Robert 1995, Shih and Ho 1999,
+  Richard 2015 and 2019). Richard and Comet 2007 described as the local theorem it is (its global
+  form is a corollary) in `docs/LOSSY-NETWORKS.md`, `docs/LANDSCAPE.md`,
+  `coq/docs/non-invertible.md` and the header comment of `coq/SignedResolver.v` (comment only; no
+  statement changed; `make` and `verify.sh` pass at 2012). `coq/docs/non-invertible.md`: the
+  literature relation of `shih_dong_not_fair`. Counts 1968 to 2012 in `docs/SUBSUMPTION.md`,
   `docs/COMPANION-OUTLINE.md`, `coq/README.md`, `coq/PAPER-MAP.md` and
   `coq/docs/federation-repair.md`.
 - Docs pass at the 1499-theorem gate: `REGIME-AUDIT.md` closes gap 1 (the distributed model is exact on acyclic federations and on monotone cycles with reset epochs and without resets; section 8's no-reset row now cites `flush_fed_iff`, `fair_fed_iff` and the characterizations of `FlushR` and `NoGhostR`), adds gap 14 (convergence among quiescent interleavings alone on no-reset cycles, where `NoGhostR` is not necessary, `conv_ghost_normal`), and re-confirms the headline line; the `README.md` open-gap list and `docs/ROADMAP.md` updated to match, and two stale sentences in `coq/docs/distributed.md` corrected. `docs/REGIMES.md` revised as a field guide: related regimes in place of the strongest-to-weakest diagram, the convergence definition stated per admissible delivery order, a main map ordered by execution semantics then topology (guarded and unrestricted acyclic execution, cyclic repair, cyclic events, collapse) with exact, sufficient and refuted conditions, the monotone narrative split into three questions, the boundaries section and the CRDT paragraph rewritten, and a pointer to the papers' errata (#66).
