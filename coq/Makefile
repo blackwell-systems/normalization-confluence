@@ -106,6 +106,36 @@ all: CoordinatedCycles.vo
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
 
+# Verification calculus for CC (Calculus.v).
+all: Calculus.vo
+
+Calculus.vo: Calculus.v
+	coqc -Q . NC Calculus.v
+
+# Monotone federation (MonotoneFederation.v, WP6).
+all: MonotoneFederation.vo
+
+MonotoneFederation.vo: MonotoneFederation.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo Trace.vo FederationEventsCycles.vo
+	coqc -Q . NC MonotoneFederation.v
+
+# General-map cohomology (CohomologyGeneral.v).
+all: CohomologyGeneral.vo
+
+CohomologyGeneral.vo: CohomologyGeneral.v Cohomology.vo CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo
+	coqc -Q . NC CohomologyGeneral.v
+
+# Stream processors and the Stream Convergence Theorem (Stream.v).
+all: Stream.vo
+
+Stream.vo: Stream.v Newman.vo GovernanceCausal.vo GovernanceWF.vo
+	coqc -Q . NC Stream.v
+
+# The papers' concrete examples (PaperInstances.v).
+all: PaperInstances.vo
+
+PaperInstances.vo: PaperInstances.v Newman.vo Governance.vo GovernanceConverse.vo FederationEvents.vo Trace.vo
+	coqc -Q . NC PaperInstances.v
+
 # rho* constructed from WFC and the base facts on it (RhoStar.v, WP1).
 all: RhoStar.vo
 
