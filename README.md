@@ -6,16 +6,26 @@ Research on coordination-free convergence in distributed systems through normali
 
 **A complete, mechanized map of when governed concurrent state converges, with exact conditions in every regime and a checker for the practical ones.**
 
+The idea is **convergence by compensation**: operations may conflict and break invariants, and
+replicas still converge because repair is well-founded and commutes with events. CRDTs are the
+special case with no compensation, and under causal delivery they are exactly that fragment.
+
+For networks of registries the map separates two properties. **Repair confluence**, a unique
+federated normal form, composes freely on acyclic networks and on monotone cycles. **Event
+confluence**, the same result for every event order, costs two local checks per edge (C1 and C2),
+which are exact at reachable states and also suffice on monotone cycles. Non-monotone cycles
+converge under a computed coordination, to a normal form that is unique given the authority root.
+
 Scope: discrete, deterministic governed state (continuous state is out of scope; see
 [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md)). The exact conditions (JC for a single registry,
-CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable states,
-so checking them means exploring the reachable state space. The cheap sufficient conditions (CC for
-a registry, C1 and C2 for an acyclic federation) imply them, and they are what
-[gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check is re-certified by
-an oracle extracted from the proof; the federation-level checks are not yet, see
-[ROADMAP.md](ROADMAP.md) item 5). Non-monotone cycles converge only under a computed coordination,
-to a normal form that is unique given the authority root. These conditions, and the implications
-between them, are mechanized axiom-free in [`coq/`](coq) (254 theorems).
+CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable
+states, so checking them means exploring the reachable state space. The cheap sufficient
+conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-cyclic) imply them,
+and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
+is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
+[ROADMAP.md](ROADMAP.md) item 5). These conditions, and the implications between them, are
+mechanized axiom-free in [`coq/`](coq) (729 theorems at the time of writing; `coq/verify.sh` is
+the source of truth).
 
 **Dayna Blackwell** | dayna@blackwell-systems.com
 
