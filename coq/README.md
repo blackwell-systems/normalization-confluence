@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 729 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 989 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -466,6 +466,59 @@ In short, deduplication is needed only for an event whose governed step is not i
 redelivered copy can overtake an event it does not commute with. The first always diverges at a
 witness state (`non_idempotent_diverges`); the second can (`late_duplicate_diverges`).
 
+## At-least-once delivery, exact (`AtLeastOnceExact.v`)
+
+`AtLeastOnce.v` gives sufficient conditions only (global idempotence and commutation on `D`, or the
+local `absorbs` condition) and a divergence witness with no reachability qualifier.
+`AtLeastOnceExact.v` states the necessary and sufficient conditions at a fixed start state `s0`, for
+the events in a set `Ev`. A causal form is proved first (happens-before `hb`, irreflexive); the free
+form is its instance with `hb` empty. Axiom-free:
+
+- `causal_alo_exact`, `causal_alo_exact_idem`: every causally consistent at-least-once delivery
+  (`causal_alo`) over `Ev` reaches the state of every causally consistent exactly-once order of the
+  same events from `s0` (`CALOConv s0`) iff `CCRon s0` (GovernanceConverse's `CCR` restricted to
+  `Ev`; `ccr_on_true_iff` is the link) and, for every event `a`, either of the equivalent
+  conditions: `AbsorbAt s0 a` (a redelivery of `a` is a no-op after every causal exactly-once run
+  from `s0` containing `a` and no causal successor of `a`), or `IdemAt s0 a` (`step a` is idempotent
+  at every state `run u s0` with `u ++ [a]` causally consistent). Under `CCR`, absorption past the
+  events delivered in between is automatic (`idem_absorb`); `absorb_idem` is the other direction.
+- `alo_exact`, `alo_exact_absorb`: the free form. Every at-least-once delivery over `Ev` reaches the
+  state of every exactly-once delivery of the same events (`ALOConv s0`) iff exactly-once runs
+  commute at reachable states (`CommReach s0`) and every event is idempotent at every reachable
+  state where it is first delivered (`IdemReach`), equivalently absorbed after every reachable
+  exactly-once run containing it (`AbsorbReach`). `alo_idem_reachable`: `ALOConv s0` forces
+  idempotence at every state reachable by any at-least-once delivery, the run-level converse of
+  `non_idempotent_diverges`.
+- Per event: `safe_at_exact`, `safe_free_exact` (`a` needs no deduplication, i.e. no delivery whose
+  only duplicates are copies of `a` diverges from its exactly-once projection, iff `AbsorbAt` /
+  `AbsorbReach`), `needs_dedup_exact`, `needs_dedup_witness`, `alo_safe`, and under `CCR` /
+  `CommReach` the idempotence forms `safe_at_iff_idem`, `safe_free_iff_idem`.
+- gsm's `Report.NotIdempotent` (`NotIdempotent valid a`: some valid state where a second application
+  changes the state): `notidem_needs_dedup`, `causal_notidem_needs_dedup` (a witness at a reachable
+  state means `a` needs deduplication); `gsm_unlisted_safe`, `causal_gsm_unlisted_safe` (when
+  exactly-once delivery converges from `s0` and every reachable state is valid, an unlisted event
+  needs no deduplication). Exactly: under `CommReach`, needing deduplication is non-idempotence at a
+  reachable state where the event is first delivered; `NotIdempotent` quantifies over valid states
+  instead of reachable ones.
+- Recovered: `old_free_implies` / `alo_commuting_recovered` and `old_causal_implies` /
+  `causal_alo_recovered` derive the exact conditions from the hypotheses of
+  `alo_commuting_exactly_once` and `causal_alo_exactly_once`.
+- Counterexamples: `inc_alo_fails` (capped increment: `CommReach` holds, `IdemReach` fails, the
+  event needs deduplication); `fw_alo_fails` (first-writer-wins register: every event idempotent at
+  every state and every duplicate absorbed at every reachable run, yet `ALOConv` fails, so the
+  commutation clause is needed); `flag_idem_needs_dedup` (flag `Add`/`Remove`: idempotent
+  everywhere, so `IdemReach` holds and gsm lists neither, yet `Add` needs deduplication under free
+  delivery: idempotence alone is not enough without absorption past the intervening `Remove`);
+  `jmp_unreachable` (not idempotent at an unreachable state, so gsm lists it and
+  `non_idempotent_diverges` fires there, yet every delivery from `0` converges: global idempotence is
+  not necessary); `causal_absorb_qualifier` (under causal delivery, absorption at every causal run
+  containing `a` is not necessary: `Add` is not absorbed after `[Add; Remove]`, but that redelivery
+  is not causally consistent).
+- Non-vacuity: `mx_alo_exact` (max-register, all orders), `fl_causal_alo_exact` (causal flag with a
+  max-register), `n_causal_alo_exact` (GovernanceConverse's `n_step`: `CCR` holds from `0` but
+  `cc_concurrent` fails, so `causal_alo_exactly_once` does not apply, yet every causally consistent
+  at-least-once delivery converges from `0`).
+
 ## The converse: CC and causal convergence are exact (`GovernanceConverse.v`)
 
 The sections above prove CC (single registry) and commutation of concurrent pairs (causal
@@ -894,6 +947,47 @@ F31), axiom-free:
   component's non-monotone normalizer). Corrected: `fed_rem_convexity_corrected` (phase 1 monotone
   and `Phi` monotone in the locals too), non-vacuity `convexity_corrected_instance`.
 
+## Monotone cycles: exact validity and exact reachability of the lfp (`MonotoneExact.v`)
+
+Closes the two section-9 rows of REGIME-AUDIT that had only sufficient conditions, on the network
+model of `MonotoneFederation.v` (Phase-1 locals `l` fixed, `Phi l` the repair built from morphisms
+and resolvers, `R2` and valid locals where stated). Axiom-free.
+
+- Validity of the least fixed point, exact. `lfp_valid_iff_reached`: if the lfp `m` is reached by
+  Kleene iteration (`m = Phi^K(bot)` for some `K`), then `m` is federally valid iff SOME Kleene
+  iterate is valid. `lfp_valid_exact`: the same under ACC with no reachability hypothesis;
+  `Ncyc_valid_exact`: for gsm's cyclic normalizer, per input `t`, the normal form is federally
+  valid iff some Kleene iterate at `t`'s Phase-1 locals is valid. `fixed_valid_iff_images`: a fixed
+  point is federally valid iff every target's image at that fixed point's own source states is
+  valid (no R2, no monotonicity). The former sufficient condition (bottom valid) is the case
+  `k = 0`: `net_lfp_valid_recovered`. It is not necessary: `bottom_validity_not_necessary`.
+  The reachability qualifier is needed: `lfp_valid_iff_needs_reach` (on the chain `w+2`, R2 holds
+  and every iterate is valid, but the lfp `w` is never reached and is invalid).
+- gsm's check, stated exactly. `GsmCheck` is `verifyMonotoneVisited`'s validity test: for every
+  target, every combination of visited source states and every visited target state, the target
+  with the image written is valid, where a component's visited states are its valid local parts
+  with any shared value (its valid states when no morphism writes it), `Vis`.
+  `gsm_check_fixed_valid`: `GsmCheck` makes EVERY fixed point federally valid (valid locals; no
+  R2, monotonicity or reachability needed), hence the lfp (`gsm_check_lfp_valid`) and gsm's
+  normal form (`gsm_check_Ncyc_valid`, with no bottom-validity hypothesis). It is sound and not
+  necessary: `gsm_check_not_necessary` (gsm rejects, bottom valid, lfp valid). Bottom validity and
+  `GsmCheck` are incomparable (the two instances). The exact check is `ImageValidAt l m` at the
+  computed lfp `m`, for every valid local combination `l`.
+- Finite reachability, exact. `kleene_reach_exact` (given the stabilization test): the lfp is
+  reached at a finite stage iff the Kleene chain is eventually constant iff productive Kleene steps
+  from bottom are strongly normalizing (`SN kstep bot`) iff there is no infinite strictly ascending
+  chain along the Kleene chain (`Acc chain_asc bot`); `kleene_reaches_iff` for a given lfp;
+  constructive form without decidability `kleene_reach_nn`. Corollaries: `kleene_reach_of_acc`,
+  `kleene_reach_of_acc_below` (ACC below any fixed point), `kleene_reach_of_finite_height`.
+  Neither ACC nor ACC below the lfp is necessary: `acc_not_necessary`. `kleene_sup_not_sn`: the
+  never-reached lfp of `kleene_sup_instance` fails the exact condition.
+- Chaotic iteration on the network. `chaotic_reach_exact`: some finite chaotic schedule reaches the
+  lfp iff Kleene reaches it iff gsm's round-robin sweeps reach it; `rounds_reach_by_kleene`: the
+  round-robin needs no more rounds than Kleene needs steps. "Every schedule terminates" (strong
+  normalization of productive coordinate updates) is strictly stronger:
+  `chaotic_sn_strictly_stronger` (Kleene and the round-robin reach the lfp in two steps, while
+  updating one coordinate alone climbs forever).
+
 ## rho* constructed from WFC (`RhoStar.v`)
 
 The modules above take iterated compensation `rho_star` as a parameter, with the hypotheses
@@ -938,6 +1032,49 @@ Boolean `V_R` is) and proves every base fact that rests on it, axiom-free (61 ga
   strong absorption, deps-based enabledness for any dependency map) discharges every hypothesis
   set; the unbounded withdrawal registry of `GovernanceWF.v` gets its rho* constructed
   (`zw_rho_star_built`, `zw_confluent_built`).
+
+## The exact converses over any well-founded order (`GovernanceWFConverse.v`)
+
+`GovernanceConverse.v` states its exact converses (`jc_exact`, `cc_exact_from`) and `RhoStar.v`
+its constructed form (`wfc_cc_exact_from`) with a potential `Phi : State -> nat`. The proofs use
+the potential only for termination. This module lifts all three to WFC over any well-founded order
+(the setting of `GovernanceWF.v`), with lexicographic and potential-free forms, axiom-free (50
+gated results):
+
+- Termination, exactly. With `comp_rel s' s := ~ V s /\ s' = rho s`: the Governance Rewrite System
+  terminates from every configuration iff `comp_rel` is well-founded (`terminating_iff_comp_wf`,
+  any enabledness), and `comp_rel` is well-founded iff WFC holds for some potential into some
+  well-founded order (`comp_wf_iff_wfc`). With `V` decidable a well-founded `comp_rel` already has a
+  nat potential, the number of compensation steps to validity (`comp_wf_nat_potential`): the lift
+  adds generality where `V` is not decidable, and elsewhere accepts an ordinal or lexicographic
+  measure as is instead of requiring a nat-valued one.
+- Canonical repair implies termination: if `rho*` is reached by compensation steps and is valid,
+  `comp_rel` is well-founded (`canonical_comp_wf`, `canonical_free_comp_wf`). WFC is a consequence
+  of canonical repair, not an extra hypothesis.
+- `sn_jc_exact`: for any enabledness and any `c0` from which the system terminates, confluence from
+  `c0` iff `JC c0`. Termination is needed only from `c0`. Corollaries: `wf_jc_exact` (any
+  well-founded potential), `lex_jc_exact` (a lexicographic product), `comp_wf_jc_exact`
+  (compensation well-founded, no potential), `canonical_jc_exact` (canonical repair, no potential
+  and no termination hypothesis).
+- `canonical_cc_exact_from`: free delivery and canonical repair, with no termination hypothesis:
+  every event buffer delivered from `s0` has a unique normal form iff CC1 and CC2 hold on the
+  states reachable from `s0`. `wf_cc_exact_from` is the same statement with a potential into any
+  well-founded order. The canonical-repair qualifier is still needed (`rho_star_qualifier`).
+- rho* constructed by `RhoStar.rho_star_wf` (no rho* hypothesis): `wf_cc_exact_from_built`,
+  `wf_jc_exact_built` (any well-founded potential), `comp_wf_cc_exact_from_built`,
+  `comp_wf_jc_exact_built` (rho* built from a well-founded `comp_rel`, `rho_star_comp`).
+- The nat statements recovered with identical types (checked by unification):
+  `jc_exact_from_wf` (`GovernanceConverse.jc_exact`), `cc_exact_from_from_wf`
+  (`GovernanceConverse.cc_exact_from`), `wfc_cc_exact_from_from_wf` (`RhoStar.wfc_cc_exact_from`).
+- Non-vacuity. The `Z` withdrawal registry of `GovernanceWF.v` (potential `-s` under `Zwf 0`):
+  `zw_unique_from` (rho* given), `zw_unique_from_built` (rho* built from the `Z` potential),
+  `zw_comp_wf` and `zw_unique_from_comp_wf` (potential-free), `zw_jc` (JC at every configuration).
+  A lexicographic escalation queue on `nat * nat` (an escalated item repairs into two routine
+  items, routine items over a cap of 3 drain one at a time, potential the state itself under
+  `lex2 lt lt`): `qe_built` (the constructed rho* is the closed form), `qe_unique_from` (arrival
+  events: CC1, CC2, unique normal forms from every start). Adding a "clear routine" event breaks
+  CC1 at the start state (`qr_cc1_fails`), and the iff turns that into a failure of unique normal
+  forms (`qr_not_unique`).
 
 ## Categorical core (`Categorical.v`)
 
@@ -1196,6 +1333,128 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## Rootless propagation on invertible cycles (`RootlessCycles.v`)
+
+`CoordinatedCycles.v` gives the exact condition for coordination-free convergence **given** an
+authority root, and records one instance without a root (`copyback_without_authority`). This file
+turns that instance into an exact theorem.
+
+**Model.** The network is a group-labeled graph as in `CohomologyGraph.v` (the fiber of every
+registry is the group `G`, the regular action). With no designated root, **every edge is a writer**:
+firing `(u, v, g)` sets `s(v) := g * s(u)` and changes nothing else (`fire1`). A schedule is any
+finite list of edges, fired left to right (`fire`); it is fair when it fires every edge at least
+once. The normal forms (states fixed by every writer) are exactly the sections
+(`fixed_iff_section`), and a section is stable under every continuation (`fire_section_stable`), so
+the reachable sections are exactly the limits of fair infinite schedules. The statements are about
+that set of reachable fixed points. The cycle `cycE gs gc` is coherently oriented on registries
+`0 .. n`: path edges `(i, i + 1, g_i)` and the closing edge `(n, 0, g_c)`, with holonomy
+`g_c * g_(n-1) * ... * g_0`.
+
+**Results** (any group, `n >= 1`).
+
+- `rootless_section_iff_holonomy`, `rootless_section_iff_coboundary`: a consistent state exists iff
+  the holonomy is trivial, iff the labeling is a coboundary.
+- `rootless_reaches_section`, `rootless_nf_exists_iff`: with trivial holonomy, the round "path, then
+  closing edge" reaches a consistent state from **every** initial state; so "every initial state
+  reaches a consistent state" iff the holonomy is trivial.
+- `rootless_two_orders`, `rootless_not_unique`: for any section `s` and any `c`, from `s` with
+  registry 0 shifted to `s(0) * c`, the two rounds "closing edge first" and "closing edge last" (both
+  permutations of the edge list, so fair) reach `s` and `s * c`, both consistent, and every
+  continuation keeps them there. With `c <> e` these differ.
+- **`rootless_unique_iff` (the exact statement).** With trivial holonomy, the reachable consistent
+  state is unique from every initial state **iff `|G| = 1`**, for all schedules and for fair ones
+  alike. `rootless_unique_iff_general` drops the holonomy hypothesis: unique iff (trivial holonomy
+  implies `|G| = 1`); with nontrivial holonomy uniqueness is vacuous because nothing consistent is
+  reachable. `rootless_unique_normal_form_iff` combines existence and uniqueness: "from every
+  initial state some fair round reaches a consistent state, and every schedule that reaches one
+  reaches the same" iff `|G| = 1`. So a rootless invertible cycle has a unique normal form iff the
+  group is trivial; any nontrivial group needs an authority (or another coordination).
+
+**Where the qualifiers are needed** (recorded as theorems).
+
+- `rootless_selfloop_unique`: `n >= 1` is needed. A self-loop with identity label over Z/2 has a
+  unique normal form (every state is consistent and no write changes anything) with `|G| = 2`.
+- `rootless_orientation_matters`: coherent orientation is needed. The triangle `0 -> 1`, `1 -> 2`,
+  `0 -> 2` of copies over Z/2 is a cycle of the underlying graph with trivial holonomy, yet its
+  normal form is unique: registry 0 has no incoming edge and is a de facto authority root.
+
+**Instances** (every hypothesis discharged). Z/2 copy-back: `rootless_copyback_not_unique`, and
+`copyback_without_authority_recovered` re-derives `copyback_without_authority` from
+`rootless_two_orders` (section `(1, 1)`, shift `1`), with `cb_bridge_01` and `cb_bridge_10`
+identifying `FederationOrder.run` of the registry writers with firing their in-edges. An S_3
+triangle labeled `a`, `b`, `(b a)^-1` (with `a b <> b a`): trivial holonomy, a consistent state
+from every initial state, not unique (`rootless_s3_not_unique`; S_3 is a six-constructor type whose
+product is `Cohomology.v`'s `S3Sep.comp`). The trivial group on a triangle: unique normal form
+(`rootless_trivial_unique`). The Z/2 negation loop: nontrivial holonomy, no consistent state is
+reachable (`rootless_negation_no_nf`).
+
+Scope: coherently oriented single cycles and the regular action. On a general graph the two
+general facts still hold (`trivial_unique`: `|G| = 1` gives uniqueness on any graph;
+`fixed_iff_section`, `fire_section_stable`), but registries with no incoming edge act as roots, so
+the exact condition there depends on the graph's root structure and is not stated here.
+
+## The exact event-order condition under the coordination plan (`CoordinatedExact.v`)
+
+`coordinated_events_converge` (above) is sufficient only: permutations of local events converge
+under the plan when the authority root's own events commute at every value. The plan's driving
+network (`dsrc`, `dfun`) is an acyclic federation (`drive_common`), so the exact converse of
+`FederationEventsConverse.v` applies to it. This file instantiates it and computes what it says.
+
+Setting: a group `G`, a root `r`, a spanning tree `T` from `r`, a topological order `o` of the
+driving network over exactly the tree's vertices, local events `(E, reg, sig)` on tree registries
+with any declared same-registry independence `J`, and any start `s0` consistent with the driving
+network (`Cons`). `TraceConv s0`: every two `J`-trace-equivalent event sequences reach the same state.
+
+**Direct instantiation.** `coordinated_gc_iff` (`GCF s0 <-> TraceConv s0`, from `acyclic_gc_iff`),
+`coordinated_fed_exact` (`TraceConv s0 <-> C1R1 s0 /\ C2R s0`, from `fed_exact`),
+`coordinated_fed_exact_full` (the same with `C1R`, from `fed_exact_full`).
+
+**What C1 and C2 reduce to on the driving network.**
+
+- `coordinated_network_shape`: each non-root tree vertex is driven by one group translation of its
+  tree parent (`g * s(p)` or `g^-1 * s(p)`, ignoring its own value), the root keeps its own value
+  (`dfun r s x = x`), and off-tree registries are untouched. Balanced non-tree edges never enter
+  `dfun` (they are constraints, checked on the result: `coordinated_runs_kept`), and coordinated
+  edges are absent.
+- `coordinated_c1_static`, `coordinated_c1r1`: C1 holds unconditionally (statically, hence at every
+  reachable witness). A driven repair overwrites the whole value, so both sides of C1 are the
+  translated parent value; the root's repair is the identity, so both sides are `sig e b`.
+- `coordinated_c2at_iff`: C2 at a reachable witness `s` is trivial on driven registries and, on the
+  root, is exactly `sig e2 (sig e1 (s r)) = sig e1 (sig e2 (s r))`.
+- `coordinated_root_run`, `coordinated_root_reach`, `root_only_run`: the root value of a run is the
+  start's root value pushed through the run's root events only; other events never reach the root.
+
+**The exact condition.**
+
+- **`coordinated_events_exact`**: for every consistent start `s0`,
+  `TraceConv s0 <-> RootCC J (s0 r)`, where `RootCC J x0` says every two `J`-independent root events
+  commute at every root value reachable from `x0` by root events (`RootReach`).
+- `coordinated_perm_exact`: with every pair declared, all permutations converge from `s0` iff root
+  events commute pairwise at every reachable root value.
+- `coordinated_events_exact_plan`: the iff together with "every reached state satisfies `T ++ B`".
+- `coordinated_events_exact_global`: convergence from **every** consistent start iff every two
+  `J`-independent root events commute at **every** value. So the old hypothesis is exactly the
+  uniform condition; `coordinated_events_converge_recovered` re-derives the old theorem
+  (`old_implies_rootcc`).
+
+**The old condition is not necessary for a fixed start** (`old_condition_not_necessary`). Over the
+Klein group `V4 = (bool * bool, xor)` (`klein_group`) on the tree A -> B rooted at A, the root events
+Swap `(a, b) -> (b, a)` and Clear `(a, b) -> (a, false)` do not commute at `(true, false)`, yet from the
+consistent start with root `(false, false)` every permutation of events (with a B event too)
+converges: both root events fix `(false, false)` (`k_rrun_fixed`). From the consistent start with
+root `(true, false)` the two orders of Swap and Clear diverge. (Over Z/2 no such example exists: two
+self-maps of `bool` that fail to commute fail at every point.)
+
+**Non-vacuity** (CoordinatedCycles.v's two Z/2 loops, with events).
+`copyback_events_exact`: the copy-back loop with root event Flip (negation) and a B event; from every
+consistent start `RootCC` holds, every permutation converges, and every reached state satisfies
+`cc_T ++ cb_B ++ cb_C`. `negation_events_exact`: the negation loop with root events Set0 and Set1
+and a B event; from every consistent start `RootCC` fails, the two orders of Set0 and Set1 diverge,
+permutations do not converge, every reached state satisfies the kept network `cc_T ++ neg_B`, and
+none satisfies `cc_T ++ neg_B ++ neg_C`. The two loops share the driving network (it depends only on
+`T` and `r`), so event convergence depends only on the root's events; `B` and `C` change only which
+constraints the reached states satisfy.
+
 ## The federated theorems in corrected form (`FederationGRS.v`)
 
 ROADMAP item 7, work package WP5 (rows F6 to F10 and F17 to F19 of `PAPER-MAP.md`). The federation
@@ -1395,6 +1654,88 @@ negations (trivial holonomy, non-monotone edges) and copy-then-swap on `nat` (no
 non-monotone composite) both have sections, so acyclicity and monotonicity are two sufficient
 conditions, not the only ones.
 
+## The root-set criterion for lossy networks without a spanning root (`RootSet.v`)
+
+Reading A of `LOSSY-NETWORKS.md` (the constraint reading, as in `CohomologyGeneral.v`): a network is a
+list `G` of edges `(u, v, f)` with `f : V -> V` an arbitrary, possibly lossy, map on one fiber `V`;
+a state `s` is a section when `f (s u) = s v` on every edge (`msection s G`). `rooted_criterion`
+decides this when one vertex reaches all others. This file replaces the root by a **root set** and
+closes, for reading A, the row "general graph: none mechanized; none known" of the regime audit
+(open problem P1 of `LOSSY-NETWORKS.md`).
+
+**Setting.** `root_set R G`: every vertex of `G` is reachable (`reach`) from some vertex of `R`; for
+instance one representative per source strongly connected component, plus any others (a minimum
+root set is exactly one per source component, David, JAIR 1995). An outward spanning forest from
+`R` (`oforest R F`) attaches one fresh vertex per edge to the reached set `R ++ verts F`, so it gives
+every vertex exactly one driving path from exactly one root; `spanning_forest R G F` asks `F` to be
+a subgraph of `G` covering every vertex of `G`. `drive F a` pushes root values `a` along `F`.
+
+**The structure.**
+
+- `root_set_iff_forest`: `root_set R G <-> exists F, spanning_forest R G F` (the forest is grown
+  greedily, by a crossing-edge search with a vertex-count measure).
+- `out_forest_section`, `drive_root`: for every root assignment the driven state is a section of
+  the forest with those root values. `out_forest_unique`: sections of the forest that agree on `R`
+  agree on every reached vertex. `driving_paths`: each reached vertex `w` is driven by one root
+  `rho w` through one path composite `p w`, `drive F a w = p w (a (rho w))`.
+
+**The criterion (exact).**
+
+- `root_set_criterion`: for `oforest R F`, a forest section `sF` and non-driving edges `X` among the
+  reached vertices, `(exists s, msection s (F ++ X) /\ s = sF on R) <-> every edge of X holds at sF`.
+  `root_set_criterion_driven` is the same for a root assignment `a` and its driven state.
+- `root_set_exists`: `(exists s, msection s (F ++ X)) <-> exists a, every edge of X holds at drive F a`.
+- `root_set_agreement`: the same in agreement form: for every non-driving edge `(u, w, f)`,
+  `f (p u (a (rho u))) = p w (a (rho w))`. When `rho u <> rho w` this says the two roots agree at a
+  vertex reached from both; when `rho u = rho w` it is the single-root condition of
+  `rooted_criterion`.
+- On a graph: **`root_set_criterion_graph`**, for any root set `R` of `G` and spanning forest `F`,
+  `(exists s, msection s G) <-> exists a, msection (drive F a) G`;
+  `root_set_criterion_values`, the same with the root values fixed.
+
+**Sections are root assignments.** `root_set_bijection`: a section is the driven state of its own
+root values (on every vertex of the network), the driven state keeps its root values, and two
+sections with the same root values agree on the network. `root_set_count`: with `V` enumerated
+without duplicates and `R` duplicate-free, the consistent root tuples (`consistent_roots`, a filter
+of the product of the root domains, `tuples`) and the sections recorded on the network's vertices
+(`sections_on`) are both duplicate-free lists, the second contains exactly the restrictions of the
+sections of `G`, and they have the same length: **the number of sections equals the number of
+consistent root assignments**. `root_set_decide`: existence is
+`existsb (rs_ok R G F) (tuples lv (length R)) = true`, a search over the product of the root
+domains (`O(prod |X_r| (|V| + |E|))`).
+
+**The single-root case.** `otree_oforest` (`otree r T <-> oforest [r] T`) and
+`rooted_criterion_recovered`, `out_tree_section_recovered`, `out_tree_unique_recovered` re-derive
+`CohomologyGeneral.v`'s theorems as `R = [r]`.
+
+**Instances.**
+
+- The diamond (`diamond_*`): one root, paths `0 -> 1 -> 3` (copies) and `0 -> 2 -> 3` through the
+  lossy `dia_h` on `{t0, t1, t2}` (`diamond_not_injective`). The paths disagree at 3 for every root
+  value: `diamond_no_section` through the criterion, `diamond_count` (zero consistent root values).
+- Two constant maps into one vertex (`c22_*`, the shape of `c22_cycle_basis_fails`): `[0; 1]` is a
+  root set and neither root alone is (`c22_root_set`); no root tuple is consistent
+  (`c22_no_consistent_root`, `c22_count`), so `c22_no_section_recovered` re-derives the no-section
+  half of `c22_cycle_basis_fails`.
+- Two roots with sections (`two_*`): roots 0 and 1 into 2 through the lossy collapse
+  `t0, t1 |-> t0, t2 |-> t2`. `two_has_section`; `two_count` and `two_count_is_sections`: 5 of the
+  9 root tuples are consistent and the network has exactly 5 sections.
+- A root set containing a strongly connected component (`scc_*`): `{0, 1}` is a source component
+  (copy `0 -> 1`, lossy back edge `1 -> 0` constant `true`), 2 a second source, and `1 -> 3` (copy),
+  `2 -> 3` (negation) meet at 3. `scc_component`: 0 and 1 reach each other, `[0; 2]` is a root set,
+  `[0]` and `[2]` are not. `scc_consistent_roots`: the only consistent root tuple is
+  `(true, false)` (the back edge pins 0, the meeting at 3 pins 2); `scc_unique_section`.
+
+**What this settles.** Together with the NP-completeness of existence (`LOSSY-NETWORKS.md`
+section 3.2, a reduction from 3-SAT, consistent with Cooper, Cohen and Jeavons 1994 as reported by
+David 1995; cited, not mechanized), this is the exact criterion for the regime "non-invertible graphs
+without a spanning root", and no efficient exact criterion exists unless P = NP: the search over
+the product of the root domains is the irreducible cost, polynomial for a bounded number of source
+components (one, in `rooted_criterion`) and exponential in that number in general. The criterion is
+David's root-set decomposition (JAIR 1995, Theorem 1; the single-root case is Zhang and Yap 2011,
+Corollary 3); what is new here is the axiom-free mechanization, the bijection with root
+assignments, and the recovery of `rooted_criterion`.
+
 ## Stream processors and Stream Convergence (`Stream.v`)
 
 The base paper's headline theorem (Thm. "Stream Convergence", `thm:convergence`) is about stream
@@ -1436,6 +1777,51 @@ axiom-free. `rho*` is taken as in `Governance.v` (specified by `rho_star_reach`)
   `zw_stream_agree`, `zw_stream_quiescent`, `zw_stream_quiescent_nat`,
   `zw_stream_convergence_nat`, `zw_incremental`); the counter registry of the counterexamples
   meets every registry hypothesis (`ct_registry`).
+
+## The exact condition for stream agreement (`StreamExact.v`)
+
+`Stream.v` proves stream agreement from sufficient conditions (WFC, CC1 on co-enabled pairs, CC2 at
+every state). `StreamExact.v` lifts the exact condition to stream processors. `StreamAgree s0`: for
+every stream, any two processors from `s0`, settled at times `t1`, `t2` with the same received set,
+have the same state. The processor discipline `prstep` compensates before it applies, so the exact
+condition is the joinability condition of `prstep` itself, not the rewrite-system condition.
+
+- `PJC c0`: at every configuration `(sigma, B)` reachable from `c0` by `prstep` with `sigma` valid,
+  for distinct enabled `e1, e2` in `B`, the successors `(apply e1 sigma, B - e1)` and
+  `(apply e2 sigma, B - e2)` are `prstep`-joinable (no compensation critical pair: `prstep` is
+  deterministic at invalid states). `pjc_exact`: `CR prstep c0 <-> PJC c0`.
+- `stream_agree_set_function` (no qualifier): `StreamAgree s0` iff for every duplicate-free `E`
+  all finished reductions from `(s0, E)` end in the same state. `pjc_stream_agreement`
+  (sufficiency, no qualifier): `(forall E, NoDup E -> PJC (s0, E)) -> StreamAgree s0`.
+- `stream_exact` (headline): with `Progress` (at a valid state a non-empty buffer has an enabled
+  event: the causal closure of received sets, the hypothesis of `settled_empty_buffer`),
+  `StreamAgree s0 <-> forall E, NoDup E -> PJC (s0, E)`. Uses WFC (any well-founded potential),
+  decidability of `valid` and `enabled`, and `enabled_perm`, all hypotheses of `Stream.v`.
+- `stream_diverge`: the converse made concrete. A `PJC` failure at a configuration reachable from
+  `(s0, E)` gives two processors that both receive `E`, both settle, and disagree.
+- `cc_pjc`, `stream_agreement_recovered`: under `Stream.v`'s hypotheses `PJC` holds everywhere, so
+  `stream_agreement` is a corollary of the exact theorem. `jc_pjc`, `jc_stream_agreement`: the
+  rewrite-system condition `JC` of `jc_exact` at every `(s0, E)` implies `PJC` and stream agreement.
+- Free delivery with canonical repair (`gov e s = rho*(apply e s)`, `grun` the governed run of a
+  word): `PCC s0` says the governed steps of `e1, e2` commute at `grun (rho* s0) w` for every
+  duplicate-free `w ++ [e1; e2]` (CC1 at the states a processor reaches; no CC2).
+  `stream_exact_free`: `StreamAgree s0 <-> PCC s0`; `stream_diverge_free` turns a `PCC` failure
+  into two disagreeing processors on the set `w ++ [e1; e2]`; `stream_exact_free_pjc` is the
+  general theorem on this model. Supporting: `pcc_pjc`, `fx_two_runs`, `fx_repair`,
+  `fx_inv_reach`, `fx_inv_valid`, `sx_un_cr`.
+- Counterexamples. `jc_not_necessary`: CC2 fails at `s0` itself, so `JC (s0, [e])` and the
+  condition of `cc_exact_from` fail, yet every two processors from `s0` agree (a processor never
+  applies at an invalid state): the natural iff with the rewrite-system condition is false.
+  `progress_needed`: without `Progress`, `PJC` is not necessary (two events, each enabled only
+  while the other is buffered; finished buffers differ, finished states agree).
+  `jc_fail_disagree`: a free registry whose steps do not commute; `JC`, `PJC`, `PCC` and
+  `StreamAgree` fail and two concrete processors with the same received set settle in different
+  states.
+- Non-vacuity: `zw_stream_exact` (the `Z` withdrawal registry meets `Progress`, `PJC` everywhere and
+  `PCC` from every start; the agreement of `zp1` and `zp2` at time 2 is rederived through
+  `stream_exact_free`), `zw_stream_exact_iff`, `zw_jc_stream_agreement` (the `JC` route with the
+  nat potential); every counterexample registry discharges the hypotheses of the section it
+  instantiates.
 
 ## The papers' concrete examples (`PaperInstances.v`)
 
@@ -1593,7 +1979,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 729 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 989 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

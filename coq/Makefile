@@ -171,3 +171,45 @@ all: FederationEventsCyclesMulti.vo
 
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
+
+# Monotone cycles: exact validity and exact reachability of the lfp (MonotoneExact.v).
+all: MonotoneExact.vo
+
+MonotoneExact.vo: MonotoneExact.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo FederationEventsCycles.vo MonotoneFederation.vo
+	coqc -Q . NC MonotoneExact.v
+
+# The exact condition for stream agreement (StreamExact.v).
+all: StreamExact.vo
+
+StreamExact.vo: StreamExact.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Stream.vo
+	coqc -Q . NC StreamExact.v
+
+# The exact converses over any well-founded order (GovernanceWFConverse.v).
+all: GovernanceWFConverse.vo
+
+GovernanceWFConverse.vo: GovernanceWFConverse.v Newman.vo Governance.vo GovernanceWF.vo GovernanceConverse.vo RhoStar.vo
+	coqc -Q . NC GovernanceWFConverse.v
+
+# Rootless propagation on invertible cycles (RootlessCycles.v).
+all: RootlessCycles.vo
+
+RootlessCycles.vo: RootlessCycles.v CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo Cohomology.vo
+	coqc -Q . NC RootlessCycles.v
+
+# Exact event-order condition under the coordination plan (CoordinatedExact.v).
+all: CoordinatedExact.vo
+
+CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
+	coqc -Q . NC CoordinatedExact.v
+
+# The exact condition for at-least-once delivery, free and causal (AtLeastOnceExact.v).
+all: AtLeastOnceExact.vo
+
+AtLeastOnceExact.vo: AtLeastOnceExact.v Trace.vo CausalReplay.vo AtLeastOnce.vo GovernanceConverse.vo
+	coqc -Q . NC AtLeastOnceExact.v
+
+# The root-set criterion for lossy networks without a spanning root (RootSet.v).
+all: RootSet.vo
+
+RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
+	coqc -Q . NC RootSet.v
