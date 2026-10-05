@@ -255,3 +255,9 @@ all: DistributedCyclesExact.vo
 
 DistributedCyclesExact.vo: DistributedCyclesExact.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedCycles.vo
 	coqc -Q . NC DistributedCyclesExact.v
+
+# The CRDT boundary theorem and the sharpened strictness witness (CRDTBoundary.v).
+all: CRDTBoundary.vo
+
+CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
+	coqc -Q . NC CRDTBoundary.v

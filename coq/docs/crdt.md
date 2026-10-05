@@ -1,16 +1,17 @@
 # CRDT fragment
 
-Detailed results for the CRDT modules: CRDTs as the compensation-free fragment, and state-based
-merges through the exact theorems. Each module's one-line summary is in the [module
+Detailed results for the CRDT modules: CRDTs as the compensation-free fragment, state-based
+merges through the exact theorems, and the boundary theorem that combines them. Each module's one-line summary is in the [module
 index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#4-crdt-fragment), section 4.
 
 ## CRDTs as a special case (`CRDT.v`)
 
 `CRDT.v` machine-checks that conflict-free replicated data types are the compensation-free
-fragment of this theory: a CRDT buys convergence by restricting to operations that can never
-violate an invariant, so no repair is ever needed, and normalization confluence keeps convergence
-after dropping that restriction. Four results, all axiom-free:
+fragment of this theory: a CRDT obtains convergence algebraically (commuting concurrent
+operations, or monotone evolution in a join-semilattice), so no repair is ever needed, and
+normalization confluence keeps convergence when raw transitions leave the normal-form region and a
+normalization repairs them. Four results, all axiom-free:
 
 - `cmrdt_SEC`: an op-based CRDT's strong eventual consistency (replicas that delivered the same
   operations in any order agree) is a one-line instance of `run_perm_invariant`. Its commuting-
@@ -26,7 +27,9 @@ after dropping that restriction. Four results, all axiom-free:
   concrete governed machine that converges yet is neither CRDT. Its raw operations do not commute
   (so it is no CmRDT), and an event drives a valid state to an invalid one (so its operations are
   not the structure-preserving endomaps of a CvRDT). It converges only because compensation repairs
-  the violation.
+  the violation. `CRDTBoundary.v` sharpens each part into a specific theorem about the raw
+  transitions, and shows the governed behavior itself is trivially a CRDT, so strictness is about
+  the transition representation (see [The CRDT boundary](#the-crdt-boundary-crdtboundaryv)).
 
 The claim is scoped to the convergence principle, not to CRDT engineering as a whole: version
 vectors, the mechanisms that achieve causal delivery, and garbage collection are operational
@@ -108,3 +111,49 @@ case.
 max on `nat * nat`), `gset_exact` (a grow-only set as a bitset, union `Nat.lor`), each with
 `MergeConv`, `CvRDTOn`, at-least-once convergence and unique normal forms for every `X` and `s0`
 (`cvrdt_all`), and computed duplicate deliveries `maxreg_dup`, `gcounter_dup`, `gset_dup`.
+
+## The CRDT boundary (`CRDTBoundary.v`)
+
+`CRDTBoundary.v` assembles the CRDT results into one boundary theorem and sharpens the strictness
+witness of `CRDT.v`. Setting: an event `e` has a raw transition `act e`, a normalization
+`normalize` repairs the result, and the governed step is `CausalReplay.gstep act normalize e s =
+normalize (act e s)`; compensation-free means `normalize s = s` for every `s`.
+
+**The boundary.** `crdt_boundary`: for every compensation-free system,
+
+- (a) for every irreflexive `hb`, causal convergence of the governed steps from every start iff
+  concurrent raw operations commute at every state (`causal_cmrdt act hb`): `cf_causal_boundary`,
+  through `causal_convergence_exact` and `compensation_free_exact`;
+- (b) for every event range `X` (decidable event equality) and start `s0`, convergence under every
+  order and duplication (`MergeConv` of the governed steps) iff the raw actions are commutative and
+  idempotent at the reachable states: `cf_merge_boundary`, through `merge_action_exact`;
+- (b') with `X` finite and state equality decidable, iff a join-semilattice representation of the
+  raw actions on the reachable states (`CvRDTOn`): `cf_cvrdt_boundary`, through `cvrdt_exact_all`;
+
+and (c) the witness on `bool` (raw `settrue` and `flip`, compensation to `false`) converges under
+both delivery models from every start, while (a) and (b) fail for its raw operations. Helpers:
+`gstep_id`, `runT_gstep_id`, `mergeconv_gstep_id` (compensation-free governed runs are the raw
+runs).
+
+**The witness, sharpened.**
+
+- `witness_ops_not_commute`: `flip (settrue false) = false`, `settrue (flip false) = true`, and
+  the two orders differ at every state (the specific pair; `witness_not_cmrdt` is kept).
+- `witness_not_cvrdt_order`: no partial order on `bool` makes both raw operations inflationary;
+  `witness_not_inflationary_antisym` needs only antisymmetry.
+- `witness_not_cvrdt_exact`: from every start, the raw operations are neither commutative nor
+  idempotent at a reachable state, `MergeConv` fails and `CvRDTOn` fails;
+  `witness_duplicate_diverges` computes `flip` once against twice.
+- `witness_raw_not_causal`: with the events concurrent, the raw operations diverge under causal
+  exactly-once delivery from every start.
+- `witness_governed_converges`: the governed steps converge causally and under `MergeConv` from
+  every start.
+
+**Qualifier.** `witness_governed_constant`: every nonempty governed delivery ends at `false`, the
+governed steps commute and are idempotent everywhere, and they are `CvRDTOn` with the join `andb`.
+The governed behavior is trivially a CRDT; the strictness in (c) is about the raw transition
+representation, not about observable behavior.
+
+**Non-vacuity.** `boundary_nonvacuous`: the hypotheses of (a), (b) and (b') hold for the witness's
+events; with the raw witness operations both sides are false, with the constant action both sides
+are true. See [`docs/SUBSUMPTION.md`](../../docs/SUBSUMPTION.md) for the statement in prose.

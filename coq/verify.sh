@@ -1538,6 +1538,30 @@ Print Assumptions NC.DistributedCyclesExact.g_quiet.
 Print Assumptions NC.DistributedCyclesExact.conv_ghost_normal.
 Print Assumptions NC.DistributedCyclesExact.local_reset_ghost.
 Print Assumptions NC.DistributedCyclesExact.latched_exact.
+Require NC.CRDTBoundary.
+Print Assumptions NC.CRDTBoundary.gstep_id.
+Print Assumptions NC.CRDTBoundary.runT_gstep_id.
+Print Assumptions NC.CRDTBoundary.mergeconv_gstep_id.
+Print Assumptions NC.CRDTBoundary.cf_causal_boundary.
+Print Assumptions NC.CRDTBoundary.cf_merge_boundary.
+Print Assumptions NC.CRDTBoundary.cf_cvrdt_boundary.
+Print Assumptions NC.CRDTBoundary.wX_list.
+Print Assumptions NC.CRDTBoundary.whb_irrefl.
+Print Assumptions NC.CRDTBoundary.w_concurrent.
+Print Assumptions NC.CRDTBoundary.witness_ops_not_commute.
+Print Assumptions NC.CRDTBoundary.witness_not_inflationary_antisym.
+Print Assumptions NC.CRDTBoundary.witness_not_cvrdt_order.
+Print Assumptions NC.CRDTBoundary.wraw_reach_init.
+Print Assumptions NC.CRDTBoundary.witness_not_cvrdt_exact.
+Print Assumptions NC.CRDTBoundary.witness_duplicate_diverges.
+Print Assumptions NC.CRDTBoundary.w_causal_pair.
+Print Assumptions NC.CRDTBoundary.witness_raw_not_causal.
+Print Assumptions NC.CRDTBoundary.wgov_false.
+Print Assumptions NC.CRDTBoundary.wgov_run_false.
+Print Assumptions NC.CRDTBoundary.witness_governed_constant.
+Print Assumptions NC.CRDTBoundary.witness_governed_converges.
+Print Assumptions NC.CRDTBoundary.crdt_boundary.
+Print Assumptions NC.CRDTBoundary.boundary_nonvacuous.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1548,8 +1572,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1499 ]; then
-  echo "FAIL: expected 1499 axiom-free results, got $N"
+if [ "$N" -lt 1522 ]; then
+  echo "FAIL: expected 1522 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
