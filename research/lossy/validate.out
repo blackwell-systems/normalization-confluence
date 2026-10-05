@@ -1,0 +1,25 @@
+[OK] 3-SAT -> reading A (typed fibers): section exists iff satisfiable: 600/600 agree; 437 satisfiable, 163 unsatisfiable
+[OK] 3-SAT -> reading A (typed fibers): #sections == #satisfying assignments: 600/600 agree
+[OK] 3-SAT -> reading A (single shared fiber, filter gadget): existence: 200/200 agree
+[OK] 3-SAT -> reading A (single shared fiber, filter gadget): counts: 200/200 agree
+[OK] rooted algorithm vs brute force (one vertex reaches all): 1500/1500 agree; 520 with a section
+[OK] root-set algorithm (David 1995) vs brute force: 1500/1500 agree; 590 with a section, 871 with more than one source component
+[OK] multicolored k-clique -> reading A with k(k-1)/2 sources: 400/400 agree; 317 with a clique
+
+Readings A and B on the same graph and maps:
+  diamond u->v copy, u->w copy, w->v negation: reading A sections = 0 (an unbalanced undirected cycle, no directed cycle)
+  same graph, reading B with resolver v = AND: fixed points = 2 (one per value of the free source u)
+  same graph, reading B with resolver v = first-source: fixed points = 2 (one per value of the free source u)
+  c22 (a->c const 0, b->c const 1): reading A sections = 0; reading B with a priority resolver: fixed points = 4 (4 = free values of the two sources)
+
+The Z/2 loops of CoordinatedCycles.v as Boolean networks (reading B, in-degree 1):
+  copy-back (positive 2-cycle): fixed points = 2; asynchronous attractors: 2 fixed, 0 cyclic
+  negation (negative 2-cycle): fixed points = 0; asynchronous attractors: 0 fixed, 1 cyclic
+[OK] in-degree <= 1: #sections (reading A) == #fixed points (reading B): 1000/1000 agree
+[OK] in-degree <= 1, Z/2 labels: section exists iff no negative directed cycle: 1000/1000 agree
+[OK] reading B -> reading A (product vertices): #fixed points == #sections: 800/800 agree
+[OK] reading A -> reading B (alarm gadget): section exists iff fixed point exists: 800/800 agree
+[OK] permutation labels: monotonizable iff trivial holonomy (#sections == |X|): 500/500 agree; 222 monotonizable
+[OK] lossy maps, in-degree <= 1: monotonizable implies a section exists: 600/600 agree; 383 monotonizable, 60 with a section but not monotonizable
+
+ALL CHECKS PASSED

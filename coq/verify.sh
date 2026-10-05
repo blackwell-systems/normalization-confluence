@@ -1635,6 +1635,161 @@ Print Assumptions NC.CoordinationMinimum.s3_cycle_no_section.
 Print Assumptions NC.CoordinationMinimum.s3_disjoint.
 Print Assumptions NC.CoordinationMinimum.s3_sign_hom.
 Print Assumptions NC.CoordinationMinimum.s3_tree_choice.
+Require NC.CohomologyNerve.
+Print Assumptions NC.CohomologyNerve.inv_e.
+Print Assumptions NC.CohomologyNerve.inv_inv_.
+Print Assumptions NC.CohomologyNerve.inv_op.
+Print Assumptions NC.CohomologyNerve.conj_e.
+Print Assumptions NC.CohomologyNerve.conj_id.
+Print Assumptions NC.CohomologyNerve.shape_app.
+Print Assumptions NC.CohomologyNerve.shape_gauge.
+Print Assumptions NC.CohomologyNerve.shape_triv.
+Print Assumptions NC.CohomologyNerve.length_shape.
+Print Assumptions NC.CohomologyNerve.length_triv.
+Print Assumptions NC.CohomologyNerve.triv_shape.
+Print Assumptions NC.CohomologyNerve.verts_shape.
+Print Assumptions NC.CohomologyNerve.idlab_triv.
+Print Assumptions NC.CohomologyNerve.idlab_eq_triv.
+Print Assumptions NC.CohomologyNerve.shape_split.
+Print Assumptions NC.CohomologyNerve.shape_single.
+Print Assumptions NC.CohomologyNerve.tree_shape.
+Print Assumptions NC.CohomologyNerve.in_shape.
+Print Assumptions NC.CohomologyNerve.in_shape_inv.
+Print Assumptions NC.CohomologyNerve.spanned_shape.
+Print Assumptions NC.CohomologyNerve.gauge_comp.
+Print Assumptions NC.CohomologyNerve.gauge_unit.
+Print Assumptions NC.CohomologyNerve.cohom_refl.
+Print Assumptions NC.CohomologyNerve.cohom_sym.
+Print Assumptions NC.CohomologyNerve.cohom_trans.
+Print Assumptions NC.CohomologyNerve.nth_shape.
+Print Assumptions NC.CohomologyNerve.lab_gauge.
+Print Assumptions NC.CohomologyNerve.gauge_none.
+Print Assumptions NC.CohomologyNerve.hol_gauge.
+Print Assumptions NC.CohomologyNerve.cocycle_gauge.
+Print Assumptions NC.CohomologyNerve.hol_section.
+Print Assumptions NC.CohomologyNerve.section_cocycle.
+Print Assumptions NC.CohomologyNerve.coboundary_iff_gauge_triv.
+Print Assumptions NC.CohomologyNerve.nerve_section_iff_coboundary.
+Print Assumptions NC.CohomologyNerve.hol_tree_fixed.
+Print Assumptions NC.CohomologyNerve.relations_in_generators.
+Print Assumptions NC.CohomologyNerve.hol_gauge_const.
+Print Assumptions NC.CohomologyNerve.rels_hold_conj.
+Print Assumptions NC.CohomologyNerve.nerve_H1_classification.
+Print Assumptions NC.CohomologyNerve.nerve_H1_abelian.
+Print Assumptions NC.CohomologyNerve.in_allvecs.
+Print Assumptions NC.CohomologyNerve.nodup_allvecs.
+Print Assumptions NC.CohomologyNerve.length_allvecs.
+Print Assumptions NC.CohomologyNerve.in_ker.
+Print Assumptions NC.CohomologyNerve.nodup_ker.
+Print Assumptions NC.CohomologyNerve.vxor_len.
+Print Assumptions NC.CohomologyNerve.vxor_cancel.
+Print Assumptions NC.CohomologyNerve.vxor_self.
+Print Assumptions NC.CohomologyNerve.linear_zero.
+Print Assumptions NC.CohomologyNerve.ker_halves.
+Print Assumptions NC.CohomologyNerve.ker_count.
+Print Assumptions NC.CohomologyNerve.pow2_le_inj.
+Print Assumptions NC.CohomologyNerve.zero_in_ker.
+Print Assumptions NC.CohomologyNerve.rel_rank_le.
+Print Assumptions NC.CohomologyNerve.ker_count_pow.
+Print Assumptions NC.CohomologyNerve.rel_rank_solution_set.
+Print Assumptions NC.CohomologyNerve.rel_rank_zero_iff.
+Print Assumptions NC.CohomologyNerve.shape_assign.
+Print Assumptions NC.CohomologyNerve.labels_assign.
+Print Assumptions NC.CohomologyNerve.assign_labels.
+Print Assumptions NC.CohomologyNerve.length_labels.
+Print Assumptions NC.CohomologyNerve.lab_assign.
+Print Assumptions NC.CohomologyNerve.zhol_assign.
+Print Assumptions NC.CohomologyNerve.nth_vxor.
+Print Assumptions NC.CohomologyNerve.rel_fun_linear.
+Print Assumptions NC.CohomologyNerve.rel_funs_linear.
+Print Assumptions NC.CohomologyNerve.z2_rels_iff.
+Print Assumptions NC.CohomologyNerve.nerve_H1_Z2_count.
+Print Assumptions NC.CohomologyNerve.nerve_Z2_no_cells.
+Print Assumptions NC.CohomologyNerve.nerve_Z2_full_iff.
+Print Assumptions NC.CohomologyNerve.nerve_Z2_cell_lowers.
+Print Assumptions NC.CohomologyNerve.tri_span.
+Print Assumptions NC.CohomologyNerve.tri_wf.
+Print Assumptions NC.CohomologyNerve.tri_wf_hollow.
+Print Assumptions NC.CohomologyNerve.hollow_triangle.
+Print Assumptions NC.CohomologyNerve.filled_triangle.
+Print Assumptions NC.CohomologyNerve.triangle_kills_flip.
+Print Assumptions NC.CohomologyNerve.filled_cocycle_has_section.
+Print Assumptions NC.CohomologyNerve.sqT_tree.
+Print Assumptions NC.CohomologyNerve.sq_span.
+Print Assumptions NC.CohomologyNerve.sq_wf.
+Print Assumptions NC.CohomologyNerve.square_hollow.
+Print Assumptions NC.CohomologyNerve.square_one_triangle.
+Print Assumptions NC.CohomologyNerve.square_two_triangles.
+Print Assumptions NC.CohomologyNerve.square_dependent_cell.
+Print Assumptions NC.CohomologyNerve.nerve_instances_wf.
+Require NC.LossyMinimum.
+Print Assumptions NC.LossyMinimum.memb_spec.
+Print Assumptions NC.LossyMinimum.resid_from_ext.
+Print Assumptions NC.LossyMinimum.resid_from_none.
+Print Assumptions NC.LossyMinimum.resid_from_all.
+Print Assumptions NC.LossyMinimum.resid_from_app.
+Print Assumptions NC.LossyMinimum.resid_from_incl.
+Print Assumptions NC.LossyMinimum.resid_from_length.
+Print Assumptions NC.LossyMinimum.resid_nil.
+Print Assumptions NC.LossyMinimum.resid_all.
+Print Assumptions NC.LossyMinimum.cset_all.
+Print Assumptions NC.LossyMinimum.cset_nil.
+Print Assumptions NC.LossyMinimum.resid_from_map.
+Print Assumptions NC.LossyMinimum.cset_map.
+Print Assumptions NC.LossyMinimum.lmin_unique.
+Print Assumptions NC.LossyMinimum.lmin_zero_iff_section.
+Print Assumptions NC.LossyMinimum.lmin_le_iff.
+Print Assumptions NC.LossyMinimum.delete_all_feasible.
+Print Assumptions NC.LossyMinimum.lmin_le_length.
+Print Assumptions NC.LossyMinimum.lfeasible_root_set.
+Print Assumptions NC.LossyMinimum.trivial_forest.
+Print Assumptions NC.LossyMinimum.lfeasible_iff_root_set.
+Print Assumptions NC.LossyMinimum.lmin_root_set.
+Print Assumptions NC.LossyMinimum.forest_residual_feasible.
+Print Assumptions NC.LossyMinimum.lossy_lmin_le_nontree.
+Print Assumptions NC.LossyMinimum.filter_subsets.
+Print Assumptions NC.LossyMinimum.subsets_spec.
+Print Assumptions NC.LossyMinimum.least_from_spec.
+Print Assumptions NC.LossyMinimum.nodup_same_length.
+Print Assumptions NC.LossyMinimum.sec_b_spec.
+Print Assumptions NC.LossyMinimum.lfeasible_decide_forest.
+Print Assumptions NC.LossyMinimum.lmin_le_b_spec.
+Print Assumptions NC.LossyMinimum.lmin_b_correct.
+Print Assumptions NC.LossyMinimum.lmin_decide.
+Print Assumptions NC.LossyMinimum.lmin_exists.
+Print Assumptions NC.LossyMinimum.nodup_b_spec.
+Print Assumptions NC.LossyMinimum.cset_b_spec.
+Print Assumptions NC.LossyMinimum.min_le_np_certificate.
+Print Assumptions NC.LossyMinimum.verts_length.
+Print Assumptions NC.LossyMinimum.nodup_length_le.
+Print Assumptions NC.LossyMinimum.min_cert_size.
+Print Assumptions NC.LossyMinimum.lmin_le_np.
+Print Assumptions NC.LossyMinimum.lmin_zero_iff_sat.
+Print Assumptions NC.LossyMinimum.min_le_zero_iff_sat.
+Print Assumptions NC.LossyMinimum.net_unpinned.
+Print Assumptions NC.LossyMinimum.net_one_suffices.
+Print Assumptions NC.LossyMinimum.net_lmin_dichotomy.
+Print Assumptions NC.LossyMinimum.lmin_reduction.
+Print Assumptions NC.LossyMinimum.msection_lift.
+Print Assumptions NC.LossyMinimum.resid_lift.
+Print Assumptions NC.LossyMinimum.lfeasible_lift_iff.
+Print Assumptions NC.LossyMinimum.lossy_min_is_gfes.
+Print Assumptions NC.LossyMinimum.lift_cycle_basis.
+Print Assumptions NC.LossyMinimum.group_tree_lmin_zero.
+Print Assumptions NC.LossyMinimum.group_lmin_le_nontree.
+Print Assumptions NC.LossyMinimum.c22_lmin_b.
+Print Assumptions NC.LossyMinimum.c22_lmin.
+Print Assumptions NC.LossyMinimum.lossy_min_exceeds_cycle_bounds.
+Print Assumptions NC.LossyMinimum.cycle_bounds_nonvacuous.
+Print Assumptions NC.LossyMinimum.c22_group_lmin.
+Print Assumptions NC.LossyMinimum.diamond_lmin.
+Print Assumptions NC.LossyMinimum.two_lmin.
+Print Assumptions NC.LossyMinimum.scc_lmin.
+Print Assumptions NC.LossyMinimum.tri_lmin.
+Print Assumptions NC.LossyMinimum.bow_lmin.
+Print Assumptions NC.LossyMinimum.fsat_lmin.
+Print Assumptions NC.LossyMinimum.funsat_lmin.
+Print Assumptions NC.LossyMinimum.c22_certificate.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1645,8 +1800,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1594 ]; then
-  echo "FAIL: expected 1594 axiom-free results, got $N"
+if [ "$N" -lt 1747 ]; then
+  echo "FAIL: expected 1747 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

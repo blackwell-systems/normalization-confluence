@@ -267,3 +267,15 @@ all: CoordinationMinimum.vo
 
 CoordinationMinimum.vo: CoordinationMinimum.v CohomologyGraph.vo CoordinatedCycles.vo CohomologyGeneral.vo
 	coqc -Q . NC CoordinationMinimum.v
+
+# H^1 of the nerve as a 2-complex: triangle relations, classification and Z/2 count (CohomologyNerve.v).
+all: CohomologyNerve.vo
+
+CohomologyNerve.vo: CohomologyNerve.v CohomologyGraph.vo
+	coqc -Q . NC CohomologyNerve.v
+
+# Minimum coordination for lossy networks: characterization, decision, hardness (LossyMinimum.v).
+all: LossyMinimum.vo
+
+LossyMinimum.vo: LossyMinimum.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo
+	coqc -Q . NC LossyMinimum.v
