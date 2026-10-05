@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 989 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 1040 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 989 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
@@ -1066,6 +1066,51 @@ gated results):
   CC1 at the start state (`qr_cc1_fails`), and the iff turns that into a failure of unique normal
   forms (`qr_not_unique`).
 
+## Compensation that disables a buffered event (`EnabledAfterComp.v`)
+
+`jc_exact` and `sn_jc_exact` assume `enabled_after_comp`: a compensation step never disables a
+buffered event that was enabled. JC uses it to close the event/compensation critical pair by firing
+the event after the compensation, comparing with `rho* (apply e (rho sigma))`. This module drops
+the hypothesis and gives the exact condition for any enabledness (51 gated results, axiom-free):
+
+- The critical pairs at `(sigma, B)` are event/event (distinct `e1`, `e2` enabled) and
+  event/compensation (`sigma` invalid, `e` enabled at `sigma`), whose successors are
+  `(apply e sigma, B - e)` and `(rho sigma, B)` whether or not compensation disables `e`. An event
+  that compensation enables creates no peak at `(sigma, B)`, only later steps.
+- `JCg c0` (JC'): at every configuration reachable from `c0`, the event/event clause of JC, and for
+  every `e` enabled at an invalid `sigma`, `(rho* (apply e sigma), B - e)` joinable with
+  `(rho sigma, B)` itself. **`jcg_exact`**: for any enabledness and any `c0` from which the system
+  terminates, confluence from `c0` iff `JCg c0` (Newman localized, `newman_on`).
+  `jcg_iff_critical`, `cr_iff_critical`: `JCg c0` is exactly joinability of every critical pair at
+  every configuration reachable from `c0`.
+- `JCsplit c0` splits the event/compensation clause: JC's clause when `e` stays enabled at
+  `(rho sigma, B)`, the join with `(rho sigma, B)` when compensation disables it.
+  `jcsplit_exact`: under termination from `c0` and decidability of enabledness after compensation
+  (`emloc`, implied by `enabled_after_comp`), confluence from `c0` iff `JCsplit c0`.
+- Reduction to JC. `jcsplit_iff_jc`: under `enabled_after_comp` the disabled clause is vacuous and
+  `JCsplit c0 <-> JC c0` (no termination hypothesis); `jc_jcg`, `jcg_iff_jc`. The old results are
+  corollaries: `jc_exact_recovered` and `sn_jc_exact_recovered` are derived from `jcg_exact`, with
+  types checked against `GovernanceConverse.jc_exact` and `GovernanceWFConverse.sn_jc_exact`.
+- Normal forms. `gnf_iff`: `(sigma, B)` is a normal form iff `sigma` is not invalid and every event
+  of `B` is disabled at `(sigma, B)`. The buffer need not be empty (`stuck_nf`, `stuck_nf_iff`), and
+  uniqueness of normal forms is uniqueness of the pair (state, residual buffer). Under free
+  delivery no event is ever stuck (`free_nf_empty`).
+- Counterexample: JC is not sufficient. A `Pending` payment (invalid) is compensated to
+  `Cancelled`; the guarded event `Settle` may not fire on a cancelled payment and moves any state to
+  `Settled`. JC holds at every configuration (`dc_jc`), compensation disables `Settle`
+  (`dc_eac_fails`), and from `(Pending, [Settle])` there are two normal forms, `(Settled, [])` and
+  the stuck `(Cancelled, [Settle])` (`dc_two_normal_forms`, `dc_stuck`, `dc_jc_insufficient`,
+  `dc_not_cr`); JC' fails there (`dc_not_jcg`). With the guard removed the same data are confluent
+  (`fr_confluent`, through `jc_exact_recovered`).
+- Non-vacuity, and JC is not necessary either. An account `Over` its limit is compensated to
+  `Locked` (mid-repair, invalid) and then to `Ok`; `Reset` is guarded off while `Locked` (applied
+  there it would give a `Torn` snapshot). Compensation `Over -> Locked` disables `Reset` and
+  `Locked -> Ok` enables it again (`nv_disables`, `nv_enables`, `nv_not_eac`). JC' holds at every
+  configuration (`nv_jcg`, also `nv_jcsplit`), so every configuration is confluent
+  (`nv_confluent`, `nv_unique`), while the old JC fails at `(Over, [Reset])` (`nv_not_jc`,
+  `nv_jc_not_necessary`): it asks for a join with `rho* (apply Reset Locked) = Torn`, which no run
+  reaches. Without `enabled_after_comp`, JC is neither sufficient nor necessary; JC' is exact.
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the
@@ -1976,7 +2021,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 989 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1040 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

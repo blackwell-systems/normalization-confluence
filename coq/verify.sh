@@ -1021,6 +1021,58 @@ Print Assumptions NC.RootSet.scc_forest.
 Print Assumptions NC.RootSet.scc_component.
 Print Assumptions NC.RootSet.scc_consistent_roots.
 Print Assumptions NC.RootSet.scc_unique_section.
+Require NC.EnabledAfterComp.
+Print Assumptions NC.EnabledAfterComp.eg_apply_norm.
+Print Assumptions NC.EnabledAfterComp.eg_join_back.
+Print Assumptions NC.EnabledAfterComp.eg_join_sym.
+Print Assumptions NC.EnabledAfterComp.cr_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_exact.
+Print Assumptions NC.EnabledAfterComp.jcg_unique_normal_forms.
+Print Assumptions NC.EnabledAfterComp.cr_iff_critical.
+Print Assumptions NC.EnabledAfterComp.jcg_iff_critical.
+Print Assumptions NC.EnabledAfterComp.gnf_iff.
+Print Assumptions NC.EnabledAfterComp.stuck_nf_iff.
+Print Assumptions NC.EnabledAfterComp.eac_emloc.
+Print Assumptions NC.EnabledAfterComp.jcsplit_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_jcsplit.
+Print Assumptions NC.EnabledAfterComp.jcsplit_exact.
+Print Assumptions NC.EnabledAfterComp.jcsplit_iff_jc.
+Print Assumptions NC.EnabledAfterComp.jc_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_iff_jc.
+Print Assumptions NC.EnabledAfterComp.sn_jc_exact_recovered.
+Print Assumptions NC.EnabledAfterComp.free_nf_empty.
+Print Assumptions NC.EnabledAfterComp.jc_exact_recovered.
+Print Assumptions NC.EnabledAfterComp.dc_wfc.
+Print Assumptions NC.EnabledAfterComp.dc_reach.
+Print Assumptions NC.EnabledAfterComp.dc_sn.
+Print Assumptions NC.EnabledAfterComp.dc_eac_fails.
+Print Assumptions NC.EnabledAfterComp.dc_jc.
+Print Assumptions NC.EnabledAfterComp.dc_nf_settled.
+Print Assumptions NC.EnabledAfterComp.dc_stuck.
+Print Assumptions NC.EnabledAfterComp.dc_two_normal_forms.
+Print Assumptions NC.EnabledAfterComp.dc_not_cr.
+Print Assumptions NC.EnabledAfterComp.dc_jc_insufficient.
+Print Assumptions NC.EnabledAfterComp.dc_not_jcg.
+Print Assumptions NC.EnabledAfterComp.fr_reach.
+Print Assumptions NC.EnabledAfterComp.fr_confluent.
+Print Assumptions NC.EnabledAfterComp.nv_inv_ok.
+Print Assumptions NC.EnabledAfterComp.nv_wfc.
+Print Assumptions NC.EnabledAfterComp.nv_locked_invalid.
+Print Assumptions NC.EnabledAfterComp.nv_over_invalid.
+Print Assumptions NC.EnabledAfterComp.nv_reach.
+Print Assumptions NC.EnabledAfterComp.nv_sn.
+Print Assumptions NC.EnabledAfterComp.nv_disables.
+Print Assumptions NC.EnabledAfterComp.nv_enables.
+Print Assumptions NC.EnabledAfterComp.nv_not_eac.
+Print Assumptions NC.EnabledAfterComp.nv_jcg.
+Print Assumptions NC.EnabledAfterComp.nv_confluent.
+Print Assumptions NC.EnabledAfterComp.nv_unique.
+Print Assumptions NC.EnabledAfterComp.nv_emloc.
+Print Assumptions NC.EnabledAfterComp.nv_jcsplit.
+Print Assumptions NC.EnabledAfterComp.nv_nf_ok.
+Print Assumptions NC.EnabledAfterComp.nv_nf_torn.
+Print Assumptions NC.EnabledAfterComp.nv_not_jc.
+Print Assumptions NC.EnabledAfterComp.nv_jc_not_necessary.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1031,8 +1083,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 989 ]; then
-  echo "FAIL: expected 989 axiom-free results, got $N"
+if [ "$N" -lt 1040 ]; then
+  echo "FAIL: expected 1040 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
