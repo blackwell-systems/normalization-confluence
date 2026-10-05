@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 989 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 989 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 1017 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 1017 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -1718,13 +1718,94 @@ domains (`O(prod |X_r| (|V| + |E|))`).
 
 **What this settles.** Together with the NP-completeness of existence (`LOSSY-NETWORKS.md`
 section 3.2, a reduction from 3-SAT, consistent with Cooper, Cohen and Jeavons 1994 as reported by
-David 1995; cited, not mechanized), this is the exact criterion for the regime "non-invertible graphs
+David 1995; the reduction's correctness and size are mechanized in `LossyHardness.v`), this is the exact criterion for the regime "non-invertible graphs
 without a spanning root", and no efficient exact criterion exists unless P = NP: the search over
 the product of the root domains is the irreducible cost, polynomial for a bounded number of source
 components (one, in `rooted_criterion`) and exponential in that number in general. The criterion is
 David's root-set decomposition (JAIR 1995, Theorem 1; the single-root case is Zhang and Yap 2011,
 Corollary 3); what is new here is the axiom-free mechanization, the bijection with root
 assignments, and the recovery of `rooted_criterion`.
+
+## The 3-SAT reduction for lossy networks (`LossyHardness.v`)
+
+`LOSSY-NETWORKS.md` section 3.2 states that deciding whether a lossy network has a section
+(reading A, `msection` of `CohomologyGeneral.v`) is NP-complete, by a reduction from 3-SAT. This
+file mechanizes **the reduction's correctness and its size bound**; it does not formalize Turing
+machines or polynomial time. NP-completeness then follows by the standard argument: membership
+because a section restricted to the network's vertices is a certificate of one value per vertex,
+checked by one table lookup per edge (`np_certificate`), and hardness because the construction is
+linear in the formula (`net_size`, `net_tables`) and preserves satisfiability exactly
+(`net_section_iff_sat`).
+
+**Formulas.** A 3-CNF `f : cnf` is a list of clauses, each three literals `(x, negated)`;
+`satisfies a f` for `a : nat -> bool`, `satisfiable f := exists a, satisfies a f`, with the boolean
+checker `sat_check` (`sat_check_spec`). `occ f` lists the occurring variables, one entry per
+occurrence.
+
+**The construction `net f`** on the single fiber `nat`, with codes `0..7` (three bits) and poison
+`8`:
+
+- a clause vertex `cv j = 2j + 2` per clause, whose value is a 3-bit code;
+- a variable vertex `xv i = 2i + 1` per variable;
+- for the `p`-th literal `x` of clause `C_j`, a projection edge `(cv j, xv x, prj C_j p)`: a code
+  satisfying `C_j` goes to its `p`-th bit, every other value to poison;
+- the **filter gadget** that fits the typed fibers (`{0, 1}` for a variable, the 7 satisfying codes
+  for a clause) into `msection`'s one fiber: a filter vertex `zv = 0` pinned to `0` by the constant
+  self-loop `(zv, zv, pin)`, and a filter edge `(xv x, zv, filt)` per occurrence, with `filt`
+  sending `0, 1` to `0` and everything else to `1`.
+
+**Correctness (exact).**
+
+- `net_section_iff_sat`: `(exists s, msection s (net f)) <-> satisfiable f`, for every 3-CNF `f`
+  (repeated variables in a clause included). The directions are `section_of_sat` (a satisfying
+  assignment `a` gives the section `state_of f a`) and `sat_of_section` (a section `s` gives the
+  satisfying assignment `assign_of s`, reading `xv i`); `section_clause` is the local content: in
+  a section the filter vertex is `0`, each clause value is a satisfying code, and each variable
+  holds the matching bit.
+
+**Parsimony (the count is preserved).**
+
+- `net_bijection`: `state_of` and `assign_of` are mutually inverse between sections, up to
+  equality on the network's vertices `nverts f`, and satisfying assignments, up to equality on the
+  occurring variables: `assign_of (state_of f a) = a`, `state_of f (assign_of s) = s` on
+  `nverts f`, and both are well defined on classes (`state_of_ext`). Corollaries
+  `sections_determined` and `assignments_determined`.
+- `net_count`: the sections recorded on the (duplicate-free) network vertices with values in
+  `{0..8}` (`section_tuples`) and the satisfying assignments recorded on the (duplicate-free)
+  occurring variables (`sat_tuples`) are duplicate-free lists, each characterized exactly, of
+  **equal length**: #sections = #satisfying assignments, as `LOSSY-NETWORKS.md` claims (its
+  "[our conjecture]" on parsimony, now mechanized).
+
+**Size.**
+
+- `net_size`: `length (net f) = 6 |f| + 1` edges; the vertex list `nverts f` has length
+  `4 |f| + 1` and contains every vertex of `net f`.
+- `net_tables`: every map of `net f` sends `{0..8}` into `{0..8}` and is constant from `8` on, so
+  it is a 9-entry table and the network restricts to the 9-element fiber of the note.
+
+**Membership in NP.**
+
+- `np_certificate`: for any network over a fiber with decidable equality listed by `lv`, a section
+  exists iff some tuple of values on the (duplicate-free) vertex list, drawn from `lv`, passes
+  `msection_b` (one equality test per edge; `RootSet.v`). `msection_ext`: a section depends only on
+  the network's vertices.
+- `np_certificate_net`: the same for `net f` with values in `{0..8}` (`cert_ok`).
+
+**The gadget is needed (counterexamples to the reduction without it).**
+
+- `no_filter_trivial`: with the projection edges only (`pedges`), the constant poison state is a
+  section for every formula.
+- `no_pin_trivial`: with projection and filter edges but no pinning self-loop (`cedges`), poison
+  everywhere and `1` at the filter vertex is a section for every formula.
+
+**Instances.**
+
+- `fsat = [x0 \/ x1 \/ x2]`: `fsat_satisfiable`, `fsat_has_section`; `fsat_check` runs the
+  certificate checker on the section of the all-true assignment; `fsat_count`: 7 satisfying
+  assignments and, by direct enumeration of all `9^5` value tuples, 7 sections.
+- `funsat`, the eight clauses on all sign patterns of `x0, x1, x2`: `funsat_unsatisfiable`,
+  `funsat_no_section` (through the reduction), `funsat_count` (0 and 0), and
+  `funsat_gadget_needed` (both gadget-free networks of `funsat` have sections).
 
 ## Stream processors and Stream Convergence (`Stream.v`)
 
@@ -1976,7 +2057,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 989 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1017 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -1988,7 +2069,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 989
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1017
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

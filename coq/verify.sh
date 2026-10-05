@@ -1021,6 +1021,35 @@ Print Assumptions NC.RootSet.scc_forest.
 Print Assumptions NC.RootSet.scc_component.
 Print Assumptions NC.RootSet.scc_consistent_roots.
 Print Assumptions NC.RootSet.scc_unique_section.
+Require NC.LossyHardness.
+Print Assumptions NC.LossyHardness.sat_check_spec.
+Print Assumptions NC.LossyHardness.satisfies_ext.
+Print Assumptions NC.LossyHardness.section_of_sat.
+Print Assumptions NC.LossyHardness.section_clause.
+Print Assumptions NC.LossyHardness.sat_of_section.
+Print Assumptions NC.LossyHardness.net_section_iff_sat.
+Print Assumptions NC.LossyHardness.section_values.
+Print Assumptions NC.LossyHardness.state_of_ext.
+Print Assumptions NC.LossyHardness.net_bijection.
+Print Assumptions NC.LossyHardness.sections_determined.
+Print Assumptions NC.LossyHardness.assignments_determined.
+Print Assumptions NC.LossyHardness.net_size.
+Print Assumptions NC.LossyHardness.net_tables.
+Print Assumptions NC.LossyHardness.msection_ext.
+Print Assumptions NC.LossyHardness.np_certificate.
+Print Assumptions NC.LossyHardness.cert_section.
+Print Assumptions NC.LossyHardness.np_certificate_net.
+Print Assumptions NC.LossyHardness.net_count.
+Print Assumptions NC.LossyHardness.no_filter_trivial.
+Print Assumptions NC.LossyHardness.no_pin_trivial.
+Print Assumptions NC.LossyHardness.fsat_satisfiable.
+Print Assumptions NC.LossyHardness.fsat_has_section.
+Print Assumptions NC.LossyHardness.fsat_check.
+Print Assumptions NC.LossyHardness.fsat_count.
+Print Assumptions NC.LossyHardness.funsat_unsatisfiable.
+Print Assumptions NC.LossyHardness.funsat_no_section.
+Print Assumptions NC.LossyHardness.funsat_count.
+Print Assumptions NC.LossyHardness.funsat_gadget_needed.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1031,8 +1060,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 989 ]; then
-  echo "FAIL: expected 989 axiom-free results, got $N"
+if [ "$N" -lt 1017 ]; then
+  echo "FAIL: expected 1017 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

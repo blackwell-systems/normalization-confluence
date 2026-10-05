@@ -47,3 +47,4 @@ RootlessCycles.v
 CoordinatedExact.v
 AtLeastOnceExact.v
 RootSet.v
+LossyHardness.v
