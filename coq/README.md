@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1198 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 1253 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 1198 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
@@ -935,6 +935,114 @@ Results:
 
 Without M1 the per-edge checks do not compose (`m1_necessary`); with it, they imply the whole-block
 C1cyc and, with C2, `GC` on the image of `N`.
+
+### The distributed model: the exact condition (`DistributedExact.v`)
+
+`FederationEvents.v` proves the distributed model (local events `DEv e` on a registry's own state,
+propagation steps `DProp j` that overwrite `j`'s shared part with the image of its sources'
+*current* states) convergent under `XU` plus each registry's own CC, and nothing more. This file
+gives the exact condition for an acyclic federation, from a fixed valid start `s0` (55 gated
+results, axiom-free). Runs are compared after a final flush `N`, as `dist_interleavings_converge`
+does: `DistConv s0` says every two words of events and propagation steps whose event sequences are
+federated-trace-equivalent give the same `N (drun w s0)`.
+
+**Reachable stale combinations.** A state `t = drun p s0` reached by a distributed run can hold a
+target value `t j` whose shared part is stale: the image of an earlier source state, a value a
+local event wrote, or the start's own value. It will be repaired to the image of the flushed
+sources, `N t`. The pair `(t j, N t)` is a reachable (target state, image) combination.
+
+- `XUat t e`: `ow (sig e (ow (t j))) = ow (sig e (t j))` with `j = reg e`, `ow = f j (N t)`: the
+  XU equation at that combination. `XUR s0`: `XUat t e` at every reachable `t`, every event `e`.
+- `LCCat t e1 e2`: `ow (sig e2 (sig e1 (t j))) = ow (sig e1 (sig e2 (t j)))`, each registry's own
+  CC up to the repair. `LCCR s0`: at every reachable `t`, every declared same-registry pair.
+
+**The exact condition.**
+
+- **`dist_exact`**: `DistConv s0 <-> XUR s0 /\ C2R (N s0)`, where `C2R` is the FedMachine's C2 at
+  states reachable from the flushed start (`FederationEventsConverse.v`).
+- **`dist_exact_local`**: `DistConv s0 <-> XUR s0 /\ LCCR s0`, the reachable forms of the two
+  hypotheses of `dist_interleavings_converge`.
+- `dist_exact_tc`: `DistConv s0 <-> XUR s0 /\ TraceConv (N s0)`: distributed convergence is
+  reachable XU plus FedMachine convergence from the flushed start.
+- The converse is constructive from a failure witness. `dist_xu_runs` computes the runs "event at
+  `t`" (`p ++ [DEv e]`) and "flush, then event" (`p ++ map DProp o ++ [DEv e]`): the same events,
+  and their flushes at `reg e` are the two sides of `XUat t e`, so they differ exactly when it fails
+  (`dist_xu_diverge`). `lcc_runs` does the same for two same-registry events one swap apart.
+- `flush_ev_at`: flushing commutes with an event at `t` iff `XUat t e`; `dist_flush` is
+  `propagation_flush` under reachable XU only. `xur_c1r1`: reachable XU already contains the
+  FedMachine's C1 at reachable witnesses, so the only extra piece is C2.
+
+**(a) XU is sufficient, recovered.** `dist_interleavings_converge_recovered` (XU + LocalCC),
+`xu_exact_condition` (they imply `XUR`, `C2R`, `LCCR` from every valid start), and the weaker
+pair **`dist_xu_c2_converge`**: XU + C2 suffice, without LocalCC.
+
+**(b) Strictly weaker than XU: `levels_exact_not_xu`.** gsm's `levels` federation (the test
+`TestProjection_StaticWitnessUnreachable`): a source flag `on`, a target `(level, count)` with
+`level <= 3`, the morphism writes `level := min on 1`, and `Bump` increments `count` only at
+`level = 3`, which no image produces and no event writes. C1 and C2 hold, XU fails at the valid
+stale state `(3, 0)`, and from every valid start whose target is not at level 3 (every consistent
+start among them) `XUR`, `C2R` and `DistConv` hold. From the stale start `lv_stale` (target at
+level 3) two runs with the same events diverge, so the reachability qualifier is needed.
+
+**(c) Distributed convergence implies FedMachine convergence, not conversely.**
+`dist_implies_fed`: from a valid consistent start, `DistConv s0` gives `TraceConv s0`, hence
+`C1R1 s0 /\ C2R s0` (`fed_exact`); `dist_implies_fed_flush` for any valid start, at `N s0`.
+`dist_strictly_stronger_than_fed`: the federation of `fed_grs_c1_c2_insufficient` (both target
+events flip the shared flag and add it into the local bit; the only image is `false`) has C1 and
+C2, so every FedMachine order converges from every consistent start, but `XUR` fails at the
+consistent start `(false, false)`, and the runs `G1; G2` and `G1; propagate; G2` (the same event
+sequence) flush to `(false, true)` and `(false, false)`.
+
+**Quantifying the start.**
+
+- `dist_exact_global`: convergence from every valid start iff `XUG /\ C2G`, where `XUG` is XU at
+  every valid target state with the image of the *flushed* sources and `C2G` is C2 at every
+  consistent state.
+- `dist_exact_consistent`: convergence from every valid consistent start iff reachable XU from
+  every such start and `C2G`.
+- **`dist_global_exact_roots`**: when every target's sources are roots (their repair is the
+  identity: any two-registry federation, any star), convergence from every valid start iff
+  static `XU /\ C2` (`xug_iff_xu`, `c2g_iff_c2`).
+
+Non-vacuity: `supply_dist_exact` (the `supply_instance` federation satisfies every form from every
+valid start), `levels_exact_not_xu` (the exact condition without XU), and the instance of (c).
+
+**What gsm would check.** gsm's projection check (gsm PR #34, `verifyProjectionMerge`) evaluates
+the XU equation for every target event, every valid target state, and every image in `Img` (the
+images over every valid source state), and Build checks C2.
+
+- *Sound.* For a single-source target that is the Coq `XU` on that target, and Build's C2 is the
+  Coq `C2`, so `dist_xu_c2_converge` certifies convergence from every valid start. It does not
+  need each component's CC, which `dist_interleavings_converge` used.
+- *Exact for every valid start, root sources.* When the target's sources are roots (the common
+  single-edge case), `dist_global_exact_roots` says XU + C2 is exactly "every interleaving
+  converges from every valid start, stale ones included". There it never over-rejects for that
+  question. For a target whose source is itself a target, the exact global condition `XUG` needs
+  only images of flushed (consistent) source states, while `Img` also holds images of
+  inconsistent source states, so XU can over-reject there.
+- *Over-rejection for a deployment that starts consistent* (`Normalize(NewState())`, or any
+  FedMachine state). The exact condition is `dist_exact_consistent`: the XU equation only at the
+  reachable stale combinations `(t j, N t)` from consistent starts, plus C2 (Build's). XU
+  over-rejects exactly when every failing `(b, v)` pair is unreachable: `levels_exact_not_xu` is
+  such a case (a shared value no image produces and no local event writes).
+- *An exact check, and its cost.* For a target `j` whose sources are roots, `XUat t e` depends only
+  on `t` on `src j` and `j` (the roots' flushed states are their own states), and only source
+  events, `j`'s events and `DProp j` change them. So the reachable combinations from consistent
+  starts are a breadth-first search over `valid(sources) x valid(j)` from the consistent pairs
+  `(a, b)` with `b = ow_a(b)`, with moves: a source event, a target event, a propagation
+  `b := ow_a(b)`. At each reached `(a, b)` and each event `e` of `j`, check the XU equation with
+  image `ow_a`; together with Build's C2 this is exact for "every consistent start" (from
+  `dist_exact_consistent`; the enumeration itself is not mechanized). Its pairs are a subset of
+  XU's grid `valid(j) x Img`, so it evaluates no equation XU does not; the extra cost is the
+  search, `|valid(sources)| x |valid(j)|` states with `|events(sources)| + |events(j)| + 1` moves
+  each, against XU's `|events(j)| x |valid(j)| x |Img|` (with `|Img| <= |valid(sources)|`): the
+  same order. For a target below another target, stale images of stale sources make the exact
+  set depend on the whole ancestor cone (a search over the product of their state spaces);
+  treating the source as free (any valid source state at any time) gives a sound relaxation that
+  still lies inside XU's grid and still accepts `levels`.
+
+The model's `DProp j` is the resolver merge over all of `j`'s sources; gsm's `SharedProjection`
+sends one edge's image, which is why gsm reports multi-source targets as not certified.
 
 ## Finiteness only for checking (`GovernanceWF.v`, `ChaoticACC.v`)
 
@@ -2255,7 +2363,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 1198 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1253 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

@@ -1234,6 +1234,62 @@ Print Assumptions NC.EnabledAfterComp.nv_nf_ok.
 Print Assumptions NC.EnabledAfterComp.nv_nf_torn.
 Print Assumptions NC.EnabledAfterComp.nv_not_jc.
 Print Assumptions NC.EnabledAfterComp.nv_jc_not_necessary.
+Require NC.DistributedExact.
+Print Assumptions NC.DistributedExact.drun_app.
+Print Assumptions NC.DistributedExact.drun_props.
+Print Assumptions NC.DistributedExact.evs_app.
+Print Assumptions NC.DistributedExact.evs_props.
+Print Assumptions NC.DistributedExact.evs_evs.
+Print Assumptions NC.DistributedExact.ok_app.
+Print Assumptions NC.DistributedExact.ok_evs.
+Print Assumptions NC.DistributedExact.ok_props.
+Print Assumptions NC.DistributedExact.drun_inv.
+Print Assumptions NC.DistributedExact.f_ext.
+Print Assumptions NC.DistributedExact.N_at.
+Print Assumptions NC.DistributedExact.N_out.
+Print Assumptions NC.DistributedExact.N_src_ev.
+Print Assumptions NC.DistributedExact.f_N_ev.
+Print Assumptions NC.DistributedExact.N_ev_at.
+Print Assumptions NC.DistributedExact.flush_ev_at.
+Print Assumptions NC.DistributedExact.flush_reach.
+Print Assumptions NC.DistributedExact.dist_flush.
+Print Assumptions NC.DistributedExact.dist_xu_runs.
+Print Assumptions NC.DistributedExact.dist_xu_diverge.
+Print Assumptions NC.DistributedExact.lcc_runs.
+Print Assumptions NC.DistributedExact.dist_xur_nec.
+Print Assumptions NC.DistributedExact.dist_lcc_nec.
+Print Assumptions NC.DistributedExact.dist_tc.
+Print Assumptions NC.DistributedExact.dist_suff.
+Print Assumptions NC.DistributedExact.dist_exact_tc.
+Print Assumptions NC.DistributedExact.reach_flush.
+Print Assumptions NC.DistributedExact.ok_reach.
+Print Assumptions NC.DistributedExact.xur_c1r1.
+Print Assumptions NC.DistributedExact.dist_exact.
+Print Assumptions NC.DistributedExact.xur_lcc_c2r.
+Print Assumptions NC.DistributedExact.dist_exact_local.
+Print Assumptions NC.DistributedExact.xu_xur.
+Print Assumptions NC.DistributedExact.xu_exact_condition.
+Print Assumptions NC.DistributedExact.dist_interleavings_converge_recovered.
+Print Assumptions NC.DistributedExact.dist_xu_c2_converge.
+Print Assumptions NC.DistributedExact.dist_implies_fed_flush.
+Print Assumptions NC.DistributedExact.dist_implies_fed.
+Print Assumptions NC.DistributedExact.C2at_feq.
+Print Assumptions NC.DistributedExact.c2g_c2r.
+Print Assumptions NC.DistributedExact.c2r_c2g_at.
+Print Assumptions NC.DistributedExact.dist_exact_global.
+Print Assumptions NC.DistributedExact.dist_exact_consistent.
+Print Assumptions NC.DistributedExact.src_ne.
+Print Assumptions NC.DistributedExact.f_root_upd.
+Print Assumptions NC.DistributedExact.xug_iff_xu.
+Print Assumptions NC.DistributedExact.c2g_iff_c2.
+Print Assumptions NC.DistributedExact.dist_global_exact_roots.
+Print Assumptions NC.DistributedExact.supply_dist_exact.
+Print Assumptions NC.DistributedExact.lv_common.
+Print Assumptions NC.DistributedExact.lv_reach.
+Print Assumptions NC.DistributedExact.lv_xur.
+Print Assumptions NC.DistributedExact.lv_c2r.
+Print Assumptions NC.DistributedExact.levels_exact_not_xu.
+Print Assumptions NC.DistributedExact.dist_strictly_stronger_than_fed.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1244,8 +1300,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1198 ]; then
-  echo "FAIL: expected 1198 axiom-free results, got $N"
+if [ "$N" -lt 1253 ]; then
+  echo "FAIL: expected 1253 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

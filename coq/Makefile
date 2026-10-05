@@ -237,3 +237,9 @@ all: EnabledAfterComp.vo
 
 EnabledAfterComp.vo: EnabledAfterComp.v Newman.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo
 	coqc -Q . NC EnabledAfterComp.v
+
+# The exact condition for the distributed model with propagation steps (DistributedExact.v).
+all: DistributedExact.vo
+
+DistributedExact.vo: DistributedExact.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo
+	coqc -Q . NC DistributedExact.v

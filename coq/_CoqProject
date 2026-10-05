@@ -51,3 +51,4 @@ CvRDTExact.v
 LossyHardness.v
 RootSetEvents.v
 EnabledAfterComp.v
+DistributedExact.v
