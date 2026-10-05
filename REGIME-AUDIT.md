@@ -7,10 +7,22 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Audited at `main` `70646f6` (gate: `coq/verify.sh`, 1783 axiom-free results) and
-gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39 since then are
-documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not matched by
-name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
+It adds no proofs. Current at `main` `dc610a9` (gate: `coq/verify.sh`, 1968 axiom-free results;
+the fifth revision was audited at `70646f6`, gate 1783, and the rows #80 and #81 changed were read
+at `dc610a9`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
+matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
+
+Current state. Open convergence gaps: 2, 3, 5 and 14; gaps 8 and 9 are design exclusions. The
+optimization and counting gaps 10, 11 and 12 are closed with exact theorems and mechanized hardness
+reductions, and gap 13 is closed on the registry-level site with two residues at paper level (the
+variable-level and monotone-overlap site, and a sheaf condition for relative certificates on covers
+not closed under sources). Gap 3 has progress, not closure: sufficient signed certificates for E on
+the global interaction graph (`signed_settlement`, `signed_fidelity`), with Harary's balance
+theorem proved for finite signed graphs (`harary_balance`) and the loop-versus-merge separation
+(`obstruction_loop_vs_merge`). Every open convergence gap is cyclic, and
+[the cyclic frontier](#the-cyclic-frontier) states them as one question: what additional structure
+makes P, the composition layer of the canonical-execution framework, exact on cycles.
 
 History. The first version of this audit (at `bb8ea95`, gate 729) checked the earlier headline,
 which called the map "complete" with "exact conditions in every regime", and found both words
@@ -532,3 +544,25 @@ Still open:
   `cert_needs_sc` shows that SC, not R2, is what makes a certificate land in its sections, so
   `prop:gluing`'s R2 clause needs a wording fix.
 - `coq/PAPER-MAP.md` was written at the 254-theorem gate; its status columns predate WP1 to WP9.
+  It carries a status note pointing here, and its tables are kept as a historical snapshot.
+
+Found in the sixth revision (at the 1968 gate), fixed in the same PR:
+
+- `README.md`: the theorem count said 1783; the open-gap list did not mention the signed
+  certificates on gap 3 or the second gap-13 residue (relative certificates on covers not closed
+  under sources).
+- `docs/SUBSUMPTION.md` and `coq/docs/federation-repair.md`: the count said 1783.
+- `docs/LANDSCAPE.md`: two passages still called paper level the necessity counterexamples for
+  acyclicity and M1 (`prop_cycle_necessary`, `prop_m1_necessary`), the minimal-coordination
+  complexity (`maxcut_reduction`, `lmin_reduction`), the rank on the 2-complex
+  (`nerve_H1_classification`), the non-invertible case (`root_set_criterion_graph`) and the sheaf
+  assembly on the registry-level site (`sheaf_iff_refines`); and the formalization survey said no
+  formalization of gain-graph balance was found, which `harary_balance` now supplies at Z/2.
+- `docs/THEORY.md`, "What's new here": item 1's [paper] list named the necessity counterexamples,
+  the complexity bound and the rest of the calculus, gated since WP1 to WP9 (`thm_necessity`,
+  `prop_cc_necessary`, `base_thm_complexity_per_event`, `base_thm_strong_absorption`,
+  `calc_decomp_normalizer`, `base_thm_product`; the asymptotic cost model stays paper level); item
+  2's named the authority and resolution theorems and the necessity of acyclicity and M1, gated in
+  their corrected form (`fed_lem_authority_c_corrected`, `fed_thm_fed_convergence_corrected`) and
+  as `prop_cycle_necessary`, `prop_m1_necessary`.
+- `docs/COMPANION-OUTLINE.md`: no note at the top said its status lines are a snapshot.

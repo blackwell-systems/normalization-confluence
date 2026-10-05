@@ -1,5 +1,10 @@
 # Companion paper: outline and decisions
 
+> **Status note.** The mechanization-status lines on this page are a historical snapshot from the
+> outline stage and the 254-theorem gate (the gate is now 1968), and much of what they list as
+> paper level is now mechanized. They are kept as written.
+> [REGIME-AUDIT.md](../REGIME-AUDIT.md) is the current status, regime by regime.
+
 Status: planning artifact for the companion to the two published papers. Not prose yet. This
 records the thesis, contribution ranking, framing decisions, the inhabitation result, related-work
 positioning, and the mechanization status, so drafting starts from settled ground.
