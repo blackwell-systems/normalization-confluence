@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1123 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 989 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 1253 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 1198 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -508,6 +508,83 @@ form is its instance with `hb` empty. Axiom-free:
   max-register), `n_causal_alo_exact` (GovernanceConverse's `n_step`: `CCR` holds from `0` but
   `cc_concurrent` fails, so `causal_alo_exactly_once` does not apply, yet every causally consistent
   at-least-once delivery converges from `0`).
+
+## State-based CRDTs, exact (`CvRDTExact.v`)
+
+`CRDT.v` proves the sufficient direction for a state-based CRDT (`cvrdt_SEC`,
+`cvrdt_absorbs_duplicates`). `CvRDTExact.v` places that model under the exact theorems of the single
+registry and of at-least-once delivery, and proves the exact converse. Setting: a
+compensation-free registry (every state valid, identity repair), so the governed step of an event
+`e` is its action `act e`; a CvRDT is the instance with payload states as events and
+`act x s = join s x`. `X` is the set of events in range, `s0` the start state, and `Reach s0 s`
+means `s` is reached from `s0` by some delivery over `X`, duplicates allowed.
+
+**The registry's exact theorem, compensation-free.** `cf_cc_exact_from` (through
+`canonical_cc_exact_from`) and `cf_cc_exact_from_wfc` (through `cc_exact_from`): every buffer from
+`s0` has a unique normal form iff the actions commute at every state reachable from `s0`; CC2 is
+vacuous. `cf_reach_iff`: those reachable states are the runs from `s0`. `cf_star_run`,
+`cf_un_perm`: unique normal forms give order independence of permuted deliveries.
+
+**The exact converse.** `MergeConv s0`: every two deliveries over `X` with the same set of events
+(any order, any duplication) reach the same state from `s0`.
+
+- `mergeconv_alo`, `merge_conv_alo_exact`: `MergeConv s0` is `AtLeastOnceExact.ALOConv`, so it is
+  equivalent to `alo_exact`'s conditions (commutation at reachable exactly-once states,
+  idempotence at reachable first deliveries).
+- **`merge_action_exact`**: `MergeConv s0` iff the action is commutative and idempotent at every
+  reachable state: `act y (act x s) = act x (act y s)` and `act x (act x s) = act x s` for
+  `Reach s0 s`, `X x`, `X y`. The actions of `X`, restricted to the reachable states, are an
+  action of the free semilattice on `X`.
+- `CvRDTOn s0` makes "is a state-based CRDT" precise: some `j` is a join-semilattice on the
+  reachable states (closed, commutative, associative, idempotent there) and every event in range
+  acts as a join with a fixed state, `act e s = j s (act e s0)` for reachable `s`.
+  `cvrdt_on_conv`: `CvRDTOn s0 -> MergeConv s0`. `conv_cvrdt_on`: the converse, when `X` is finite
+  and state equality is decidable (the join is computed without choice: `j s t` merges into `s` the
+  events of a subset of `X` that reaches `t`). **`cvrdt_on_exact`**: under those qualifiers,
+  `MergeConv s0 <-> CvRDTOn s0`; `cvrdt_exact_all` states both iffs. So a compensation-free
+  registry converges under every order and every duplication exactly when, on its reachable
+  states, it is a state-based CRDT with payload `e` read as the state `act e s0`.
+  `cvrdt_on_inflationary`: in that representation every event is inflationary in the join order.
+
+**The CvRDT instance.** For a commutative, associative, idempotent `join`: `cvrdt_action`
+(commutative and idempotent at every state), `cvrdt_merge_conv` (through `merge_action_exact`),
+`cvrdt_alo` (through `alo_exact`), `cvrdt_cc` and `cvrdt_unique_normal_forms` (through
+`cf_cc_exact_from`), `cvrdt_on_join` (`CvRDTOn` with `j = join`, for every `s0` and `X`, no
+finiteness). Recovered: `cvrdt_SEC_via_cc` and `cvrdt_SEC_recovered` (`CRDT.cvrdt_SEC`, through the
+registry's theorem and through `MergeConv`), `cvrdt_set_SEC` (same event set, any duplication:
+stronger than a permutation), `cvrdt_absorbs_duplicates_recovered` (through `alo_idem_reachable`).
+`cvrdt_causal_cmrdt`, `cvrdt_compensation_free`: the merges also meet the op-based condition of
+`CausalReplay.compensation_free_exact`.
+
+**The monotone regime.** With `le a b := join a b = b`, merges are inflationary and monotone
+(`merge_inflationary`, `merge_monotone`), and a delivery reaches the least upper bound of `s0` and
+the delivered payloads (`run_upper`, `run_least`), equivalently the least common fixed point above
+`s0` of the delivered merges (`cvrdt_lfp`): the least-fixed-point characterization of the
+monotone regime, with nothing to repair. A state-based CRDT is the compensation-free monotone
+case.
+
+**Counterexamples.**
+
+- `naive_cvrdt_iff_fails`: "converges under every order and duplication iff the merge is a
+  join-semilattice on the whole state space" is false. `ignore_conv`, `ignore_not_comm`: the merge
+  `m s x = s` converges from every `s0` for every `X` and is not commutative (it is still
+  `CvRDTOn`, `ignore_cvrdt_on`: its reachable set is `{s0}`). `zero_conv`, `zero_not_idem`: `m s x = 0`
+  converges and is not idempotent. The semilattice laws of the merge are sufficient, not necessary.
+- `clamp_reach_qualifier`: the reachability qualifier is needed. On `nat` with `X = {x <= 5}`,
+  `act x s = max s x` for `s <= 5` and `s + x` above: `MergeConv` holds from 0, the action is not
+  idempotent at the unreachable 6, and `MergeConv` fails from 6. `clamp_cvrdt_on`: from 0 it is a
+  state-based CRDT on its reachable states (through `conv_cvrdt_on`), though not a semilattice on
+  `nat`.
+- `add_cc_not_alo`: the idempotence clause is needed and is not implied by the registry's exact
+  condition. The counter `act x s = s + x` has unique normal forms for every buffer from every
+  state, yet a duplicate diverges.
+- `lww_not_conv`: the commutation clause is needed. Overwrite (`act x s = x`) is idempotent at every
+  state and diverges.
+
+**Non-vacuity.** `maxreg_exact` (max-register), `gcounter_exact` (a two-replica G-Counter, pointwise
+max on `nat * nat`), `gset_exact` (a grow-only set as a bitset, union `Nat.lor`), each with
+`MergeConv`, `CvRDTOn`, at-least-once convergence and unique normal forms for every `X` and `s0`
+(`cvrdt_all`), and computed duplicate deliveries `maxreg_dup`, `gcounter_dup`, `gset_dup`.
 
 ## The converse: CC and causal convergence are exact (`GovernanceConverse.v`)
 
@@ -1871,13 +1948,94 @@ domains (`O(prod |X_r| (|V| + |E|))`).
 
 **What this settles.** Together with the NP-completeness of existence (`LOSSY-NETWORKS.md`
 section 3.2, a reduction from 3-SAT, consistent with Cooper, Cohen and Jeavons 1994 as reported by
-David 1995; cited, not mechanized), this is the exact criterion for the regime "non-invertible graphs
+David 1995; the reduction's correctness and size are mechanized in `LossyHardness.v`), this is the exact criterion for the regime "non-invertible graphs
 without a spanning root", and no efficient exact criterion exists unless P = NP: the search over
 the product of the root domains is the irreducible cost, polynomial for a bounded number of source
 components (one, in `rooted_criterion`) and exponential in that number in general. The criterion is
 David's root-set decomposition (JAIR 1995, Theorem 1; the single-root case is Zhang and Yap 2011,
 Corollary 3); what is new here is the axiom-free mechanization, the bijection with root
 assignments, and the recovery of `rooted_criterion`.
+
+## The 3-SAT reduction for lossy networks (`LossyHardness.v`)
+
+`LOSSY-NETWORKS.md` section 3.2 states that deciding whether a lossy network has a section
+(reading A, `msection` of `CohomologyGeneral.v`) is NP-complete, by a reduction from 3-SAT. This
+file mechanizes **the reduction's correctness and its size bound**; it does not formalize Turing
+machines or polynomial time. NP-completeness then follows by the standard argument: membership
+because a section restricted to the network's vertices is a certificate of one value per vertex,
+checked by one table lookup per edge (`np_certificate`), and hardness because the construction is
+linear in the formula (`net_size`, `net_tables`) and preserves satisfiability exactly
+(`net_section_iff_sat`).
+
+**Formulas.** A 3-CNF `f : cnf` is a list of clauses, each three literals `(x, negated)`;
+`satisfies a f` for `a : nat -> bool`, `satisfiable f := exists a, satisfies a f`, with the boolean
+checker `sat_check` (`sat_check_spec`). `occ f` lists the occurring variables, one entry per
+occurrence.
+
+**The construction `net f`** on the single fiber `nat`, with codes `0..7` (three bits) and poison
+`8`:
+
+- a clause vertex `cv j = 2j + 2` per clause, whose value is a 3-bit code;
+- a variable vertex `xv i = 2i + 1` per variable;
+- for the `p`-th literal `x` of clause `C_j`, a projection edge `(cv j, xv x, prj C_j p)`: a code
+  satisfying `C_j` goes to its `p`-th bit, every other value to poison;
+- the **filter gadget** that fits the typed fibers (`{0, 1}` for a variable, the 7 satisfying codes
+  for a clause) into `msection`'s one fiber: a filter vertex `zv = 0` pinned to `0` by the constant
+  self-loop `(zv, zv, pin)`, and a filter edge `(xv x, zv, filt)` per occurrence, with `filt`
+  sending `0, 1` to `0` and everything else to `1`.
+
+**Correctness (exact).**
+
+- `net_section_iff_sat`: `(exists s, msection s (net f)) <-> satisfiable f`, for every 3-CNF `f`
+  (repeated variables in a clause included). The directions are `section_of_sat` (a satisfying
+  assignment `a` gives the section `state_of f a`) and `sat_of_section` (a section `s` gives the
+  satisfying assignment `assign_of s`, reading `xv i`); `section_clause` is the local content: in
+  a section the filter vertex is `0`, each clause value is a satisfying code, and each variable
+  holds the matching bit.
+
+**Parsimony (the count is preserved).**
+
+- `net_bijection`: `state_of` and `assign_of` are mutually inverse between sections, up to
+  equality on the network's vertices `nverts f`, and satisfying assignments, up to equality on the
+  occurring variables: `assign_of (state_of f a) = a`, `state_of f (assign_of s) = s` on
+  `nverts f`, and both are well defined on classes (`state_of_ext`). Corollaries
+  `sections_determined` and `assignments_determined`.
+- `net_count`: the sections recorded on the (duplicate-free) network vertices with values in
+  `{0..8}` (`section_tuples`) and the satisfying assignments recorded on the (duplicate-free)
+  occurring variables (`sat_tuples`) are duplicate-free lists, each characterized exactly, of
+  **equal length**: #sections = #satisfying assignments, as `LOSSY-NETWORKS.md` claims (its
+  "[our conjecture]" on parsimony, now mechanized).
+
+**Size.**
+
+- `net_size`: `length (net f) = 6 |f| + 1` edges; the vertex list `nverts f` has length
+  `4 |f| + 1` and contains every vertex of `net f`.
+- `net_tables`: every map of `net f` sends `{0..8}` into `{0..8}` and is constant from `8` on, so
+  it is a 9-entry table and the network restricts to the 9-element fiber of the note.
+
+**Membership in NP.**
+
+- `np_certificate`: for any network over a fiber with decidable equality listed by `lv`, a section
+  exists iff some tuple of values on the (duplicate-free) vertex list, drawn from `lv`, passes
+  `msection_b` (one equality test per edge; `RootSet.v`). `msection_ext`: a section depends only on
+  the network's vertices.
+- `np_certificate_net`: the same for `net f` with values in `{0..8}` (`cert_ok`).
+
+**The gadget is needed (counterexamples to the reduction without it).**
+
+- `no_filter_trivial`: with the projection edges only (`pedges`), the constant poison state is a
+  section for every formula.
+- `no_pin_trivial`: with projection and filter edges but no pinning self-loop (`cedges`), poison
+  everywhere and `1` at the filter vertex is a section for every formula.
+
+**Instances.**
+
+- `fsat = [x0 \/ x1 \/ x2]`: `fsat_satisfiable`, `fsat_has_section`; `fsat_check` runs the
+  certificate checker on the section of the all-true assignment; `fsat_count`: 7 satisfying
+  assignments and, by direct enumeration of all `9^5` value tuples, 7 sections.
+- `funsat`, the eight clauses on all sign patterns of `x0, x1, x2`: `funsat_unsatisfiable`,
+  `funsat_no_section` (through the reduction), `funsat_count` (0 and 0), and
+  `funsat_gadget_needed` (both gadget-free networks of `funsat` have sections).
 
 ## The exact event-order condition under root-set coordination (`RootSetEvents.v`)
 
@@ -2193,7 +2351,9 @@ Kept at paper level after the first mechanization pass, and since mechanized:
   `thm_obstruction_reachable`, `CohomologyGeneral.v`); with a root, iff the driven state satisfies
   every non-tree edge (`rooted_criterion`); and on any graph, iff some assignment of a root set's
   values drives a consistent state (`root_set_criterion_graph`, `RootSet.v`), where deciding it is
-  NP-complete in general (cited, not mechanized).
+  NP-complete in general (the 3-SAT reduction's correctness, parsimony and size, and the NP
+  certificate, are mechanized in `LossyHardness.v`; NP-completeness follows by the standard
+  argument).
 - The operational core of that story is `gsm`'s `Federation.DiagnoseCycle` (the loop-composite
   fixed-point / orbit test). Its reading is mechanized: no section iff no seed reaches a fixed point
   (`c15_exact_refuter`), and one seed is definitive on the regular action
@@ -2203,7 +2363,7 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 1123 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1253 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
@@ -2215,7 +2375,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 989
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1198
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

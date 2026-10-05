@@ -4,10 +4,10 @@ Goal: a theory in which every remaining caveat is either a deliberate design exc
 fundamental limit, and nothing is merely unproven. This page lists each caveat the development
 still carries, what removing it would prove, how, what it depends on, and when it counts as done.
 
-Status of the gate: 989 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 1198 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54, #55) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #59) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -30,6 +30,10 @@ proven until it lands in a module and passes the gate.
 | Rootless invertible cycles | `RootlessCycles.v` | `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | #48 |
 | Root-set criterion for non-invertible networks | `RootSet.v` | `root_set_iff_forest`, `root_set_criterion_graph`, `root_set_count`, `root_set_decide` | #54 |
 | Exact at-least-once delivery, free and causal | `AtLeastOnceExact.v` | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `notidem_needs_dedup`, `gsm_unlisted_safe` | #55 |
+| Exact confluence when compensation may disable a buffered event (audit gap 6) | `EnabledAfterComp.v` | `jcg_exact`, `jcsplit_exact`, `jc_exact_recovered`, `gnf_iff`, `dc_jc_insufficient`, `nv_jc_not_necessary` | #56 |
+| Lossy-network hardness: the 3-SAT reduction mechanized | `LossyHardness.v` | `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` | #57 |
+| State-based CRDT merges through the exact theorems (audit gap 7) | `CvRDTExact.v` | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_exact`, `naive_cvrdt_iff_fails` | #58 |
+| Exact event order under root-set coordination (audit gap 4) | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | #59 |
 | gsm check for **C2** (same-target event pairs, repair in between) | gsm | gsm PR #26 | gsm |
 | gsm `EmbedCertified` executes the **certified tables** instead of live closures | gsm | gsm PR #27 | gsm |
 
@@ -45,7 +49,13 @@ naive statements are false, and each has a mechanized counterexample:
 - **CC converse.** Needs canonical repair (`rho_star` returns a valid state): with the identity as
   `rho_star`, CC1 fails yet normal forms are unique (`rho_star_qualifier`). Under causal or guarded
   enabledness CC1 is not necessary (`masked_cc1`); the exact condition is joinability of critical
-  pairs at reachable configurations (`jc_exact`).
+  pairs at reachable configurations (`jc_exact`). When a compensation step can disable a buffered
+  event, JC is neither sufficient (`dc_jc_insufficient`) nor necessary (`nv_jc_not_necessary`); the
+  exact condition is JC' (`jcg_exact`).
+- **State-based CRDTs.** Convergence of merges under every order and duplication is not "the merge
+  is a join-semilattice on all states" (`naive_cvrdt_iff_fails`); the exact condition is
+  commutation and idempotence at reachable states (`merge_action_exact`), and reachability is
+  needed (`clamp_reach_qualifier`).
 - **Causal converse.** Reachability of the state is not enough; the non-commuting concurrent pair
   must be deliverable after a causally consistent prefix (`naive_causal_converse_fails`).
 - **At-least-once.** Idempotence of each duplicated event is not enough under causal delivery: the
@@ -252,30 +262,35 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 The convergence regimes that still lack an exact condition, consistent with
 [REGIME-AUDIT.md](REGIME-AUDIT.md) (its gap numbers in parentheses). Every other regime has a
-machine-checked exact condition, or a cited hardness result where no efficient one exists.
+machine-checked exact condition, or a hardness result where no efficient one exists (for lossy
+networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 
 | Item | Status | Size |
 |---|---|---|
 | Distributed propagation model: exact converse of `dist_interleavings_converge` (acyclic), and a model for cycles (gap 1) | acyclic sufficient only; cyclic not modeled | medium; large |
 | Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | open | medium |
 | Rootless propagation on non-invertible networks, resolver reading (gap 3; `LOSSY-NETWORKS.md` P2, PR #52) | open | medium to large |
-| Event order under non-invertible root-set coordination (gap 4; P6) | open | small |
+| Event order under non-invertible root-set coordination (gap 4; P6) | done, #59 (`forest_events_exact`) | n/a |
 | Cyclic monotone collapse (gap 5) | paper only | medium to large |
-| Enabledness that a compensation step can disable (gap 6; outside `jc_exact`'s `enabled_after_comp`) | open | small to medium |
-| State-based CRDT merges as an instance of the exact theorems (gap 7) | open | small |
+| Enabledness that a compensation step can disable (gap 6; outside `jc_exact`'s `enabled_after_comp`) | done, #56 (`jcg_exact`) | n/a |
+| State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`) | n/a |
+| Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence (`LOSSY-NETWORKS.md` 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
 
 Optimization and counting, which do not bear on when state converges: minimum coordination on
 invertible cycles tied to the authority-root plan model (its NP-hardness is cited), minimum
 coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and sheaf gluing
-(audit gaps 10 to 13).
+(audit gaps 10 to 13). Open convergence items after #56 to #59: gaps 1, 2, 3 and 5 (four), plus
+the design exclusion of gap 8.
 
 ## Removable caveats, lower value
 
 - **Non-invertible cycles, mechanized criterion.** Done: a section around a cycle exists iff the
   loop composite has a reachable fixed point (`thm_obstruction_general`,
   `thm_obstruction_reachable`, `CohomologyGeneral.v`, #36), and on any graph iff some root
-  assignment of a root set drives a consistent state (`root_set_criterion_graph`, `RootSet.v`, #54).
+  assignment of a root set drives a consistent state (`root_set_criterion_graph`, `RootSet.v`, #54);
+  deciding that is NP-complete, with the reduction mechanized (`LossyHardness.v`, #57), and event
+  order under root-set coordination is exact (`forest_events_exact`, `RootSetEvents.v`, #59).
 - **Distributed model for cycles.** `FederationEvents.v` proves a distributed model (local events
   and separate propagation steps) for acyclic federations, with a sufficient condition only; state
   the exact converse there, and extend the model to monotone cycles.
@@ -310,7 +325,7 @@ coordination on non-invertible networks, the rank of `H^1` on the 2-complex, and
 
 Items 1 to 4 and 6, the monotone-cycle event result, the C1/C2 converse and item 7's work packages
 have landed, so their theorem statements are fixed and item 5 can start. The open items above are
-independent of item 5 and of each other; the smallest are event order under root-set coordination
-and the state-based CRDT instance. When item 5 and the open items land, every remaining caveat on
+independent of item 5 and of each other; the smallest two (event order under root-set coordination
+and the state-based CRDT instance) landed in #59 and #58, with #56 and #57. When item 5 and the open items land, every remaining caveat on
 this page is either a design exclusion (least fixed points without ACC) or a fundamental limit; the
 lower-value items above remain open.

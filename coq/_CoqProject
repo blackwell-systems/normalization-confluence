@@ -47,6 +47,8 @@ RootlessCycles.v
 CoordinatedExact.v
 AtLeastOnceExact.v
 RootSet.v
+CvRDTExact.v
+LossyHardness.v
 RootSetEvents.v
 EnabledAfterComp.v
 DistributedExact.v
