@@ -38,3 +38,4 @@ RhoStar.v
 CategoricalBridge.v
 FederationEventsCyclesCheck.v
 FederationGRS.v
+Collapse.v

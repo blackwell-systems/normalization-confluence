@@ -692,6 +692,53 @@ Print Assumptions gg_paper.
 Print Assumptions fed_grs_c1_c2_insufficient.
 Print Assumptions fed_cor_fed_nf_refuted.
 Print Assumptions fed_lem_authority_a_instance.
+Require Import NC.Collapse.
+Print Assumptions topoF_acyclic.
+Print Assumptions collapse_block_order.
+Print Assumptions collapse_contract_topo.
+Print Assumptions collapse_contract_acyclic.
+Print Assumptions collapse_every_order_refuted.
+Print Assumptions collapse_convexity_needed.
+Print Assumptions collapse_a_wfc.
+Print Assumptions collapse_a_guarded.
+Print Assumptions collapse_a_guarded_perm.
+Print Assumptions collapse_a_guarded_exact.
+Print Assumptions collapse_b_import_iff.
+Print Assumptions collapse_b_export_iff.
+Print Assumptions collapse_b_import_corrected.
+Print Assumptions collapse_b_export_corrected.
+Print Assumptions collapse_nf_agree.
+Print Assumptions collapse_nf_factor.
+Print Assumptions collapse_c_runs_agree.
+Print Assumptions collapse_c_traceconv.
+Print Assumptions collapse_c_exact.
+Print Assumptions collapse_modular_c1.
+Print Assumptions collapse_modular_c2.
+Print Assumptions collapse_modular_converges.
+Print Assumptions collapse_regroup.
+Print Assumptions collapse_hierarchical.
+Print Assumptions collapse_product_convex.
+Print Assumptions collapse_c_guarded_iff.
+Print Assumptions collapse_c_unguarded_iff.
+Print Assumptions collapse_c_guarded_exact.
+Print Assumptions collapse_c_guarded_c1_c2.
+Print Assumptions collapse_a_refuted.
+Print Assumptions collapse_b_import_refuted.
+Print Assumptions collapse_b_export_refuted.
+Print Assumptions port_c1_transfer.
+Print Assumptions port_c2_transfer.
+Print Assumptions port_interior_certificate.
+Print Assumptions port_interior_invariant.
+Print Assumptions port_sealed_write_refuted.
+Print Assumptions chain_collapse_instance.
+Print Assumptions chain_common.
+Print Assumptions chain_c1.
+Print Assumptions chain_c2.
+Print Assumptions chain_convex.
+Print Assumptions bi_common.
+Print Assumptions sub_common.
+Print Assumptions path_first.
+Print Assumptions path_last.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -702,8 +749,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 669 ]; then
-  echo "FAIL: expected 669 axiom-free results, got $N"
+if [ "$N" -lt 715 ]; then
+  echo "FAIL: expected 715 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

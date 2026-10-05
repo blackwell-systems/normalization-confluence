@@ -159,3 +159,9 @@ all: FederationGRS.vo
 
 FederationGRS.vo: FederationGRS.v Newman.vo Governance.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo GovernanceConverse.vo
 	coqc -Q . NC FederationGRS.v
+
+# Compositional collapse: sub-federations as effective registries (Collapse.v).
+all: Collapse.vo
+
+Collapse.vo: Collapse.v Newman.vo Governance.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo GovernanceConverse.vo FederationGRS.vo
+	coqc -Q . NC Collapse.v
