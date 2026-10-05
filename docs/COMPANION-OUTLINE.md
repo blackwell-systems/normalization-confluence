@@ -164,8 +164,8 @@ Snapshot from the outline stage (gate at 29 to 33 theorems). Since then the item
 paper-level have been mechanized: `H^1` as a quotient with cycle-basis generators and rank
 `|E| - |V| + 1`, non-abelian included (`CohomologyGraph.v`, `CohomologyMin.v`), and full
 order-independence over all topological orders (`FederationOrder.v`, by bubbling, without
-linear-extension connectivity). The gate is now at 254 theorems; `coq/README.md` is the current
-status.
+linear-extension connectivity). The gate has grown well past this snapshot (2012 theorems at the time of writing);
+`coq/README.md` and `coq/verify.sh` are the current status.
 The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theorems):
 - Lemma 0: image = fixed-point set = equalizer of (id, rho).
 - Proposition 1: the consistent set is the equalizer of the shared-component and resolver-value maps
