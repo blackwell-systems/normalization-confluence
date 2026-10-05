@@ -1632,6 +1632,116 @@ Print Assumptions NC.LossyMinimum.bow_lmin.
 Print Assumptions NC.LossyMinimum.fsat_lmin.
 Print Assumptions NC.LossyMinimum.funsat_lmin.
 Print Assumptions NC.LossyMinimum.c22_certificate.
+Require NC.CanonicalExecution.
+Require NC.CanonicalInstances.
+Print Assumptions NC.CanonicalExecution.canon_equiv_N.
+Print Assumptions NC.CanonicalExecution.state_descent_iff_respects_canon.
+Print Assumptions NC.CanonicalExecution.grun_snoc.
+Print Assumptions NC.CanonicalExecution.grun_canonical.
+Print Assumptions NC.CanonicalExecution.normalization_descent.
+Print Assumptions NC.CanonicalExecution.normalization_descent_from.
+Print Assumptions NC.CanonicalExecution.rho_star_canonicalizer.
+Print Assumptions NC.CanonicalExecution.state_descent_iff_cc2.
+Print Assumptions NC.CanonicalExecution.joinable_sym.
+Print Assumptions NC.CanonicalExecution.join_back_star.
+Print Assumptions NC.CanonicalExecution.cr_join_reach.
+Print Assumptions NC.CanonicalExecution.peak_exact.
+Print Assumptions NC.CanonicalExecution.classified_peak_exact.
+Print Assumptions NC.CanonicalExecution.empty_kind_joins.
+Print Assumptions NC.CanonicalExecution.ac_adm.
+Print Assumptions NC.CanonicalExecution.ac_sem.
+Print Assumptions NC.CanonicalExecution.history_descent_exact.
+Print Assumptions NC.CanonicalExecution.proj_app.
+Print Assumptions NC.CanonicalExecution.proj_internal.
+Print Assumptions NC.CanonicalExecution.proj_inj.
+Print Assumptions NC.CanonicalExecution.xrun_app.
+Print Assumptions NC.CanonicalExecution.xrun_internal_N.
+Print Assumptions NC.CanonicalExecution.okw_app.
+Print Assumptions NC.CanonicalExecution.okw_inj.
+Print Assumptions NC.CanonicalExecution.descent_run.
+Print Assumptions NC.CanonicalExecution.esh_sufficient.
+Print Assumptions NC.CanonicalExecution.flush_point.
+Print Assumptions NC.CanonicalExecution.canonical_execution_exact.
+Print Assumptions NC.CanonicalExecution.esh_exact.
+Print Assumptions NC.CanonicalInstances.gp_an.
+Print Assumptions NC.CanonicalInstances.gov_complete.
+Print Assumptions NC.CanonicalInstances.gov_history_joins.
+Print Assumptions NC.CanonicalInstances.gov_state_joins.
+Print Assumptions NC.CanonicalInstances.jc_exact_kernel.
+Print Assumptions NC.CanonicalInstances.jcg_exact_kernel.
+Print Assumptions NC.CanonicalInstances.cswap_perm.
+Print Assumptions NC.CanonicalInstances.swaps_connect.
+Print Assumptions NC.CanonicalInstances.causal_connect.
+Print Assumptions NC.CanonicalInstances.causal_adequate.
+Print Assumptions NC.CanonicalInstances.causal_gen_iff.
+Print Assumptions NC.CanonicalInstances.causal_exact_kernel.
+Print Assumptions NC.CanonicalInstances.calo_snoc.
+Print Assumptions NC.CanonicalInstances.calo_snoc_inv.
+Print Assumptions NC.CanonicalInstances.prec_app_r.
+Print Assumptions NC.CanonicalInstances.prec_snoc.
+Print Assumptions NC.CanonicalInstances.causal_snoc.
+Print Assumptions NC.CanonicalInstances.adm_causal.
+Print Assumptions NC.CanonicalInstances.adm_snoc.
+Print Assumptions NC.CanonicalInstances.forall_set.
+Print Assumptions NC.CanonicalInstances.ac_set.
+Print Assumptions NC.CanonicalInstances.ac_snoc.
+Print Assumptions NC.CanonicalInstances.to_causal.
+Print Assumptions NC.CanonicalInstances.alo_adequate.
+Print Assumptions NC.CanonicalInstances.G_abs_set.
+Print Assumptions NC.CanonicalInstances.G_idem_set.
+Print Assumptions NC.CanonicalInstances.cswap_snoc.
+Print Assumptions NC.CanonicalInstances.G_abs_snoc.
+Print Assumptions NC.CanonicalInstances.G_idem_snoc.
+Print Assumptions NC.CanonicalInstances.abs_close.
+Print Assumptions NC.CanonicalInstances.move_right.
+Print Assumptions NC.CanonicalInstances.idem_close.
+Print Assumptions NC.CanonicalInstances.alo_adequate_abs.
+Print Assumptions NC.CanonicalInstances.alo_adequate_idem.
+Print Assumptions NC.CanonicalInstances.gen_union.
+Print Assumptions NC.CanonicalInstances.run1'.
+Print Assumptions NC.CanonicalInstances.caloconv_hd.
+Print Assumptions NC.CanonicalInstances.gen_swap_ccron.
+Print Assumptions NC.CanonicalInstances.gen_idem.
+Print Assumptions NC.CanonicalInstances.gen_abs.
+Print Assumptions NC.CanonicalInstances.causal_alo_exact_idem_kernel.
+Print Assumptions NC.CanonicalInstances.causal_alo_exact_kernel.
+Print Assumptions NC.CanonicalInstances.alo_exact_kernel.
+Print Assumptions NC.CanonicalInstances.fed_adequate.
+Print Assumptions NC.CanonicalInstances.fed_gen_iff.
+Print Assumptions NC.CanonicalInstances.fed_exact_kernel.
+Print Assumptions NC.CanonicalInstances.overwrite_canonicalizer.
+Print Assumptions NC.CanonicalInstances.c1at_state_descent.
+Print Assumptions NC.CanonicalInstances.c1r1_state_descent.
+Print Assumptions NC.CanonicalInstances.c2at_history.
+Print Assumptions NC.CanonicalInstances.xu_state_descent.
+Print Assumptions NC.CanonicalInstances.xuat_state_descent.
+Print Assumptions NC.CanonicalInstances.stream_state_peaks_empty.
+Print Assumptions NC.CanonicalInstances.st_complete.
+Print Assumptions NC.CanonicalInstances.pjc_exact_kernel.
+Print Assumptions NC.CanonicalInstances.stream_exact_kernel.
+Print Assumptions NC.CanonicalInstances.pcc_gen_iff.
+Print Assumptions NC.CanonicalInstances.stream_free_history.
+Print Assumptions NC.CanonicalInstances.d_act_event.
+Print Assumptions NC.CanonicalInstances.d_act_internal.
+Print Assumptions NC.CanonicalInstances.d_flush_ok.
+Print Assumptions NC.CanonicalInstances.d_flush_internal.
+Print Assumptions NC.CanonicalInstances.d_xrun.
+Print Assumptions NC.CanonicalInstances.d_proj.
+Print Assumptions NC.CanonicalInstances.d_grun.
+Print Assumptions NC.CanonicalInstances.d_settle.
+Print Assumptions NC.CanonicalInstances.d_fidelity.
+Print Assumptions NC.CanonicalInstances.d_state_descent.
+Print Assumptions NC.CanonicalInstances.d_history.
+Print Assumptions NC.CanonicalInstances.d_agree.
+Print Assumptions NC.CanonicalInstances.d_conv.
+Print Assumptions NC.CanonicalInstances.flush_fed_iff_kernel.
+Print Assumptions NC.CanonicalInstances.xuc_state_descent.
+Print Assumptions NC.CanonicalInstances.flip_esh.
+Print Assumptions NC.CanonicalInstances.ghost_esh.
+Print Assumptions NC.CanonicalInstances.conv_ghost_esh.
+Print Assumptions NC.CanonicalInstances.copy_xu_esh.
+Print Assumptions NC.CanonicalInstances.fm_conv_esh.
+Print Assumptions NC.CanonicalInstances.raise_only_esh.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1642,8 +1752,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1591 ]; then
-  echo "FAIL: expected 1591 axiom-free results, got $N"
+if [ "$N" -lt 1699 ]; then
+  echo "FAIL: expected 1699 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

@@ -267,3 +267,13 @@ all: LossyMinimum.vo
 
 LossyMinimum.vo: LossyMinimum.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo
 	coqc -Q . NC LossyMinimum.v
+
+# Experimental (validation in progress): the canonical-execution meta-theory and its six
+# validation criteria (CanonicalExecution.v, CanonicalInstances.v).
+all: CanonicalExecution.vo CanonicalInstances.vo
+
+CanonicalExecution.vo: CanonicalExecution.v Newman.vo GovernanceConverse.vo GovernanceWFConverse.vo RhoStar.vo
+	coqc -Q . NC CanonicalExecution.v
+
+CanonicalInstances.vo: CanonicalInstances.v CanonicalExecution.vo Newman.vo Trace.vo CausalReplay.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo EnabledAfterComp.vo AtLeastOnce.vo AtLeastOnceExact.vo GovernanceCausal.vo Stream.vo StreamExact.vo FederationEvents.vo FederationEventsConverse.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedExact.vo DistributedCycles.vo DistributedCyclesExact.vo
+	coqc -Q . NC CanonicalInstances.v

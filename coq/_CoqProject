@@ -56,3 +56,5 @@ DistributedCycles.v
 DistributedCyclesExact.v
 CRDTBoundary.v
 LossyMinimum.v
+CanonicalExecution.v
+CanonicalInstances.v
