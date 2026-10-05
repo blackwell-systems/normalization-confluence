@@ -1408,6 +1408,136 @@ Print Assumptions NC.DistributedCycles.uu_incr.
 Print Assumptions NC.DistributedCycles.uu_sound.
 Print Assumptions NC.DistributedCycles.uu_mono.
 Print Assumptions NC.DistributedCycles.dist_cyc_unique_no_reset.
+Require NC.DistributedCyclesExact.
+Print Assumptions NC.DistributedCyclesExact.rrp_S.
+Print Assumptions NC.DistributedCyclesExact.len_pos.
+Print Assumptions NC.DistributedCyclesExact.rrp_lt.
+Print Assumptions NC.DistributedCyclesExact.rrp_adv.
+Print Assumptions NC.DistributedCyclesExact.rrp_wrap.
+Print Assumptions NC.DistributedCyclesExact.rrp_hits.
+Print Assumptions NC.DistributedCyclesExact.rrs_fair.
+Print Assumptions NC.DistributedCyclesExact.fair_shift.
+Print Assumptions NC.DistributedCyclesExact.fair_same.
+Print Assumptions NC.DistributedCyclesExact.fa_app.
+Print Assumptions NC.DistributedCyclesExact.pw_in.
+Print Assumptions NC.DistributedCyclesExact.prs_shift.
+Print Assumptions NC.DistributedCyclesExact.lf_fixed.
+Print Assumptions NC.DistributedCyclesExact.lf_least.
+Print Assumptions NC.DistributedCyclesExact.stable_fixed.
+Print Assumptions NC.DistributedCyclesExact.fixed_stable.
+Print Assumptions NC.DistributedCyclesExact.fixed_sound.
+Print Assumptions NC.DistributedCyclesExact.u_below.
+Print Assumptions NC.DistributedCyclesExact.sw_app.
+Print Assumptions NC.DistributedCyclesExact.sw_below.
+Print Assumptions NC.DistributedCyclesExact.sw_up.
+Print Assumptions NC.DistributedCyclesExact.prs_sw.
+Print Assumptions NC.DistributedCyclesExact.fair_flush_sound_iff.
+Print Assumptions NC.DistributedCyclesExact.fair_to_word.
+Print Assumptions NC.DistributedCyclesExact.fairflush_flushat.
+Print Assumptions NC.DistributedCyclesExact.sand_settles.
+Print Assumptions NC.DistributedCyclesExact.sand_low.
+Print Assumptions NC.DistributedCyclesExact.sand_sound.
+Print Assumptions NC.DistributedCyclesExact.sand_u.
+Print Assumptions NC.DistributedCyclesExact.sand_fairflush.
+Print Assumptions NC.DistributedCyclesExact.sand_recovers.
+Print Assumptions NC.DistributedCyclesExact.flushat_sound_iff.
+Print Assumptions NC.DistributedCyclesExact.step_sound_fairflush.
+Print Assumptions NC.DistributedCyclesExact.run_props.
+Print Assumptions NC.DistributedCyclesExact.quiet_props.
+Print Assumptions NC.DistributedCyclesExact.run_app.
+Print Assumptions NC.DistributedCyclesExact.fst_pw.
+Print Assumptions NC.DistributedCyclesExact.flushR_at.
+Print Assumptions NC.DistributedCyclesExact.fairflushR_flushR.
+Print Assumptions NC.DistributedCyclesExact.flush_agree_iff.
+Print Assumptions NC.DistributedCyclesExact.fair_agree_iff.
+Print Assumptions NC.DistributedCyclesExact.flush_fed_iff.
+Print Assumptions NC.DistributedCyclesExact.fair_fed_iff.
+Print Assumptions NC.DistributedCyclesExact.fairflushR_sound_iff.
+Print Assumptions NC.DistributedCyclesExact.flushR_sound_iff.
+Print Assumptions NC.DistributedCyclesExact.sandr_fairflush.
+Print Assumptions NC.DistributedCyclesExact.soundr_fairflush.
+Print Assumptions NC.DistributedCyclesExact.lowr_fairflush.
+Print Assumptions NC.DistributedCyclesExact.evsand_sandr.
+Print Assumptions NC.DistributedCyclesExact.evsound_soundr.
+Print Assumptions NC.DistributedCyclesExact.evlow_fairflush.
+Print Assumptions NC.DistributedCyclesExact.nc_sound_low.
+Print Assumptions NC.DistributedCyclesExact.infl_evsound.
+Print Assumptions NC.DistributedCyclesExact.split_last.
+Print Assumptions NC.DistributedCyclesExact.ghostfree_low.
+Print Assumptions NC.DistributedCyclesExact.ghostfree_sound_iff.
+Print Assumptions NC.DistributedCyclesExact.noghost_event_iff.
+Print Assumptions NC.DistributedCyclesExact.ghost_witness.
+Print Assumptions NC.DistributedCyclesExact.noghost_ghostfree.
+Print Assumptions NC.DistributedCyclesExact.noghost_soundr_iff.
+Print Assumptions NC.DistributedCyclesExact.lowr_post_iff.
+Print Assumptions NC.DistributedCyclesExact.soundr_agree_iff.
+Print Assumptions NC.DistributedCyclesExact.soundr_fed_iff.
+Print Assumptions NC.DistributedCyclesExact.ginv_reach.
+Print Assumptions NC.DistributedCyclesExact.noghost_inv_iff.
+Print Assumptions NC.DistributedCyclesExact.unique_or_low_noghost.
+Print Assumptions NC.DistributedCyclesExact.unique_or_low_recovers.
+Print Assumptions NC.DistributedCyclesExact.id_events.
+Print Assumptions NC.DistributedCyclesExact.lens_noreset_iff.
+Print Assumptions NC.DistributedCyclesExact.lens_noreset_fair_iff.
+Print Assumptions NC.DistributedCyclesExact.K3.
+Print Assumptions NC.DistributedCyclesExact.K4.
+Print Assumptions NC.DistributedCyclesExact.K2.
+Print Assumptions NC.DistributedCyclesExact.none_tequiv.
+Print Assumptions NC.DistributedCyclesExact.cu_step_sound.
+Print Assumptions NC.DistributedCyclesExact.c_fairflush.
+Print Assumptions NC.DistributedCyclesExact.c_fairflushR.
+Print Assumptions NC.DistributedCyclesExact.c_flushR.
+Print Assumptions NC.DistributedCyclesExact.ghost_exact.
+Print Assumptions NC.DistributedCyclesExact.cF_mono_l.
+Print Assumptions NC.DistributedCyclesExact.raise_only_exact.
+Print Assumptions NC.DistributedCyclesExact.r3_flushat.
+Print Assumptions NC.DistributedCyclesExact.ring_exact.
+Print Assumptions NC.DistributedCyclesExact.fle_refl.
+Print Assumptions NC.DistributedCyclesExact.fle_trans.
+Print Assumptions NC.DistributedCyclesExact.fle_antisym.
+Print Assumptions NC.DistributedCyclesExact.fz_least.
+Print Assumptions NC.DistributedCyclesExact.frank_strict.
+Print Assumptions NC.DistributedCyclesExact.frank_bound.
+Print Assumptions NC.DistributedCyclesExact.fsound_z.
+Print Assumptions NC.DistributedCyclesExact.fu1_incr.
+Print Assumptions NC.DistributedCyclesExact.fu1_sound.
+Print Assumptions NC.DistributedCyclesExact.fu1_mono.
+Print Assumptions NC.DistributedCyclesExact.fu1_fixed.
+Print Assumptions NC.DistributedCyclesExact.f1_cover.
+Print Assumptions NC.DistributedCyclesExact.fu2_incr.
+Print Assumptions NC.DistributedCyclesExact.fu2_sound.
+Print Assumptions NC.DistributedCyclesExact.fu2_mono.
+Print Assumptions NC.DistributedCyclesExact.fu2_fixed.
+Print Assumptions NC.DistributedCyclesExact.f2_cover.
+Print Assumptions NC.DistributedCyclesExact.f1_unique.
+Print Assumptions NC.DistributedCyclesExact.f2_unique.
+Print Assumptions NC.DistributedCyclesExact.f1_sweep.
+Print Assumptions NC.DistributedCyclesExact.flip_noflush.
+Print Assumptions NC.DistributedCyclesExact.f2_fair.
+Print Assumptions NC.DistributedCyclesExact.f2_state.
+Print Assumptions NC.DistributedCyclesExact.flip2_fair_livelock.
+Print Assumptions NC.DistributedCyclesExact.uu_decr.
+Print Assumptions NC.DistributedCyclesExact.uu_cosound.
+Print Assumptions NC.DistributedCyclesExact.u_unique.
+Print Assumptions NC.DistributedCyclesExact.u_fairflush.
+Print Assumptions NC.DistributedCyclesExact.u_fairflushR.
+Print Assumptions NC.DistributedCyclesExact.copy_xu_fails.
+Print Assumptions NC.DistributedCyclesExact.fm_conv_fails.
+Print Assumptions NC.DistributedCyclesExact.ghostfree_unsound.
+Print Assumptions NC.DistributedCyclesExact.gu_incr.
+Print Assumptions NC.DistributedCyclesExact.gu_sound.
+Print Assumptions NC.DistributedCyclesExact.gu_mono.
+Print Assumptions NC.DistributedCyclesExact.gu_fixed.
+Print Assumptions NC.DistributedCyclesExact.g_cover.
+Print Assumptions NC.DistributedCyclesExact.gu_step_sound.
+Print Assumptions NC.DistributedCyclesExact.g_loc.
+Print Assumptions NC.DistributedCyclesExact.g_sa.
+Print Assumptions NC.DistributedCyclesExact.g_none.
+Print Assumptions NC.DistributedCyclesExact.g_some.
+Print Assumptions NC.DistributedCyclesExact.g_quiet.
+Print Assumptions NC.DistributedCyclesExact.conv_ghost_normal.
+Print Assumptions NC.DistributedCyclesExact.local_reset_ghost.
+Print Assumptions NC.DistributedCyclesExact.latched_exact.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1418,8 +1548,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1370 ]; then
-  echo "FAIL: expected 1370 axiom-free results, got $N"
+if [ "$N" -lt 1499 ]; then
+  echo "FAIL: expected 1499 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

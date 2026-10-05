@@ -1,7 +1,7 @@
 # Distributed model with propagation steps
 
 Detailed results for the distributed propagation model: the exact condition on acyclic federations,
-and the model on monotone cycles. Each module's one-line summary is in the [module
+the model on monotone cycles, and that model without resets made exact. Each module's one-line summary is in the [module
 index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#8-distributed-model-with-propagation-steps), section 8.
 
@@ -241,3 +241,117 @@ produces. Two ways to certify a cyclic projection deployment:
   states, plus a monotonicity check of the morphisms in their source locals, alongside the
   existing check in shared values); the second is a global check over locals x shared lattice. A
   network with a clear event on a feedback loop (the `alarms` shape) fails both, and needs epochs.
+
+## The no-reset model on monotone cycles, exactly (`DistributedCyclesExact.v`)
+
+`DistributedCycles.v` proves the no-reset model exact only relative to reachable hypotheses:
+`quiet_agree_iff` and `quiet_conv_iff` assume `FlushR` (and `NoGhostR`), and `low_agree_iff` and
+`low_conv_iff` assume `LowR`. This file moves those hypotheses to the right-hand side, proves
+each conjunct necessary, and characterizes `FlushR` and `NoGhostR` (129 gated results,
+axiom-free). New notions: `FlushAt t` (some propagation word from `t` reaches quiescence),
+`FairFlushAt t` (every fair schedule from `t` does), `FairFlushR` (at every reachable state; the
+operational reading: nodes propagate asynchronously and fairly), `SoundR` (every reachable state
+satisfies `h <= F l h`), `Sand l h` (`s <= h <= ` every fixed point above `s`, for a sound `s`),
+`GhostFree t` (every quiescent state propagation reaches from `t` holds `Lfp`), `UniqueFP l`.
+
+**1. Unconditional iffs.**
+
+- **`flush_agree_iff`**: `FlushR /\ DAgreeQ <-> XUcR /\ FlushR /\ NoGhostR`.
+- **`fair_agree_iff`**: `FairFlushR /\ DAgreeQ <-> XUcR /\ FairFlushR /\ NoGhostR`.
+- **`flush_fed_iff`**: `FlushR /\ DAgreeQ /\ DConvQ <-> XUcR /\ FMConv (Nc s0) /\ FlushR /\
+  NoGhostR`; **`fair_fed_iff`** with `FairFlushR`.
+
+Each right-hand conjunct is necessary: an instance where it alone fails.
+
+| Conjunct | Instance | What holds, what fails |
+|---|---|---|
+| `XUcR` | `copy_xu_fails` | registry cycle with one fixed point, event `la := sa` from a low stale start: `FairFlushR`, `NoGhostR`, `FMConv` hold; the event reads A's unpropagated flag and the quiescent state differs from the FedMachine |
+| `FMConv` | `fm_conv_fails` | the same cycle, `SetA` and `ClrA` declared independent: `FairFlushR`, `XUcR`, `NoGhostR` hold, the FedMachine does not converge |
+| `FlushR` | `flip_noflush` | shared values `{fz < fa, fb}`, repair swaps `fa` and `fb`: one fixed point, no ghost, `XUcR` and `FMConv` hold; from `fa` no propagation word ever reaches quiescence |
+| `FairFlushR` | `flip2_fair_livelock`, `ring_exact` | flip2 adds a target dropping `fa` to `fz`: every state has a flushing word, one fixed point, no ghost, but the fair schedule `0, 1, 0, 0, 1, 0, ...` never quiesces. The 3-ring of `dist_ring_livelock` also has `FlushR` without `FairFlushR` (and a reachable ghost) |
+| `NoGhostR` | `ghost_exact` | `dist_cyc_ghost`: `FairFlushR`, `FlushR`, `XUcR`, `FMConv` hold, agreement fails |
+
+`conv_ghost_normal`: `NoGhostR` is not necessary for `DConvQ` alone. On a cycle where A's flag also
+keeps itself (`sa := lb || sa || sb`), from the FedMachine normal form, every quiescent
+interleaving of the same events agrees, yet each one after an event is a ghost. Convergence among
+interleavings is weaker than agreement with the FedMachine by exactly `NoGhostR`.
+
+**2. `FlushR` exactly.**
+
+- **`fair_flush_sound_iff`**: under a fair schedule, the run reaches a quiescent state iff it
+  reaches a sound state (from a sound state every step is inflationary, and a quiescent state is a
+  fixed point). **`flushat_sound_iff`**: some word reaches quiescence iff some word reaches a sound
+  state. Reachable forms: `fairflushR_sound_iff`, `flushR_sound_iff`. `fairflushR_flushR`,
+  `fairflush_flushat` (via the round-robin schedule `rrs`, `rrs_fair`).
+- **`sand_settles`**: if `s` is sound and `s <= h <=` every fixed point above `s`, every fair
+  schedule from `h` settles at the least fixed point above `s`. It contains `q1_below` (`s = bot`;
+  `sand_recovers` rederives it) and `q1_sound_settles` (`h = s`).
+- Sufficient: `sandr_fairflush`, `soundr_fairflush`, `lowr_fairflush`. Per event: `evsand_sandr`,
+  `evsound_soundr` (events keep states sandwiched, or sound); `infl_evsound` (inflationary events
+  that do not write shared values keep soundness); `evlow_fairflush` (`EvLow`, which
+  `infl_evlow`'s events satisfy, keeps `LowR`); `nc_sound_low` (gsm starts `Nc t` are sound and
+  low). Per network: `step_sound_fairflush` (every single propagation step yields a sound state;
+  the 2-flag cycle satisfies it, `cu_step_sound`, the 3-ring does not).
+- Necessity status: none of `SoundR`, `SandR`, `LowR` is necessary. In `ghost_exact` the reachable
+  state after `PingA; ClearA` is neither sound nor sandwiched, and `FairFlushR` holds.
+
+**3. `NoGhostR` exactly.**
+
+- **`noghost_event_iff`**: `NoGhostR <->` the start and every post-event state (an event applied
+  at a reachable state) are `GhostFree`. **`ghost_witness`**: every reachable quiescent ghost is
+  reached by propagation from the start or from the output of a last event, and that state is not
+  below the least fixed point of its locals: an event moved shared values above it and the cycle
+  sustained them.
+- `ghostfree_low`: a low state is ghost-free. **`ghostfree_sound_iff`**: a sound state is
+  ghost-free iff it is low. So **`noghost_soundr_iff`**: `SoundR -> (NoGhostR <-> LowR)`, and
+  **`lowr_post_iff`**: `LowR <->` the start is low and every event, applied at a reachable state,
+  leaves the shared values below the least fixed point of the new locals. Under `SoundR`:
+  **`soundr_agree_iff`** `DAgreeQ <-> XUcR /\ LowR`, **`soundr_fed_iff`** `DAgreeQ /\ DConvQ <->
+  XUcR /\ LowR /\ FMConv (Nc s0)` (no flush hypothesis: `SoundR` gives `FairFlushR`).
+- Without soundness the post-event condition stays `GhostFree`, which can depend on the schedule
+  (`dist_schedule_dependence`), and lowness is not necessary for it: `ghostfree_unsound` is an
+  unsound start above the least fixed point with no ghost (one fixed point), so `LowR` is not
+  necessary without `SoundR`.
+- **`noghost_inv_iff`** (certificate form): `NoGhostR <->` some invariant `P` (holding at the
+  start, closed under events, propagation steps and resets) contains no quiescent ghost.
+  **`unique_or_low_noghost`**: it suffices that every `P`-state has locals with one fixed point or
+  is low; `unique_or_low_recovers` gives `uniq_noghost` (`P` = everything) and the `EvLow` route
+  (`P` = low states) as the two extremes.
+- `latched_exact`: beyond both. On the flag cycle with B's alarm latched (no event clears it),
+  clearing A's alarm is safe: every reachable locals assignment has one fixed point. `EvLow` fails
+  and `F l` does not have one fixed point for every `l`, yet `NoGhostR`, `FairFlushR`, `DAgreeQ`
+  and `DConvQ` hold (through `lens_noreset_fair_iff`).
+- `local_reset_ghost`: a clear that also resets its own shared slot to bottom still leaves a
+  ghost (`RaiseA; propagate B; propagate A; ClearA-and-reset-sa; propagate A` is quiescent at
+  `((false, false), (true, true))`): B's flag holds A's back up. A reset on a cycle has to cover
+  the cycle, which is the barrier of `lens_epoch`.
+
+**4. What gsm would check without resets.** **`lens_noreset_iff`**, **`lens_noreset_fair_iff`**:
+given gsm's per-target `C1cyc` and `C2cyc` over a set `Hs` covering the reachable shared values,
+a cyclic projection deployment without resets is certified (`FlushR /\ DAgreeQ /\ DConvQ`, or
+the fair form) exactly when it flushes and has no reachable ghost. C1 and C2 discharge `XUcR` and
+`FMConv`; the two remaining conditions are reachability properties of the global state space,
+and gsm has these ways to discharge them:
+
+- *Inflationary events* (`infl_evlow` with `evlow_fairflush` and `unique_or_low_recovers`): a
+  per-event check over valid component states (each event raises its local and does not raise a
+  shared value) plus monotonicity of the morphisms in their source locals. Cost: events x valid
+  component states, and morphisms x pairs of source local states; no global enumeration. It gives
+  `LowR`, hence `FairFlushR` and `NoGhostR`. A clear on a feedback loop fails it.
+- *An invariant with pinned fixed points* (`unique_or_low_noghost`, as in `latched_exact`): find
+  a set of global states closed under events and propagation in which every state's locals have
+  one fixed point (compare the least fixed point from bottom with the greatest from top: two Kleene
+  runs of at most `K` sweeps per locals assignment) or the state is low; flushing from
+  `step_sound_fairflush` (a check over locals x shared values x targets) or from `SoundR`. Cost:
+  global, the product of the registries' state spaces, like any reachability check.
+- *A unique fixed point everywhere* (`uniq_noghost`): a global check over locals x shared values,
+  plus a flush argument (with a top element and the dual step laws, `q1_unique_iff` gives
+  `FairFlushR`; without them `flip_noflush` shows uniqueness alone does not flush).
+
+The reset-epoch route (`lens_epoch`, exact form `epoch_conv_iff`) needs only the C1/C2
+enumeration (events x valid component states x `Hs`, with `Hs` widened by each slot's bottom value
+and the event-written values) and pays at run time: one barrier and at most `K` sweeps per epoch,
+certifying post-epoch states only. Without resets the deployment is certified at every quiescent
+point and needs no barrier, but unless events are inflationary the extra check is a global
+reachability argument. For gsm's `alarms` shape (a clear on a feedback loop, nothing pinning the
+loop) no-reset certification is impossible (`ghost_exact`), and epochs are required.

@@ -249,3 +249,9 @@ all: DistributedCycles.vo
 
 DistributedCycles.vo: DistributedCycles.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo
 	coqc -Q . NC DistributedCycles.v
+
+# The no-reset distributed model on monotone cycles, exactly (DistributedCyclesExact.v).
+all: DistributedCyclesExact.vo
+
+DistributedCyclesExact.vo: DistributedCyclesExact.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedCycles.vo
+	coqc -Q . NC DistributedCyclesExact.v
