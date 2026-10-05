@@ -201,3 +201,9 @@ all: CoordinatedExact.vo
 
 CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
 	coqc -Q . NC CoordinatedExact.v
+
+# The root-set criterion for lossy networks without a spanning root (RootSet.v).
+all: RootSet.vo
+
+RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
+	coqc -Q . NC RootSet.v
