@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 715 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 729 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -744,7 +744,77 @@ times every independent pair. Regression test: the `cyc_counterexample` latch fe
 C1 (`check_rejects_latch`). For a target with several incoming edges, gsm's per-edge C1 checks
 overwrite each edge's variables separately; with M1 (overwrites preserve validity) they compose
 into C1cyc for the target's whole shared part, one edge at a time. That composition step is not
-mechanized here: the file treats each registry's shared part as one block.
+mechanized here: the file treats each registry's shared part as one block. It is mechanized in
+`FederationEventsCyclesMulti.v` (next section).
+
+### Multi-edge targets: per-edge C1 composes (`FederationEventsCyclesMulti.v`)
+
+**Model.** Registry `k`'s shared part is a product of components, one per incoming edge `p`
+(`tgt p = k`), each with a lens `hget p` / `hset p` (get-set laws between distinct components of the
+same target; two shared parts of `k` agreeing on every component of `k` are equal). `Hp p` is the
+image set of component `p`: the image of edge `p`'s morphism over valid source states, or of a
+resolver (below). `ProdImg k h` says every component of `h` lies in its image set; it plays the
+role of `Hs k` in `FederationEventsCyclesCheck.v`.
+
+- **C1edge p** (gsm's per-edge C1): for every event `e` of `tgt p`, every valid `(x, h)` with
+  `h` in `ProdImg`, every `v` in `Hp p`: the locals of `sig e (x, hset p v h)` equal those of
+  `sig e (x, h)`. Only component `p` varies; the others stay at their image values in `h`.
+- **M1** (the validity hypothesis): for every `p`, valid `(x, h)` with `h` in `ProdImg` and `v` in
+  `Hp p`, the state `(x, hset p v h)` is valid. Overwriting one component with one of its images
+  preserves validity.
+
+Results:
+
+- `multi_edge_c1` (headline): `C1edge p` for every edge `p`, plus M1, imply C1cyc with
+  `Hs = ProdImg`. The proof goes from `h` to `h'` one component at a time (`chainW`, `upd_full`);
+  M1 keeps every intermediate state valid so the next per-edge check applies to it.
+- `m1_necessary`: M1 cannot be dropped. Two components with full image sets, the only valid shared
+  part is `(false, false)`, the local outcome is "both components are true". Every per-edge C1
+  holds (one overwrite from `(false, false)` makes at most one component true), M1 fails, and
+  C1cyc fails at `h = (false, false)`, `h' = (true, true)`.
+- `multi_edge_c1_free`: the alternative without M1. If the per-edge check is run for every local
+  part `x` (valid or not) with `h` in `ProdImg`, it implies C1cyc with no validity hypothesis.
+- `resolver_joint_c1`: a component written by a resolver `r` from two sources with image sets
+  `Im1`, `Im2`. Its image set is `R = { r a b | a in Im1, b in Im2 }` (or the image of `r` over the
+  joint image of the source pair, a subset), and C1 for that component must range over `R`. It
+  decomposes only through `r`: vary `a` over `Im1` with `b` fixed, then `b` over `Im2` with `a`
+  fixed, every check evaluating the locals of `rho_j(e(x, r a b))` on the full input tuple, plus
+  validity preserved by the first step (`Mr1`). Checking each source edge against its own
+  morphism image is not sufficient.
+- `resolver_edge_insufficient`: `r = plus`, `Im1 = Im2 = {0, 1}`, an event whose local outcome is
+  "the component equals 2". C1cyc holds over `{0, 1}` (each edge's own image set), `2` is in `R`
+  but in neither edge's image, C1cyc over `R` fails, and the per-input check through `r` fails
+  (`0 + 1` to `1 + 1`).
+- `resolver_instance` (non-vacuity): `Im1 = {0}`, `Im2 = {0, 1}`, the same event: every hypothesis
+  of `resolver_joint_c1` holds, and the event reads the component (no read footprint).
+- `multi_edge_gc`, `multi_edge_converges`: per-edge C1 for every edge, M1, C2cyc over `ProdImg`,
+  and "every normal form has each component in its image set" imply `GC s0` and convergence for
+  every `s0` in the image of the normalizer (`cyc_check_gc` with `Hs = ProdImg`).
+- `multi_edge_instance` (non-vacuity): a cycle A <-> B in which both targets have two incoming
+  edges. A's components are fed by B's two locals; B's by A's first local and by a closed slot
+  (image `{false}`). `RaiseA1`, `RaiseA2` are declared independent, `PingA2` writes both of A's
+  components, `ReadB` reads B's closed slot (so the read footprint fails). Every per-edge C1, M1,
+  C2cyc and the normal-form hypothesis hold; `GC` and convergence follow.
+
+**What gsm must check for a multi-edge target `j`.**
+
+1. Per incoming edge `p` with its own morphism: `H_p`, the morphism image over valid source states.
+   Per resolver component: `R`, the resolver applied to the joint images of its inputs (the
+   product of the per-source images is a sufficient superset). The resolver's output set, not
+   any single source's image, is that component's image set.
+2. C1, per event `e` of `j` and per component `p` of `j`: for every valid component state `(x, h)`
+   of `j` whose every component lies in its image set (all combinations, not only the components
+   gsm enumerates for `p`), and every `v` in `p`'s image set, the locals of `rho_j(e(x, h[p := v]))`
+   equal those of `rho_j(e(x, h))`. For a resolver component, `v` ranges over `R` (equivalently,
+   one input of `r` at a time with the others fixed, evaluating `r` on the full tuple).
+3. M1 for `j`: each such overwrite `h[p := v]` of a valid state stays valid. If gsm does not
+   establish M1, it must instead run check 2 for every local part `x`, valid or not
+   (`multi_edge_c1_free`).
+4. C2 over the same set: for each declared-independent pair on `j` and each valid `(x, h)` with
+   every component of `h` in its image set, the existing C2 check.
+
+Without M1 the per-edge checks do not compose (`m1_necessary`); with it, they imply the whole-block
+C1cyc and, with C2, `GC` on the image of `N`.
 
 ## Finiteness only for checking (`GovernanceWF.v`, `ChaoticACC.v`)
 
@@ -1523,7 +1593,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 715 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 729 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
