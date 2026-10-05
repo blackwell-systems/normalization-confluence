@@ -1050,6 +1050,142 @@ Print Assumptions NC.LossyHardness.funsat_unsatisfiable.
 Print Assumptions NC.LossyHardness.funsat_no_section.
 Print Assumptions NC.LossyHardness.funsat_count.
 Print Assumptions NC.LossyHardness.funsat_gadget_needed.
+Require NC.RootSetEvents.
+Print Assumptions NC.RootSetEvents.frule_nil.
+Print Assumptions NC.RootSetEvents.frule_snoc.
+Print Assumptions NC.RootSetEvents.targets_snoc.
+Print Assumptions NC.RootSetEvents.targets_in_verts.
+Print Assumptions NC.RootSetEvents.in_lift.
+Print Assumptions NC.RootSetEvents.new_in.
+Print Assumptions NC.RootSetEvents.frule_some.
+Print Assumptions NC.RootSetEvents.frule_in.
+Print Assumptions NC.RootSetEvents.frule_root.
+Print Assumptions NC.RootSetEvents.frule_driven.
+Print Assumptions NC.RootSetEvents.frule_off.
+Print Assumptions NC.RootSetEvents.verts_in_targets.
+Print Assumptions NC.RootSetEvents.topoF_ext.
+Print Assumptions NC.RootSetEvents.topoF_nodup_nil.
+Print Assumptions NC.RootSetEvents.topoF_snoc.
+Print Assumptions NC.RootSetEvents.forest_order.
+Print Assumptions NC.RootSetEvents.forest_order_set.
+Print Assumptions NC.RootSetEvents.ffun_local.
+Print Assumptions NC.RootSetEvents.forest_common.
+Print Assumptions NC.RootSetEvents.runF_fext.
+Print Assumptions NC.RootSetEvents.HC.
+Print Assumptions NC.RootSetEvents.Inv_all.
+Print Assumptions NC.RootSetEvents.ffun_root.
+Print Assumptions NC.RootSetEvents.in_o_root.
+Print Assumptions NC.RootSetEvents.reg_cases.
+Print Assumptions NC.RootSetEvents.forest_network_shape.
+Print Assumptions NC.RootSetEvents.Cons_msection.
+Print Assumptions NC.RootSetEvents.msection_Cons.
+Print Assumptions NC.RootSetEvents.forest_cons_iff.
+Print Assumptions NC.RootSetEvents.drive_Cons.
+Print Assumptions NC.RootSetEvents.applyF_root.
+Print Assumptions NC.RootSetEvents.applyF_off.
+Print Assumptions NC.RootSetEvents.run_off.
+Print Assumptions NC.RootSetEvents.forest_root_run.
+Print Assumptions NC.RootSetEvents.forest_root_reach.
+Print Assumptions NC.RootSetEvents.filter_only.
+Print Assumptions NC.RootSetEvents.root_only_run.
+Print Assumptions NC.RootSetEvents.forest_c1_static.
+Print Assumptions NC.RootSetEvents.forest_c1r1.
+Print Assumptions NC.RootSetEvents.forest_c2at_iff.
+Print Assumptions NC.RootSetEvents.forest_c2_static_iff.
+Print Assumptions NC.RootSetEvents.forest_gc_iff.
+Print Assumptions NC.RootSetEvents.forest_fed_exact.
+Print Assumptions NC.RootSetEvents.forest_fed_exact_full.
+Print Assumptions NC.RootSetEvents.forest_events_exact.
+Print Assumptions NC.RootSetEvents.forest_perm_exact.
+Print Assumptions NC.RootSetEvents.forest_events_exact_global.
+Print Assumptions NC.RootSetEvents.forest_global_iff_static.
+Print Assumptions NC.RootSetEvents.forest_state_roots.
+Print Assumptions NC.RootSetEvents.forest_run_formula.
+Print Assumptions NC.RootSetEvents.forest_run_single_root.
+Print Assumptions NC.RootSetEvents.forest_runs_by_root.
+Print Assumptions NC.RootSetEvents.forest_cross_commute.
+Print Assumptions NC.RootSetEvents.forest_driven_noop.
+Print Assumptions NC.RootSetEvents.forest_runs_kept.
+Print Assumptions NC.RootSetEvents.tforest_snoc.
+Print Assumptions NC.RootSetEvents.in_snoc_iff.
+Print Assumptions NC.RootSetEvents.tforest_props.
+Print Assumptions NC.RootSetEvents.dfun_ffun.
+Print Assumptions NC.RootSetEvents.dsrc_fsrc.
+Print Assumptions NC.RootSetEvents.rec_forest.
+Print Assumptions NC.RootSetEvents.rec_order.
+Print Assumptions NC.RootSetEvents.rec_set.
+Print Assumptions NC.RootSetEvents.rec_cons.
+Print Assumptions NC.RootSetEvents.rec_tc.
+Print Assumptions NC.RootSetEvents.coordinated_events_exact_recovered.
+Print Assumptions NC.RootSetEvents.coordinated_events_exact_global_recovered.
+Print Assumptions NC.RootSetEvents.recovered_klein.
+Print Assumptions NC.RootSetEvents.tw_forest.
+Print Assumptions NC.RootSetEvents.tw_order.
+Print Assumptions NC.RootSetEvents.tw_set.
+Print Assumptions NC.RootSetEvents.tw_reg_in.
+Print Assumptions NC.RootSetEvents.tw_s_cons.
+Print Assumptions NC.RootSetEvents.tw_root_set.
+Print Assumptions NC.RootSetEvents.tw_root0_fixed.
+Print Assumptions NC.RootSetEvents.tw_converges_at_zero.
+Print Assumptions NC.RootSetEvents.tw_diverges_at_three.
+Print Assumptions NC.RootSetEvents.tw_reachable_matters.
+Print Assumptions NC.RootSetEvents.tw_not_global.
+Print Assumptions NC.RootSetEvents.tw_cross_roots.
+Print Assumptions NC.RootSetEvents.tw_poke_noop.
+Print Assumptions NC.RootSetEvents.tw_vertex2.
+Print Assumptions NC.RootSetEvents.tw_constraint.
+Require NC.EnabledAfterComp.
+Print Assumptions NC.EnabledAfterComp.eg_apply_norm.
+Print Assumptions NC.EnabledAfterComp.eg_join_back.
+Print Assumptions NC.EnabledAfterComp.eg_join_sym.
+Print Assumptions NC.EnabledAfterComp.cr_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_exact.
+Print Assumptions NC.EnabledAfterComp.jcg_unique_normal_forms.
+Print Assumptions NC.EnabledAfterComp.cr_iff_critical.
+Print Assumptions NC.EnabledAfterComp.jcg_iff_critical.
+Print Assumptions NC.EnabledAfterComp.gnf_iff.
+Print Assumptions NC.EnabledAfterComp.stuck_nf_iff.
+Print Assumptions NC.EnabledAfterComp.eac_emloc.
+Print Assumptions NC.EnabledAfterComp.jcsplit_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_jcsplit.
+Print Assumptions NC.EnabledAfterComp.jcsplit_exact.
+Print Assumptions NC.EnabledAfterComp.jcsplit_iff_jc.
+Print Assumptions NC.EnabledAfterComp.jc_jcg.
+Print Assumptions NC.EnabledAfterComp.jcg_iff_jc.
+Print Assumptions NC.EnabledAfterComp.sn_jc_exact_recovered.
+Print Assumptions NC.EnabledAfterComp.free_nf_empty.
+Print Assumptions NC.EnabledAfterComp.jc_exact_recovered.
+Print Assumptions NC.EnabledAfterComp.dc_wfc.
+Print Assumptions NC.EnabledAfterComp.dc_reach.
+Print Assumptions NC.EnabledAfterComp.dc_sn.
+Print Assumptions NC.EnabledAfterComp.dc_eac_fails.
+Print Assumptions NC.EnabledAfterComp.dc_jc.
+Print Assumptions NC.EnabledAfterComp.dc_nf_settled.
+Print Assumptions NC.EnabledAfterComp.dc_stuck.
+Print Assumptions NC.EnabledAfterComp.dc_two_normal_forms.
+Print Assumptions NC.EnabledAfterComp.dc_not_cr.
+Print Assumptions NC.EnabledAfterComp.dc_jc_insufficient.
+Print Assumptions NC.EnabledAfterComp.dc_not_jcg.
+Print Assumptions NC.EnabledAfterComp.fr_reach.
+Print Assumptions NC.EnabledAfterComp.fr_confluent.
+Print Assumptions NC.EnabledAfterComp.nv_inv_ok.
+Print Assumptions NC.EnabledAfterComp.nv_wfc.
+Print Assumptions NC.EnabledAfterComp.nv_locked_invalid.
+Print Assumptions NC.EnabledAfterComp.nv_over_invalid.
+Print Assumptions NC.EnabledAfterComp.nv_reach.
+Print Assumptions NC.EnabledAfterComp.nv_sn.
+Print Assumptions NC.EnabledAfterComp.nv_disables.
+Print Assumptions NC.EnabledAfterComp.nv_enables.
+Print Assumptions NC.EnabledAfterComp.nv_not_eac.
+Print Assumptions NC.EnabledAfterComp.nv_jcg.
+Print Assumptions NC.EnabledAfterComp.nv_confluent.
+Print Assumptions NC.EnabledAfterComp.nv_unique.
+Print Assumptions NC.EnabledAfterComp.nv_emloc.
+Print Assumptions NC.EnabledAfterComp.nv_jcsplit.
+Print Assumptions NC.EnabledAfterComp.nv_nf_ok.
+Print Assumptions NC.EnabledAfterComp.nv_nf_torn.
+Print Assumptions NC.EnabledAfterComp.nv_not_jc.
+Print Assumptions NC.EnabledAfterComp.nv_jc_not_necessary.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1060,8 +1196,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1017 ]; then
-  echo "FAIL: expected 1017 axiom-free results, got $N"
+if [ "$N" -lt 1151 ]; then
+  echo "FAIL: expected 1151 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

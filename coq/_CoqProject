@@ -48,3 +48,5 @@ CoordinatedExact.v
 AtLeastOnceExact.v
 RootSet.v
 LossyHardness.v
+RootSetEvents.v
+EnabledAfterComp.v

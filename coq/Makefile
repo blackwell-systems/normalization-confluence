@@ -219,3 +219,15 @@ all: LossyHardness.vo
 
 LossyHardness.vo: LossyHardness.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo
 	coqc -Q . NC LossyHardness.v
+
+# The exact event-order condition under root-set coordination (RootSetEvents.v).
+all: RootSetEvents.vo
+
+RootSetEvents.vo: RootSetEvents.v CohomologyGraph.vo CohomologyGeneral.vo Trace.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo CoordinatedExact.vo RootSet.vo
+	coqc -Q . NC RootSetEvents.v
+
+# Exact confluence when compensation may disable a buffered event (EnabledAfterComp.v).
+all: EnabledAfterComp.vo
+
+EnabledAfterComp.vo: EnabledAfterComp.v Newman.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo
+	coqc -Q . NC EnabledAfterComp.v
