@@ -48,3 +48,4 @@ CoordinatedExact.v
 AtLeastOnceExact.v
 RootSet.v
 RootSetEvents.v
+EnabledAfterComp.v
