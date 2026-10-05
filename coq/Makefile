@@ -302,3 +302,13 @@ all: CanonicalLocality.vo
 
 CanonicalLocality.vo: CanonicalLocality.v CanonicalExecution.vo CanonicalInstances.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo SheafGluing.vo
 	coqc -Q . NC CanonicalLocality.v
+
+# Signed cycles: the invertible-versus-lossy separation on walks, Harary balance at Z/2
+# (SignedCycles.v), and the signed-cycle to E bridge for resolver networks (SignedResolver.v).
+all: SignedCycles.vo SignedResolver.vo
+
+SignedCycles.vo: SignedCycles.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyMinimum.vo
+	coqc -Q . NC SignedCycles.v
+
+SignedResolver.vo: SignedResolver.v CohomologyGraph.vo CohomologyGeneral.vo SignedCycles.vo FederationEventsCycles.vo DistributedCycles.vo DistributedCyclesExact.vo CanonicalExecution.vo
+	coqc -Q . NC SignedResolver.v

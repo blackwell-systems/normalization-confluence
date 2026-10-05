@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 1926 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 1926 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 1963 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 1963 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -170,6 +170,8 @@ is on the same page.
 | `LossyHardness.v` | The 3-SAT reduction: `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` (NP-completeness then follows by the standard argument) | [The 3-SAT reduction](docs/non-invertible.md#the-3-sat-reduction-for-lossy-networks-lossyhardnessv) |
 | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | [Event order under root-set coordination](docs/non-invertible.md#the-exact-event-order-condition-under-root-set-coordination-rootseteventsv) |
 | `LossyMinimum.v` | Minimum coordination: `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_b_correct`, `lmin_zero_iff_sat`, `net_lmin_dichotomy`, `min_le_np_certificate`, `lossy_min_is_gfes`, `lossy_min_exceeds_cycle_bounds` | [Minimum coordination](docs/non-invertible.md#minimum-coordination-for-lossy-networks-lossyminimumv) |
+| `SignedCycles.v` | Loops versus merges: `invertible_merge_is_holonomy`, `holonomy_free_section`, `section_transport`, `fundamental_cycles_holonomy`, `obstruction_loop_vs_merge`; Harary balance proved at Z/2: `harary_balance`, `balanced_no_positive_acyclic` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
+| `SignedResolver.v` | The signed-cycle to E bridge (sufficient certificates, reading B): `switched_monotone`, `signed_settlement`, `signed_settlement_harary`, `signed_fidelity`; breaks `neg2_no_fixed_point`, `copyback_ghost`, `toggle_ghost`, `ring_needs_low_start`, `unbalanced_unique_oscillates`, `flip_needs_top`, `xor_no_certificate`, `cyc3_unsignable` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
 
 ### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
@@ -228,7 +230,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1926
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 1963
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

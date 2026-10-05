@@ -393,3 +393,82 @@ position `1` with `k = 1` and rejects the empty set with `k = 0`); `diamond_lmin
 `two_lmin` and `scc_lmin` (minimum `0`); `tri_lmin` (a Z/2 triangle closed by a flip: lossy
 minimum `1` = group feedback edge set minimum); `bow_lmin` (the bowtie: `2` both ways, matching
 `bowtie_min_two`); `fsat_lmin` (`0`) and `funsat_lmin` (`1`) through the 3-SAT network.
+
+## Signed cycles: loops versus merges, and the signed-cycle bridge to E (`SignedCycles.v`, `SignedResolver.v`)
+
+**The separation (`SignedCycles.v`, reading A).** Walks may cross an edge backward, contributing
+the inverse label (`walk`); directed paths use edges forward only (`dpath`). On a group-labeled
+network under the regular action:
+
+- `section_transport` (the lemma): a section maps `s u` to `s w` along every walk by the walk's
+  label.
+- `holonomy_free_section`: if every closed walk has trivial label, a section exists. This holds for
+  any finite edge list, with no spanning-tree hypothesis (the proof grows a forest one component at
+  a time).
+- `invertible_merge_is_holonomy`: (1) two directed paths `u -> v` with different composite labels
+  `h1`, `h2` close (the second reversed) into a closed walk at `u` with holonomy `h2^-1 h1`, which
+  is not the identity, and no section exists; (2) a section exists iff every closed walk has trivial
+  holonomy, iff walk labels are path-independent, iff the labeling is a coboundary
+  (`section_iff_coboundary`).
+- `fundamental_cycles_holonomy`: with a spanning tree plus extra edges, "every extra edge balanced"
+  (`cycle_basis_criterion`) iff every closed walk has trivial holonomy.
+- `obstruction_loop_vs_merge`: (a) invertible: every tree has a section and trivial holonomy
+  (`tree_has_section`); (b) lossy: the C22 shape is a tree with no section, although each of its two
+  edges alone has one, and its minimum coordination is 1 (`c22_cycle_basis_fails`,
+  `c22_no_section_recovered`, `c22_lmin`). In the invertible case every obstruction is a loop; in
+  the lossy case a merge of two directed paths suffices.
+
+**Harary balance, proved.** Signed graphs are Z/2-labeled networks (`xorb`; label `true` is a
+negative edge). `harary_balance`: a switching `o` (every edge `(u, v, b)` has `b = xorb (o u) (o v)`,
+so reversing the order at the vertices with `o = true` makes every edge positive) exists iff no
+closed undirected walk carries an odd number of negative edges. This is the Z/2 instance of
+`holonomy_free_section`, for every finite signed graph. `balanced_dicycles_positive`: in a balanced
+graph every directed cycle is positive; `balanced_no_positive_acyclic`: balance plus "no positive
+directed cycle" leaves no directed cycle at all. Instances: `z2_triangle_merge` (an unbalanced
+triangle with two directed paths of different sign), `z2_square_balanced`.
+
+**The bridge to E (`SignedResolver.v`, reading B).** The resolver model: one value type `X` with a
+partial order that has a least and a greatest element and finite height; a state exposes each
+vertex of a finite list through a lens with extensionality; vertex `v` is updated by its resolver
+`Fv v` from the current state (`rupd`), and runs, fairness and settling are those of
+`DistributedCycles.v` (`prs`, `Fair`, `Settles`). The signed interaction graph is the **global**
+graph: `Resp sg` says each resolver reads only its in-neighbors and is monotone in its positive
+inputs and antitone in its negative ones, with signs fixed across all states. Local
+(state-dependent) graphs are out of scope.
+
+- `switched_monotone`: under `Resp` and a switching `o`, every resolver is monotone for the
+  switched orders (`leo`, `le_o`).
+- `signed_settlement` (attempt 1): with `slfp o` the least fixed point of the switched order
+  (`DistributedCycles.Lfp` after the change of order): from every start `h0 <= slfp o` (switched
+  order) every fair schedule settles at `slfp o` (`q1_below`); from every sound start
+  (`h0 <= Fsync h0`) every fair schedule settles at the least fixed point above `h0`
+  (`q1_sound_settles`); and E holds from every start `h0 <= slfp o`: `EffectiveCanon` of
+  `CanonicalExecution.v` (Settlement and CanonicalFidelity) with the canonicalizer `const (slfp o)`,
+  together with the left side of `esh_exact` (Settlement, CanonAgree, CanonConv; S and H are
+  trivial here because there are no events). `signed_settlement_harary` obtains the switching from
+  "no negative undirected cycle".
+- `signed_fidelity` (attempt 2): with `Resp`, a switching and at most one fixed point, every fair
+  schedule from **every** start settles at it, and E holds from every start (`q1_unique_iff` after
+  the change of order; it uses the greatest element). Uniqueness is a hypothesis. The sign route to
+  uniqueness (no positive directed cycle: Richard and Comet 2007, Aracena 2008, cited) collapses on
+  balanced graphs to acyclicity (`balanced_no_positive_acyclic`), that is, to Robert.
+- Non-vacuity: `neg_chain_settles` (a negative edge and a non-trivial switching; every start is
+  low), `unique_pos_cycle` (a positive directed cycle with one fixed point, outside every sign
+  condition).
+
+**What breaks, each a theorem.**
+
+| Theorem | Network | Hypothesis shown needed |
+|---|---|---|
+| `neg2_no_fixed_point` | `x0 := not x1`, `x1 := x0` (negative 2-cycle) | balance: no switching, no fixed point, no schedule settles (Boolean form of `flip_noflush` and of the negation counterexample) |
+| `copyback_ghost` | `x0 := x1`, `x1 := x0` (positive 2-cycle) | the start condition for fidelity: from the sound start `(1, 1)`, above `slfp = (0, 0)`, every schedule stays put, so CanonicalFidelity and E fail; two orders from `(0, 1)` reach both fixed points (`copyback_without_authority`, the ghost of `ghost_exact`) |
+| `toggle_ghost` | `x0 := not x1`, `x1 := not x0` (balanced, switching `(false, true)`) | the same with negative edges: `slfp = (0, 1)`, the ghost is `(1, 0)` |
+| `ring_needs_low_start` | the positive 3-ring of `dist_ring_livelock` | the start condition for settlement: from `(1, 0, 0)` a fair schedule never reaches quiescence |
+| `unbalanced_unique_oscillates` | `x0 := x0`, `x1 := x0 and not x1` | balance in attempt 2: one fixed point, yet no schedule from `x0 = 1` settles |
+| `flip_needs_top` | `flip_noflush`'s swap on `{fz < fa, fb}` | bounded value sets: monotone, one fixed point, no top, no flush from `fa` |
+| `xor_no_certificate` | `x1 := x0 xor x1` | lossy non-monotone resolvers are rejected: every certifying graph is unbalanced |
+| `cyc3_unsignable` | the 3-cycle permutation of `{t0, t1, t2}` | signability: no partial order with a least element makes it monotone or antitone, and it has no fixed point |
+
+So the bridge is a set of sufficient certificates for E under an explicit resolver semantics (global
+signs, bounded finite-height value sets, low starts or a unique fixed point), not an identity
+between signed-cycle conditions and E.

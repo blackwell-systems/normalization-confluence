@@ -1973,6 +1973,44 @@ Print Assumptions NC.CanonicalLocality.cyc_factor_sound_gc.
 Print Assumptions NC.CanonicalLocality.common_r1.
 Print Assumptions NC.CanonicalLocality.c_local_iff_r1.
 Print Assumptions NC.CanonicalLocality.fed_state_and_interaction.
+Require NC.SignedCycles NC.SignedResolver.
+Print Assumptions NC.SignedCycles.section_transport.
+Print Assumptions NC.SignedCycles.section_holonomy_free.
+Print Assumptions NC.SignedCycles.holonomy_free_section.
+Print Assumptions NC.SignedCycles.holonomy_free_path_independent.
+Print Assumptions NC.SignedCycles.walk_app.
+Print Assumptions NC.SignedCycles.walk_rev.
+Print Assumptions NC.SignedCycles.invertible_merge_is_holonomy.
+Print Assumptions NC.SignedCycles.fundamental_cycles_holonomy.
+Print Assumptions NC.SignedCycles.obstruction_loop_vs_merge.
+Print Assumptions NC.SignedCycles.switching_section.
+Print Assumptions NC.SignedCycles.harary_balance.
+Print Assumptions NC.SignedCycles.balanced_dicycles_positive.
+Print Assumptions NC.SignedCycles.balanced_no_positive_acyclic.
+Print Assumptions NC.SignedCycles.z2_triangle_merge.
+Print Assumptions NC.SignedCycles.z2_square_balanced.
+Print Assumptions NC.SignedResolver.switched_monotone.
+Print Assumptions NC.SignedResolver.slfp_fixed.
+Print Assumptions NC.SignedResolver.slfp_least.
+Print Assumptions NC.SignedResolver.sw_below.
+Print Assumptions NC.SignedResolver.sw_sound.
+Print Assumptions NC.SignedResolver.sw_unique.
+Print Assumptions NC.SignedResolver.settled_fixed.
+Print Assumptions NC.SignedResolver.kernel_E.
+Print Assumptions NC.SignedResolver.kernel_esh.
+Print Assumptions NC.SignedResolver.signed_settlement.
+Print Assumptions NC.SignedResolver.signed_settlement_harary.
+Print Assumptions NC.SignedResolver.signed_fidelity.
+Print Assumptions NC.SignedResolver.neg_chain_settles.
+Print Assumptions NC.SignedResolver.unique_pos_cycle.
+Print Assumptions NC.SignedResolver.neg2_no_fixed_point.
+Print Assumptions NC.SignedResolver.copyback_ghost.
+Print Assumptions NC.SignedResolver.toggle_ghost.
+Print Assumptions NC.SignedResolver.ring_needs_low_start.
+Print Assumptions NC.SignedResolver.unbalanced_unique_oscillates.
+Print Assumptions NC.SignedResolver.flip_needs_top.
+Print Assumptions NC.SignedResolver.xor_no_certificate.
+Print Assumptions NC.SignedResolver.cyc3_unsignable.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1983,8 +2021,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1926 ]; then
-  echo "FAIL: expected 1926 axiom-free results, got $N"
+if [ "$N" -lt 1963 ]; then
+  echo "FAIL: expected 1963 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
