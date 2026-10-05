@@ -1564,6 +1564,43 @@ Print Assumptions NC.CRDTBoundary.crdt_boundary.
 Print Assumptions NC.CRDTBoundary.boundary_nonvacuous.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff.
 Print Assumptions NC.CvRDTExact.cvrdt_on_iff_nonvacuous.
+Require NC.SheafGluing.
+Print Assumptions NC.SheafGluing.glue_restricts.
+Print Assumptions NC.SheafGluing.restricts_compatible.
+Print Assumptions NC.SheafGluing.separation.
+Print Assumptions NC.SheafGluing.sec_restrict.
+Print Assumptions NC.SheafGluing.sec_local.
+Print Assumptions NC.SheafGluing.gluing.
+Print Assumptions NC.SheafGluing.sheaf_condition.
+Print Assumptions NC.SheafGluing.sheaf_exact.
+Print Assumptions NC.SheafGluing.gluing_iff_local_global.
+Print Assumptions NC.SheafGluing.internalb_iff.
+Print Assumptions NC.SheafGluing.sheaf_iff_refines.
+Print Assumptions NC.SheafGluing.chain_refines.
+Print Assumptions NC.SheafGluing.chain_glues.
+Print Assumptions NC.SheafGluing.triangle_fails.
+Print Assumptions NC.SheafGluing.r1_failure.
+Print Assumptions NC.SheafGluing.sheaf_iff_refines_instance.
+Print Assumptions NC.SheafGluing.gluing_cex_overlap.
+Print Assumptions NC.SheafGluing.topo_filter.
+Print Assumptions NC.SheafGluing.filter_single.
+Print Assumptions NC.SheafGluing.resL_R1.
+Print Assumptions NC.SheafGluing.cert_restrict_closed.
+Print Assumptions NC.SheafGluing.cert_restrict.
+Print Assumptions NC.SheafGluing.cert_pointwise.
+Print Assumptions NC.SheafGluing.sec_iff_LF.
+Print Assumptions NC.SheafGluing.closed_union.
+Print Assumptions NC.SheafGluing.closed_refines.
+Print Assumptions NC.SheafGluing.cert_glue.
+Print Assumptions NC.SheafGluing.cert_retraction.
+Print Assumptions NC.SheafGluing.cert_sheaf.
+Print Assumptions NC.SheafGluing.cert_restrict_iff.
+Print Assumptions NC.SheafGluing.cert_needs_sc.
+Print Assumptions NC.SheafGluing.collapse_restrict.
+Print Assumptions NC.SheafGluing.vs_cert_sheaf.
+Print Assumptions NC.SheafGluing.chain_cert_nonclosed.
+Print Assumptions NC.SheafGluing.cert_restrict_iff_instance.
+Print Assumptions NC.SheafGluing.collapse_restrict_instance.
 Require NC.CoordinationMinimum.
 Print Assumptions NC.CoordinationMinimum.cm_filter_app.
 Print Assumptions NC.CoordinationMinimum.cm_len_app.
@@ -1800,8 +1837,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1747 ]; then
-  echo "FAIL: expected 1747 axiom-free results, got $N"
+if [ "$N" -lt 1783 ]; then
+  echo "FAIL: expected 1783 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
