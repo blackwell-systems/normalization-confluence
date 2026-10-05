@@ -9,7 +9,7 @@ scoped:
 > commutativity regime (`causal_convergence_exact`). Under unordered at-least-once delivery, its
 > compensation-free fragment is exactly commutative-idempotent state evolution on reachable
 > states (`merge_action_exact`) and, with a finite event range and decidable state equality,
-> exactly the CvRDT semilattice regime on reachable states (`cvrdt_on_exact`). Nontrivial
+> exactly the CvRDT semilattice regime on reachable states (`cvrdt_on_iff`). Nontrivial
 > normalization strictly extends these compensation-free regimes on the same transition
 > representation.
 
@@ -90,13 +90,14 @@ The boundary rests on behavioral exact theorems, each an iff about runs:
 - `merge_action_exact` (`CvRDTExact.v`): convergence under every order and every duplication from
   `s0` iff the action is commutative and idempotent at every reachable state; equivalently
   `alo_exact`'s conditions (`merge_conv_alo_exact`).
-- `cvrdt_on_exact` and its packaged form `cvrdt_exact_all` (`CvRDTExact.v`): with a finite event
+- `cvrdt_on_iff` and its packaged form `cvrdt_exact_all` (`CvRDTExact.v`): with a finite event
   range and decidable state equality, that convergence iff a join-semilattice representation on
-  the reachable states. The backward direction `cvrdt_on_conv` needs no qualifier. Cite
-  `cvrdt_exact_all` for the iff: `cvrdt_on_exact`, as exported from its section, also takes the
+  the reachable states. The backward direction `cvrdt_on_conv` needs no qualifier. The older
+  `cvrdt_on_exact` states the same iff inside its section, but as exported it also takes the
   section hypothesis `MergeConv s0` as a premise, so its standalone statement is weaker than its
-  name suggests; `cvrdt_exact_all` (and `crdt_boundary` (b')) state the iff with only the finite
-  range and decidable equality as hypotheses.
+  name suggests; `cvrdt_on_iff`, `cvrdt_exact_all` and `crdt_boundary` (b') state the iff with
+  only the finite range and decidable equality as hypotheses (`cvrdt_on_iff_nonvacuous`: both
+  sides true for one finite instance, both false for another).
 - `cvrdt_on_inflationary` (`CvRDTExact.v`): in that representation every event is inflationary
   in the join order.
 
@@ -229,5 +230,5 @@ is neither claimed nor needed.
 - `coq/GovernanceCausal.v`: the co-enabled-events Convergence Theorem for the rewrite system.
 - `coq/AtLeastOnce.v`, `coq/AtLeastOnceExact.v`: duplicate delivery for governed machines.
 - `coq/Checker.v`: `run_perm_invariant`.
-- `coq/verify.sh`: gates all of the above on being `Closed under the global context` (1522
+- `coq/verify.sh`: gates all of the above on being `Closed under the global context` (1524
   theorems at the time of writing; `verify.sh` is the source of truth).

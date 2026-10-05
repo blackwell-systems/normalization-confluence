@@ -247,5 +247,5 @@ Still at paper level: the rank on the nerve as a 2-complex and the sheaf gluing 
 (`REGIME-AUDIT.md`, section 13).
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate
-(currently 1499 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 1524 theorems; [coq/README.md](../README.md#verify-it-yourself)) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.

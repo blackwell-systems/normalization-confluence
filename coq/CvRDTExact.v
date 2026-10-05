@@ -43,9 +43,14 @@
    - conv_cvrdt_on: MergeConv s0 -> CvRDTOn s0, when X is finite (listed by xs) and state
      equality is decidable (so the join can be computed without choice: j s t merges into s the
      events of a subset of xs that reaches t).
-   - cvrdt_on_exact: under those two qualifiers, MergeConv s0 <-> CvRDTOn s0. Together with
-     merge_action_exact: converge under every order and duplication <-> commutative and
-     idempotent action at reachable states <-> a state-based CRDT on the reachable states.
+   - cvrdt_on_iff: under those two qualifiers (explicit premises), MergeConv s0 <-> CvRDTOn s0.
+     Together with merge_action_exact: converge under every order and duplication <->
+     commutative and idempotent action at reachable states <-> a state-based CRDT on the
+     reachable states. cvrdt_on_exact is the same statement inside section Finite; as exported
+     it also takes MergeConv s0 as a premise (the discharged section hypothesis), so cite
+     cvrdt_on_iff or cvrdt_exact_all for the iff. cvrdt_on_iff_nonvacuous: the premises hold
+     for a finite range with both sides true (clamp from 0) and with both sides false
+     (overwrite over {1, 2}).
    - cvrdt_on_inflationary: in that representation each event is inflationary in the join order.
 
    Part 3. The CvRDT instance (section CvRDTInstance; join commutative, associative,
@@ -477,6 +482,14 @@ Section Converse.
     intros xs Hxs Sdec s0. split; [apply merge_action_exact |].
     split; [intros H; exact (conv_cvrdt_on xs Hxs Sdec s0 H) | apply cvrdt_on_conv].
   Qed.
+
+  (* The iff of cvrdt_on_exact with its qualifiers as explicit premises. cvrdt_on_exact, as
+     exported from section Finite, also takes MergeConv s0 as a premise (the section hypothesis
+     Hconv used by conv_cvrdt_on is discharged into it), so outside the section it is not an
+     iff; this is the statement to cite. *)
+  Theorem cvrdt_on_iff : forall xs, (forall e, X e <-> In e xs) ->
+    (forall a b : S, {a = b} + {a <> b}) -> forall s0, MergeConv s0 <-> CvRDTOn s0.
+  Proof. intros xs Hxs Sdec s0. exact (proj2 (cvrdt_exact_all xs Hxs Sdec s0)). Qed.
 End Converse.
 
 Arguments MergeConv {S E} act X s0.
@@ -882,4 +895,31 @@ Proof.
   - intros e. unfold clampX. simpl. split; [intros H; lia | intros H; repeat destruct H as [<- | H]; try lia; destruct H].
   - exact Nat.eq_dec.
   - exact (proj1 clamp_reach_qualifier).
+Qed.
+
+(* Non-vacuity of cvrdt_on_iff: its premises hold for a finite range with both sides true (the
+   clamped merge from 0 over {0..5}) and with both sides false (overwrite over {1, 2} from 0). *)
+Definition lwwX (x : nat) : Prop := x = 1 \/ x = 2.
+
+Theorem cvrdt_on_iff_nonvacuous :
+  (MergeConv clamp_act clampX 0 /\ CvRDTOn clamp_act clampX 0) /\
+  (~ MergeConv lww_act lwwX 0 /\ ~ CvRDTOn lww_act lwwX 0).
+Proof.
+  assert (Hc : forall e, clampX e <-> In e [0; 1; 2; 3; 4; 5]).
+  { intros e. unfold clampX. simpl.
+    split; [intros H; lia | intros H; repeat destruct H as [<- | H]; try lia; destruct H]. }
+  assert (Hl : forall e, lwwX e <-> In e [1; 2]).
+  { intros e. unfold lwwX. simpl. split; [intros [<- | <-]; tauto | intros [<- | [<- | []]]; tauto]. }
+  assert (Hnc : ~ MergeConv lww_act lwwX 0).
+  { intro H. assert (H1 : lwwX 1) by (left; reflexivity). assert (H2 : lwwX 2) by (right; reflexivity).
+    specialize (H [1; 2] [2; 1] (Forall_cons _ H1 (Forall_cons _ H2 (Forall_nil _)))
+                  (Forall_cons _ H2 (Forall_cons _ H1 (Forall_nil _)))).
+    assert (Eq : runT lww_act [1; 2] 0 = runT lww_act [2; 1] 0) by (apply H; intros x; simpl; tauto).
+    discriminate Eq. }
+  split; split.
+  - exact (proj1 clamp_reach_qualifier).
+  - apply (proj1 (cvrdt_on_iff Nat.eq_dec clamp_act clampX _ Hc Nat.eq_dec 0)).
+    exact (proj1 clamp_reach_qualifier).
+  - exact Hnc.
+  - intro H. apply Hnc. exact (proj2 (cvrdt_on_iff Nat.eq_dec lww_act lwwX _ Hl Nat.eq_dec 0) H).
 Qed.

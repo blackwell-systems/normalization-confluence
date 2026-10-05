@@ -24,9 +24,9 @@ normalization repairs them. Four results, all axiom-free:
   absorbs duplicate delivery (the extra property a CvRDT bundles in for at-least-once delivery,
   which normalization confluence does not require in general).
 - Strict inclusion (`witness_converges`, `witness_not_cmrdt`, `witness_leaves_valid_space`): a
-  concrete governed machine that converges yet is neither CRDT. Its raw operations do not commute
-  (so it is no CmRDT), and an event drives a valid state to an invalid one (so its operations are
-  not the structure-preserving endomaps of a CvRDT). It converges only because compensation repairs
+  concrete governed machine that converges although its raw transitions are neither kind of CRDT.
+  Its raw operations do not commute (so they are no CmRDT), and an event drives a valid state to an
+  invalid one (so the raw operations are not the structure-preserving endomaps of a CvRDT). It converges only because compensation repairs
   the violation. `CRDTBoundary.v` sharpens each part into a specific theorem about the raw
   transitions, and shows the governed behavior itself is trivially a CRDT, so strictness is about
   the transition representation (see [The CRDT boundary](#the-crdt-boundary-crdtboundaryv)).
@@ -66,8 +66,10 @@ vacuous. `cf_reach_iff`: those reachable states are the runs from `s0`. `cf_star
   acts as a join with a fixed state, `act e s = j s (act e s0)` for reachable `s`.
   `cvrdt_on_conv`: `CvRDTOn s0 -> MergeConv s0`. `conv_cvrdt_on`: the converse, when `X` is finite
   and state equality is decidable (the join is computed without choice: `j s t` merges into `s` the
-  events of a subset of `X` that reaches `t`). **`cvrdt_on_exact`**: under those qualifiers,
-  `MergeConv s0 <-> CvRDTOn s0`; `cvrdt_exact_all` states both iffs. So a compensation-free
+  events of a subset of `X` that reaches `t`). **`cvrdt_on_iff`**: under those qualifiers, as
+  explicit premises, `MergeConv s0 <-> CvRDTOn s0`; `cvrdt_exact_all` states both iffs.
+  (`cvrdt_on_exact` is the same statement inside section `Finite`; as exported it also takes
+  `MergeConv s0` as a premise, the discharged section hypothesis, so cite `cvrdt_on_iff`.) So a compensation-free
   registry converges under every order and every duplication exactly when, on its reachable
   states, it is a state-based CRDT with payload `e` read as the state `act e s0`.
   `cvrdt_on_inflationary`: in that representation every event is inflationary in the join order.
@@ -111,6 +113,8 @@ case.
 max on `nat * nat`), `gset_exact` (a grow-only set as a bitset, union `Nat.lor`), each with
 `MergeConv`, `CvRDTOn`, at-least-once convergence and unique normal forms for every `X` and `s0`
 (`cvrdt_all`), and computed duplicate deliveries `maxreg_dup`, `gcounter_dup`, `gset_dup`.
+`cvrdt_on_iff_nonvacuous`: the premises of `cvrdt_on_iff` hold with both sides true (the clamped
+merge from 0 over `{0..5}`) and with both sides false (overwrite over `{1, 2}` from 0).
 
 ## The CRDT boundary (`CRDTBoundary.v`)
 

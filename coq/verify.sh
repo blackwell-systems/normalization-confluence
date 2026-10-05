@@ -1562,6 +1562,8 @@ Print Assumptions NC.CRDTBoundary.witness_governed_constant.
 Print Assumptions NC.CRDTBoundary.witness_governed_converges.
 Print Assumptions NC.CRDTBoundary.crdt_boundary.
 Print Assumptions NC.CRDTBoundary.boundary_nonvacuous.
+Print Assumptions NC.CvRDTExact.cvrdt_on_iff.
+Print Assumptions NC.CvRDTExact.cvrdt_on_iff_nonvacuous.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1572,8 +1574,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1522 ]; then
-  echo "FAIL: expected 1522 axiom-free results, got $N"
+if [ "$N" -lt 1524 ]; then
+  echo "FAIL: expected 1524 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
