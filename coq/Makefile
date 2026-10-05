@@ -213,3 +213,9 @@ all: RootSet.vo
 
 RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
 	coqc -Q . NC RootSet.v
+
+# The exact event-order condition under root-set coordination (RootSetEvents.v).
+all: RootSetEvents.vo
+
+RootSetEvents.vo: RootSetEvents.v CohomologyGraph.vo CohomologyGeneral.vo Trace.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo CoordinatedExact.vo RootSet.vo
+	coqc -Q . NC RootSetEvents.v

@@ -1021,6 +1021,90 @@ Print Assumptions NC.RootSet.scc_forest.
 Print Assumptions NC.RootSet.scc_component.
 Print Assumptions NC.RootSet.scc_consistent_roots.
 Print Assumptions NC.RootSet.scc_unique_section.
+Require NC.RootSetEvents.
+Print Assumptions NC.RootSetEvents.frule_nil.
+Print Assumptions NC.RootSetEvents.frule_snoc.
+Print Assumptions NC.RootSetEvents.targets_snoc.
+Print Assumptions NC.RootSetEvents.targets_in_verts.
+Print Assumptions NC.RootSetEvents.in_lift.
+Print Assumptions NC.RootSetEvents.new_in.
+Print Assumptions NC.RootSetEvents.frule_some.
+Print Assumptions NC.RootSetEvents.frule_in.
+Print Assumptions NC.RootSetEvents.frule_root.
+Print Assumptions NC.RootSetEvents.frule_driven.
+Print Assumptions NC.RootSetEvents.frule_off.
+Print Assumptions NC.RootSetEvents.verts_in_targets.
+Print Assumptions NC.RootSetEvents.topoF_ext.
+Print Assumptions NC.RootSetEvents.topoF_nodup_nil.
+Print Assumptions NC.RootSetEvents.topoF_snoc.
+Print Assumptions NC.RootSetEvents.forest_order.
+Print Assumptions NC.RootSetEvents.forest_order_set.
+Print Assumptions NC.RootSetEvents.ffun_local.
+Print Assumptions NC.RootSetEvents.forest_common.
+Print Assumptions NC.RootSetEvents.runF_fext.
+Print Assumptions NC.RootSetEvents.HC.
+Print Assumptions NC.RootSetEvents.Inv_all.
+Print Assumptions NC.RootSetEvents.ffun_root.
+Print Assumptions NC.RootSetEvents.in_o_root.
+Print Assumptions NC.RootSetEvents.reg_cases.
+Print Assumptions NC.RootSetEvents.forest_network_shape.
+Print Assumptions NC.RootSetEvents.Cons_msection.
+Print Assumptions NC.RootSetEvents.msection_Cons.
+Print Assumptions NC.RootSetEvents.forest_cons_iff.
+Print Assumptions NC.RootSetEvents.drive_Cons.
+Print Assumptions NC.RootSetEvents.applyF_root.
+Print Assumptions NC.RootSetEvents.applyF_off.
+Print Assumptions NC.RootSetEvents.run_off.
+Print Assumptions NC.RootSetEvents.forest_root_run.
+Print Assumptions NC.RootSetEvents.forest_root_reach.
+Print Assumptions NC.RootSetEvents.filter_only.
+Print Assumptions NC.RootSetEvents.root_only_run.
+Print Assumptions NC.RootSetEvents.forest_c1_static.
+Print Assumptions NC.RootSetEvents.forest_c1r1.
+Print Assumptions NC.RootSetEvents.forest_c2at_iff.
+Print Assumptions NC.RootSetEvents.forest_c2_static_iff.
+Print Assumptions NC.RootSetEvents.forest_gc_iff.
+Print Assumptions NC.RootSetEvents.forest_fed_exact.
+Print Assumptions NC.RootSetEvents.forest_fed_exact_full.
+Print Assumptions NC.RootSetEvents.forest_events_exact.
+Print Assumptions NC.RootSetEvents.forest_perm_exact.
+Print Assumptions NC.RootSetEvents.forest_events_exact_global.
+Print Assumptions NC.RootSetEvents.forest_global_iff_static.
+Print Assumptions NC.RootSetEvents.forest_state_roots.
+Print Assumptions NC.RootSetEvents.forest_run_formula.
+Print Assumptions NC.RootSetEvents.forest_run_single_root.
+Print Assumptions NC.RootSetEvents.forest_runs_by_root.
+Print Assumptions NC.RootSetEvents.forest_cross_commute.
+Print Assumptions NC.RootSetEvents.forest_driven_noop.
+Print Assumptions NC.RootSetEvents.forest_runs_kept.
+Print Assumptions NC.RootSetEvents.tforest_snoc.
+Print Assumptions NC.RootSetEvents.in_snoc_iff.
+Print Assumptions NC.RootSetEvents.tforest_props.
+Print Assumptions NC.RootSetEvents.dfun_ffun.
+Print Assumptions NC.RootSetEvents.dsrc_fsrc.
+Print Assumptions NC.RootSetEvents.rec_forest.
+Print Assumptions NC.RootSetEvents.rec_order.
+Print Assumptions NC.RootSetEvents.rec_set.
+Print Assumptions NC.RootSetEvents.rec_cons.
+Print Assumptions NC.RootSetEvents.rec_tc.
+Print Assumptions NC.RootSetEvents.coordinated_events_exact_recovered.
+Print Assumptions NC.RootSetEvents.coordinated_events_exact_global_recovered.
+Print Assumptions NC.RootSetEvents.recovered_klein.
+Print Assumptions NC.RootSetEvents.tw_forest.
+Print Assumptions NC.RootSetEvents.tw_order.
+Print Assumptions NC.RootSetEvents.tw_set.
+Print Assumptions NC.RootSetEvents.tw_reg_in.
+Print Assumptions NC.RootSetEvents.tw_s_cons.
+Print Assumptions NC.RootSetEvents.tw_root_set.
+Print Assumptions NC.RootSetEvents.tw_root0_fixed.
+Print Assumptions NC.RootSetEvents.tw_converges_at_zero.
+Print Assumptions NC.RootSetEvents.tw_diverges_at_three.
+Print Assumptions NC.RootSetEvents.tw_reachable_matters.
+Print Assumptions NC.RootSetEvents.tw_not_global.
+Print Assumptions NC.RootSetEvents.tw_cross_roots.
+Print Assumptions NC.RootSetEvents.tw_poke_noop.
+Print Assumptions NC.RootSetEvents.tw_vertex2.
+Print Assumptions NC.RootSetEvents.tw_constraint.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1031,8 +1115,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 989 ]; then
-  echo "FAIL: expected 989 axiom-free results, got $N"
+if [ "$N" -lt 1072 ]; then
+  echo "FAIL: expected 1072 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
