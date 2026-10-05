@@ -106,6 +106,12 @@ all: CoordinatedCycles.vo
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
 
+# Monotone federation (MonotoneFederation.v, WP6).
+all: MonotoneFederation.vo
+
+MonotoneFederation.vo: MonotoneFederation.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo Trace.vo FederationEventsCycles.vo
+	coqc -Q . NC MonotoneFederation.v
+
 # General-map cohomology (CohomologyGeneral.v).
 all: CohomologyGeneral.vo
 

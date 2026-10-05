@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 548 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 575 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -789,6 +789,41 @@ Computing the Kleene limit needs the stabilization test to be decidable; without
 development proves only the double-negated existence, which is the constructive limit (deciding
 `f x = x` in general is not possible).
 
+## Monotone cycles against the paper's hypotheses (`MonotoneFederation.v`)
+
+Completes the federation paper's "Monotone Cycles" section (PAPER-MAP rows F22, F23, F24, F27,
+F31), axiom-free:
+
+- F22, the repair operator built from a network: component states are (shared, local) pairs, a
+  source keeps its own shared value, a target applies its resolver to its sources' current states
+  (a single-source morphism is a one-source resolver). `fed_def_lattice_shared_cyclic_hyps`: if
+  that `Phi` is monotone, every hypothesis of `FederationEventsCycles`' cyclic normalizer holds.
+- F23, validity of the least fixed point. FALSE AS STATED: `fed_thm_monotone_cycles_lfp_invalid`
+  is a 2-cycle of identity morphisms on `bool` (valid iff the flag is set) meeting every hypothesis
+  of `thm:monotone-cycles` (complete lattice, `Phi` monotone, M1/R2, components WFC, CC vacuous),
+  whose least fixed point is not federally valid; the cyclic normalizer even moves the valid state
+  to it. M1/R2 transport validity but bottom need not be valid. Corrected with "every component is
+  valid with bottom shared values": `net_iter_valid`, `net_sweep_valid` (any finite schedule),
+  `net_lfp_valid` (under ACC), `net_Ncyc_correct` and `net_Ncyc_idem` (which discharges the
+  former assumption `lfp_valid` of `cyc_N_idem`); non-vacuity `fed_valid_corrected_instance`.
+- F23, the formula `s* = sup_k Phi^k(bot)`. FALSE without continuity:
+  `fed_thm_monotone_cycles_kleene_formula_fails` on the complete chain `0 < 1 < ... < w < w+1`
+  (`w_complete_nn`, completeness read classically as a double negation). Corrected:
+  `kleene_sup_lfp`, `kleene_sup_valid`, non-vacuity `kleene_sup_instance`.
+- F23, "all processors converge": `fed_thm_monotone_cycles_events_refuted` restates
+  `cyc_counterexample` with `Phi` built from the network and every paper hypothesis discharged;
+  `net_events_converge_iff` and `fed_thm_monotone_cycles_events_corrected` give the exact
+  condition (GC).
+- F24: `negation_not_monotone`; the corollary holds for the repair normal form only.
+- F27, infinite lattices and widening: `kleene_sup_instance` (a continuous operator whose least
+  fixed point is never reached in finitely many steps), `widening_sound` (a post-fixed point bounds
+  every iterate and the least fixed point), `widening_not_normal_form` (a widened result need not
+  be a fixed point, so it is not the federated normal form).
+- F31, remark "Convexity and the monotone regime". FALSE AS STATED: `fed_rem_convexity_refuted`
+  (a one-registry sub-federation whose repair is trivially monotone, while `rho_Fed^J` is the
+  component's non-monotone normalizer). Corrected: `fed_rem_convexity_corrected` (phase 1 monotone
+  and `Phi` monotone in the locals too), non-vacuity `convexity_corrected_instance`.
+
 ## rho* constructed from WFC (`RhoStar.v`)
 
 The modules above take iterated compensation `rho_star` as a parameter, with the hypotheses
@@ -1282,7 +1317,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 548 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 575 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
