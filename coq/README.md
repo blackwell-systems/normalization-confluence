@@ -167,12 +167,15 @@ is on the same page.
 | `LossyHardness.v` | The 3-SAT reduction: `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` (NP-completeness then follows by the standard argument) | [The 3-SAT reduction](docs/non-invertible.md#the-3-sat-reduction-for-lossy-networks-lossyhardnessv) |
 | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | [Event order under root-set coordination](docs/non-invertible.md#the-exact-event-order-condition-under-root-set-coordination-rootseteventsv) |
 
-### 13. The full nerve as a 2-complex
+### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
-No module: nothing is mechanized on the 2-complex itself (the rank of `H^1` with triangle relations,
-and the positive sheaf-gluing assembly, are paper level). What exists is on the 1-skeleton,
-`H1_classification`, `gauge_fix` and `betti_number` in `CohomologyGraph.v`, and the negative half of
-gluing, `gluing_order_dependent` in `Cohomology.v` (section 11 above).
+| Module | Headline theorems | Details |
+|---|---|---|
+| `CohomologyNerve.v` | `nerve_H1_classification` (classes = relation-satisfying generator assignments up to simultaneous conjugation), `nerve_H1_abelian`, `nerve_H1_Z2_count` (`2^((\|E\| - \|V\| + 1) - rank)` classes), `nerve_Z2_full_iff`, `nerve_section_iff_coboundary`; `triangle_kills_flip` | [`H^1` on the 2-complex](docs/non-monotone-invertible.md#h1-on-the-nerve-as-a-2-complex-cohomologynervev) |
+
+The 1-skeleton results are `H1_classification`, `gauge_fix` and `betti_number` in
+`CohomologyGraph.v` (section 11 above). The positive sheaf-gluing assembly is paper level; the
+negative half of gluing is `gluing_order_dependent` in `Cohomology.v`.
 
 ### 14. Compositional collapse ([docs/collapse.md](docs/collapse.md))
 

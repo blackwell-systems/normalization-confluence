@@ -5,7 +5,7 @@ authority root, rootless cycles, and event order under the coordination plan. Ea
 summary is in the [module index](../README.md#modules-by-regime); the status of each question in
 this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#11-non-monotone-cycles-invertible-transports), section 11
-(and section 13 for the 1-skeleton results).
+(and section 13 for the 1-skeleton and 2-complex results).
 
 ## Cohomological layer (`Cohomology.v`)
 
@@ -72,12 +72,92 @@ completion, the cycle-basis generation, and `H^1` as a quotient with its rank ar
   `betti_number`: the number of those generators is `|E| - |V| + 1`, the first Betti number.
   `tri_flip_not_cohomologous_to_identity` discharges every hypothesis on the Z/2 triangle.
   Scope: this is `H^1` of the graph (the nerve's 1-skeleton, where every labeling is a cocycle). The
-  nerve's triangles (2-cells) impose further relations that can lower the rank; those are not
-  modeled.
+  nerve's triangles (2-cells) impose further relations that can lower the count; they are modeled in
+  `CohomologyNerve.v` (below).
 
-Paper-level (not mechanized): the rank on the nerve as a 2-complex (the triangle relations), and the
-complexity of choosing the spanning tree that minimizes the coordinated set (the group feedback edge
-set results, cited from the literature).
+Paper-level (not mechanized): the complexity of choosing the spanning tree that minimizes the
+coordinated set (the group feedback edge set results, cited from the literature).
+
+## `H^1` on the nerve as a 2-complex (`CohomologyNerve.v`)
+
+Closes the counting row of REGIME-AUDIT.md section 13 (gap 12): `H^1` with the triangle relations,
+axiom-free, for any group (abstract group laws as section hypotheses) and, for the count, over Z/2.
+
+**Model.** A 2-complex is a labeled graph (CohomologyGraph.v's edge lists) plus a list of 2-cells. A
+2-cell is a closed walk: a base vertex and a list of steps, each an edge index with an orientation
+(backward reads the inverse label); `wf_cells` requires each cell to be a closed walk on the graph.
+The nerve's triangles are the length-3 cells; the theory holds for any closed walk. `hol L w` is the
+holonomy (composite transport) of a walk, and `cocycle L C` says every cell of `C` has trivial
+holonomy: the cocycle condition on 2-cells. Gauge and `cohomologous` are CohomologyGraph.v's (the same
+0-cochains act), so `H^1` of the complex is the cocycles modulo gauge. Fix a spanning tree `T` grown
+from `r` with extra edges `X` (`|X| = |E| - |V| + 1`, `betti_number`), and write `triv T` for `T`
+relabeled by the identity. The relation word of a cell is `gen_word |T| w`: its walk with the tree
+steps erased and the non-tree edge `|T| + k` read as generator `k`.
+
+**Gauge covariance.** `hol_gauge`: a gauge `h` sends the holonomy `H` of a walk from `a` to `b` to
+`h(b) H h(a)^-1`, so `cocycle_gauge`: on closed walks the cocycle condition is gauge invariant (a
+property of the class). `hol_tree_fixed` / `relations_in_generators`: on a labeling that is the
+identity on the tree, a cell's holonomy is its relation word evaluated on the non-tree labels.
+
+**Non-abelian classification (`nerve_H1_classification`).** For a spanning tree `T`, extra edges
+`X` spanned by it, and cells `C` that are closed walks:
+
+1. `triv T ++ X'` is a cocycle iff the assignment `X'` of the generators satisfies every relation
+   word;
+2. every cocycle of the complex is cohomologous to `triv T ++ X'` for such an `X'`;
+3. two of them, `triv T ++ X1` and `triv T ++ X2`, are cohomologous iff `X2` is a simultaneous
+   conjugate `c X1 c^-1` (by `H1_classification`);
+4. simultaneous conjugation preserves the relations.
+
+So `H^1(K; G)` is in bijection with `Hom(<X | relation words>, G)` modulo conjugation, an assignment
+satisfying the words being by definition a homomorphism from the presented group (the presented group
+is the fundamental group of the 2-complex; that identification is standard and not itself
+mechanized). There is no rank for non-abelian `G`: this classification replaces it.
+`nerve_H1_abelian`: for commutative `G`, conjugation is trivial and the classes are exactly the
+relation-satisfying assignments.
+
+**Sections are decided on the graph (`nerve_section_iff_coboundary`).** A labeling has a section iff
+it is a coboundary iff it is cohomologous to `triv L`; none of this mentions the cells, and a labeling
+with a section is a cocycle of every complex on its graph (`section_cocycle`). The cells change the
+count of classes, never the existence question: a cocycle of the complex is in the zero class iff it
+has a section, exactly as on the graph.
+
+**The count over Z/2 (`nerve_H1_Z2_count`).** With `m = |X|`, a cell's relation is a linear functional
+on generator vectors in `(Z/2)^m` (`rel_fun_linear`). `ker m F` lists the common solutions and
+`rel_rank m F` counts the relations not implied by the ones after them in the list (a relation adds
+one exactly when it is nonzero somewhere on the solution set of the rest). The general counting facts:
+`ker_count` (`|ker| * 2^rank = 2^m`), `ker_count_pow` (`|ker| = 2^(m - rank)`), `rel_rank_le`
+(`rank <= m` and `rank <= #relations`), `rel_rank_solution_set` (the rank depends only on the
+solution set, so not on the order of the cells), `rel_rank_zero_iff` (rank 0 iff every relation
+vanishes identically). The theorem, for `Z2reps` (the solution list) and `Z2rank`:
+
+- `Z2reps` has no duplicates and has length `2^(m - rank)`, with `rank <= m` and `rank <= |C|`;
+- its members are exactly the vectors `a` whose labeling `triv T ++ assign Xs a` is a cocycle;
+- every cocycle of the complex is cohomologous to the labeling of some member;
+- distinct members are not cohomologous.
+
+So `|H^1(K; Z/2)| = 2^((|E| - |V| + 1) - rank)`, that is,
+`dim H^1 = dim Z^1(graph)/B^1 - rank of the triangle relations on the cycle space`.
+`nerve_Z2_no_cells` recovers `betti_number` (no cells: rank 0, `2^b` classes, with
+`b + |V| = |E| + 1`). `nerve_Z2_full_iff`: the count equals `2^(|E| - |V| + 1)` iff the rank is 0 iff
+every assignment is a cocycle (the cells impose no relation). `nerve_Z2_cell_lowers`: adding a cell
+never raises the count. Scope: the count is proved over Z/2 (decidable, explicit lists); for a general
+field the classification above gives the same solution-space description, but the dimension formula
+is mechanized only for Z/2.
+
+**Non-vacuity** (every hypothesis discharged, the counts computed):
+
+- Hollow triangle (`hollow_triangle`): no cell, rank 0, two classes `[false]`, `[true]`.
+- Filled triangle (`filled_triangle`): one cell `0 -> 1 -> 2 -> 0`, rank 1, one class.
+  `triangle_kills_flip`: the flip labeling is a nontrivial class of the graph
+  (`tri_flip_not_cohomologous_to_identity`) and a cocycle of the hollow triangle, but not a cocycle of
+  the filled one: the triangle kills it. `filled_cocycle_has_section`: through the general theorem,
+  every cocycle of the filled triangle has a section.
+- Square `0 - 1 - 2 - 3 - 0` with the diagonal `0 -> 2` (`|E| = 5`, `|V| = 4`, `b = 2`):
+  `square_hollow` (rank 0, four classes), `square_one_triangle` (rank 1, two),
+  `square_two_triangles` (rank 2, one: a disk), and `square_dependent_cell` (adding the square
+  boundary as a third cell keeps rank 2: the rank counts independent relations, not cells).
+  `nerve_instances_wf` applies `nerve_H1_Z2_count` to the filled triangle and the three-cell square.
 
 ## Non-monotone cycles under a computed coordination (`CoordinatedCycles.v`)
 
