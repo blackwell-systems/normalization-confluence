@@ -754,6 +754,71 @@ Print Assumptions NC.FederationEventsCyclesMulti.prod_nf.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_converges.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_gc.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_instance.
+Require Import NC.MonotoneExact.
+Print Assumptions NC.MonotoneExact.iter_stable.
+Print Assumptions NC.MonotoneExact.iter_le_mono.
+Print Assumptions NC.MonotoneExact.stab_kstep_sn.
+Print Assumptions NC.MonotoneExact.sn_stab.
+Print Assumptions NC.MonotoneExact.sn_stab_nn.
+Print Assumptions NC.MonotoneExact.chain_asc_next.
+Print Assumptions NC.MonotoneExact.stab_chain_acc.
+Print Assumptions NC.MonotoneExact.chain_acc_stab.
+Print Assumptions NC.MonotoneExact.kleene_reach_exact.
+Print Assumptions NC.MonotoneExact.kleene_reaches_iff.
+Print Assumptions NC.MonotoneExact.kleene_reach_nn.
+Print Assumptions NC.MonotoneExact.chain_acc_of_acc.
+Print Assumptions NC.MonotoneExact.chain_acc_of_acc_below.
+Print Assumptions NC.MonotoneExact.kleene_reach_of_acc.
+Print Assumptions NC.MonotoneExact.kleene_reach_of_acc_below.
+Print Assumptions NC.MonotoneExact.kleene_reach_of_finite_height.
+Print Assumptions NC.MonotoneExact.no_acc_below_Om.
+Print Assumptions NC.MonotoneExact.acc_not_necessary.
+Print Assumptions NC.MonotoneExact.kleene_sup_not_sn.
+Print Assumptions NC.MonotoneExact.NLE_refl.
+Print Assumptions NC.MonotoneExact.NLE_trans.
+Print Assumptions NC.MonotoneExact.NLE_antisym.
+Print Assumptions NC.MonotoneExact.BOT_least.
+Print Assumptions NC.MonotoneExact.entry_target.
+Print Assumptions NC.MonotoneExact.entry_source.
+Print Assumptions NC.MonotoneExact.fixed_comp.
+Print Assumptions NC.MonotoneExact.fixed_source_comp.
+Print Assumptions NC.MonotoneExact.fixed_valid_iff_images.
+Print Assumptions NC.MonotoneExact.iter_valid_from.
+Print Assumptions NC.MonotoneExact.lfp_valid_iff_reached.
+Print Assumptions NC.MonotoneExact.lfp_valid_exact.
+Print Assumptions NC.MonotoneExact.net_lfp_valid_recovered.
+Print Assumptions NC.MonotoneExact.gsm_check_fixed_valid.
+Print Assumptions NC.MonotoneExact.gsm_check_lfp_valid.
+Print Assumptions NC.MonotoneExact.nu_below_Phi.
+Print Assumptions NC.MonotoneExact.sweep_sound.
+Print Assumptions NC.MonotoneExact.sweep_below_iter.
+Print Assumptions NC.MonotoneExact.sweep_below_fixed.
+Print Assumptions NC.MonotoneExact.sweep_coord_ge.
+Print Assumptions NC.MonotoneExact.sweep_round_ge_Phi.
+Print Assumptions NC.MonotoneExact.rounds_ge_iter.
+Print Assumptions NC.MonotoneExact.rounds_below_fixed.
+Print Assumptions NC.MonotoneExact.sweep_app.
+Print Assumptions NC.MonotoneExact.sweep_reps.
+Print Assumptions NC.MonotoneExact.rounds_reach_by_kleene.
+Print Assumptions NC.MonotoneExact.chaotic_reach_exact.
+Print Assumptions NC.MonotoneExact.Nnet_lfp.
+Print Assumptions NC.MonotoneExact.Ncyc_valid_exact.
+Print Assumptions NC.MonotoneExact.gsm_check_Ncyc_valid.
+Print Assumptions NC.MonotoneExact.PhiC_true.
+Print Assumptions NC.MonotoneExact.ct_mono.
+Print Assumptions NC.MonotoneExact.bottom_validity_not_necessary.
+Print Assumptions NC.MonotoneExact.PhiI_swap.
+Print Assumptions NC.MonotoneExact.clear_mono.
+Print Assumptions NC.MonotoneExact.gsm_check_not_necessary.
+Print Assumptions NC.MonotoneExact.PhiW_eq.
+Print Assumptions NC.MonotoneExact.nle1_iff.
+Print Assumptions NC.MonotoneExact.lfp_valid_iff_needs_reach.
+Print Assumptions NC.MonotoneExact.PhiP_eq.
+Print Assumptions NC.MonotoneExact.nle2w_iff.
+Print Assumptions NC.MonotoneExact.gW_mono.
+Print Assumptions NC.MonotoneExact.PhiP_mono.
+Print Assumptions NC.MonotoneExact.nuP_climb.
+Print Assumptions NC.MonotoneExact.chaotic_sn_strictly_stronger.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -764,8 +829,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 729 ]; then
-  echo "FAIL: expected 729 axiom-free results, got $N"
+if [ "$N" -lt 793 ]; then
+  echo "FAIL: expected 793 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
