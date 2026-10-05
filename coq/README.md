@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 777 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 827 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -939,6 +939,49 @@ Boolean `V_R` is) and proves every base fact that rests on it, axiom-free (61 ga
   set; the unbounded withdrawal registry of `GovernanceWF.v` gets its rho* constructed
   (`zw_rho_star_built`, `zw_confluent_built`).
 
+## The exact converses over any well-founded order (`GovernanceWFConverse.v`)
+
+`GovernanceConverse.v` states its exact converses (`jc_exact`, `cc_exact_from`) and `RhoStar.v`
+its constructed form (`wfc_cc_exact_from`) with a potential `Phi : State -> nat`. The proofs use
+the potential only for termination. This module lifts all three to WFC over any well-founded order
+(the setting of `GovernanceWF.v`), with lexicographic and potential-free forms, axiom-free (50
+gated results):
+
+- Termination, exactly. With `comp_rel s' s := ~ V s /\ s' = rho s`: the Governance Rewrite System
+  terminates from every configuration iff `comp_rel` is well-founded (`terminating_iff_comp_wf`,
+  any enabledness), and `comp_rel` is well-founded iff WFC holds for some potential into some
+  well-founded order (`comp_wf_iff_wfc`). With `V` decidable a well-founded `comp_rel` already has a
+  nat potential, the number of compensation steps to validity (`comp_wf_nat_potential`): the lift
+  adds generality where `V` is not decidable, and elsewhere accepts an ordinal or lexicographic
+  measure as is instead of requiring a nat-valued one.
+- Canonical repair implies termination: if `rho*` is reached by compensation steps and is valid,
+  `comp_rel` is well-founded (`canonical_comp_wf`, `canonical_free_comp_wf`). WFC is a consequence
+  of canonical repair, not an extra hypothesis.
+- `sn_jc_exact`: for any enabledness and any `c0` from which the system terminates, confluence from
+  `c0` iff `JC c0`. Termination is needed only from `c0`. Corollaries: `wf_jc_exact` (any
+  well-founded potential), `lex_jc_exact` (a lexicographic product), `comp_wf_jc_exact`
+  (compensation well-founded, no potential), `canonical_jc_exact` (canonical repair, no potential
+  and no termination hypothesis).
+- `canonical_cc_exact_from`: free delivery and canonical repair, with no termination hypothesis:
+  every event buffer delivered from `s0` has a unique normal form iff CC1 and CC2 hold on the
+  states reachable from `s0`. `wf_cc_exact_from` is the same statement with a potential into any
+  well-founded order. The canonical-repair qualifier is still needed (`rho_star_qualifier`).
+- rho* constructed by `RhoStar.rho_star_wf` (no rho* hypothesis): `wf_cc_exact_from_built`,
+  `wf_jc_exact_built` (any well-founded potential), `comp_wf_cc_exact_from_built`,
+  `comp_wf_jc_exact_built` (rho* built from a well-founded `comp_rel`, `rho_star_comp`).
+- The nat statements recovered with identical types (checked by unification):
+  `jc_exact_from_wf` (`GovernanceConverse.jc_exact`), `cc_exact_from_from_wf`
+  (`GovernanceConverse.cc_exact_from`), `wfc_cc_exact_from_from_wf` (`RhoStar.wfc_cc_exact_from`).
+- Non-vacuity. The `Z` withdrawal registry of `GovernanceWF.v` (potential `-s` under `Zwf 0`):
+  `zw_unique_from` (rho* given), `zw_unique_from_built` (rho* built from the `Z` potential),
+  `zw_comp_wf` and `zw_unique_from_comp_wf` (potential-free), `zw_jc` (JC at every configuration).
+  A lexicographic escalation queue on `nat * nat` (an escalated item repairs into two routine
+  items, routine items over a cap of 3 drain one at a time, potential the state itself under
+  `lex2 lt lt`): `qe_built` (the constructed rho* is the closed form), `qe_unique_from` (arrival
+  events: CC1, CC2, unique normal forms from every start). Adding a "clear routine" event breaks
+  CC1 at the start state (`qr_cc1_fails`), and the iff turns that into a failure of unique normal
+  forms (`qr_not_unique`).
+
 ## Categorical core (`Categorical.v`)
 
 The first structural results of the companion paper's federation-as-limit account, mechanized at the
@@ -1715,7 +1758,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 777 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 827 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
