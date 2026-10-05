@@ -312,3 +312,11 @@ SignedCycles.vo: SignedCycles.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.
 
 SignedResolver.vo: SignedResolver.v CohomologyGraph.vo CohomologyGeneral.vo SignedCycles.vo FederationEventsCycles.vo DistributedCycles.vo DistributedCyclesExact.vo CanonicalExecution.vo
 	coqc -Q . NC SignedResolver.v
+
+# Local (state-dependent) interaction graphs of Boolean resolver networks: local fidelity
+# (Remy, Ruet and Thieffry), local settlement (Richard 2011, Theorems 3 and 4; Shih and Dong),
+# and their counterexamples (LocalSigned.v).
+all: LocalSigned.vo
+
+LocalSigned.vo: LocalSigned.v CohomologyGraph.vo SignedCycles.vo DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo
+	coqc -Q . NC LocalSigned.v

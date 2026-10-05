@@ -486,3 +486,97 @@ between signed-cycle conditions and E. Statement review (#81): each exported sta
 checked with `Check`/`About` against these descriptions; the theorems `resp_reads_in_neighbors`,
 `signed_fidelity_harary`, `ring_low_start_E`, `flip_needs_top_resolver` and
 `unique_pos_cycle_every_certificate` were added where the prose claimed more than a statement.
+
+## Local interaction graphs: local fidelity and local settlement (`LocalSigned.v`)
+
+**Setting.** The Boolean resolver model of `SignedResolver.v` (value set `bool`, a lens with
+extensionality on the vertex list `js`, resolvers `Fv`, the asynchronous step `rupd`). The **local
+interaction graph** `G(x)` at a state `x` is the discrete Jacobian of Remy, Ruet and Thieffry
+(2008): an arc `j -> i` at `x` when flipping `x_j` changes `Fv i` (`larc`), with sign
+`lneg x j i = xorb (Fv i x) (x_j)` (`true` is negative). `lneg_spec`: the arc is positive iff
+raising `x_j` from `false` to `true`, the other coordinates as in `x`, raises `Fv i`, and negative
+iff it lowers it. Cycles are elementary (a nonempty list of distinct vertices, `IsCycle`), and the
+sign of a cycle is the xor of its arc signs (`csign`). `NoLocalPos I`, `NoLocalNeg I`,
+`NoLocalCycle I`: for **every** state `x`, `G(x)` restricted to `I` has no positive cycle, no
+negative cycle, no cycle at all. The global certificate of `SignedResolver.v` is `Resp sg`, with
+signs fixed across all states; `SgCycle sg c b` is an elementary cycle of `sg` with sign `b`.
+
+**Local fidelity.**
+
+- `rrt_sub`, `local_fidelity` (Remy, Ruet and Thieffry 2008, mechanized for every `n`):
+  `NoLocalPos js` implies that `Fsync` has at most one fixed point. The proof is an induction on
+  subcubes: every cycle of `G(x)` at a fixed point `x` is positive (`fixed_csign`), so under the
+  hypothesis `G(x)` is acyclic and has a sink `k` (`cycle_or_sink`); two fixed points that disagree
+  everywhere then give, after flipping `k`, two fixed points of a smaller subcube.
+- `local_fidelity_canon`: with `NoLocalPos js` and a fixed point `q`, CanonicalFidelity with the
+  constant canonicalizer `q` from every start. No global sign hypothesis.
+- `local_signed_fidelity`: the lift through `signed_fidelity`. `SgOn`, `Resp` and a switching of
+  the global certificate, plus `NoLocalPos js` in place of the uniqueness hypothesis (now derived),
+  give fair settlement from every start at the unique fixed point and E from every start.
+- `local_in_global`, `local_cycle_global`, `global_to_local`: under `Resp` every local arc is an
+  edge of `sg` with the same sign, so "no positive cycle in the global certificate" implies
+  `NoLocalPos js` (non-vacuity: `global_to_local_instance`, the unbalanced negative 2-cycle).
+- `local_weaker_than_global`: the converse fails. For `x0 := x1 && x2`, `x1 := x0 || x2`,
+  `x2 := false` no `G(x)` has any cycle (arc `1 -> 0` needs `x2 = 1`, arc `0 -> 1` needs
+  `x2 = 0`), yet **every** global certificate contains the positive 2-cycle `0 -> 1 -> 0`. The
+  fixed point is unique, every fair schedule from every start settles at it, and E holds from every
+  start. The global sign route never applies to this network.
+
+**Local settlement.**
+
+- `local_neg_free_no_fixed_point`: the naive local form of the negative-cycle rule is false. The
+  6-vertex Boolean network `tn_F` (Tonello 2017, section 5: the Boolean conversion of Richard
+  2010's multivalued Example 6, vertex `3i + h - 1` carrying "component `i` is at level at least
+  `h`") has no negative cycle in any local graph and no fixed point, so no run ever settles and E's
+  Settlement fails from every start. Six vertices is the least possible in the Boolean case
+  (Tonello, Farcot and Chaouiya 2018, cited: up to five components a cyclic attractor forces a
+  local negative cycle).
+- `richard_t3` (Richard 2011, Theorem 3, mechanized for every `n` along Richard's proof:
+  `claim1`, `claim2`, `partners`, `claim3`, `four_point`, `opp_core`, and Lemma 2 as
+  `opp_false`): `NoDup js`, `NoLocalNeg js` and `OutDeg1 js` (every vertex of every local graph
+  has out-degree at most one, which is non-expansiveness for the Hamming distance:
+  `outdeg_nonexpansive`) imply that from every state some update word reaches a fixed point
+  (`t3_path`). So a fixed point exists and E's Settlement holds from every start. The reachability
+  form is the content of Ruet 2017, Remark 2 (no cyclic attractor).
+- `richard_t4` (Richard 2011, Theorem 4, with the same reachability form): `NoLocalNeg js` and one
+  vertex on every positive cycle of every local graph give a fixed point and E's Settlement from
+  every start. It is proved from `rrt_sub` applied to the network with that vertex negated.
+- `shih_dong_E` (Shih and Dong 2005, with paths): `NoLocalCycle js` gives a unique fixed point,
+  reached from every state, and E from every start, with no global sign hypothesis.
+- `shih_dong_not_fair`: fair asynchronous settlement does **not** follow, even from
+  `NoLocalCycle`. For `x0 := not x1 && not x2`, `x1 := x0 || not x2 || x3`,
+  `x2 := x0 && x1 && x3`, `x3 := not x0` no local graph has a cycle and E holds from every start,
+  but the fair periodic schedule `2, 3, 0, 1, 3, 2, 0, 1, ...` from `(1, 1, 0, 1)` returns there
+  every 8 steps and never settles. Robert's theorem (an acyclic **global** graph) does give fair
+  convergence; the local hypothesis does not. An exhaustive search (not mechanized) over all
+  3-vertex networks finds no such example, so 4 vertices is the least.
+- `ring_local_conditions`: the positive 3-ring satisfies `NoLocalNeg`, `OutDeg1` and the
+  Theorem 4 hypothesis (vertex 0 is on every local positive cycle), and has E's Settlement from
+  every start; it has two fixed points, a fair schedule from `(1, 0, 0)` that never settles, and
+  CanonicalFidelity fails there. Under either corrected local condition only E's Settlement half
+  follows.
+
+**What each local hypothesis gives** (Boolean, every `n`; "no" entries are mechanized
+counterexamples).
+
+| Local hypothesis | Fixed points | E's Settlement | CanonicalFidelity | Fair-schedule settlement |
+|---|---|---|---|---|
+| `NoLocalPos` | at most one (`local_fidelity`) | no (`neg2_no_fixed_point` with `global_to_local_instance`) | yes, every start (`local_fidelity_canon`) | no (same network) |
+| `NoLocalPos`, plus `Resp` and a switching | exactly one | yes | yes | yes, every start (`local_signed_fidelity`) |
+| `NoLocalNeg` | possibly none (`local_neg_free_no_fixed_point`) | no | vacuous | no |
+| `NoLocalNeg` and `OutDeg1` | at least one (`richard_t3`) | yes | no (`ring_local_conditions`) | no (same) |
+| `NoLocalNeg` and a vertex on every local positive cycle | at least one (`richard_t4`) | yes | no (`ring_local_conditions`) | no (same) |
+| `NoLocalCycle` | exactly one (`shih_dong_E`) | yes | yes | no (`shih_dong_not_fair`) |
+
+**For gap 3 (rootless propagation on lossy networks).** On fidelity the local route strictly
+extends the global certificates of `SignedResolver.v` (`local_weaker_than_global`: a network
+outside every global sign condition, with E certified). On settlement, local conditions certify
+E's Settlement half (flush words: Theorems 3 and 4, Shih and Dong) and, with `NoLocalCycle`, all of
+E, but no local condition here gives fair-schedule settlement: that still needs the global
+switching (`local_signed_fidelity`) or a globally acyclic graph. The certificates remain
+sufficient, not an exact condition; multivalued value sets are not covered (the multivalued
+local results of Richard and Comet 2007 and Richard 2010 are cited).
+
+Decision procedure for the instances: `chk` enumerates every state and every list of distinct
+vertices (`nl_complete`) and is proved sound (`chk_sound`); the 6-vertex check covers 64 states
+and 1,957 vertex lists.
