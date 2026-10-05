@@ -41,3 +41,6 @@ FederationGRS.v
 Collapse.v
 FederationEventsCyclesMulti.v
 StreamExact.v
+GovernanceWFConverse.v
+RootlessCycles.v
+CoordinatedExact.v
