@@ -327,3 +327,10 @@ all: DistributedConvergenceExact.vo
 
 DistributedConvergenceExact.vo: DistributedConvergenceExact.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedCycles.vo DistributedCyclesExact.vo
 	coqc -Q . NC DistributedConvergenceExact.v
+
+# Rootless propagation on arbitrary finite invertible networks: the reachable set, existence from
+# every start, uniqueness, and the unique normal form, exactly (RootlessNetworks.v).
+all: RootlessNetworks.vo
+
+RootlessNetworks.vo: RootlessNetworks.v CohomologyGraph.vo RootlessCycles.vo
+	coqc -Q . NC RootlessNetworks.v

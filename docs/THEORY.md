@@ -440,7 +440,11 @@ propagation order (`prop_minimal_qualified_iff`). Each qualifier is proved neces
 - the authority root: without one, two propagation orders reach different consistent states
   (`copyback_without_authority`), and the root chosen decides which (`root_choice_matters`);
 - for a rootless, coherently oriented invertible cycle on at least two registries with trivial
-  holonomy, the reachable consistent state is unique iff `G` is trivial (`rootless_unique_iff`).
+  holonomy, the reachable consistent state is unique iff `G` is trivial (`rootless_unique_iff`);
+  on any finite rootless network the root reappears as structure: the reached consistent state is
+  unique iff (given `H^1 = 0`) every weakly connected component contains a registry no other
+  registry writes, or `G` is trivial (`net_unique_iff`), and a unique normal form from every start
+  needs that registry upstream of the whole component, an authority root (`net_unique_normal_form_iff`).
 
 The same criterion holds on walks, with no spanning tree. In `SignedCycles.v` a walk may cross an
 edge backward with the inverse label, and a section transports along every walk
@@ -570,7 +574,7 @@ witnesses on acyclic federations (`fed_exact_full`), and the global condition GC
 | Question | Mathematical form | Answer |
 |---|---|---|
 | **Existence** | A global section (`H^0` non-empty) | Invertible: exact, the class in `H^1` is trivial (`section_iff_coboundary`, `cycle_basis_criterion`). Lossy: exact by root sets (`root_set_criterion_graph`), and NP-complete without a spanning root (`net_section_iff_sat`, `np_certificate`) |
-| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root); rootless lossy resolver networks, sufficient only: signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`), and on Boolean local interaction graphs (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), whose Settlement is existential, not fair-schedule (`shih_dong_not_fair`). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
+| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root), `net_unique_normal_form_iff` (rootless invertible networks: an authority root per component, or a trivial group); rootless lossy resolver networks, sufficient only: signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`), and on Boolean local interaction graphs (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), whose Settlement is existential, not fair-schedule (`shih_dong_not_fair`). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
 | **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`; on the 2-complex, `nerve_H1_classification`, `nerve_H1_Z2_count`), equivalently a closed walk with non-trivial holonomy on any edge list (`invertible_merge_is_holonomy`); at Z/2, Harary balance (`harary_balance`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`), and also a merge with no loop at all (`obstruction_loop_vs_merge`) |
 | **Surgery** | The least coordination that removes the obstruction | Invertible: the group feedback edge set number, which the best coordination plan attains (`plan_min_exact`); NP-hard by a mechanized Max-Cut reduction (`maxcut_reduction`). Lossy: the least deletion passing the root-set criterion (`lmin_root_set`, `lmin_decide`), not cycle-based (`lossy_min_exceeds_cycle_bounds`); NP-hard even to tell 0 from 1 (`lmin_reduction`) |
 

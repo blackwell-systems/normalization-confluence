@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (2067 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2160 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -40,12 +40,14 @@ with its count over Z/2, and sheaf gluing is exact on sub-federation covers. The
 propagation model is exact on acyclic networks and on monotone cycles with or without reset epochs
 (on cycles, both for convergence together with agreement with gsm's synchronous `FedMachine` and
 for convergence alone, when interleavings may all settle on a state the `FedMachine` never
-produces). The
-gaps still open are rootless networks beyond a single invertible cycle, rootless propagation on
+produces). Rootless propagation is exact on every finite invertible network: a unique normal form
+from every start exactly when, given `H^1 = 0`, each weakly connected component has an authority
+root (a registry no other registry writes, upstream of the whole component), or the group is trivial. The
+gaps still open are rootless propagation on
 lossy networks (where sufficient signed-cycle certificates are mechanized, with Harary's balance
 theorem proved for finite signed graphs, and sufficient certificates on Boolean local interaction
 graphs, which give settlement by some update order but not under every fair schedule), and cyclic
-monotone collapse (paper only). All three are cyclic; the audit states them as one question, what
+monotone collapse (paper only). Both are cyclic; the audit states them as one question, what
 makes composition exact on cycles. Sheaf gluing on the companion paper's variable-level and
 monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
 sources, are paper only, and least fixed points without ACC are a design exclusion.

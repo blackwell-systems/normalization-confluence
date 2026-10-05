@@ -145,7 +145,8 @@ propagation runs as separate steps.
 | Topology | Repair | You need | Converges? | Proof |
 |---|---|---|---|---|
 | **Single cycle**, invertible transports, coherently oriented | **non-monotone**, coordination-free, no authority root | a consistent state exists **iff** the holonomy is trivial | Unique **iff** the group is trivial; otherwise there is no unique normal form (two orders reach different consistent states, or none exists) | `rootless_nf_exists_iff`, `rootless_unique_normal_form_iff` (`RootlessCycles.v`) |
-| **Cyclic**, any other network without a root | **non-monotone**, coordination-free | no exact condition yet (open; see `REGIME-AUDIT.md`) | **May diverge** | counterexample `prop_cycle_necessary`; a consistent state can still exist (`c13_two_ways_not_exhaustive`) |
+| **Any network**, invertible transports, several cycles or mixed orientation | **non-monotone**, coordination-free, no authority root | a consistent state exists **iff** `H^1 = 0` (whole underlying graph); every start reaches one **iff** also each weakly connected component has a registry upstream of all of it (or the group is trivial) | Unique **iff** each component contains a registry no other registry writes (a de facto root), or the group is trivial; a unique normal form from every start **iff** each component has such a root upstream of all of it (an authority root) | `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`, `net_reachable_iff` (`RootlessNetworks.v`); holonomy inside strongly connected components is not enough (`rootless_global_holonomy`) |
+| **Cyclic**, non-invertible or otherwise non-monotone, without a root | **non-monotone**, coordination-free | no exact condition yet for lossy transports (open; see `REGIME-AUDIT.md`, gap 3) | **May diverge** | counterexample `prop_cycle_necessary`; a consistent state can still exist (`c13_two_ways_not_exhaustive`) |
 | **Cyclic**, invertible transports | **non-monotone**, with a computed coordination | values driven along a spanning tree from an **authority root**; balanced non-tree edges kept as checked constraints; unbalanced edges coordinated | **Yes**, unique **given the root**; event order converges **iff** independent root events commute at the reachable root values | `coordinated_sound`, `coordinated_unique_nf` (`CoordinatedCycles.v`); `coordinated_events_exact` (`CoordinatedExact.v`) |
 | **Any graph**, non-invertible (lossy) transports | coordination from a **root set** (every registry reachable from some root) | some root assignment drives a state satisfying every edge | A consistent state exists **iff** that holds (deciding it is NP-complete in general: the 3-SAT reduction is mechanized, NP-completeness by the standard argument); unique given the root values | `root_set_criterion_graph`, `root_set_count`, `root_set_bijection` (`RootSet.v`); `net_section_iff_sat`, `net_size`, `np_certificate` (`LossyHardness.v`) |
 | **Any graph**, non-invertible transports, **event order** under root-set coordination | values driven along an outward spanning forest from the root set | for each root, its independent events commute at every value reachable from its start value by its own events | **Yes, if and only if**: one condition per root, roots never interact | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global` (`RootSetEvents.v`) |
@@ -211,7 +212,13 @@ questions; this list collects the event-order results, including those in the ta
 **Non-monotone cycles under coordination.** A non-monotone cycle has no coordination-free unique
 normal form in general: on a single coherently oriented invertible cycle without a root, a unique
 one exists from every start iff the group is trivial (`rootless_unique_normal_form_iff`), although a
-consistent state exists whenever the holonomy is trivial (`rootless_nf_exists_iff`). With the
+consistent state exists whenever the holonomy is trivial (`rootless_nf_exists_iff`). On any
+finite invertible network without a root, the same question is exact: a unique normal form from
+every start iff, given `H^1 = 0`, each weakly connected component already has an authority root (a
+registry no other registry writes, upstream of the whole component), or the group is trivial
+(`net_unique_normal_form_iff`, `coq/RootlessNetworks.v`). A source feeding a cycle is enough
+(`rootless_source_feeds_cycle`); two sources in one component break existence from some start
+(`rootless_mixed_square`). With the
 holonomy-minimal plan (an authority root, a spanning tree that drives values, balanced
 non-tree edges as checks, unbalanced edges coordinated), it has one, unique given the root
 (`coordinated_sound`); keeping an unbalanced edge leaves no consistent state
@@ -313,7 +320,7 @@ although its operations do not all commute. The precise relationship is in
 | Distributed deployment (propagation steps) | XU check for projection merging (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`; cyclic and multi-source targets reported not certified) | `coq/DistributedExact.v` (acyclic, exact), `coq/DistributedCycles.v` (monotone cycles: repair alone, reset epochs, no resets), `coq/DistributedCyclesExact.v` (monotone cycles without resets, exactly; `FlushR`, `NoGhostR`) |
 | Monotone cycles | `Federation.AllowMonotoneCycles()` | `coq/Federation.v` (least-fixed-point core), `coq/Chaotic.v`, `coq/ChaoticACC.v`, `coq/MonotoneFederation.v`, `coq/MonotoneExact.v` (validity, reachability, gsm's check), `coq/FederationEventsCycles.v`, `coq/FederationEventsCyclesCheck.v`, `coq/FederationEventsCyclesMulti.v` |
 | Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle; each `CoordinationPoint` names its `Authority`) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order), `coq/CoordinationMinimum.v` (the minimum number of coordinated edges, attained by a plan) |
-| Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles) |
+| Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles), `coq/RootlessNetworks.v` (any finite invertible network) |
 | Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order), `coq/LossyMinimum.v` (minimum coordination); with no root, sufficient signed certificates only (`coq/SignedCycles.v`, `coq/SignedResolver.v`, `coq/LocalSigned.v`; audit gap 3, open) |
 | Compositional collapse | `Federation.Embed` | `coq/Collapse.v` (acyclic blocks); cyclic monotone blocks are paper only |
 

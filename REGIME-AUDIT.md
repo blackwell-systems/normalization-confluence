@@ -7,15 +7,17 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Current at `main` `a0d4713` with #90 (gate: `coq/verify.sh`, 2067 axiom-free
+It adds no proofs. Current at `main` `731d71d` with #91 (gate: `coq/verify.sh`, 2160 axiom-free
 results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were
-read at `dc610a9`, the rows #83 changed at `69ef03a`, and the rows #90 changed at `a0d4713`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+read at `dc610a9`, the rows #83 changed at `69ef03a`, the rows #90 changed at `a0d4713`, and the
+rows #91 changed against #91's `RootlessNetworks.v`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
 since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
 matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
-Current state. Open convergence gaps: 2, 3 and 5; gaps 8 and 9 are design exclusions. Gap 14
+Current state. Open convergence gaps: 3 and 5; gaps 8 and 9 are design exclusions. Gap 14
 (convergence alone in the no-reset cyclic distributed model) is closed by #90
-(`conv_quiet_exact`). The
+(`conv_quiet_exact`), and gap 2 (rootless invertible networks beyond a single coherently oriented
+cycle) is closed by #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`). The
 optimization and counting gaps 10, 11 and 12 are closed with exact theorems and mechanized hardness
 reductions, and gap 13 is closed on the registry-level site with two residues at paper level (the
 variable-level and monotone-overlap site, and a sheaf condition for relative certificates on covers
@@ -66,6 +68,9 @@ gap 3 records them as progress; again no gap closes and no status changes. Then 
 (`DistributedConvergenceExact.v`) brought the gate to 2067 and closed gap 14: convergence among
 quiescent interleavings alone is exact (`conv_quiet_exact`), with the quiescent state propagation
 settles in, ghost allowed, as the canonical state in place of the FedMachine's least fixed point.
+Then #91 (`RootlessNetworks.v`) brought the gate to 2160 and closed gap 2: rootless propagation on
+any finite invertible network is exact, for the reachable set, existence from every start,
+uniqueness, and the two together, with the single-cycle theorems of #48 recovered as corollaries.
 The tables below are the current state; the conclusion re-answers the old questions and confirms
 the wording.
 
@@ -193,8 +198,9 @@ group elements.
 |---|---|---|---|---|
 | Does a consistent state exist (`H^0` non-empty) | The labeling is a coboundary (`H^1 = 0`): `section_iff_coboundary`; per fundamental cycle: `cycle_basis_criterion`, `sat_iff_trivial_holonomy`; single cycle: `fixed_point_iff_trivial_holonomy` | Trivial holonomy of each fundamental cycle of a spanning tree | `DiagnoseCycle` on one cycle (sound refuter on the regular action: `c15_regular_definitive`) | Regular action needed (`nonfree_holonomy_counterexample`). - |
 | Coordination-free convergence to a unique normal form, given an authority root | `H^1 = 0` iff, for every root value, the root-driven implementation has a unique consistent state reached by every propagation order: `prop_minimal_qualified_iff` | as above | Not implemented: gsm has no root-driven coordination-free mode for cycles; a non-monotone cycle fails `Build` | - for the theory; gsm gap (holonomy-minimal plan "proposed, not implemented", `HOLONOMY-COORDINATION-DESIGN.md`) |
-| No authority root (every edge a writer), single coherently oriented cycle (`n >= 1`) | A consistent state exists, and every state reaches one by a fair round, iff the holonomy is trivial: `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`; with trivial holonomy, the reachable consistent state is unique iff `\|G\| = 1`, for all schedules and for fair ones: `rootless_unique_iff`, `rootless_unique_iff_general`; existence and uniqueness from every initial state iff `\|G\| = 1`: `rootless_unique_normal_form_iff` | none needed (the iff is decidable from the labels) | n/a | Corners: `n = 0` is unique over Z/2 (`rootless_selfloop_unique`); a non-coherently oriented triangle is unique (`rootless_orientation_matters`: a registry with no in-edge is a de facto root). - (closed by #48) |
-| No authority root, any other invertible graph (several cycles, mixed orientation) | **None mechanized** | none | n/a | **open** (medium) |
+| No authority root (every edge a writer), single coherently oriented cycle (`n >= 1`) | A consistent state exists, and every state reaches one by a fair round, iff the holonomy is trivial: `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`; with trivial holonomy, the reachable consistent state is unique iff `\|G\| = 1`, for all schedules and for fair ones: `rootless_unique_iff`, `rootless_unique_iff_general`; existence and uniqueness from every initial state iff `\|G\| = 1`: `rootless_unique_normal_form_iff` | none needed (the iff is decidable from the labels) | n/a | Corners: `n = 0` is unique over Z/2 (`rootless_selfloop_unique`); a non-coherently oriented triangle is unique (`rootless_orientation_matters`: a registry with no in-edge is a de facto root). Both corners are instances of the network theorems below: each has a de facto root (`selfloop_recovered`, `orientation_matters_recovered`). - (closed by #48) |
+| No authority root, any finite invertible network (several cycles, mixed orientation, sources feeding cycles): which consistent states a start reaches | A section `sg` is reached from `t0` (by some schedule, equivalently by some fair one) iff every registry has an upstream registry, possibly itself, where `sg` and `t0` agree: `net_reachable_iff`, `net_reachable_fair_iff`; a consistent state is reachable from `t0` iff such a section exists: `net_nf_from_iff`. The mechanism: relative to any section, firing an edge copies the offset `sg(u)^-1 t(u)` downstream unchanged (`net_origin`) | none needed | n/a | - (closed by #91; was gap 2) |
+| No authority root, any finite invertible network: existence from every start; uniqueness; both | Existence from every start (by a fair schedule) iff `H^1 = 0` (a section exists) and (every weakly connected component has a registry upstream of all of it, `co_rooted`, or `\|G\| = 1`): `net_nf_exists_iff` (`co_rooted_iff_roots`). Uniqueness of the reached consistent state, for all schedules and for fair ones, iff (`H^1 = 0` implies every component contains a de facto root, a registry with no in-edge from another registry, or `\|G\| = 1`): `net_unique_iff`, `net_unique_fair_iff`. Both iff `H^1 = 0` and (every component has a de facto root upstream of all of it, that is an authority root, or `\|G\| = 1`): `net_unique_normal_form_iff`, with `authority_cover_iff`. Forms without the `\|G\| = 1` disjunct over a nontrivial group: `net_nf_exists_iff_nontrivial`, `net_unique_iff_nontrivial`, `net_unique_normal_form_iff_nontrivial`. Strongly connected with an edge between distinct registries: existence iff `H^1 = 0`, uniqueness iff (`H^1 = 0` implies `\|G\| = 1`): `net_strong_iff`. The single-cycle row is recovered: `cycle_nf_exists_recovered`, `cycle_unique_recovered`, `cycle_unique_general_recovered`, `cycle_unique_normal_form_recovered` | The structural conditions are reachability conditions on the edge list (decidability proved: `closure`, `reach_dec`; no complexity bound mechanized); `H^1 = 0` as in the first row | n/a | Qualifiers, proved over Z/2: the existence obstruction is `H^1` of the whole underlying graph, not holonomy inside strongly connected components (`rootless_global_holonomy`: an authority root, no directed cycle, no consistent state); a coboundary does not give existence from every start (`rootless_mixed_square`: mixed orientation, two sources, unique but some start reaches nothing); a coherently oriented cycle with `\|G\| = 2` still has a unique normal form when a source feeds it (`rootless_source_feeds_cycle`); several cycles: `rootless_figure_eight` (two cycles sharing a registry), `rootless_cycle_feeds_cycle` (only the source component is free). - (closed by #91; was gap 2) |
 | What must be coordinated, relative to a spanning tree | Exactly the unbalanced non-tree edges: `plan_exact`, `coordination_needed`; soundness `coordinated_sound`, `coordinated_unique_nf`; balance is static `balanced_any_section`; root dependence `root_choice_matters` | Coordinate all unbalanced edges | `CoordinationPlan` cuts a feedback edge set by DFS (every cycle, not only unbalanced ones) and names the authority; `BuildCoordinated` | gsm's plan is sound but not the holonomy-minimal one. - |
 | Event order under the coordination | From a start consistent with the driving network, J-trace-equivalent sequences all converge iff independent root events commute at every root value reachable by root events: `coordinated_events_exact`, `coordinated_perm_exact`, `coordinated_events_exact_plan`; from every start iff they commute at every value: `coordinated_events_exact_global` | Root events commute at every value: `coordinated_events_converge` (recovered as `coordinated_events_converge_recovered`; not necessary for a fixed start: `old_condition_not_necessary`) | `BuildCoordinated` runs the acyclic C1 and C2 on the residual (on the driving network C1 holds unconditionally, `coordinated_c1_static`, and C2 is the root-event condition, `coordinated_c2at_iff`) | - (closed by #47) |
 | **Optimization:** minimum coordination over all trees and roots | For a connected network (some plan rooted at `r` exists), any group with decidable equality, regular action: some plan rooted at `r` coordinates at most `k` edges iff some feasible coordination deletes at most `k` edges, so the minimum plan cost over rooted spanning trees is the group feedback edge set number: `plan_min_exact` (lower bounds `plan_min_lower_iff`; attained, `plan_min_attained`; the same for every root, `plan_min_root_independent`; with membership deletion on a duplicate-free network, `plan_min_exact_set`). Each plan's coordinated set is feasible (`plan_coord_feasible`), and every feasible set yields a plan no costlier (`feasible_plan`; the residual need not be connected). Earlier pieces: `edge_disjoint_lower_bound` (per plan: `plan_cost_ge_disjoint`), `edge_disjoint_min`, `min_G_ge_min_image`, `theta_separation` (`S_3`: `min_G = 2 > 1 = min_{G^ab}`); over `S_3` the tree choice matters (`s3_tree_choice`) | Unbalanced edges of any rooted tree: size at most `betti_number` (`plan_cost_le_betti`) | `CoordinationPlan` (upper bound, "not necessarily the minimum"; it cuts every cycle, not the minimum-cost plan) | Qualifiers: connectivity is needed (`plan_min_connected_needed`; on a disconnected network the theorem applies per component), and `NoDup` for the set form (`plan_min_nodup_needed`). **hardness** (mechanized reduction): a graph `H` with every edge labeled by the Z/2 flip has a feasible coordination with `\|F\| + k <= \|H\|` iff `H` has a cut of at least `k` edges (`maxcut_reduction`; plans: `maxcut_plan_reduction`; same size: `signed_size`), so minimum coordination is NP-hard already over Z/2 and in the plan model, with NP-completeness of Max-Cut cited (Karp 1972); a plan is the NP certificate (`section_decide`). - (closed by #72; was gap 10) |
@@ -246,7 +252,7 @@ Convergence:
 | # | Regime and question | Kind | Size |
 |---|---|---|---|
 | 1 | Distributed model with propagation steps (section 8) | **closed**: acyclic #60 (`dist_exact`); monotone cycles with reset epochs and under `LowR` #62 (`epoch_conv_iff`, `low_conv_iff`); monotone cycles without resets, unconditionally, #64 (`flush_fed_iff`, `fair_fed_iff`, with `FlushR` and `NoGhostR` characterized) | n/a |
-| 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | open | medium |
+| 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | **closed**, #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`; the reachable set `net_reachable_iff`; single cycles recovered) | n/a |
 | 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open; progress #80: sufficient signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`, each hypothesis shown needed); progress #83: sufficient certificates on Boolean local interaction graphs for every `n` (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), which certify E with Settlement in its existential (flush) form and not fair-schedule settlement (`shih_dong_not_fair`, `ring_local_conditions`). Open: fair-schedule settlement from local conditions, multivalued local graphs, value sets without bounds, an exact condition | medium to large |
 | 4 | Event order under non-invertible root-set coordination (section 12) | **closed**, #59 (`forest_events_exact`) | n/a |
 | 5 | Cyclic monotone sub-federations under collapse (section 14) | paper only | medium to large |
@@ -256,8 +262,22 @@ Convergence:
 | 9 | Infinite streams: eventual agreement (section 5) | design: the naive claim is refuted (`base_thm_convergence_transient_counterexample`) | n/a |
 | 14 | Distributed model on monotone cycles without resets: an exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when interleavings may agree on a common ghost (section 8) | **closed**, #90 (`conv_quiet_exact`: `FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the layers of `flush_fed_iff` relative to the quiescent state propagation settles in; each conjunct necessary) | n/a |
 
-Open convergence gaps after #90: 2, 3 and 5. Gaps 1 and 14 are closed. Gaps 8 and 9 are design
+Open convergence gaps after #91: 3 and 5. Gaps 1, 2 and 14 are closed. Gaps 8 and 9 are design
 exclusions.
+
+How gap 2 closed. The single coherently oriented cycle was exact (#48), and what was open was how
+several cycles compose with no authority. #91 answers it for every finite network. Relative to any
+section, rootless propagation copies the offset `sg(u)^-1 t(u)` along each edge (`net_origin`), so
+the reachable consistent states are exactly the sections that agree with the start somewhere
+upstream of every registry (`net_reachable_iff`). Existence from every start then needs a section
+(`H^1 = 0` on the whole underlying graph) and one source component per weakly connected component
+(`co_rooted`), and uniqueness needs a registry that nobody else writes in each component
+(`root_cover`); both together is an authority root per component (`net_unique_normal_form_iff`).
+The guesses this replaces fail, and the failures are theorems: holonomy inside strongly connected
+components does not decide existence (`rootless_global_holonomy`), a coboundary does not give
+existence from every start (`rootless_mixed_square`), and a coherently oriented cycle over a
+nontrivial group does not force non-uniqueness once a source feeds it
+(`rootless_source_feeds_cycle`).
 
 How gap 14 closed. It was a gap and not a qualifier because the property is defined in a regime
 the development models (`DConvQ` in `DistributedCycles.v`), `conv_ghost_normal` exhibited a
@@ -300,7 +320,7 @@ Each open gap, checked against its own description above:
 
 | Gap | Cyclic? | Why, from the gap's row | Exact acyclic or single-cycle counterpart |
 |---|---|---|---|
-| 2 | yes | Section 11 scopes it as rootless invertible networks with several cycles or mixed orientation. A registry with no incoming edge is never written and acts as a de facto root (`rootless_orientation_matters`), and the single coherently oriented cycle is exact, so what is open is how several cycles compose with no authority | `rootless_unique_iff` (one cycle); `prop_minimal_qualified_iff` (with an authority root) |
+| 2 (closed, #91) | yes | Section 11 scoped it as rootless invertible networks with several cycles or mixed orientation: a registry with no incoming edge is never written and acts as a de facto root (`rootless_orientation_matters`), the single coherently oriented cycle was exact, and what was open was how several cycles compose with no authority. Closed without P, like gap 14: `net_unique_normal_form_iff` is a whole-system statement. It does name the structure. With invertible transports and the regular action every cycle is rigid: relative to a section, propagation copies offsets downstream (`net_origin`), so the only cyclic content left is `H^1` of the whole underlying graph (whether a section exists) and the source components of the condensation, which is acyclic. Existence from every start needs one source component per weakly connected component, uniqueness a de facto root in each, and both an authority root per component. In this regime no compositional form of P is needed: invertibility reduces the cyclic dynamics to a global `H^1` condition plus the acyclic condensation. That reduction uses bijective transports and says nothing about P on the non-invertible (gap 3) or monotone (gap 5) cycles; it removes gap 2 from the frontier | `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`; earlier `rootless_unique_iff` (one cycle), `prop_minimal_qualified_iff` (with an authority root) |
 | 3 | yes | Section 12 and [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2 state it for a cyclic network in the resolver reading; the acyclic case is Robert's theorem, which the federation model already has (LOSSY-NETWORKS.md section 4.2). On cycles, sufficient signed certificates on the global interaction graph (#80) and on Boolean local interaction graphs (#83) are mechanized. The local ones give E's existential Settlement and not fair-schedule settlement, even with no cycle in any local graph (`shih_dong_not_fair`): by Robert's theorem a fair schedule that never settles needs a cycle in the global graph, and here that cycle shows in no single local graph. Fair settlement from local conditions, multivalued local graphs and an exact condition are the open part | acyclic resolver networks (Robert's theorem: every fair schedule converges); on cycles, sufficient only (`signed_settlement`, `signed_fidelity`; locally `local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`) |
 | 5 | yes | Section 14: collapse of a sub-federation `J` that is itself a monotone cycle | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) |
 | 14 (closed, #90) | yes | Section 8: the no-reset distributed model on monotone cycles, convergence alone. What separated it from the exact rows was the ghost: interleavings can agree on a quiescent state that is a fixed point of the cyclic repair other than the least one (`conv_ghost_normal`). Closed without P: `conv_quiet_exact` is a whole-system E, S and H statement with the quiescent state propagation settles in as the canonical state. The obstacle was the choice of canonicalizer, not composition, so the result says nothing about P on cycles; it removes gap 14 from the frontier | `conv_quiet_exact`; earlier `dist_exact` (acyclic), `epoch_conv_iff` (reset epochs), `flush_fed_iff` (jointly with agreement) |
@@ -309,8 +329,8 @@ Each open gap, checked against its own description above:
 | 13, variable-level site | no | Not a cycle question: two subsystems writing one variable is a multi-writer site, which enters only through `gluing_cex_overlap`. A separate residue | n/a |
 
 Gaps 8 and 9 are design exclusions, not open problems, and are not part of the claim. Gap 13 is
-listed under optimization and counting; only its monotone-overlap part joins the frontier. Gap 14
-stays in the table as the one frontier instance settled so far, and it was settled outside P.
+listed under optimization and counting; only its monotone-overlap part joins the frontier. Gaps 2
+and 14 stay in the table as the frontier instances settled so far; both were settled outside P.
 
 The cyclic raw material already mechanized:
 
@@ -324,7 +344,10 @@ The cyclic raw material already mechanized:
 - Without a barrier, convergence alone is exact once the canonical state is the one propagation
   settles in, ghost allowed (`conv_quiet_exact`, #90): the cyclic repair's extra fixed points need
   a different canonicalizer, not a compositional argument.
-- Rootless single cycles: `rootless_unique_iff` (unique iff the group is trivial).
+- Rootless invertible networks, any finite graph (#91): relative to a section, propagation copies
+  offsets downstream (`net_origin`), so convergence reduces to `H^1` and the source components of
+  the condensation (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`); single
+  cycles: `rootless_unique_iff` (unique iff the group is trivial).
 - Signed certificates for E on resolver networks, global interaction graph (#80): balance makes
   every resolver monotone after a change of order (`switched_monotone`), and then low starts or a
   unique fixed point give E (`signed_settlement`, `signed_fidelity`); invertible obstructions are
@@ -358,7 +381,7 @@ Yes, regime by regime:
 | Monotone cycles: normal form, reachability, validity | unconditional; `kleene_reach_exact`; `lfp_valid_iff_reached`, `Ncyc_valid_exact` | | 8 (no ACC, design) |
 | Monotone cycles, event order | `gc_iff` | | |
 | Invertible cycles: existence; root-driven convergence | `section_iff_coboundary`; `prop_minimal_qualified_iff` | | |
-| Invertible, rootless single cycle | `rootless_unique_normal_form_iff` | | 2 (other graphs) |
+| Invertible, rootless: single cycle; any finite network | `rootless_unique_normal_form_iff`; `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff` (reachable set `net_reachable_iff`) | | |
 | Invertible, coordinated: what to coordinate; event order | `plan_exact`; `coordinated_events_exact` | | |
 | Non-invertible: single cycle; rooted; root set; event order under root-set coordination | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count`; `forest_events_exact` | existence NP-complete: reduction mechanized (`net_section_iff_sat`, `net_count`, `net_size`, `np_certificate`, #57), NP-completeness by the standard argument | 3 (rootless dynamics) |
 | Collapse | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) | | 5 (cyclic) |
@@ -392,17 +415,18 @@ need care, and both hold:
 convergence gaps, these closed: at-least-once delivery (#55), ordinal and lexicographic potentials
 (#49), the stream level (#51), event order under coordination (#47), lfp validity and finite
 reachability (#50), rootless single invertible cycles (#48), and the non-invertible existence
-criterion without a spanning root (#54). Of the gaps the 989-gate revision added, event order under
+criterion without a spanning root (#54); rootless invertible networks in general (gap 2) closed
+later (#91). Of the gaps the 989-gate revision added, event order under
 root-set coordination (#59), enabledness a compensation step can disable (#56) and the state-based
 CRDT instance (#58) closed, and the distributed propagation model (gap 1) became exact on acyclic
 federations (#60), on monotone cycles under reset epochs or `LowR` (#62), and on monotone cycles
 without resets with no reachable hypothesis left (#64). On the optimization and counting side,
-gaps 10, 11 and 12 closed (#72, #70, #71) and gap 13 narrowed (#73), and gap 14, added by #64,
-closed (#90). Items 2, 3 and 5 above remain open for convergence, and gap 13's residual is paper only, so the map is not complete. The
+gaps 10, 11 and 12 closed (#72, #70, #71) and gap 13 narrowed (#73), gap 14, added by #64,
+closed (#90), and gap 2 closed (#91). Items 3 and 5 above remain open for convergence, and gap 13's residual is paper only, so the map is not complete. The
 headline does not claim completeness; it claims that every regime's status is stated.
 
-**Is "exact conditions in every regime" accurate?** No. Items 2, 3 and 5 are regimes with a
-sufficient condition only, or none. Item 14 was a question in a regime the development models
+**Is "exact conditions in every regime" accurate?** No. Items 3 and 5 are regimes with a
+sufficient condition only, or none; item 2 was one until #91 made it exact. Item 14 was a question in a regime the development models
 (`DistributedCyclesExact.v`), where convergence alone had a sufficient condition only; #90 makes it
 exact (`conv_quiet_exact`). Items 8 and 9 are design exclusions. The headline's three-way disjunction (exact, hardness, open) is
 accurate.
@@ -447,7 +471,7 @@ changes the precision paragraph under it (previous section). #60 and #62 do not 
 they move most of gap 1 into the exact column and leave a residual that is still listed. #64 does not
 change it: it closes gap 1 and adds gap 14, which the README lists, so every regime is still exact,
 hardness-backed, or listed open. #90 does not change it: it moves gap 14 to the exact
-column. The fifth wave (#70 to #73) does not change it: three listed gaps
+column. #91 does not change it: it moves gap 2 to the exact column. The fifth wave (#70 to #73) does not change it: three listed gaps
 move to the exact column with mechanized hardness reductions, and the fourth (gap 13) narrows to a
 residual that stays listed. The precision paragraph changes (minimum coordination's hardness is now
 a mechanized reduction, not only a citation). The first audit proposed narrower lines
@@ -465,7 +489,7 @@ From the first audit's list (numbering kept):
 | 2 | Stream-level exact condition | done, #51 |
 | 3 | Event order under coordination, exact | done, #47 |
 | 4 | Monotone cycles: exact validity, gsm's check sound, exact finite reachability | done, #50 |
-| 5 | Rootless invertible cycles | done for single coherently oriented cycles, #48; other graphs open (gap 2) |
+| 5 | Rootless invertible cycles | done for single coherently oriented cycles, #48; every finite network, #91 (gap 2 closed) |
 | 6 | At-least-once exact converse, free and causal | done, #55 |
 | 7 | Distributed propagation model, acyclic exact converse | done, #60 (`dist_exact`, `dist_exact_global`, `dist_global_exact_roots`) |
 | 8 | Cyclic monotone collapse | open (gap 5), medium to large |

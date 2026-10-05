@@ -8,10 +8,10 @@ Role of this page: what is next. What is proved today, regime by regime, is
 [REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2067 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2160 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
-audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90) is in the Done table; what remains open is listed under "Open items"
+audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91) is in the Done table; what remains open is listed under "Open items"
 below and, regime by regime, in [REGIME-AUDIT.md](../REGIME-AUDIT.md). Nothing on this page is claimed
 proven until it lands in a module and passes the gate.
 
@@ -32,6 +32,7 @@ proven until it lands in a module and passes the gate.
 | Exact event order under coordination | `CoordinatedExact.v` | `coordinated_events_exact`, `coordinated_events_exact_global`, `old_condition_not_necessary` | #47 |
 | Exact lfp validity and finite reachability; gsm's validity check sound | `MonotoneExact.v` | `lfp_valid_iff_reached`, `Ncyc_valid_exact`, `kleene_reach_exact`, `gsm_check_Ncyc_valid` | #50 |
 | Rootless invertible cycles | `RootlessCycles.v` | `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | #48 |
+| Rootless invertible networks, any finite graph (audit gap 2) | `RootlessNetworks.v` | `net_reachable_iff`, `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`, `net_strong_iff`; single cycles recovered (`cycle_unique_normal_form_recovered`); `rootless_mixed_square`, `rootless_source_feeds_cycle`, `rootless_global_holonomy` | #91 |
 | Root-set criterion for non-invertible networks | `RootSet.v` | `root_set_iff_forest`, `root_set_criterion_graph`, `root_set_count`, `root_set_decide` | #54 |
 | Exact at-least-once delivery, free and causal | `AtLeastOnceExact.v` | `alo_exact`, `causal_alo_exact`, `safe_free_exact`, `notidem_needs_dedup`, `gsm_unlisted_safe` | #55 |
 | Exact confluence when compensation may disable a buffered event (audit gap 6) | `EnabledAfterComp.v` | `jcg_exact`, `jcsplit_exact`, `jc_exact_recovered`, `gnf_iff`, `dc_jc_insufficient`, `nv_jc_not_necessary` | #56 |
@@ -94,7 +95,11 @@ naive statements are false, and each has a mechanized counterexample:
   `unbalanced_blocks` needs the regular action (`nonfree_holonomy_counterexample`).
 - **Rootless cycles.** Without a root, a single coherently oriented invertible cycle has a unique
   normal form from every start iff the group is trivial (`rootless_unique_normal_form_iff`); the
-  orientation matters (`rootless_orientation_matters`).
+  orientation matters (`rootless_orientation_matters`). On any finite network the condition is an
+  authority root per weakly connected component, or a trivial group, given `H^1 = 0`
+  (`net_unique_normal_form_iff`); holonomy inside strongly connected components does not decide
+  existence (`rootless_global_holonomy`), and a coboundary does not give existence from every start
+  (`rootless_mixed_square`).
 - **At-least-once, exactly.** Idempotence alone is not enough without commutation
   (`flag_idem_needs_dedup`, `fw_alo_fails`), and global idempotence is not necessary
   (`jmp_unreachable`), so gsm's `NotIdempotent` can over-report.
@@ -203,9 +208,9 @@ the two acceptance instances. Qualifiers: `root_choice_matters`, `copyback_witho
 - **Done when.** The soundness theorem passes the gate, with the copy-back loop (balanced, accepted
   with zero coordination) and the negation loop (unbalanced, one edge coordinated) as instances.
 - **Effect.** Monotone cycles converge, and invertible non-monotone cycles converge given the
-  computed coordination (event order exactly: `coordinated_events_exact`, #47). Cycles with no
-  authority root are exact only for single coherently oriented invertible cycles
-  (`RootlessCycles.v`, #48); see "Open items" below for the rest.
+  computed coordination (event order exactly: `coordinated_events_exact`, #47). Invertible cycles
+  with no authority root are exact on single coherently oriented cycles (`RootlessCycles.v`, #48)
+  and on every finite network (`RootlessNetworks.v`, #91).
 
 ### 5. Federation-level checks become oracle-certified
 
@@ -305,17 +310,22 @@ canonical-execution framework ([THEORY.md](THEORY.md#canonical-execution)), E, S
 for single systems and P (`factor_exact`) for acyclic composition, while on cycles P has the
 soundness direction only (`cyc_factor_sound`, `cyc_factor_sound_gc`) and locality fails without
 acyclicity (`cyclic_lc_sound_fails`). The remaining open convergence problems are instances of one
-question, what additional structure makes P exact on cycles: gap 2 (rootless invertible networks
-beyond a single cycle), gap 3 (rootless propagation on lossy networks, [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)
+question, what additional structure makes P exact on cycles: gap 3 (rootless propagation on lossy networks, [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)
 P2), gap 5 (cyclic monotone collapse), and the monotone-overlap part of gap 13. Gap 13's other
 residues (relative certificates on covers not closed under sources, and the variable-level site)
 are not cyclic and stay separate. Gap 14 (convergence alone in the no-reset cyclic distributed
 model) was on this list and is closed (#90) without P: its exact condition (`conv_quiet_exact`)
 is a whole-system E, S and H statement whose canonical state is the quiescent state propagation
 settles in, ghost allowed, instead of the least fixed point. The obstacle there was the choice of
-canonicalizer, not composition, so it says nothing about P on cycles. The cyclic raw material: GC and its exactness on monotone cycles (`gc_iff`,
+canonicalizer, not composition, so it says nothing about P on cycles. Gap 2 (rootless invertible
+networks beyond a single cycle) was on this list too and is closed (#91), also without P: with
+bijective transports and the regular action, propagation copies offsets relative to a section
+(`net_origin`), so the cycles reduce to a global `H^1` condition plus the acyclic condensation
+(`net_unique_normal_form_iff`: an authority root per component). That reduction needs invertible
+transports and does not reach gaps 3 and 5. The cyclic raw material: GC and its exactness on monotone cycles (`gc_iff`,
 `net_events_converge_iff`), per-target checks over normal-form images (`cyc_check_gc_lfp`), reset
-epochs (`epoch_conv_iff`), rootless single cycles (`rootless_unique_iff`), root sets
+epochs (`epoch_conv_iff`), rootless invertible networks (`net_unique_normal_form_iff`; single
+cycles `rootless_unique_iff`), root sets
 (`root_set_criterion_graph`) and P's soundness on cycles (`cyc_factor_sound_gc`). Each gap is
 checked against its own description in
 [REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier). Done when some
@@ -324,11 +334,11 @@ something outside P.
 
 | Item | Status | Size |
 |---|---|---|
-| Make P exact on cycles: the cyclic frontier, of which gaps 2, 3, 5 and gap 13's monotone-overlap part are instances (gap 14 was one, closed by #90 without P) | open; soundness half mechanized (`cyc_factor_sound`, `cyc_factor_sound_gc`), locality fails without acyclicity (`cyclic_lc_sound_fails`) | large |
+| Make P exact on cycles: the cyclic frontier, of which gaps 3, 5 and gap 13's monotone-overlap part are instances (gaps 14 and 2 were instances, closed by #90 and #91 without P) | open; soundness half mechanized (`cyc_factor_sound`, `cyc_factor_sound_gc`), locality fails without acyclicity (`cyclic_lc_sound_fails`) | large |
 | Distributed propagation model (gap 1): acyclic exact converse; a model for monotone cycles | acyclic done, #60 (`dist_exact`); cycles modeled and exact under reset epochs and under `LowR`, #62 (`epoch_conv_iff`, `low_conv_iff`) | n/a |
 | Distributed model on monotone cycles without resets and without `LowR` (gap 1, residual): move `FlushR` and `NoGhostR` off the hypothesis side and characterize them | done, #64: `flush_fed_iff`, `fair_fed_iff` (each conjunct necessary), `FlushR` via `fair_flush_sound_iff`, `NoGhostR` via `noghost_event_iff` and `noghost_inv_iff`, gsm reduction `lens_noreset_iff` | n/a |
 | Distributed model on monotone cycles without resets: exact condition for convergence among quiescent interleavings alone (`FlushR /\ DConvQ`), when they may agree on a common ghost (gap 14) | done, #90: `conv_quiet_exact` (`FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`: the three layers of `flush_fed_iff` relative to the quiescent state propagation settles in instead of `Lfp`; each conjunct necessary), `fair_conv_exact`; recovers `quiet_conv_iff` and `flush_fed_iff` in the ghost-free case; `XUcR`, `FMConv` and `NoGhostR` are each not necessary (`ghost_conv_not_fed`) | n/a |
-| Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | open | medium |
+| Rootless invertible networks beyond a single coherently oriented cycle (gap 2) | done, #91: `net_reachable_iff` (the reachable set), `net_nf_exists_iff` (existence from every start iff `H^1 = 0` and one source component per weakly connected component, or `\|G\| = 1`), `net_unique_iff` (unique iff, given `H^1 = 0`, a de facto root in every component, or `\|G\| = 1`), `net_unique_normal_form_iff` (both: an authority root per component, or `\|G\| = 1`); single-cycle theorems recovered; counterexamples `rootless_global_holonomy`, `rootless_mixed_square`, `rootless_source_feeds_cycle` | n/a |
 | Rootless propagation on non-invertible networks, resolver reading (gap 3; [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2) | open. Progress, #80: on the **global** signed interaction graph, sufficient certificates for E under an explicit resolver semantics (bounded finite-height value sets, fair asynchronous schedules): balance with low starts (`signed_settlement`) or with at most one fixed point (`signed_fidelity`), each hypothesis shown needed; sufficient, not an exact characterization. Progress, #83: on Boolean **local** (state-dependent) interaction graphs, for every `n`: no local positive cycle gives at most one fixed point and CanonicalFidelity (`local_fidelity`, `local_fidelity_canon`; Remy, Ruet and Thieffry 2008), strictly beyond the global certificates (`local_weaker_than_global`); no local negative cycle alone gives nothing (`local_neg_free_no_fixed_point`), but with non-expansiveness or one vertex on every local positive cycle it gives E's Settlement from every start (`richard_t3`, `richard_t4`; Richard 2011, Theorems 3 and 4), and no local cycle gives all of E (`shih_dong_E`; Shih and Dong 2005). These certify Settlement in its existential (flush) form only: no local condition gives fair-schedule settlement (`shih_dong_not_fair`, `ring_local_conditions`). Next: (a) sufficient local conditions for fair-schedule settlement, or a proof that none of a given shape exists (the fair form is the one the distributed model needs, compare `FairFlushR` in gap 1); candidates are local acyclicity plus non-expansiveness (the `shih_dong_not_fair` network has a vertex of out-degree 2 in some local graph) and local conditions combined with a restriction on the global graph's cycles. For the first there is computational evidence, not mechanized: no network on n = 3 to 6 vertices with no local cycle and out-degree at most one has any cycle in its asynchronous state graph, by an exhaustive SAT search ([research/gap3-fair-settlement](../research/gap3-fair-settlement/README.md)). The general proof is open; the conjectured key lemma is F2 in that directory's `REPORT.md`, and Shih and Ho 1999 must be checked first, since it may already contain the result; (b) multivalued local fidelity, Richard and Comet 2007 (cited, not mechanized; the Boolean case is `local_fidelity`), and the multivalued forms of Theorems 3 and 4 if they hold; (c) value sets without bounds; (d) an exact condition | medium to large |
 | Event order under non-invertible root-set coordination (gap 4; P6) | done, #59 (`forest_events_exact`) | n/a |
 | Cyclic monotone collapse (gap 5) | paper only | medium to large |
@@ -346,7 +356,7 @@ Optimization and counting, which do not bear on when state converges (audit gaps
 | `H^1` on the 2-complex (gap 12) | done, #71: `nerve_H1_classification` (any group), `nerve_H1_Z2_count` (over Z/2). Scope: the dimension formula for other coefficients, and the identification of the presented group with the fundamental group, are not mechanized | n/a |
 | Sheaf gluing, positive assembly (gap 13) | narrowed, #73: exact on the registry-level site (`sheaf_iff_refines`, `cert_sheaf`). Open (paper only): the variable-level and monotone-overlap site; a sheaf condition for relative certificates on covers not closed under sources | medium |
 
-Open convergence items after #90: gaps 2, 3 and 5, plus the design exclusion of gap 8. Gaps 1
+Open convergence items after #91: gaps 3 and 5, plus the design exclusion of gap 8. Gaps 1, 2
 and 14 are closed. Of the optimization and counting gaps, only gap 13's residual remains.
 
 ## Removable caveats, lower value

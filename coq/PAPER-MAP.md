@@ -2,7 +2,7 @@
 
 > **Status note.** The status columns below are a historical snapshot from the 254-theorem gate
 > and predate later merges (work packages WP1 to WP9 and the exactness work after them; the gate is
-> now 2067). Many rows marked NOT or PARTIAL are mechanized now. The tables are kept as written.
+> now 2160). Many rows marked NOT or PARTIAL are mechanized now. The tables are kept as written.
 > [REGIME-AUDIT.md](../REGIME-AUDIT.md) is the current status, regime by regime; for the modules
 > and their headline theorems, see the [module index](README.md#modules-by-regime).
 
