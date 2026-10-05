@@ -25,20 +25,28 @@
                            against the tree's section (cycle_basis_criterion) iff every closed
                            walk of T ++ X has trivial holonomy.
      obstruction_loop_vs_merge
-                           (a) invertible: every tree (no undirected cycle) has a section and no
-                           non-trivial holonomy (tree_has_section); (b) lossy: the C22 shape is a
+                           (a) invertible: every tree has a section and no non-trivial holonomy
+                           (tree_has_section). "Tree" is CohomologyGraph.tree: grown leaf by leaf
+                           from a root r, each edge in either orientation (so connected, no
+                           undirected cycle); forests are covered by holonomy_free_section;
+                           (b) lossy: the C22 shape is a
                            tree with no section, although each of its two edges alone has one: two
                            directed paths merge at vertex 2 with images that disagree, and no loop
                            is involved (c22_cycle_basis_fails, c22_no_section_recovered, c22_lmin).
    Signed graphs (Z/2 labels under xorb; label true is a negative edge, false a positive one).
      harary_balance        a switching o : nat -> bool exists (every edge (u, v, b) has
                            b = xorb (o u) (o v), so flipping the orders at the vertices with o = true
-                           makes every edge positive) iff no closed walk carries an odd number of
-                           negative edges (no negative undirected cycle). This is Harary's balance
-                           theorem for finite signed graphs, proved here (not cited), as the Z/2
-                           instance of holonomy_free_section.
+                           makes every edge positive) iff no closed walk (edges crossed in either
+                           direction, with multiplicity) carries an odd number of negative edges.
+                           This is Harary's balance theorem for finite signed graphs, proved here
+                           (not cited), as the Z/2 instance of holonomy_free_section. Any finite
+                           edge list: no connectivity or simple-graph premise (parallel edges and
+                           self-loops allowed). Stated for closed WALKS: the classical form with
+                           simple cycles ("no negative cycle"; every odd closed walk contains a
+                           negative cycle) is not mechanized.
      balanced_dicycles_positive, balanced_no_positive_acyclic
-                           in a balanced signed graph every directed cycle is positive; so balance
+                           in a balanced signed graph every directed cycle (an edge u -> v followed
+                           by a directed path v -> u, vertices may repeat) is positive; so balance
                            together with "no positive directed cycle" (the sign condition of
                            Thomas's first rule) leaves no directed cycle at all.
    Non-vacuity: z2_triangle_* (an unbalanced Z/2 triangle: holonomy true, no section, two directed
@@ -382,7 +390,8 @@ Proof.
 Qed.
 
 (* Harary's balance theorem, finite case, proved: a switching to all-positive exists iff no closed
-   walk carries an odd number of negative edges. *)
+   walk carries an odd number of negative edges. Closed walks, not simple cycles: the reduction from
+   an odd closed walk to a negative simple cycle is classical and not mechanized. *)
 Theorem harary_balance : forall sg,
   (exists o, Switching sg o) <-> (forall u h, swalk sg u u h -> h = false).
 Proof.

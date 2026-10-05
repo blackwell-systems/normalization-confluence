@@ -420,6 +420,18 @@ propagation order (`prop_minimal_qualified_iff`). Each qualifier is proved neces
 - for a rootless, coherently oriented invertible cycle on at least two registries with trivial
   holonomy, the reachable consistent state is unique iff `G` is trivial (`rootless_unique_iff`).
 
+The same criterion holds on walks, with no spanning tree. In `SignedCycles.v` a walk may cross an
+edge backward with the inverse label, and a section transports along every walk
+(`section_transport`). On any finite edge list, with no spanning-tree or connectivity premise, a
+section exists iff every closed walk has trivial holonomy, iff walk labels are path-independent,
+iff the labeling is a coboundary; and two directed paths `u -> v` with different labels `h1`, `h2`
+close into a closed walk with holonomy `h2^-1 h1`, which rules out a section
+(`invertible_merge_is_holonomy`, `holonomy_free_section`). At Z/2 this is **Harary's balance
+theorem, proved** (not cited): a finite signed graph, parallel edges and self-loops allowed, has a
+switching to all-positive iff no closed walk carries an odd number of negative edges
+(`harary_balance`). The mechanized form is stated for closed walks; the classical form with simple
+cycles (an odd closed walk contains a negative cycle) is not mechanized.
+
 ### Non-abelian obstruction
 
 Abelianizing the labels loses information, and it can undercount. On a theta graph labeled in
@@ -462,7 +474,29 @@ consistent root assignments (`root_set_count`). On a single cycle the test is th
 a section exists iff the loop composite has a fixed point reachable from some seed
 (`thm_obstruction_reachable`), and on a finite fiber a bounded number of iterations decides it
 (`diagnose_bounded`, `diagnose_dichotomy`). So the obstruction theory has a proved boundary: cohomology where maps are
-invertible, provable hardness where they are not. The research note on lossy networks,
+invertible, provable hardness where they are not.
+
+**Loops versus merges, as a theorem pair** (`obstruction_loop_vs_merge`). Invertible: every tree
+has a section and trivial holonomy, so every obstruction is a loop. Lossy: the C22 tree (two
+constant maps, `false` and `true`, into one vertex) has no section although each of its two edges
+alone has one, and its minimum coordination is 1: two directed paths merge with images that
+disagree, and no loop is involved.
+
+**Signed certificates for E** (`SignedResolver.v`, reading B). With an explicit resolver semantics
+(one value set with a least and a greatest element and finite height, per-vertex resolvers, fair
+asynchronous schedules) and a signed **global** interaction graph that certifies the resolvers
+(monotone in positive and antitone in negative inputs, signs fixed across all states), balance
+makes every resolver monotone after reversing the order at the switched vertices
+(`switched_monotone`). Then E of the canonical-execution framework (Settlement and
+CanonicalFidelity, canonicalizer the switched least fixed point) holds from every start at or below
+that point (`signed_settlement`), and from every start when there is at most one fixed point
+(`signed_fidelity`). These are sufficient certificates, not an exact characterization; each
+hypothesis is shown needed by a counterexample (`neg2_no_fixed_point`, `copyback_ghost`,
+`ring_low_start_E`, `unbalanced_unique_oscillates`, `flip_needs_top_resolver`,
+`xor_no_certificate`, `cyc3_unsignable`). On a balanced graph Thomas's sign condition for
+uniqueness (no positive directed cycle) leaves no directed cycle at all
+(`balanced_no_positive_acyclic`), so uniqueness is a hypothesis rather than a sign condition. Local
+(state-dependent) interaction graphs are the open part (REGIME-AUDIT gap 3). The research note on lossy networks,
 [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver
 readings, root sets, and signed-cycle (Thomas-type) conditions.
 
@@ -495,8 +529,8 @@ witnesses on acyclic federations (`fed_exact_full`), and the global condition GC
 | Question | Mathematical form | Answer |
 |---|---|---|
 | **Existence** | A global section (`H^0` non-empty) | Invertible: exact, the class in `H^1` is trivial (`section_iff_coboundary`, `cycle_basis_criterion`). Lossy: exact by root sets (`root_set_criterion_graph`), and NP-complete without a spanning root (`net_section_iff_sat`, `np_certificate`) |
-| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
-| **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`; on the 2-complex, `nerve_H1_classification`, `nerve_H1_Z2_count`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`) |
+| **Convergence** | Repair: a retraction onto the canonical states. Events: the `E*` action factors through the trace monoid | Repair: `cc_exact_from`, `jc_exact` (one registry), `cat_thm_one_sound` and `cat_thm_one_fixed` (acyclic), `chaotic_reaches_lfp` (monotone cycles), `prop_minimal_qualified_iff` (invertible cycles with a root); rootless lossy resolver networks, sufficient only: signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`). Events, separately: `fed_exact_full` (acyclic), `cyc_events_converge_iff` (monotone cycles); not implied by repair (`audit_counterexample`, `cyc_counterexample`) |
+| **Obstruction** | What blocks a section | Invertible: holonomy, the class in `H^1` (`cycle_basis_criterion`, `H1_classification`; on the 2-complex, `nerve_H1_classification`, `nerve_H1_Z2_count`), equivalently a closed walk with non-trivial holonomy on any edge list (`invertible_merge_is_holonomy`); at Z/2, Harary balance (`harary_balance`). Lossy: a loop composite with no reachable fixed point (`thm_obstruction_reachable`, `diagnose_dichotomy`), and also a merge with no loop at all (`obstruction_loop_vs_merge`) |
 | **Surgery** | The least coordination that removes the obstruction | Invertible: the group feedback edge set number, which the best coordination plan attains (`plan_min_exact`); NP-hard by a mechanized Max-Cut reduction (`maxcut_reduction`). Lossy: the least deletion passing the root-set criterion (`lmin_root_set`, `lmin_decide`), not cycle-based (`lossy_min_exceeds_cycle_bounds`); NP-hard even to tell 0 from 1 (`lmin_reduction`) |
 
 [REGIME-AUDIT.md](../REGIME-AUDIT.md) asks these questions of every regime: existence and
@@ -515,7 +549,8 @@ proved here; [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md) maps the direction.
 ### Calibration
 
 Each area is classical: Newman's lemma, Knaster-Tarski and chaotic iteration, equalizers and
-retractions, sheaves, graph cohomology and gain-graph balance, Mazurkiewicz traces, and the
+retractions, sheaves, graph cohomology and gain-graph balance (Harary's theorem is proved here at
+Z/2, `harary_balance`), Mazurkiewicz traces, and the
 complexity of group feedback edge sets and of 3-SAT. The contribution is the combination: the
 exact boundaries between the areas, the non-abelian and lossy results, and the mechanization. See
 [LANDSCAPE.md](LANDSCAPE.md) for the placement against prior work.

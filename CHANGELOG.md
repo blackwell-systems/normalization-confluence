@@ -7,6 +7,45 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Statement review of `SignedCycles.v` and `SignedResolver.v` (#81), same method as #78: every
+  exported theorem checked with `Check`/`About` (section variables and hypotheses as premises)
+  against its name, comments, the #80 description, `coq/docs/non-invertible.md` and the P2
+  progress bullet of `docs/LOSSY-NETWORKS.md`. No error; `invertible_merge_is_holonomy` and
+  `harary_balance` carry no spanning-tree, connectivity or simple-graph premise. Added
+  correctly-stated theorems where the prose claimed more than a statement:
+  `resp_reads_in_neighbors` (`Resp` makes each resolver read only its in-neighbors),
+  `signed_fidelity_harary` (attempt 2 with the switching derived from balance),
+  `ring_low_start_E` (from `(1, 0, 0)` on the 3-ring E's Settlement half holds and E fails through
+  CanonicalFidelity, so the start condition is needed for fair settlement and fidelity, not for
+  E's Settlement), `flip_needs_top_resolver` (the flip inside the resolver model: every hypothesis
+  of `signed_fidelity` but the greatest element, and no flush word) and
+  `unique_pos_cycle_every_certificate` (every certificate of `unique_pos_cycle` has the positive
+  cycle). Qualifiers: Harary is stated for closed walks (the simple-cycle form is not mechanized);
+  `tree` in `obstruction_loop_vs_merge` is `CohomologyGraph.tree`; `signed_settlement_harary` has a
+  subset of `signed_settlement`'s conclusions; both bridge theorems assume the greatest element;
+  sound starts are sound in the switched order; `SgOn` is a premise. Docs wave: `REGIME-AUDIT.md`
+  (section 12: a loops-versus-merges row and the signed certificates on the rootless row; gap 3
+  progress with the local interaction graph version as the open part; cyclic frontier),
+  `docs/ROADMAP.md` (gap 3 progress and next steps: local interaction graphs, Remy, Ruet and
+  Thieffry 2008 for fidelity, Richard 2011 for settlement, or a Ruet 2017 style counterexample),
+  `docs/THEORY.md` ("Mathematical structure": Harary proved, loop versus merge as a theorem pair,
+  signed certificates for E), `docs/LOSSY-NETWORKS.md` and `coq/docs/non-invertible.md`
+  (consistency with the new theorems). Gate raised from 1963 to 1968.
+- `coq/SignedCycles.v` and `coq/SignedResolver.v` (#80). Loops versus merges:
+  `section_transport`, `holonomy_free_section` (every closed walk trivial gives a section, on any
+  finite edge list, no spanning tree), `invertible_merge_is_holonomy` (two directed paths with
+  different labels give a non-trivial closed walk and no section; section iff holonomy-free iff
+  path-independent iff coboundary), `fundamental_cycles_holonomy`, `obstruction_loop_vs_merge`
+  (invertible trees have sections; the lossy C22 tree has none, minimum coordination 1). Harary's
+  balance theorem for finite signed graphs, proved as the Z/2 instance (`harary_balance`), with
+  `balanced_dicycles_positive` and `balanced_no_positive_acyclic`. The signed-cycle to E bridge
+  (reading B, sufficient certificates, not an identity): `switched_monotone`, `signed_settlement`
+  and `signed_settlement_harary` (low starts), `signed_fidelity` (at most one fixed point, every
+  start); breaks `neg2_no_fixed_point`, `copyback_ghost`, `toggle_ghost`, `ring_needs_low_start`,
+  `unbalanced_unique_oscillates`, `flip_needs_top`, `xor_no_certificate`, `cyc3_unsignable`;
+  non-vacuity `neg_chain_settles`, `unique_pos_cycle`. Documented in `coq/docs/non-invertible.md`
+  and `docs/LOSSY-NETWORKS.md` P2 (progress on gap 3, which stays open). Gate raised from 1926 to
+  1963.
 - Experimental (do not cite yet): statement review of the canonical-execution modules (#78).
   Every rederivation (`*_kernel`, `*_P`) has the same exported statement as the theorem it
   rederives (`flush_fed_iff_kernel` with fewer premises), and the six-criteria outcome stands.
