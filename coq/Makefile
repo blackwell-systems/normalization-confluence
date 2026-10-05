@@ -213,3 +213,9 @@ all: RootSet.vo
 
 RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
 	coqc -Q . NC RootSet.v
+
+# Exact confluence when compensation may disable a buffered event (EnabledAfterComp.v).
+all: EnabledAfterComp.vo
+
+EnabledAfterComp.vo: EnabledAfterComp.v Newman.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo
+	coqc -Q . NC EnabledAfterComp.v
