@@ -177,3 +177,27 @@ all: MonotoneExact.vo
 
 MonotoneExact.vo: MonotoneExact.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo FederationEventsCycles.vo MonotoneFederation.vo
 	coqc -Q . NC MonotoneExact.v
+
+# The exact condition for stream agreement (StreamExact.v).
+all: StreamExact.vo
+
+StreamExact.vo: StreamExact.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Stream.vo
+	coqc -Q . NC StreamExact.v
+
+# The exact converses over any well-founded order (GovernanceWFConverse.v).
+all: GovernanceWFConverse.vo
+
+GovernanceWFConverse.vo: GovernanceWFConverse.v Newman.vo Governance.vo GovernanceWF.vo GovernanceConverse.vo RhoStar.vo
+	coqc -Q . NC GovernanceWFConverse.v
+
+# Rootless propagation on invertible cycles (RootlessCycles.v).
+all: RootlessCycles.vo
+
+RootlessCycles.vo: RootlessCycles.v CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo Cohomology.vo
+	coqc -Q . NC RootlessCycles.v
+
+# Exact event-order condition under the coordination plan (CoordinatedExact.v).
+all: CoordinatedExact.vo
+
+CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
+	coqc -Q . NC CoordinatedExact.v
