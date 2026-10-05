@@ -1196,6 +1196,66 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## Rootless propagation on invertible cycles (`RootlessCycles.v`)
+
+`CoordinatedCycles.v` gives the exact condition for coordination-free convergence **given** an
+authority root, and records one instance without a root (`copyback_without_authority`). This file
+turns that instance into an exact theorem.
+
+**Model.** The network is a group-labeled graph as in `CohomologyGraph.v` (the fiber of every
+registry is the group `G`, the regular action). With no designated root, **every edge is a writer**:
+firing `(u, v, g)` sets `s(v) := g * s(u)` and changes nothing else (`fire1`). A schedule is any
+finite list of edges, fired left to right (`fire`); it is fair when it fires every edge at least
+once. The normal forms (states fixed by every writer) are exactly the sections
+(`fixed_iff_section`), and a section is stable under every continuation (`fire_section_stable`), so
+the reachable sections are exactly the limits of fair infinite schedules. The statements are about
+that set of reachable fixed points. The cycle `cycE gs gc` is coherently oriented on registries
+`0 .. n`: path edges `(i, i + 1, g_i)` and the closing edge `(n, 0, g_c)`, with holonomy
+`g_c * g_(n-1) * ... * g_0`.
+
+**Results** (any group, `n >= 1`).
+
+- `rootless_section_iff_holonomy`, `rootless_section_iff_coboundary`: a consistent state exists iff
+  the holonomy is trivial, iff the labeling is a coboundary.
+- `rootless_reaches_section`, `rootless_nf_exists_iff`: with trivial holonomy, the round "path, then
+  closing edge" reaches a consistent state from **every** initial state; so "every initial state
+  reaches a consistent state" iff the holonomy is trivial.
+- `rootless_two_orders`, `rootless_not_unique`: for any section `s` and any `c`, from `s` with
+  registry 0 shifted to `s(0) * c`, the two rounds "closing edge first" and "closing edge last" (both
+  permutations of the edge list, so fair) reach `s` and `s * c`, both consistent, and every
+  continuation keeps them there. With `c <> e` these differ.
+- **`rootless_unique_iff` (the exact statement).** With trivial holonomy, the reachable consistent
+  state is unique from every initial state **iff `|G| = 1`**, for all schedules and for fair ones
+  alike. `rootless_unique_iff_general` drops the holonomy hypothesis: unique iff (trivial holonomy
+  implies `|G| = 1`); with nontrivial holonomy uniqueness is vacuous because nothing consistent is
+  reachable. `rootless_unique_normal_form_iff` combines existence and uniqueness: "from every
+  initial state some fair round reaches a consistent state, and every schedule that reaches one
+  reaches the same" iff `|G| = 1`. So a rootless invertible cycle has a unique normal form iff the
+  group is trivial; any nontrivial group needs an authority (or another coordination).
+
+**Where the qualifiers are needed** (recorded as theorems).
+
+- `rootless_selfloop_unique`: `n >= 1` is needed. A self-loop with identity label over Z/2 has a
+  unique normal form (every state is consistent and no write changes anything) with `|G| = 2`.
+- `rootless_orientation_matters`: coherent orientation is needed. The triangle `0 -> 1`, `1 -> 2`,
+  `0 -> 2` of copies over Z/2 is a cycle of the underlying graph with trivial holonomy, yet its
+  normal form is unique: registry 0 has no incoming edge and is a de facto authority root.
+
+**Instances** (every hypothesis discharged). Z/2 copy-back: `rootless_copyback_not_unique`, and
+`copyback_without_authority_recovered` re-derives `copyback_without_authority` from
+`rootless_two_orders` (section `(1, 1)`, shift `1`), with `cb_bridge_01` and `cb_bridge_10`
+identifying `FederationOrder.run` of the registry writers with firing their in-edges. An S_3
+triangle labeled `a`, `b`, `(b a)^-1` (with `a b <> b a`): trivial holonomy, a consistent state
+from every initial state, not unique (`rootless_s3_not_unique`; S_3 is a six-constructor type whose
+product is `Cohomology.v`'s `S3Sep.comp`). The trivial group on a triangle: unique normal form
+(`rootless_trivial_unique`). The Z/2 negation loop: nontrivial holonomy, no consistent state is
+reachable (`rootless_negation_no_nf`).
+
+Scope: coherently oriented single cycles and the regular action. On a general graph the two
+general facts still hold (`trivial_unique`: `|G| = 1` gives uniqueness on any graph;
+`fixed_iff_section`, `fire_section_stable`), but registries with no incoming edge act as roots, so
+the exact condition there depends on the graph's root structure and is not stated here.
+
 ## The federated theorems in corrected form (`FederationGRS.v`)
 
 ROADMAP item 7, work package WP5 (rows F6 to F10 and F17 to F19 of `PAPER-MAP.md`). The federation

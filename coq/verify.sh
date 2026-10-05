@@ -754,6 +754,32 @@ Print Assumptions NC.FederationEventsCyclesMulti.prod_nf.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_converges.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_gc.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_instance.
+Require Import NC.RootlessCycles.
+Print Assumptions NC.RootlessCycles.fixed_iff_section.
+Print Assumptions NC.RootlessCycles.fire_section_stable.
+Print Assumptions NC.RootlessCycles.trivial_unique.
+Print Assumptions NC.RootlessCycles.section_shift.
+Print Assumptions NC.RootlessCycles.path_shift.
+Print Assumptions NC.RootlessCycles.rootless_section_iff_holonomy.
+Print Assumptions NC.RootlessCycles.rootless_section_iff_coboundary.
+Print Assumptions NC.RootlessCycles.rootless_reaches_section.
+Print Assumptions NC.RootlessCycles.rootless_nf_exists_iff.
+Print Assumptions NC.RootlessCycles.rootless_two_orders.
+Print Assumptions NC.RootlessCycles.rootless_not_unique.
+Print Assumptions NC.RootlessCycles.fair_unique_trivial.
+Print Assumptions NC.RootlessCycles.rootless_unique_iff.
+Print Assumptions NC.RootlessCycles.rootless_unique_iff_general.
+Print Assumptions NC.RootlessCycles.rootless_unique_normal_form_iff.
+Print Assumptions NC.RootlessCycles.rootless_copyback_not_unique.
+Print Assumptions NC.RootlessCycles.cb_bridge_01.
+Print Assumptions NC.RootlessCycles.cb_bridge_10.
+Print Assumptions NC.RootlessCycles.copyback_without_authority_recovered.
+Print Assumptions NC.RootlessCycles.rootless_negation_no_nf.
+Print Assumptions NC.RootlessCycles.rootless_trivial_unique.
+Print Assumptions NC.RootlessCycles.s3_assoc.
+Print Assumptions NC.RootlessCycles.rootless_s3_not_unique.
+Print Assumptions NC.RootlessCycles.rootless_selfloop_unique.
+Print Assumptions NC.RootlessCycles.rootless_orientation_matters.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -764,8 +790,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 729 ]; then
-  echo "FAIL: expected 729 axiom-free results, got $N"
+if [ "$N" -lt 754 ]; then
+  echo "FAIL: expected 754 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
