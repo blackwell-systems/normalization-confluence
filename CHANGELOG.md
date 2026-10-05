@@ -7,6 +7,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Experimental (do not cite yet): `coq/CanonicalExecution.v` and `coq/CanonicalInstances.v`, a
+  candidate meta-theory in which convergence decomposes into effective canonicalization (E:
+  settlement and canonical fidelity), state descent (S) and history descent (H) (#74). Kernel:
+  `state_descent_iff_respects_canon`, `state_descent_iff_cc2`, `normalization_descent`,
+  `peak_exact` and `classified_peak_exact` (localized Newman, credited), `history_descent_exact`
+  over admissible executions, `esh_exact`. Validation against six existing exact results:
+  `jc_exact`/`jcg_exact`, `causal_exact`, the at-least-once results (free and causal), streams,
+  and the ghost family reduce to short corollaries; `fed_exact` is partial, pending a
+  compositional (P-layer) locality theorem. Documented in `coq/docs/canonical-execution.md`,
+  marked experimental. Gate raised from 1783 to 1891.
 - `coq/CausalReplay.v`: convergence under causal delivery, where only concurrent events need to commute (#19).
   - `causal_convergence`: if governed steps commute on concurrent pairs, any two causally consistent delivery orders reach the same state.
   - `causal_cmrdt_SEC`: op-based CRDTs (concurrent operations commute, causal delivery) converge, as an instance.
