@@ -295,3 +295,10 @@ CanonicalExecution.vo: CanonicalExecution.v Newman.vo GovernanceConverse.vo Gove
 
 CanonicalInstances.vo: CanonicalInstances.v CanonicalExecution.vo Newman.vo Trace.vo CausalReplay.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo EnabledAfterComp.vo AtLeastOnce.vo AtLeastOnceExact.vo GovernanceCausal.vo Stream.vo StreamExact.vo FederationEvents.vo FederationEventsConverse.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedExact.vo DistributedCycles.vo DistributedCyclesExact.vo
 	coqc -Q . NC CanonicalInstances.v
+
+# Experimental (validation in progress): the P layer of the canonical-execution experiment,
+# interaction locality as a factorization through a composition boundary (CanonicalLocality.v).
+all: CanonicalLocality.vo
+
+CanonicalLocality.vo: CanonicalLocality.v CanonicalExecution.vo CanonicalInstances.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo SheafGluing.vo
+	coqc -Q . NC CanonicalLocality.v
