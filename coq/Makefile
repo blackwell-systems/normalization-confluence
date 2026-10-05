@@ -106,6 +106,12 @@ all: CoordinatedCycles.vo
 CoordinatedCycles.vo: CoordinatedCycles.v CohomologyGraph.vo FederationOrder.vo FederationEvents.vo
 	coqc -Q . NC CoordinatedCycles.v
 
+# Verification calculus for CC (Calculus.v).
+all: Calculus.vo
+
+Calculus.vo: Calculus.v
+	coqc -Q . NC Calculus.v
+
 # Monotone federation (MonotoneFederation.v, WP6).
 all: MonotoneFederation.vo
 

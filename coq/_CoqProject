@@ -29,6 +29,7 @@ FederationEventsConverse.v
 AtLeastOnce.v
 GovernanceConverse.v
 CoordinatedCycles.v
+Calculus.v
 MonotoneFederation.v
 CohomologyGeneral.v
 Stream.v
