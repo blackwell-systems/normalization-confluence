@@ -261,3 +261,9 @@ all: CRDTBoundary.vo
 
 CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
 	coqc -Q . NC CRDTBoundary.v
+
+# The positive sheaf assembly over sub-federation covers (SheafGluing.v).
+all: SheafGluing.vo
+
+SheafGluing.vo: SheafGluing.v Categorical.vo FederationOrder.vo CategoricalBridge.vo Cohomology.vo FederationEvents.vo Collapse.vo
+	coqc -Q . NC SheafGluing.v
