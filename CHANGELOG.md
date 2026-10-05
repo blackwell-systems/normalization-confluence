@@ -285,6 +285,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/ROADMAP.md`: planned artifact, the Convergence Atlas (a public, illustrated catalog of the regime map with counterexample plates, generated from `REGIME-AUDIT.md`). No theorem added, removed or renamed.
 - The three version-2 papers fold in the corrections queued for a version 3, before version 2 is
   published; all three are dated 5 October 2026 and their PDFs are rebuilt. CRDT strictness
   (Base and Fed, design-space section and Related Work): strict on the same transition

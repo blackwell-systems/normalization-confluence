@@ -388,6 +388,27 @@ is closed. Of the optimization and counting gaps, only gap 13's residual remains
   minimum-cost plan would be exact for small networks and is NP-hard in general
   (`maxcut_plan_reduction`).
 
+## Planned artifact: the Convergence Atlas
+
+A public, illustrated catalog of the regime map, in the tradition of the Complexity Zoo, the
+Information System on Graph Classes (graphclasses.org) and *Counterexamples in Topology*. Working
+title: *The Convergence Atlas: governed concurrent state* (scoped to this theory's regimes, not to
+convergence in general).
+
+- **One entry per regime:** the setting, the exact condition (or the hardness result, or the gap
+  stated in the open), the Coq theorem names, the cheap sufficient check gsm runs, and the prior
+  work it relates to.
+- **Plates:** each boundary counterexample drawn as a numbered plate in the style of a scientific
+  atlas (for example the flip-flop ghost, the negation loop, `shih_dong_not_fair`'s period-8
+  schedule), each backed by a gated theorem.
+- **Neighbors as entries:** CRDTs, CALM, invariant confluence, Newman's lemma, Knaster-Tarski and
+  the Thomas/Richard network results get entries of their own, with this work's results placed
+  among them (sources: [LANDSCAPE.md](LANDSCAPE.md), [SUBSUMPTION.md](SUBSUMPTION.md)).
+- **Generated, not hand-maintained:** built from [REGIME-AUDIT.md](../REGIME-AUDIT.md), so it stays
+  as current as the audit and never claims more than the audit does.
+
+Status: planned, not started. Not a caveat removal; it does not change what is proved.
+
 ## Fundamental limits (stated, not removable)
 
 - **Continuous state.** Convergence of continuous dynamics needs a different argument (contraction,
