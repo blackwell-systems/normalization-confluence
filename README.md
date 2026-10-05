@@ -59,9 +59,10 @@ not, each item marked mechanized, paper or implemented, the key concepts, and a
 [mathematical structure](docs/THEORY.md#mathematical-structure) section placing the theory in pure
 mathematics),
 [docs/LANDSCAPE.md](docs/LANDSCAPE.md) (placement against prior work),
-[docs/SUBSUMPTION.md](docs/SUBSUMPTION.md) (CRDTs as the compensation-free fragment) and
+[docs/SUBSUMPTION.md](docs/SUBSUMPTION.md) (CRDTs as the compensation-free fragment),
 [docs/CATEGORICAL-STRUCTURE.md](docs/CATEGORICAL-STRUCTURE.md) (working notes for the companion
-paper).
+paper) and [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md) (research note on lossy networks
+without a spanning root: root sets, NP-completeness, signed cycles).
 
 **Proof readers: what exactly is machine-checked?** [coq/](coq): the machine-checked, axiom-free
 proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm

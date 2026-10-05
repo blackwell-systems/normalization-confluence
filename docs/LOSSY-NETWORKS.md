@@ -1,9 +1,12 @@
 # Lossy networks without a spanning root: complexity, root sets, and signed cycles
 
-**Status: research note, forward-looking.** This page grounds an open problem; it adds no
-theorems to the gate. Every claim carries one of four tags:
+**Status: research note, forward-looking.** This page grounds an open problem; the note itself
+adds no theorems to the gate. Several of its claims have since been mechanized (the root-set
+criterion and counting, #54; the 3-SAT reduction, #57; event order under a root set, #59;
+rootless single invertible cycles, #48) and carry the mechanized tag below. Every claim carries
+one of four tags:
 
-- **[mechanized: name]**: a theorem in [`coq/`](coq), axiom-free, passing `coq/verify.sh`.
+- **[mechanized: name]**: a theorem in [`coq/`](../coq), axiom-free, passing `coq/verify.sh`.
 - **[verified: source]**: a published theorem, checked against the primary source or a reliable
   restatement (named), with its hypotheses as stated there.
 - **[our conjecture]**: a claim of this note. Where a proof sketch is given it is a sketch, not a
@@ -11,12 +14,13 @@ theorems to the gate. Every claim carries one of four tags:
 - **[refuted]**: a hypothesis from the first-pass analysis that is false as stated, with the
   correct statement next to it.
 
-The question comes from [REGIME-AUDIT.md](https://github.com/blackwell-systems/normalization-confluence/pull/46)
-section 12 ("General graph (no out-arborescence, several cycles): none mechanized; none known") and
-from the categorical paper's conclusion, which lists "a cohomological account of the non-invertible
-case" as open. Read this note as the companion to [REGIMES.md](REGIMES.md) for networks the
-current theorems do not decide, in the same register as
-[LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md).
+The question came from [REGIME-AUDIT.md](../REGIME-AUDIT.md) section 12, whose row "General graph
+(no out-arborescence, several cycles): none mechanized; none known" has since been closed by
+`RootSet.v` (#54) and `LossyHardness.v` (#57), and from the categorical paper's conclusion, which
+lists "a cohomological account of the non-invertible case" as open. Read this note as the
+companion to [REGIMES.md](REGIMES.md) for networks the current theorems do not decide, in the same
+register as [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md). The mechanized results it led to are
+described in [coq/docs/non-invertible.md](../coq/docs/non-invertible.md).
 
 ## The short version
 
@@ -26,9 +30,10 @@ current theorems do not decide, in the same register as
    **resolver reading** (B) every vertex is computed from all its sources jointly and the consistent
    states are fixed points of a finite discrete dynamical system; the federation files use it.
 2. Reading A is binary constraint satisfaction with functional constraints. Deciding whether a
-   consistent state exists is NP-complete in general, polynomial with one source component
-   (`rooted_criterion` is the correctness core), and exponential only in the number of source
-   components of the condensation (David's root sets, 1995). So no polynomial-time "cohomological
+   consistent state exists is NP-complete in general (the 3-SAT reduction is mechanized:
+   `net_section_iff_sat`), polynomial with one source component (`rooted_criterion` is the
+   correctness core), and exponential only in the number of source components of the condensation
+   (David's root sets, 1995; mechanized as `root_set_criterion_graph`). So no polynomial-time "cohomological
    account" of the general non-invertible case exists unless P = NP; the right object is the root
    set, and the right tractability theory is that of database joins.
 3. Reading B is the theory of finite (Boolean and multivalued) networks. Thomas's rules, proved by
@@ -166,6 +171,20 @@ For lossy maps, in reading A:
 - **No root: a tree can fail.** A tree with two constant maps into one vertex has no section
   [mechanized: `c22_cycle_basis_fails`]. Balance is not static off the invertible fragment
   [mechanized: `noninvertible_balance_not_static`, `c22_rooted_instance`].
+- **A root set (added since this note, #54).** Root sets are exactly the vertex sets with an
+  outward spanning forest [mechanized: `root_set_iff_forest`]; for any root set and spanning
+  forest, a section exists iff some root assignment drives a state satisfying every edge
+  [mechanized: `root_set_criterion_graph`, `root_set_criterion_values`, agreement form
+  `root_set_agreement`]; sections correspond one to one to consistent root assignments and are
+  counted by them [mechanized: `root_set_bijection`, `root_set_count`, `out_forest_unique`];
+  existence is a search over the product of root domains [mechanized: `root_set_decide`].
+  `rooted_criterion` is recovered as the case of one root [mechanized: `rooted_criterion_recovered`].
+- **Hardness (added since this note, #57).** The 3-SAT reduction of section 3.2 [mechanized:
+  `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate`].
+- **Event order under a root set (added since this note, #59).** From a start consistent with the
+  forest's driving network, interleavings converge iff each root's independent events commute at
+  every value reachable from its start value [mechanized: `forest_events_exact`,
+  `forest_events_exact_global`].
 
 For invertible maps (reading A with group labels): `section_iff_coboundary`,
 `cycle_basis_criterion`, `plan_exact`, `coordinated_sound`, `prop_minimal_qualified_iff`
@@ -178,10 +197,15 @@ with monotone maps on a lattice, the least fixed point exists and chaotic iterat
 [mechanized: `kleene_lfp`, `lfp_unique`, `chaotic_reaches_lfp`, `chaotic_acc_reaches_lfp`]; it is
 not the only fixed point [mechanized: `bottom_matters`]. Without an authority, two orders can reach
 different consistent states [mechanized: `copyback_without_authority`], and a negation cycle has no
-consistent state and repair never terminates [mechanized: `prop_cycle_necessary`].
+consistent state and repair never terminates [mechanized: `prop_cycle_necessary`]. On a single
+coherently oriented cycle with invertible labels and every edge a writer (added since this note,
+#48): a consistent state exists, and every state reaches one, iff the holonomy is trivial, and the
+reachable one is unique iff the group is trivial [mechanized: `rootless_section_iff_holonomy`,
+`rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff`].
 
-What is missing is everything between "one source component" and "arbitrary": the regime of the
-audit's open row.
+What was missing when this note was written is everything between "one source component" and
+"arbitrary": the regime of the audit's then-open row. For reading A it is now closed (#54, #57);
+for reading B with lossy maps it is still open (REGIME-AUDIT.md gap 3).
 
 ## 3. Complexity map, reading A
 
@@ -189,18 +213,19 @@ audit's open row.
 
 | Network (reading A) | Deciding existence of a consistent state | Status |
 |---|---|---|
-| General, maps given as tables | **NP-complete** | membership: immediate; hardness: [our conjecture, reduction 3.2, validated]; consistent with [verified: Cooper, Cohen, Jeavons 1994, as reported by David 1995 section 2.2] |
+| General, maps given as tables | **NP-complete** | membership: [mechanized: `np_certificate`]; hardness: reduction 3.2 [mechanized: `net_section_iff_sat`, `net_size`, `net_tables`], NP-completeness by the standard argument; consistent with [verified: Cooper, Cohen, Jeavons 1994, as reported by David 1995 section 2.2] |
 | In-degree at most one (each weak component has at most one cycle) | polynomial: per cycle, test `Fix(g)` | [mechanized: `thm_obstruction_general`]; the reduction to cycles is immediate |
 | Every map a bijection (any graph) | polynomial, `O(|X| (|V| + |E|))`: fix one value per component, propagate, check | [verified: Khot 2010 survey, the remark that value-1 unique games are solved by propagation]; with the regular action, [mechanized: `section_iff_coboundary`] |
 | One source component (a spanning root `r`) | polynomial, `O(|X_r| (|V| + |E|))`: drive each root value, check | correctness [mechanized: `rooted_criterion`, `out_tree_unique`]; algorithm [verified: Zhang and Yap 2011, Corollary 3, `O(e d^2)`] |
-| `k` source components | `O(prod_i |X_{r_i}| (|V| + |E|))`: enumerate a minimum root set, drive, check | [verified: David 1995, Theorem 1 and Appendix A.1 (a minimum root set is one vertex per source SCC, computable in polynomial time)]; validated, check 4 |
+| `k` source components | `O(prod_i |X_{r_i}| (|V| + |E|))`: enumerate a minimum root set, drive, check | correctness [mechanized: `root_set_criterion_graph`, `root_set_iff_forest`, `root_set_decide`]; [verified: David 1995, Theorem 1 and Appendix A.1 (a minimum root set is one vertex per source SCC, computable in polynomial time)]; validated, check 4 |
 | Parameterized by `k` | XP in general; FPT when fibers are bounded (`c^k`); W[1]-hard when fibers are unbounded | [our conjecture, reduction 3.4, validated] |
 | Source-overlap hypergraph alpha-acyclic | polynomial (semijoin reduction) | [verified: Yannakakis 1981; Beeri, Fagin, Maier, Yannakakis 1983] via 3.3 |
 | Source-overlap hypergraph of bounded hypertree width | polynomial | [verified: Gottlob, Leone, Scarcello 2002] via 3.3 |
 | Classes of bounded arity / unbounded arity | tractable iff bounded treewidth of cores (bounded arity); FPT iff bounded submodular width | [verified: Grohe 2007; Marx 2013], under their complexity assumptions, via 3.3 |
 
 **H2: verified.** Existence is NP-complete in general and in NP (the certificate is the state;
-checking it is one table lookup per edge). With a single source component it is polynomial in
+checking it is one table lookup per edge) [mechanized: `net_section_iff_sat`, `net_size`,
+`np_certificate`; NP-completeness by the standard argument]. With a single source component it is polynomial in
 `|X_root| x |E|`, as expected. One refinement on where the hardness lives: not in lossy maps alone,
 but in lossy maps **together with** many source components. Lossy maps with one source, and many
 sources with bijective maps, are both polynomial.
@@ -211,8 +236,9 @@ as a join) is correct (validated, checks 3 and 4) but **not new**: it is David's
 decomposition (JAIR 1995). David's root set is exactly one representative per source SCC of the
 directed graph of functional constraints, and "any consistent instantiation of the root set can be
 linearly extended to a solution" is his Theorem 1. The single-root case is Zhang and Yap's
-Corollary 3. What the repository adds is the mechanized correctness core (`rooted_criterion`) and
-the placement of these results inside the convergence theory.
+Corollary 3. What the repository adds is the mechanized correctness core (`rooted_criterion`, and
+for a root set `root_set_criterion_graph` with the count `root_set_count`) and the placement of
+these results inside the convergence theory.
 
 ### 3.2 The reduction from 3-SAT
 
@@ -227,7 +253,8 @@ Every clause vertex is a source (in-degree 0); every variable vertex is a multi-
 one in-edge per occurrence; there are no cycles. A state is A-consistent iff the clause values
 agree on shared variables, iff the variable values form a satisfying assignment. In fact the map
 from sections to satisfying assignments of the occurring variables is a bijection (each clause
-value is determined by its three variables), so the reduction is parsimonious **[our conjecture]**.
+value is determined by its three variables), so the reduction is parsimonious **[mechanized:
+`net_section_iff_sat`, `net_bijection`, `net_count`]** (on the one-fiber form below).
 
 **Matching the theory's edge semantics.** Edges are directed and carry total functions, as in
 `msat`: `(u, v, f)` holds when `f (s u) = s v`. Two adjustments make the construction literal:
@@ -237,7 +264,10 @@ value is determined by its three variables), so the reduction is parsimonious **
   projection edge, add a filter vertex `z` pinned to 0 by a constant self-loop `(z, z, const 0)`,
   and add an edge `x_i -> z` sending `0, 1` to `0` and everything else to `1`. Then variable values
   are forced into `{0, 1}`, which forces clause values to satisfying codes; the count of sections
-  is again the number of satisfying assignments.
+  is again the number of satisfying assignments [mechanized: `LossyHardness.v` builds exactly this
+  network `net f` (poison value 8): `net_section_iff_sat`, `net_count`; `6|f| + 1` edges, each a
+  9-entry table: `net_size`, `net_tables`]. Both parts of the gadget are needed [mechanized:
+  `no_filter_trivial`, `no_pin_trivial`].
 - *Bounded degree.* Restricting the formula so that each variable occurs a bounded number of times
   keeps SAT NP-complete [verified: Tovey 1984], so hardness holds with bounded in-degree and fibers
   of size at most 9.
@@ -254,7 +284,8 @@ value is determined by its three variables), so the reduction is parsimonious **
 Sections were found by generic backtracking over the network (the search knows nothing about
 clauses); satisfiability by enumerating all assignments.
 
-**Membership in NP.** A consistent state has size `|V|` and is checked with `|E|` table lookups.
+**Membership in NP.** A consistent state has size `|V|` and is checked with `|E|` table lookups
+[mechanized: `np_certificate`, `np_certificate_net`].
 Maps given as circuits instead of tables keep membership (each check is a circuit evaluation).
 
 **A single source is not hard.** If some vertex `r` reaches every vertex, enumerate `X_r`, drive
@@ -269,7 +300,9 @@ Let `r_1..r_k` be a minimum root set (one vertex per source component) and, for 
 `p_{i,w} : X_{r_i} -> X_w` be the composite along any path from `r_i` to `w`. Discard root values
 for which the subnetwork reachable from `r_i` has no section (the single-root test). Then a section
 exists iff there are root values `a_i` with `p_{i,w}(a_i) = p_{j,w}(a_j)` for every pair `i, j` and
-every `w` reachable from both **[our conjecture; the existence half is David 1995, Theorem 1]**.
+every `w` reachable from both **[our conjecture as stated here; the existence half is David 1995,
+Theorem 1; the per-edge agreement form, where every non-driving edge equates two driving-path
+values, is mechanized: `root_set_agreement`]**.
 
 Equivalently, let `R_i` be the relation over the attributes `W_i` (the vertices reachable from
 `r_i` and from some other root) consisting of the tuples `(p_{i,w}(a))_{w in W_i}`; a section
@@ -305,9 +338,12 @@ FPT = W[1]. With fibers bounded by `c` it is `O(c^k poly)`, so FPT.
 
 The categorical paper's open problem is "a cohomological account of the non-invertible case". If
 "account" means an invariant computable in polynomial time that decides existence of a consistent
-state, then sections 3.2 and 3.4 rule it out unless P = NP **[our conjecture, conditional on the
-reduction]**. What survives is structural: the root set measures the irreducible search, the
-rooted criterion is exact per root value, and the overlap hypergraph's width governs tractability.
+state, then section 3.2 rules it out unless P = NP **[the reduction is mechanized:
+`net_section_iff_sat`, `net_size`; NP-completeness by the standard argument]**, and section 3.4
+rules out an `f(k) poly(n)` refinement unless FPT = W[1] **[our conjecture]**. What survives is
+structural: the root set measures the irreducible search [mechanized: `root_set_criterion_graph`,
+`root_set_count`], the rooted criterion is exact per root value, and the overlap hypergraph's
+width governs tractability.
 The invertible fragment is the exception because bijective constraints propagate without search
 (a value at one vertex fixes its whole component), which is why `H^1` decides it.
 
@@ -349,8 +385,8 @@ such as non-expansiveness (Richard 2011).
 
 | This repository | Reading B / Thomas | Status |
 |---|---|---|
-| `copyback_without_authority`: A copies B, B copies A; from `(0, 1)` the orders `[0; 1]` and `[1; 0]` reach `(1, 1)` and `(0, 0)` | the positive 2-cycle: strongly connected with only positive cycles, so at least two fixed points (Aracena); `tau+ = 1`, so at most `2^1 = 2`: the bound is attained. `Gamma(F)` from `(0, 1)` branches to both fixed points (check 6: 2 fixed-point attractors, no cyclic one) | **exact** |
-| `prop_cycle_necessary`, `negation_one_coordinated`, `flip_no_section`: `phi_AB = 1 - x`, `phi_BA = id` | the negative 2-cycle: strongly connected with only negative cycles, so no fixed point (Aracena); `Gamma(F)` is one cyclic attractor of length 4, and `cycle_paper_trace` is that attractor, step for step | **exact** (with identity local compensation, `cyc_rep` is `Gamma(F)`) |
+| `copyback_without_authority`: A copies B, B copies A; from `(0, 1)` the orders `[0; 1]` and `[1; 0]` reach `(1, 1)` and `(0, 0)` | the positive 2-cycle: strongly connected with only positive cycles, so at least two fixed points (Aracena); `tau+ = 1`, so at most `2^1 = 2`: the bound is attained. `Gamma(F)` from `(0, 1)` branches to both fixed points (check 6: 2 fixed-point attractors, no cyclic one) | **exact**; now an instance of the rootless single-cycle theorem [mechanized: `rootless_copyback_not_unique`, `copyback_without_authority_recovered`] |
+| `prop_cycle_necessary`, `negation_one_coordinated`, `flip_no_section`: `phi_AB = 1 - x`, `phi_BA = id` | the negative 2-cycle: strongly connected with only negative cycles, so no fixed point (Aracena); `Gamma(F)` is one cyclic attractor of length 4, and `cycle_paper_trace` is that attractor, step for step | **exact** (with identity local compensation, `cyc_rep` is `Gamma(F)`); rootless form [mechanized: `rootless_negation_no_nf`] |
 | Z/2 holonomy (`sat_iff_trivial_holonomy`, `xorb` labels) | sign of a cycle with copy and negation arcs | **exact for directed cycles only**: cohomology quantifies over undirected cycles (an edge traversed backward contributes its inverse), Thomas over directed cycles. The diamond of section 1 has an unbalanced undirected cycle (no A-section) and no directed cycle (a unique B-fixed point per source value) |
 | acyclic federations converge (`frun_solves`, `solve_unique`, `order_independent`) | Robert's theorem | **exact** in reading B; reading A can still fail on an acyclic graph (`c22_cycle_basis_fails`, the diamond) |
 | monotone regime (`kleene_lfp`, `chaotic_reaches_lfp`) | "no negative cycle" | **needs qualifiers**, see below |
@@ -488,8 +524,18 @@ the existing work ("these are the tools; the conditions and theorems built with 
 
 Ranked by value to the theory and gsm per unit of difficulty.
 
+Status as of the current gate: P1 and P6 are done; P2 and P4 are open and listed in
+[REGIME-AUDIT.md](../REGIME-AUDIT.md) as gaps 3 and 11; P3 and P5 are not audit gaps (they are
+research directions, not missing exact conditions for a listed regime).
+
 ### P1. The root-set criterion, mechanized, with the hardness that makes it optimal
 
+- **Status: done**, #54 (`RootSet.v`: `root_set_iff_forest`, `root_set_criterion_graph`,
+  `root_set_criterion_values`, `root_set_agreement`, `root_set_bijection`, `root_set_count`,
+  `root_set_decide`), with the hardness half's reduction mechanized in #57 (`LossyHardness.v`:
+  `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate`;
+  NP-completeness by the standard argument). It closes REGIME-AUDIT.md section 12's
+  general-graph row.
 - **Statement.** For a network with a minimum root set `r_1..r_k`, a section with root values
   `a_1..a_k` exists iff the state driven from those values along a forest of out-trees satisfies
   every edge; and existence is NP-complete in general (reduction 3.2).
@@ -507,6 +553,11 @@ Ranked by value to the theory and gsm per unit of difficulty.
 
 ### P2. Rootless convergence in reading B (the runtime model)
 
+- **Status: open**, REGIME-AUDIT.md gap 3 (rootless propagation on non-invertible networks in
+  the resolver reading). The invertible single-cycle case is done, #48 (`RootlessCycles.v`:
+  `rootless_unique_iff`, `rootless_two_orders`, `rootless_not_unique`), which answers the
+  copy-back generalization below for one coherently oriented invertible cycle; invertible
+  networks beyond one cycle are gap 2.
 - **Statement.** For a cyclic network in reading B, characterize when every fair asynchronous order
   from a given initial state reaches the same consistent state, without an authority root. Known:
   necessary conditions from Thomas's rules (a positive cycle for multiplicity, a negative cycle for
@@ -527,6 +578,7 @@ Ranked by value to the theory and gsm per unit of difficulty.
 
 ### P3. Monotonizability
 
+- **Status: open** (not an audit gap).
 - **Statement.** Decide whether a network admits a total (or lattice) order on each fiber making
   every edge map, and every resolver, monotone; prove that in reading B this gives a least
   consistent state reached by chaotic iteration, and that on permutation labels it is equivalent to
@@ -544,6 +596,8 @@ Ranked by value to the theory and gsm per unit of difficulty.
 
 ### P4. Minimum coordination for lossy networks
 
+- **Status: open**, REGIME-AUDIT.md gap 11 (minimum coordination on non-invertible networks;
+  `LossyHardness.v` is about existence, not this optimization).
 - **Statement.** The minimum number of edges whose deletion leaves an A-section (or, in reading B,
   makes every remaining cycle non-negative so a fixed point is guaranteed, or non-positive so it is
   unique). The audit lists the non-invertible minimum as "none known".
@@ -557,6 +611,8 @@ Ranked by value to the theory and gsm per unit of difficulty.
 
 ### P5. Structural tractability, stated in the theory's terms
 
+- **Status: open** (not an audit gap; `root_set_agreement` is the per-edge agreement form it
+  would refine).
 - **Statement.** Translate 3.3 into a theorem about networks: if the source-overlap hypergraph is
   alpha-acyclic, pairwise agreement of sources is a complete gluing check, and existence is decided
   by a semijoin program.
@@ -566,6 +622,11 @@ Ranked by value to the theory and gsm per unit of difficulty.
 
 ### P6. Uniqueness and event order under a root set
 
+- **Status: done.** Uniqueness given root values, #54 (`out_forest_unique`, `root_set_bijection`);
+  event order, #59 (`RootSetEvents.v`: `forest_events_exact`, `forest_perm_exact`,
+  `forest_events_exact_global`, `forest_global_iff_static`), closing REGIME-AUDIT.md gap 4. As
+  predicted below, the driving network is acyclic and `fed_exact` instantiates
+  (`forest_fed_exact`); commuting at the start value alone is not enough (`tw_reachable_matters`).
 - **Statement.** Given root values, the section is unique (the `out_tree_unique` generalization);
   state the event-order condition (C1/C2 analogue) for root-driven lossy networks.
 - **Why it matters.** Closes the audit's "uniqueness and event order with non-invertible coordination:
@@ -709,10 +770,12 @@ LPNMR 2024, LNCS 15245 (arXiv:2407.02055).
 
 ## Where this sits
 
-- Proven: the two papers and [`coq/`](coq); the regimes are [REGIMES.md](REGIMES.md).
+- Proven: the two papers and [`coq/`](../coq) (this note's mechanized results are in
+  [coq/docs/non-invertible.md](../coq/docs/non-invertible.md)); the regimes are
+  [REGIMES.md](REGIMES.md), and their status is [REGIME-AUDIT.md](../REGIME-AUDIT.md).
 - This note: the rootless lossy direction. Its constructions are checked by
-  [`research/lossy/validate.py`](research/lossy/validate.py) (13 checks, all agreeing; recorded
-  output in [`research/lossy/validate.out`](research/lossy/validate.out)), which is evidence that
+  [`research/lossy/validate.py`](../research/lossy/validate.py) (13 checks, all agreeing; recorded
+  output in [`research/lossy/validate.out`](../research/lossy/validate.out)), which is evidence that
   they are stated correctly, not a proof.
 - The headline consequence for the theory: off the invertible fragment the obstruction to a
   consistent state is computationally hard in the constraint reading, so the right generalization
