@@ -61,3 +61,4 @@ CohomologyNerve.v
 LossyMinimum.v
 CanonicalExecution.v
 CanonicalInstances.v
+CanonicalLocality.v

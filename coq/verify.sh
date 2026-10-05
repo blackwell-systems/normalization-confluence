@@ -1937,6 +1937,34 @@ Print Assumptions NC.CanonicalInstances.conv_ghost_esh.
 Print Assumptions NC.CanonicalInstances.copy_xu_esh.
 Print Assumptions NC.CanonicalInstances.fm_conv_esh.
 Print Assumptions NC.CanonicalInstances.raise_only_esh.
+Require NC.CanonicalLocality.
+Print Assumptions NC.CanonicalLocality.reflects_realizable.
+Print Assumptions NC.CanonicalLocality.factor_pointwise.
+Print Assumptions NC.CanonicalLocality.factor_sound.
+Print Assumptions NC.CanonicalLocality.factor_complete.
+Print Assumptions NC.CanonicalLocality.factor_exact.
+Print Assumptions NC.CanonicalLocality.factor_needs_sound.
+Print Assumptions NC.CanonicalLocality.factor_needs_realizable.
+Print Assumptions NC.CanonicalLocality.freach_ok.
+Print Assumptions NC.CanonicalLocality.fed_lc_exposed.
+Print Assumptions NC.CanonicalLocality.fed_lc_sound.
+Print Assumptions NC.CanonicalLocality.fed_reflects.
+Print Assumptions NC.CanonicalLocality.fed_covered.
+Print Assumptions NC.CanonicalLocality.fed_lc.
+Print Assumptions NC.CanonicalLocality.fed_realizable.
+Print Assumptions NC.CanonicalLocality.fed_global.
+Print Assumptions NC.CanonicalLocality.fed_interface.
+Print Assumptions NC.CanonicalLocality.fed_local.
+Print Assumptions NC.CanonicalLocality.gc_iff_reach_P.
+Print Assumptions NC.CanonicalLocality.fed_exact_P.
+Print Assumptions NC.CanonicalLocality.fed_exact_full_P.
+Print Assumptions NC.CanonicalLocality.fed_gc_sites.
+Print Assumptions NC.CanonicalLocality.reach_commute_iff_P.
+Print Assumptions NC.CanonicalLocality.fed_factor_supply.
+Print Assumptions NC.CanonicalLocality.cyclic_lc_fails.
+Print Assumptions NC.CanonicalLocality.cyc_lc.
+Print Assumptions NC.CanonicalLocality.cyc_factor_sound.
+Print Assumptions NC.CanonicalLocality.common_r1.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1947,8 +1975,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1891 ]; then
-  echo "FAIL: expected 1891 axiom-free results, got $N"
+if [ "$N" -lt 1918 ]; then
+  echo "FAIL: expected 1918 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
