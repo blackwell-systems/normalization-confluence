@@ -754,6 +754,31 @@ Print Assumptions NC.FederationEventsCyclesMulti.prod_nf.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_converges.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_gc.
 Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_instance.
+Require Import NC.StreamExact.
+Print Assumptions NC.StreamExact.pjc_exact.
+Print Assumptions NC.StreamExact.sx_un_cr.
+Print Assumptions NC.StreamExact.stream_agree_set_function.
+Print Assumptions NC.StreamExact.pjc_stream_agreement.
+Print Assumptions NC.StreamExact.stream_exact.
+Print Assumptions NC.StreamExact.stream_diverge.
+Print Assumptions NC.StreamExact.cc_pjc.
+Print Assumptions NC.StreamExact.stream_agreement_recovered.
+Print Assumptions NC.StreamExact.jc_pjc.
+Print Assumptions NC.StreamExact.jc_stream_agreement.
+Print Assumptions NC.StreamExact.fx_repair.
+Print Assumptions NC.StreamExact.fx_inv_reach.
+Print Assumptions NC.StreamExact.fx_inv_valid.
+Print Assumptions NC.StreamExact.pcc_pjc.
+Print Assumptions NC.StreamExact.fx_two_runs.
+Print Assumptions NC.StreamExact.stream_diverge_free.
+Print Assumptions NC.StreamExact.stream_exact_free.
+Print Assumptions NC.StreamExact.stream_exact_free_pjc.
+Print Assumptions NC.StreamExact.jc_not_necessary.
+Print Assumptions NC.StreamExact.progress_needed.
+Print Assumptions NC.StreamExact.jc_fail_disagree.
+Print Assumptions NC.StreamExact.zw_stream_exact.
+Print Assumptions NC.StreamExact.zw_stream_exact_iff.
+Print Assumptions NC.StreamExact.zw_jc_stream_agreement.
 Require Import NC.GovernanceWFConverse.
 Print Assumptions NC.GovernanceWFConverse.SN_star_closed.
 Print Assumptions NC.GovernanceWFConverse.comp_rel_wfc.
@@ -865,8 +890,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 827 ]; then
-  echo "FAIL: expected 827 axiom-free results, got $N"
+if [ "$N" -lt 851 ]; then
+  echo "FAIL: expected 851 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 827 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 851 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -1602,6 +1602,51 @@ axiom-free. `rho*` is taken as in `Governance.v` (specified by `rho_star_reach`)
   `zw_stream_convergence_nat`, `zw_incremental`); the counter registry of the counterexamples
   meets every registry hypothesis (`ct_registry`).
 
+## The exact condition for stream agreement (`StreamExact.v`)
+
+`Stream.v` proves stream agreement from sufficient conditions (WFC, CC1 on co-enabled pairs, CC2 at
+every state). `StreamExact.v` lifts the exact condition to stream processors. `StreamAgree s0`: for
+every stream, any two processors from `s0`, settled at times `t1`, `t2` with the same received set,
+have the same state. The processor discipline `prstep` compensates before it applies, so the exact
+condition is the joinability condition of `prstep` itself, not the rewrite-system condition.
+
+- `PJC c0`: at every configuration `(sigma, B)` reachable from `c0` by `prstep` with `sigma` valid,
+  for distinct enabled `e1, e2` in `B`, the successors `(apply e1 sigma, B - e1)` and
+  `(apply e2 sigma, B - e2)` are `prstep`-joinable (no compensation critical pair: `prstep` is
+  deterministic at invalid states). `pjc_exact`: `CR prstep c0 <-> PJC c0`.
+- `stream_agree_set_function` (no qualifier): `StreamAgree s0` iff for every duplicate-free `E`
+  all finished reductions from `(s0, E)` end in the same state. `pjc_stream_agreement`
+  (sufficiency, no qualifier): `(forall E, NoDup E -> PJC (s0, E)) -> StreamAgree s0`.
+- `stream_exact` (headline): with `Progress` (at a valid state a non-empty buffer has an enabled
+  event: the causal closure of received sets, the hypothesis of `settled_empty_buffer`),
+  `StreamAgree s0 <-> forall E, NoDup E -> PJC (s0, E)`. Uses WFC (any well-founded potential),
+  decidability of `valid` and `enabled`, and `enabled_perm`, all hypotheses of `Stream.v`.
+- `stream_diverge`: the converse made concrete. A `PJC` failure at a configuration reachable from
+  `(s0, E)` gives two processors that both receive `E`, both settle, and disagree.
+- `cc_pjc`, `stream_agreement_recovered`: under `Stream.v`'s hypotheses `PJC` holds everywhere, so
+  `stream_agreement` is a corollary of the exact theorem. `jc_pjc`, `jc_stream_agreement`: the
+  rewrite-system condition `JC` of `jc_exact` at every `(s0, E)` implies `PJC` and stream agreement.
+- Free delivery with canonical repair (`gov e s = rho*(apply e s)`, `grun` the governed run of a
+  word): `PCC s0` says the governed steps of `e1, e2` commute at `grun (rho* s0) w` for every
+  duplicate-free `w ++ [e1; e2]` (CC1 at the states a processor reaches; no CC2).
+  `stream_exact_free`: `StreamAgree s0 <-> PCC s0`; `stream_diverge_free` turns a `PCC` failure
+  into two disagreeing processors on the set `w ++ [e1; e2]`; `stream_exact_free_pjc` is the
+  general theorem on this model. Supporting: `pcc_pjc`, `fx_two_runs`, `fx_repair`,
+  `fx_inv_reach`, `fx_inv_valid`, `sx_un_cr`.
+- Counterexamples. `jc_not_necessary`: CC2 fails at `s0` itself, so `JC (s0, [e])` and the
+  condition of `cc_exact_from` fail, yet every two processors from `s0` agree (a processor never
+  applies at an invalid state): the natural iff with the rewrite-system condition is false.
+  `progress_needed`: without `Progress`, `PJC` is not necessary (two events, each enabled only
+  while the other is buffered; finished buffers differ, finished states agree).
+  `jc_fail_disagree`: a free registry whose steps do not commute; `JC`, `PJC`, `PCC` and
+  `StreamAgree` fail and two concrete processors with the same received set settle in different
+  states.
+- Non-vacuity: `zw_stream_exact` (the `Z` withdrawal registry meets `Progress`, `PJC` everywhere and
+  `PCC` from every start; the agreement of `zp1` and `zp2` at time 2 is rederived through
+  `stream_exact_free`), `zw_stream_exact_iff`, `zw_jc_stream_agreement` (the `JC` route with the
+  nat potential); every counterexample registry discharges the hypotheses of the section it
+  instantiates.
+
 ## The papers' concrete examples (`PaperInstances.v`)
 
 Every worked example and counterexample in the two normalization-confluence papers, on the paper's
@@ -1758,7 +1803,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 827 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 851 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build

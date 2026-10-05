@@ -172,6 +172,12 @@ all: FederationEventsCyclesMulti.vo
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
 
+# The exact condition for stream agreement (StreamExact.v).
+all: StreamExact.vo
+
+StreamExact.vo: StreamExact.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Stream.vo
+	coqc -Q . NC StreamExact.v
+
 # The exact converses over any well-founded order (GovernanceWFConverse.v).
 all: GovernanceWFConverse.vo
 
