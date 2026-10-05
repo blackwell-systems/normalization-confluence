@@ -153,3 +153,9 @@ all: FederationEventsCyclesCheck.vo
 
 FederationEventsCyclesCheck.vo: FederationEventsCyclesCheck.v FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesCheck.v
+
+# The federated GRS and the federated theorems in corrected form (FederationGRS.v).
+all: FederationGRS.vo
+
+FederationGRS.vo: FederationGRS.v Newman.vo Governance.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo GovernanceConverse.vo
+	coqc -Q . NC FederationGRS.v

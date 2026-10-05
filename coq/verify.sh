@@ -631,6 +631,67 @@ Print Assumptions cyc_check_instance.
 Print Assumptions check_rejects_latch.
 Print Assumptions monotone_c2_insufficient.
 Print Assumptions c1_localcc_insufficient.
+Require Import NC.FederationGRS.
+Print Assumptions single_round.
+Print Assumptions phase2_invariant.
+Print Assumptions raw_ev.
+Print Assumptions grho_valid.
+Print Assumptions grho_id.
+Print Assumptions gov_eq.
+Print Assumptions gov_two_eq.
+Print Assumptions grs_cc1_valid.
+Print Assumptions fed_grs_exact.
+Print Assumptions fed_grs_un_c1_c2.
+Print Assumptions flush_raw.
+Print Assumptions grs_cc1.
+Print Assumptions grs_cc2.
+Print Assumptions grs_unique_nf.
+Print Assumptions grs_nf_exists.
+Print Assumptions guarded_form.
+Print Assumptions fed_guarded_exact.
+Print Assumptions fed_guarded_c1_c2.
+Print Assumptions source_projection.
+Print Assumptions fed_authority_a_gen.
+Print Assumptions perm_grp.
+Print Assumptions grp_equations.
+Print Assumptions topo_unique.
+Print Assumptions fed_nf_constructive.
+Print Assumptions fed_nf_recipe_xu.
+Print Assumptions paper_rho_valid.
+Print Assumptions fed_phase1_bound.
+Print Assumptions paper_cc2_star.
+Print Assumptions paper_common.
+Print Assumptions paper_localcc.
+Print Assumptions fed_lem_authority_b.
+Print Assumptions fed_lem_authority_c_local.
+Print Assumptions fed_lem_resolved_termination.
+Print Assumptions fed_lem_fed_termination.
+Print Assumptions fed_lem_authority_a.
+Print Assumptions fed_resolved_cc_corrected.
+Print Assumptions fed_thm_resolved_convergence_corrected.
+Print Assumptions fed_thm_resolved_convergence_guarded.
+Print Assumptions fed_thm_resolved_convergence_exact.
+Print Assumptions fed_thm_fed_cc_corrected.
+Print Assumptions fed_thm_fed_cc_corrected_machine.
+Print Assumptions fed_thm_fed_convergence_corrected.
+Print Assumptions fed_thm_fed_convergence_guarded.
+Print Assumptions fed_thm_fed_convergence_exact.
+Print Assumptions fed_lem_authority_c_corrected.
+Print Assumptions fed_cor_resolved_nf_corrected.
+Print Assumptions fed_cor_fed_nf_corrected.
+Print Assumptions au_paper.
+Print Assumptions fed_thm_fed_cc_refuted.
+Print Assumptions fed_thm_fed_convergence_refuted.
+Print Assumptions fed_thm_resolved_convergence_refuted.
+Print Assumptions fed_lem_authority_c_refuted.
+Print Assumptions su_paper.
+Print Assumptions fed_supply_paper_instance.
+Print Assumptions cw_paper.
+Print Assumptions fed_c2_paper_counterexample.
+Print Assumptions gg_paper.
+Print Assumptions fed_grs_c1_c2_insufficient.
+Print Assumptions fed_cor_fed_nf_refuted.
+Print Assumptions fed_lem_authority_a_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -641,8 +702,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 609 ]; then
-  echo "FAIL: expected 609 axiom-free results, got $N"
+if [ "$N" -lt 669 ]; then
+  echo "FAIL: expected 669 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
