@@ -254,6 +254,44 @@ Items 6, 7 and 9 were already in the first audit's tables (as qualifiers or "min
 conclusion; they were listed in the 989-gate revision because the headline asks that every
 non-exact regime be named. Items 6 and 7 are now closed.
 
+### The cyclic frontier
+
+The theory is exact for acyclic composition. In the terms of the canonical-execution framework
+([docs/THEORY.md](docs/THEORY.md#canonical-execution)), single systems are exact through E, S and
+H, and acyclic composition through P (`factor_exact`, with the federation instance `fed_exact_P`).
+On cycles P has the soundness direction only (`cyc_factor_sound`, `cyc_factor_sound_gc`), and
+locality fails without acyclicity (`cyclic_lc_sound_fails`). The remaining open convergence
+problems are instances of one question: **what additional structure makes P exact on cycles.**
+This is an organizing statement, not a theorem; it changes no gap's status or size.
+
+Each open gap, checked against its own description above:
+
+| Gap | Cyclic? | Why, from the gap's row | Exact acyclic or single-cycle counterpart |
+|---|---|---|---|
+| 2 | yes | Section 11 scopes it as rootless invertible networks with several cycles or mixed orientation. A registry with no incoming edge is never written and acts as a de facto root (`rootless_orientation_matters`), and the single coherently oriented cycle is exact, so what is open is how several cycles compose with no authority | `rootless_unique_iff` (one cycle); `prop_minimal_qualified_iff` (with an authority root) |
+| 3 | yes | Section 12 and [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2 state it for a cyclic network in the resolver reading; the acyclic case is Robert's theorem, which the federation model already has (LOSSY-NETWORKS.md section 4.2) | acyclic resolver networks |
+| 5 | yes | Section 14: collapse of a sub-federation `J` that is itself a monotone cycle | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) |
+| 14 | yes | Section 8: the no-reset distributed model on monotone cycles, convergence alone. What separates it from the exact rows is the ghost: interleavings can agree on a quiescent state that is a fixed point of the cyclic repair other than the least one (`conv_ghost_normal`) | `dist_exact` (acyclic); `epoch_conv_iff` (reset epochs); `flush_fed_iff` (jointly with agreement) |
+| 13, monotone-overlap site | yes | Section 13: the Cat paper's monotone-overlap regime is the cyclic, least-fixed-point site; `SheafGluing.v` is acyclic throughout | `sheaf_iff_refines`, `cert_sheaf` (registry-level site) |
+| 13, relative certificates on covers not closed under sources | no | Not a cycle question: `SheafGluing.v` is acyclic and the witness is a three-registry chain (`chain_cert_nonclosed`); the open part is a sheaf condition for certificates that read external inputs (`cert_restrict` gives only the relative restriction equation). A separate residue | `cert_sheaf`, `cert_restrict_iff` (covers closed under sources) |
+| 13, variable-level site | no | Not a cycle question: two subsystems writing one variable is a multi-writer site, which enters only through `gluing_cex_overlap`. A separate residue | n/a |
+
+Gaps 8 and 9 are design exclusions, not open problems, and are not part of the claim. Gap 13 is
+listed under optimization and counting; only its monotone-overlap part joins the frontier.
+
+The cyclic raw material already mechanized:
+
+- GC is exact on monotone cycles: `gc_iff`, `net_events_converge_iff` (gsm's normalizer:
+  `cyc_events_converge_iff`); per-target checks over normal-form images are sufficient
+  (`cyc_check_gc_lfp`).
+- P on cycles, soundness: `cyc_factor_sound`, `cyc_factor_sound_gc`; and the failure of locality
+  that any exact form has to get around: `cyclic_lc_sound_fails`.
+- Reset epochs make the no-reset ghost go away by a barrier: `epoch_conv_iff` (and `low_conv_iff`
+  under `LowR`).
+- Rootless single cycles: `rootless_unique_iff` (unique iff the group is trivial).
+- Root sets, which turn a rootless network into a driven one once their values are pinned:
+  `root_set_criterion_graph`, `root_set_count`.
+
 ### Is the headline accurate?
 
 Yes, regime by regime:

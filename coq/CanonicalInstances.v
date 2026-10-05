@@ -1,5 +1,5 @@
 (* CanonicalInstances.v: the six validation criteria for the canonical-execution kernel
-   (CanonicalExecution.v). EXPERIMENTAL: validation in progress, do not cite yet. Axiom-free.
+   (CanonicalExecution.v). Validated, scoped to single systems and acyclic composition. Axiom-free.
 
    Each criterion rederives an existing exact theorem through the kernel. The kernel theorem
    used, the instance-specific glue, and the outcome (PASS, PARTIAL, LEAK) are recorded at each

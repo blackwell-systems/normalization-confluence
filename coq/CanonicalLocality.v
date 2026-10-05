@@ -1,5 +1,5 @@
 (* CanonicalLocality.v: the P layer of the canonical-execution experiment, interaction locality.
-   EXPERIMENTAL: validation in progress, do not cite yet. Axiom-free.
+   Validated, scoped to acyclic composition; on cycles, soundness only. Axiom-free.
 
    CanonicalExecution.v isolates three layers, E (effective canonicalization), S (state descent)
    and H (history descent), for one canonicalizer on one state space. Criterion D of
