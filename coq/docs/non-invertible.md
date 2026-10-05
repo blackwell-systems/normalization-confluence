@@ -412,8 +412,9 @@ network under the regular action:
   (`section_iff_coboundary`).
 - `fundamental_cycles_holonomy`: with a spanning tree plus extra edges, "every extra edge balanced"
   (`cycle_basis_criterion`) iff every closed walk has trivial holonomy.
-- `obstruction_loop_vs_merge`: (a) invertible: every tree has a section and trivial holonomy
-  (`tree_has_section`); (b) lossy: the C22 shape is a tree with no section, although each of its two
+- `obstruction_loop_vs_merge`: (a) invertible: every tree (`CohomologyGraph.tree`: grown leaf by
+  leaf from a root, each edge in either orientation; forests are covered by
+  `holonomy_free_section`) has a section and trivial holonomy (`tree_has_section`); (b) lossy: the C22 shape is a tree with no section, although each of its two
   edges alone has one, and its minimum coordination is 1 (`c22_cycle_basis_fails`,
   `c22_no_section_recovered`, `c22_lmin`). In the invertible case every obstruction is a loop; in
   the lossy case a merge of two directed paths suffices.
@@ -422,7 +423,10 @@ network under the regular action:
 negative edge). `harary_balance`: a switching `o` (every edge `(u, v, b)` has `b = xorb (o u) (o v)`,
 so reversing the order at the vertices with `o = true` makes every edge positive) exists iff no
 closed undirected walk carries an odd number of negative edges. This is the Z/2 instance of
-`holonomy_free_section`, for every finite signed graph. `balanced_dicycles_positive`: in a balanced
+`holonomy_free_section`, for every finite signed graph (any edge list: no connectivity or
+simple-graph premise, parallel edges and self-loops allowed). It is stated for closed walks; the
+classical form with simple cycles (an odd closed walk contains a negative cycle) is not
+mechanized. `balanced_dicycles_positive`: in a balanced
 graph every directed cycle is positive; `balanced_no_positive_acyclic`: balance plus "no positive
 directed cycle" leaves no directed cycle at all. Instances: `z2_triangle_merge` (an unbalanced
 triangle with two directed paths of different sign), `z2_square_balanced`.
@@ -433,7 +437,9 @@ vertex of a finite list through a lens with extensionality; vertex `v` is update
 `Fv v` from the current state (`rupd`), and runs, fairness and settling are those of
 `DistributedCycles.v` (`prs`, `Fair`, `Settles`). The signed interaction graph is the **global**
 graph: `Resp sg` says each resolver reads only its in-neighbors and is monotone in its positive
-inputs and antitone in its negative ones, with signs fixed across all states. Local
+inputs and antitone in its negative ones, with signs fixed across all states (the in-neighbor
+reading is `resp_reads_in_neighbors`). Every bridge theorem also takes `SgOn` (the endpoints of
+every signed edge are vertices) and both attempts assume the greatest element. Local
 (state-dependent) graphs are out of scope.
 
 - `switched_monotone`: under `Resp` and a switching `o`, every resolver is monotone for the
@@ -441,34 +447,42 @@ inputs and antitone in its negative ones, with signs fixed across all states. Lo
 - `signed_settlement` (attempt 1): with `slfp o` the least fixed point of the switched order
   (`DistributedCycles.Lfp` after the change of order): from every start `h0 <= slfp o` (switched
   order) every fair schedule settles at `slfp o` (`q1_below`); from every sound start
-  (`h0 <= Fsync h0`) every fair schedule settles at the least fixed point above `h0`
+  (`h0 <= Fsync h0` in the switched order) every fair schedule settles at the least fixed point
+  above `h0`
   (`q1_sound_settles`); and E holds from every start `h0 <= slfp o`: `EffectiveCanon` of
   `CanonicalExecution.v` (Settlement and CanonicalFidelity) with the canonicalizer `const (slfp o)`,
   together with the left side of `esh_exact` (Settlement, CanonAgree, CanonConv; S and H are
-  trivial here because there are no events). `signed_settlement_harary` obtains the switching from
-  "no negative undirected cycle".
+  trivial here because there are no events). The switching is a hypothesis;
+  `signed_settlement_harary` derives it from balance (no closed walk with an odd number of negative
+  edges) and concludes the switching, fair settlement and E from low starts (a subset of
+  `signed_settlement`'s conclusions).
 - `signed_fidelity` (attempt 2): with `Resp`, a switching and at most one fixed point, every fair
   schedule from **every** start settles at it, and E holds from every start (`q1_unique_iff` after
-  the change of order; it uses the greatest element). Uniqueness is a hypothesis. The sign route to
+  the change of order; it uses the greatest element). `signed_fidelity_harary` derives the
+  switching from balance. Uniqueness is a hypothesis. The sign route to
   uniqueness (no positive directed cycle: Richard and Comet 2007, Aracena 2008, cited) collapses on
   balanced graphs to acyclicity (`balanced_no_positive_acyclic`), that is, to Robert.
 - Non-vacuity: `neg_chain_settles` (a negative edge and a non-trivial switching; every start is
-  low), `unique_pos_cycle` (a positive directed cycle with one fixed point, outside every sign
-  condition).
+  low), `unique_pos_cycle` (a positive directed cycle with one fixed point; every global
+  certificate of it contains that cycle, `unique_pos_cycle_every_certificate`, so the "no positive
+  directed cycle" condition never applies to it).
 
 **What breaks, each a theorem.**
 
 | Theorem | Network | Hypothesis shown needed |
 |---|---|---|
-| `neg2_no_fixed_point` | `x0 := not x1`, `x1 := x0` (negative 2-cycle) | balance: no switching, no fixed point, no schedule settles (Boolean form of `flip_noflush` and of the negation counterexample) |
+| `neg2_no_fixed_point` | `x0 := not x1`, `x1 := x0` (negative 2-cycle) | balance: no switching, no fixed point, no schedule settles (compare the negation counterexample; unlike `flip_noflush`, there is no fixed point at all) |
 | `copyback_ghost` | `x0 := x1`, `x1 := x0` (positive 2-cycle) | the start condition for fidelity: from the sound start `(1, 1)`, above `slfp = (0, 0)`, every schedule stays put, so CanonicalFidelity and E fail; two orders from `(0, 1)` reach both fixed points (`copyback_without_authority`, the ghost of `ghost_exact`) |
 | `toggle_ghost` | `x0 := not x1`, `x1 := not x0` (balanced, switching `(false, true)`) | the same with negative edges: `slfp = (0, 1)`, the ghost is `(1, 0)` |
-| `ring_needs_low_start` | the positive 3-ring of `dist_ring_livelock` | the start condition for settlement: from `(1, 0, 0)` a fair schedule never reaches quiescence |
+| `ring_needs_low_start`, `ring_low_start_E` | the positive 3-ring of `dist_ring_livelock` | the start condition for fair-schedule settlement: from `(1, 0, 0)` a fair schedule never reaches quiescence. E's Settlement half (a flush word exists) holds from every start; from `(1, 0, 0)` E fails through CanonicalFidelity (`[2; 1]` reaches the quiescent state `(1, 1, 1)`) |
 | `unbalanced_unique_oscillates` | `x0 := x0`, `x1 := x0 and not x1` | balance in attempt 2: one fixed point, yet no schedule from `x0 = 1` settles |
-| `flip_needs_top` | `flip_noflush`'s swap on `{fz < fa, fb}` | bounded value sets: monotone, one fixed point, no top, no flush from `fa` |
+| `flip_needs_top`, `flip_needs_top_resolver` | `flip_noflush`'s swap on `{fz < fa, fb}` | the greatest element: monotone, one fixed point, no top, no flush from `fa`; inside the resolver model every other hypothesis of `signed_fidelity` holds (lens, least element, finite height, `SgOn`, `Resp`, a switching, uniqueness) and E's Settlement fails from `fa` |
 | `xor_no_certificate` | `x1 := x0 xor x1` | lossy non-monotone resolvers are rejected: every certifying graph is unbalanced |
 | `cyc3_unsignable` | the 3-cycle permutation of `{t0, t1, t2}` | signability: no partial order with a least element makes it monotone or antitone, and it has no fixed point |
 
 So the bridge is a set of sufficient certificates for E under an explicit resolver semantics (global
 signs, bounded finite-height value sets, low starts or a unique fixed point), not an identity
-between signed-cycle conditions and E.
+between signed-cycle conditions and E. Statement review (#81): each exported statement above was
+checked with `Check`/`About` against these descriptions; the theorems `resp_reads_in_neighbors`,
+`signed_fidelity_harary`, `ring_low_start_E`, `flip_needs_top_resolver` and
+`unique_pos_cycle_every_certificate` were added where the prose claimed more than a statement.

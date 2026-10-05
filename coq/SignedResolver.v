@@ -2,9 +2,9 @@
    LOSSY-NETWORKS.md). Axiom-free. Sufficient certificates for E under an explicit resolver
    semantics, not an identity: each hypothesis is shown needed by a counterexample.
 
-   Resolver model (reading B). A finite family of value sets, all carried by one type X with a
-   partial order leX that has a least element botX and a greatest element topX and finite height
-   (rank rX <= hX). A state s : Sh exposes the value of vertex j through a lens (get j, set j) on
+   Resolver model (reading B). One value set X shared by every vertex (not necessarily finite), with
+   a partial order leX that has a least element botX and a greatest element topX and finite height
+   (rank rX <= hX), and decidable equality. A state s : Sh exposes the value of vertex j through a lens (get j, set j) on
    the vertex list js, with extensionality on js. Each vertex v has a resolver Fv v : Sh -> X; the
    asynchronous step rupd j replaces the value of j by Fv j of the CURRENT state; Fsync updates
    every vertex at once. Schedules are DistributedCycles' fair schedules (every vertex named
@@ -13,49 +13,59 @@
    Signed interaction graph: the GLOBAL graph. sg is a list of signed edges (u, v, b), b = false
    positive and b = true negative. Resp sg: for every vertex v and states s, t, if every positive
    in-edge (u, v) has get u s <= get u t and every negative one has get u t <= get u s, then
-   Fv v s <= Fv v t. So Fv v reads only its in-neighbors and is monotone in its positive inputs and
-   antitone in its negative inputs, with signs FIXED ACROSS ALL STATES. Local (state-dependent)
+   Fv v s <= Fv v t. So Fv v reads only its in-neighbors (resp_reads_in_neighbors) and is monotone
+   in its positive inputs and antitone in its negative inputs, with signs FIXED ACROSS ALL STATES.
+   SgOn sg (every edge's endpoints are vertices of js) is a premise of every bridge theorem. Local (state-dependent)
    interaction graphs, unsigned maps (no order making a map monotone or antitone), and value sets
    without a top or bottom are OUT OF SCOPE of the certificates below; each is shown to break them.
 
    Switching. A switching o : nat -> bool (SignedCycles.Switching: every edge (u, v, b) has
    b = xorb (o u) (o v)) reverses the order of the vertices with o = true (leo, le_o). Harary
    (SignedCycles.harary_balance, proved): a switching exists iff no closed undirected walk carries
-   an odd number of negative edges.
+   an odd number of negative edges (closed walks; the simple-cycle form is not mechanized).
 
    Results.
      switched_monotone     Resp + Switching o: every resolver is monotone for the switched orders.
      signed_settlement     (bridge, attempt 1: settlement and fidelity from LOW starts) Resp +
                            Switching o: slfp o, the least fixed point of Fsync in the switched order,
                            exists; from every start h0 <= slfp o (switched order) every fair
-                           schedule settles at slfp o; from every SOUND start (h0 <= Fsync h0) every
-                           fair schedule settles at the least fixed point above h0; and E holds:
+                           schedule settles at slfp o; from every SOUND start (h0 <= Fsync h0, in
+                           the switched order) every fair schedule settles at the least fixed point
+                           above h0; and E holds:
                            EffectiveCanon (Settlement /\ CanonicalFidelity of
                            CanonicalExecution.v) with canonicalizer N := const (slfp o), from every
                            start h0 <= slfp o, together with the left side of esh_exact
-                           (signed_esh).
+                           (signed_esh). The switching is a HYPOTHESIS here. Both attempts assume
+                           topX: attempt 1 uses it as the switched bottom at the vertices with
+                           o = true.
      signed_settlement_harary
-                           the same with the switching produced by harary_balance from "no
-                           negative undirected cycle".
+                           the switching DERIVED by harary_balance from "no closed walk with an
+                           odd number of negative edges"; conclusions: the switching, fair
+                           settlement and E from every start below slfp o (a subset of
+                           signed_settlement's).
      signed_fidelity       (bridge, attempt 2: every start) Resp + Switching o + AT MOST ONE fixed
                            point: every fair schedule from EVERY start settles at the fixed point,
                            and E (and the left side of esh_exact) holds from every start. This is
-                           DistributedCycles.q1_unique_iff after the change of order; it uses topX.
+                           DistributedCycles.q1_unique_iff after the change of order; it uses topX
+                           (flip_needs_top_resolver). The switching is a hypothesis;
+                           signed_fidelity_harary derives it from balance.
    Uniqueness is a hypothesis, not derived from signs: SignedCycles.balanced_no_positive_acyclic
    shows that balance plus Thomas's sign condition (no positive directed cycle) leaves no directed
    cycle at all, so on a balanced graph the sign route to uniqueness (Richard and Comet 2007,
    Aracena 2008; cited, not mechanized) covers only acyclic networks (Robert). unique_pos_cycle
-   is a monotone network with a positive cycle and one fixed point, outside every sign condition,
-   to which signed_fidelity applies.
+   is a monotone network with a positive cycle and one fixed point, to which signed_fidelity
+   applies; every global certificate of it contains that positive cycle
+   (unique_pos_cycle_every_certificate), so the global "no positive directed cycle" condition never
+   applies to it.
 
    Non-vacuity: neg_chain_settles (x0 := true, x1 := not x0, switching (false, true): every start
    is below slfp, E holds everywhere) and unique_pos_cycle.
 
    Breaks (each a theorem).
      neg2_no_fixed_point   negative 2-cycle x0 := not x1, x1 := x0: Resp holds, no switching exists,
-                           no fixed point, so no schedule from any start ever settles (the Boolean
-                           form of flip_noflush and of the negation counterexample
-                           prop_cycle_necessary / rootless_negation_no_nf).
+                           no fixed point, so no schedule from any start ever settles (compare the
+                           negation counterexample prop_cycle_necessary / rootless_negation_no_nf;
+                           unlike flip_noflush, which has one fixed point, there is none here).
      copyback_ghost        positive 2-cycle x0 := x1, x1 := x0: Resp and the switching hold, two
                            fixed points; from the SOUND start (1, 1), above slfp = (0, 0), every
                            schedule stays at (1, 1): CanonicalFidelity and E fail. The start
@@ -67,14 +77,20 @@
      ring_needs_low_start  the positive 3-ring x0 := x1, x1 := x2, x2 := x0 (dist_ring_livelock):
                            Resp and the switching hold, but from (1, 0, 0), not below slfp, a fair
                            schedule never reaches a quiescent state. The start condition is needed
-                           for settlement too.
+                           for fair-schedule settlement (Settles) too. ring_low_start_E: E's
+                           Settlement half (a flush word exists) still holds from every start, and
+                           from (1, 0, 0) E fails through CanonicalFidelity (the word [2; 1] reaches
+                           the quiescent state (1, 1, 1)).
      unbalanced_unique_oscillates
                            x0 := x0, x1 := x0 and not x1: Resp holds, exactly one fixed point,
                            no switching (a negative self-loop), and from every start with x0 = 1 no
                            schedule ever settles. Balance cannot be dropped from attempt 2.
      flip_needs_top        flip_noflush's swap on {fz < fa, fb}: monotone, one fixed point, but
                            the value set has no top and no propagation word from fa ever reaches
-                           quiescence. Attempt 2 needs bounded value sets.
+                           quiescence. flip_needs_top_resolver restates it inside the resolver
+                           model: every hypothesis of signed_fidelity holds except topX (finite
+                           height and a least element included), and E's Settlement fails from fa.
+                           Attempt 2 needs the greatest element.
      xor_no_certificate    x1 := x0 xor x1 reads x0 neither monotonically nor antitonically:
                            every global signed graph certifying it (Resp) admits no switching (the
                            arc 0 -> 1 needs both signs, an unbalanced 2-cycle). Lossy non-monotone
@@ -124,6 +140,16 @@ Section Resolver.
       leX (Fv v s) (Fv v t).
 
   Definition SgOn : Prop := forall u v b, In (u, v, b) sg -> In u js /\ In v js.
+
+  (* Resp makes each resolver read only its in-neighbors in sg: two states that agree on the
+     in-neighbors of v give the same value (this uses reflexivity and antisymmetry of leX). *)
+  Theorem resp_reads_in_neighbors : Resp -> forall v, In v js -> forall s t,
+    (forall u b, In (u, v, b) sg -> get u s = get u t) -> Fv v s = Fv v t.
+  Proof.
+    intros Hr v Hv s t H. apply leX_antisym.
+    - apply (Hr v Hv s t). intros u b Hin. rewrite (H u b Hin). destruct b; apply leX_refl.
+    - apply (Hr v Hv t s). intros u b Hin. rewrite (H u b Hin). destruct b; apply leX_refl.
+  Qed.
 
   (* ----- the dynamics ----- *)
 
@@ -563,6 +589,20 @@ Section Resolver.
     - exact (kernel_esh (slfp o) Hfix (fun _ => True) (fun _ _ _ => I) (fun s _ sch Hf => Hset sch Hf s)
                Hfi h0 I).
   Qed.
+
+  (* Attempt 2 with the switching produced by Harary (no closed walk with an odd number of
+     negative edges) instead of a given switching. *)
+  Theorem signed_fidelity_harary : SgOn -> Resp ->
+    (forall u h, swalk sg u u h -> h = false) ->
+    (forall p q, Fsync p = p -> Fsync q = q -> p = q) ->
+    exists o, Switching sg o /\
+      (forall sch, Fair js sch -> forall h0, Settles Sh rupd sch h0 (slfp o)) /\
+      (forall h0, EffectiveCanon (fun _ => slfp o) rupd r_ok r_flush r_settled h0).
+  Proof.
+    intros Hon Hr Hb Hu. destruct (proj2 (harary_balance sg) Hb) as [o Ho]. exists o.
+    destruct (signed_fidelity Hon Hr o Ho Hu) as (_ & H1 & H2).
+    split; [exact Ho | split; [exact H1 | intros h0; exact (proj1 (H2 h0))]].
+  Qed.
 End Resolver.
 
 (* ============================================================================================ *)
@@ -859,6 +899,40 @@ Proof.
   rewrite <- ring_is_r3u. exact (H j Hj).
 Qed.
 
+Lemma settled3_fixed : forall Fv s, settled3 Fv s <-> Fsync3 Fv s = s.
+Proof. intros Fv s. exact (settled_fixed bool R3 r3js get3 set3 get3_set_eq get3_set_neq s3_ext Fv s). Qed.
+
+(* What ring_needs_low_start breaks in E. The Settlement half of E (some flush word from every
+   reachable state) holds from EVERY start: update 0, then 2. From (1, 0, 0) E fails through
+   CanonicalFidelity: the word [2; 1] reaches the quiescent state (1, 1, 1), not slfp = (0, 0, 0).
+   So the start condition is needed for fair-schedule settlement (Settles) and for fidelity, not
+   for E's Settlement. *)
+Theorem ring_low_start_E :
+  (forall h0, Settlement (rupd3 ring_F) (r_ok r3js) (r_flush r3js) (settled3 ring_F) h0) /\
+  xr bool R3 r3js set3 ring_F [2; 1] r3h0 = (true, true, true) /\
+  settled3 ring_F (true, true, true) /\
+  ~ CanonicalFidelity (fun _ => slfp3 ring_F ofalse) (rupd3 ring_F) (r_ok r3js) (settled3 ring_F) r3h0 /\
+  ~ EffectiveCanon (fun _ => slfp3 ring_F ofalse) (rupd3 ring_F) (r_ok r3js) (r_flush r3js)
+      (settled3 ring_F) r3h0.
+Proof.
+  assert (Ex : xr bool R3 r3js set3 ring_F [2; 1] r3h0 = (true, true, true)) by (vm_compute; reflexivity).
+  assert (Hs : settled3 ring_F (true, true, true)) by (apply settled3_fixed; vm_compute; reflexivity).
+  assert (Hok : Forall (r_ok r3js) [2; 1]).
+  { apply Forall_forall. intros a Ha. destruct Ha as [<- | [<- | []]]; unfold r_ok; simpl; tauto. }
+  assert (Nf : ~ CanonicalFidelity (fun _ => slfp3 ring_F ofalse) (rupd3 ring_F) (r_ok r3js)
+                 (settled3 ring_F) r3h0).
+  { intro H. pose proof (H [2; 1] Hok) as H1.
+    change (xrun (rupd3 ring_F) [2; 1] r3h0) with (xr bool R3 r3js set3 ring_F [2; 1] r3h0) in H1.
+    rewrite Ex in H1. specialize (H1 Hs). vm_compute in H1. discriminate H1. }
+  split.
+  { intros h0 w _. exists [0; 2]. split.
+    - apply Forall_forall. intros a Ha. destruct Ha as [<- | [<- | []]]; unfold r_ok; simpl; tauto.
+    - change (xrun (rupd3 ring_F) (w ++ [0; 2]) h0) with (xr bool R3 r3js set3 ring_F (w ++ [0; 2]) h0).
+      rewrite xr_app. generalize (xr bool R3 r3js set3 ring_F w h0) as t. intros [[a b] c].
+      apply settled3_fixed. destruct a, b, c; vm_compute; reflexivity. }
+  split; [exact Ex | split; [exact Hs | split; [exact Nf | intros [_ H]; exact (Nf H)]]].
+Qed.
+
 (* Attempt 2 outside every sign condition: x0 := x1, x1 := x0 and x2, x2 := false. A positive
    directed cycle 0 -> 1 -> 0, one fixed point; every fair schedule from every start settles. *)
 Definition up_F (j : nat) (s : R3) : bool :=
@@ -895,6 +969,32 @@ Proof.
   intros h0. exact (proj1 (H2 h0)).
 Qed.
 
+Definition sedge_dec : forall x y : nat * nat * bool, {x = y} + {x <> y}.
+Proof. repeat decide equality. Defined.
+
+(* The positive cycle of unique_pos_cycle is forced: EVERY global signed graph certifying up_F
+   (Resp) contains the positive arcs 1 -> 0 and 0 -> 1, so no certificate satisfies the sign
+   condition "no positive directed cycle". *)
+Theorem unique_pos_cycle_every_certificate : forall sg,
+  Resp bool R3 sbl r3js get3 up_F sg -> In (1, 0, false) sg /\ In (0, 1, false) sg.
+Proof.
+  intros sg Hr. split.
+  - destruct (in_dec sedge_dec (1, 0, false) sg) as [H | H]; [exact H | exfalso].
+    assert (P : forall u b, In (u, 0, b) sg ->
+                  if b then sbl (get3 u (false, false, false)) (get3 u (false, true, false))
+                  else sbl (get3 u (false, true, false)) (get3 u (false, false, false))).
+    { intros u b Hin. destruct u as [| [| [| u]]]; destruct b; try reflexivity.
+      exfalso. exact (H Hin). }
+    pose proof (Hr 0 (or_introl eq_refl) _ _ P) as R. discriminate R.
+  - destruct (in_dec sedge_dec (0, 1, false) sg) as [H | H]; [exact H | exfalso].
+    assert (P : forall u b, In (u, 1, b) sg ->
+                  if b then sbl (get3 u (false, false, true)) (get3 u (true, false, true))
+                  else sbl (get3 u (true, false, true)) (get3 u (false, false, true))).
+    { intros u b Hin. destruct u as [| [| [| u]]]; destruct b; try reflexivity.
+      exfalso. exact (H Hin). }
+    pose proof (Hr 1 (or_intror (or_introl eq_refl)) _ _ P) as R. discriminate R.
+Qed.
+
 (* ----- breaks outside the Boolean resolver model ----- *)
 
 (* Value sets need a top: flip_noflush's swap on {fz < fa, fb} is monotone with one fixed point,
@@ -910,6 +1010,55 @@ Proof.
   split; [| exact (proj2 (proj2 (proj2 (proj2 flip_noflush))))].
   intros [t Ht]. pose proof (Ht fa) as Ha. pose proof (Ht fb) as Hb.
   destruct t; unfold fle in Ha, Hb; intuition discriminate.
+Qed.
+
+(* flip_needs_top inside the resolver model: one vertex 0 over the value set Fl, resolver fsw,
+   certificate a positive self-loop. Every hypothesis of signed_fidelity holds (lens, order with a
+   least element and finite height, SgOn, Resp, a switching, at most one fixed point) except the
+   greatest element, and from fa no schedule ever reaches a quiescent state and no flush word
+   exists: E's Settlement fails. *)
+Definition fget (j : nat) (s : Fl) : Fl := match j with 0 => s | _ => fz end.
+Definition fset (j : nat) (x : Fl) (s : Fl) : Fl := match j with 0 => x | _ => s end.
+Definition fFv (_ : nat) (s : Fl) : Fl := fsw s.
+Definition f_sg : list (@edge bool) := [(0, 0, false)].
+
+Theorem flip_needs_top_resolver :
+  (forall j x s, In j fjs1 -> fget j (fset j x s) = x) /\
+  (forall j k x s, k <> j -> fget k (fset j x s) = fget k s) /\
+  (forall s t, (forall j, In j fjs1 -> fget j s = fget j t) -> s = t) /\
+  (forall a, fle fz a) /\ (forall a b, fle a b -> a <> b -> frank a < frank b) /\
+  (forall a, frank a <= 1) /\
+  SgOn fjs1 f_sg /\ Resp Fl Fl fle fjs1 fget fFv f_sg /\ Switching f_sg ofalse /\
+  (forall p q, Fsync Fl Fl fjs1 fset fFv p = p -> Fsync Fl Fl fjs1 fset fFv q = q -> p = q) /\
+  ~ (exists t, forall x, fle x t) /\
+  (forall sch n, ~ r_settled Fl Fl fjs1 fset fFv (prs Fl (rupd Fl Fl fjs1 fset fFv) sch n fa)) /\
+  ~ Settlement (rupd Fl Fl fjs1 fset fFv) (r_ok fjs1) (r_flush fjs1) (r_settled Fl Fl fjs1 fset fFv) fa.
+Proof.
+  assert (Hfix : forall p, Fsync Fl Fl fjs1 fset fFv p = p -> p = fz)
+    by (intros [] H; vm_compute in H; congruence).
+  assert (Hst : forall s, r_settled Fl Fl fjs1 fset fFv s -> s = fz).
+  { intros s H. pose proof (H 0 (or_introl eq_refl)) as E. revert E. destruct s; vm_compute; congruence. }
+  assert (Hinv : forall j s, s <> fz -> rupd Fl Fl fjs1 fset fFv j s <> fz).
+  { intros j s Hs. unfold rupd. destruct (in_dec Nat.eq_dec j fjs1) as [Hj | _]; [| exact Hs].
+    destruct Hj as [<- | []]. destruct s; simpl; congruence. }
+  assert (Hrun : forall w s, s <> fz -> xr Fl Fl fjs1 fset fFv w s <> fz).
+  { induction w as [| a w IH]; intros s Hs; [exact Hs |]. apply IH. apply Hinv. exact Hs. }
+  pose proof flip_needs_top as (Hm & _ & Ht & _).
+  split; [intros j x s [<- | []]; reflexivity |].
+  split; [intros [| j] [| k] x s H; try reflexivity; exfalso; apply H; reflexivity |].
+  split; [intros s t H; exact (H 0 (or_introl eq_refl)) |].
+  split; [exact fz_least | split; [exact frank_strict | split; [exact frank_bound |]]].
+  split; [intros u v b [E | []]; injection E as <- <- <-; simpl; tauto |].
+  split.
+  { intros v Hv s t H. destruct Hv as [<- | []]. apply Hm. exact (H 0 false (or_introl eq_refl)). }
+  split; [intros u v b [E | []]; injection E as <- <- <-; reflexivity |].
+  split; [intros p q Hp Hq; rewrite (Hfix p Hp), (Hfix q Hq); reflexivity |].
+  split; [exact Ht |].
+  split.
+  { intros sch n H. apply (Hrun (map sch (seq 0 n)) fa ltac:(discriminate)).
+    rewrite <- (prs_xr Fl Fl fjs1 fset fFv). exact (Hst _ H). }
+  intros H. destruct (H [] (Forall_nil _)) as [c [_ Hs]].
+  exact (Hrun ([] ++ c) fa ltac:(discriminate) (Hst _ Hs)).
 Qed.
 
 (* Unsigned maps: the 3-cycle permutation of {t0, t1, t2} is neither monotone nor antitone for any
