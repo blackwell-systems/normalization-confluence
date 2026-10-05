@@ -1290,6 +1290,124 @@ Print Assumptions NC.DistributedExact.lv_xur.
 Print Assumptions NC.DistributedExact.lv_c2r.
 Print Assumptions NC.DistributedExact.levels_exact_not_xu.
 Print Assumptions NC.DistributedExact.dist_strictly_stronger_than_fed.
+Require NC.DistributedCycles.
+Print Assumptions NC.DistributedCycles.stab_dec_l.
+Print Assumptions NC.DistributedCycles.rk_mono.
+Print Assumptions NC.DistributedCycles.prs_S.
+Print Assumptions NC.DistributedCycles.prs_mono.
+Print Assumptions NC.DistributedCycles.prs_fixed.
+Print Assumptions NC.DistributedCycles.run_P.
+Print Assumptions NC.DistributedCycles.run_up.
+Print Assumptions NC.DistributedCycles.run_progress.
+Print Assumptions NC.DistributedCycles.run_reaches.
+Print Assumptions NC.DistributedCycles.run_stays.
+Print Assumptions NC.DistributedCycles.fair_settles.
+Print Assumptions NC.DistributedCycles.Nc_eq.
+Print Assumptions NC.DistributedCycles.Lfp_is_lfp.
+Print Assumptions NC.DistributedCycles.Lfp_fixed.
+Print Assumptions NC.DistributedCycles.Lfp_least.
+Print Assumptions NC.DistributedCycles.qstable_iff.
+Print Assumptions NC.DistributedCycles.Lfp_stable.
+Print Assumptions NC.DistributedCycles.below_u.
+Print Assumptions NC.DistributedCycles.PA_up.
+Print Assumptions NC.DistributedCycles.q1_sound_settles.
+Print Assumptions NC.DistributedCycles.q1_from_bot.
+Print Assumptions NC.DistributedCycles.q1_below.
+Print Assumptions NC.DistributedCycles.sound_run.
+Print Assumptions NC.DistributedCycles.q1_sound_iff.
+Print Assumptions NC.DistributedCycles.q1_stuck.
+Print Assumptions NC.DistributedCycles.dual_rank_strict.
+Print Assumptions NC.DistributedCycles.q1_unique_iff.
+Print Assumptions NC.DistributedCycles.sweep_app.
+Print Assumptions NC.DistributedCycles.sweep_stable.
+Print Assumptions NC.DistributedCycles.sweep_mono.
+Print Assumptions NC.DistributedCycles.kleene_S.
+Print Assumptions NC.DistributedCycles.kleene_stable.
+Print Assumptions NC.DistributedCycles.iter_kleene.
+Print Assumptions NC.DistributedCycles.Forall_app'.
+Print Assumptions NC.DistributedCycles.rounds_in.
+Print Assumptions NC.DistributedCycles.crun_app.
+Print Assumptions NC.DistributedCycles.cevs_app.
+Print Assumptions NC.DistributedCycles.cevs_props.
+Print Assumptions NC.DistributedCycles.cevs_evs.
+Print Assumptions NC.DistributedCycles.ok_app.
+Print Assumptions NC.DistributedCycles.ok_evs.
+Print Assumptions NC.DistributedCycles.ok_props.
+Print Assumptions NC.DistributedCycles.ok_ev1.
+Print Assumptions NC.DistributedCycles.crun_props.
+Print Assumptions NC.DistributedCycles.fst_props.
+Print Assumptions NC.DistributedCycles.Nc_fst.
+Print Assumptions NC.DistributedCycles.Nc_idem.
+Print Assumptions NC.DistributedCycles.fst_Nc.
+Print Assumptions NC.DistributedCycles.FM_cons.
+Print Assumptions NC.DistributedCycles.FM_normal.
+Print Assumptions NC.DistributedCycles.quiet_normal.
+Print Assumptions NC.DistributedCycles.track.
+Print Assumptions NC.DistributedCycles.EP_run.
+Print Assumptions NC.DistributedCycles.EP_ok.
+Print Assumptions NC.DistributedCycles.EP_evs.
+Print Assumptions NC.DistributedCycles.epoch_flush.
+Print Assumptions NC.DistributedCycles.xu_runs.
+Print Assumptions NC.DistributedCycles.agree_suff.
+Print Assumptions NC.DistributedCycles.conv_suff.
+Print Assumptions NC.DistributedCycles.epoch_agree_iff.
+Print Assumptions NC.DistributedCycles.epoch_conv_iff.
+Print Assumptions NC.DistributedCycles.quiet_agree_suff.
+Print Assumptions NC.DistributedCycles.quiet_ghost_only.
+Print Assumptions NC.DistributedCycles.flushed_normal.
+Print Assumptions NC.DistributedCycles.xu_quiet_runs.
+Print Assumptions NC.DistributedCycles.quiet_agree_iff.
+Print Assumptions NC.DistributedCycles.quiet_conv_suff.
+Print Assumptions NC.DistributedCycles.quiet_conv_iff.
+Print Assumptions NC.DistributedCycles.low_noghost.
+Print Assumptions NC.DistributedCycles.low_flush.
+Print Assumptions NC.DistributedCycles.low_agree_iff.
+Print Assumptions NC.DistributedCycles.low_conv_iff.
+Print Assumptions NC.DistributedCycles.uniq_noghost.
+Print Assumptions NC.DistributedCycles.uniq_agree.
+Print Assumptions NC.DistributedCycles.evlow_lowr.
+Print Assumptions NC.DistributedCycles.kleene_below.
+Print Assumptions NC.DistributedCycles.Lfp_mono.
+Print Assumptions NC.DistributedCycles.infl_evlow.
+Print Assumptions NC.DistributedCycles.lens_xucr.
+Print Assumptions NC.DistributedCycles.lens_fmconv.
+Print Assumptions NC.DistributedCycles.lens_epoch.
+Print Assumptions NC.DistributedCycles.lens_quiet.
+Print Assumptions NC.DistributedCycles.hs_reach.
+Print Assumptions NC.DistributedCycles.cv1_lfp.
+Print Assumptions NC.DistributedCycles.i_xucr.
+Print Assumptions NC.DistributedCycles.i_fmconv.
+Print Assumptions NC.DistributedCycles.dist_cyc_ghost.
+Print Assumptions NC.DistributedCycles.dist_cyc_epoch_fix.
+Print Assumptions NC.DistributedCycles.cu_mono_l.
+Print Assumptions NC.DistributedCycles.dist_cyc_raise_only.
+Print Assumptions NC.DistributedCycles.alt_fair.
+Print Assumptions NC.DistributedCycles.dist_schedule_dependence.
+Print Assumptions NC.DistributedCycles.ctop_greatest.
+Print Assumptions NC.DistributedCycles.cu_decr.
+Print Assumptions NC.DistributedCycles.cu_cosound.
+Print Assumptions NC.DistributedCycles.dist_unique_fixed_point.
+Print Assumptions NC.DistributedCycles.r3le_refl.
+Print Assumptions NC.DistributedCycles.r3le_trans.
+Print Assumptions NC.DistributedCycles.r3le_antisym.
+Print Assumptions NC.DistributedCycles.r3bot_least.
+Print Assumptions NC.DistributedCycles.r3rank_strict.
+Print Assumptions NC.DistributedCycles.r3rank_bound.
+Print Assumptions NC.DistributedCycles.r3u_incr.
+Print Assumptions NC.DistributedCycles.r3u_sound.
+Print Assumptions NC.DistributedCycles.r3u_mono.
+Print Assumptions NC.DistributedCycles.r3u_fixed.
+Print Assumptions NC.DistributedCycles.r3_cover.
+Print Assumptions NC.DistributedCycles.pos_lt.
+Print Assumptions NC.DistributedCycles.r3_state.
+Print Assumptions NC.DistributedCycles.r3_fair.
+Print Assumptions NC.DistributedCycles.dist_ring_livelock.
+Print Assumptions NC.DistributedCycles.uu_fixed.
+Print Assumptions NC.DistributedCycles.u_cover.
+Print Assumptions NC.DistributedCycles.uu_incr.
+Print Assumptions NC.DistributedCycles.uu_sound.
+Print Assumptions NC.DistributedCycles.uu_mono.
+Print Assumptions NC.DistributedCycles.dist_cyc_unique_no_reset.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1300,8 +1418,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1253 ]; then
-  echo "FAIL: expected 1253 axiom-free results, got $N"
+if [ "$N" -lt 1370 ]; then
+  echo "FAIL: expected 1370 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

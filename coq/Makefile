@@ -243,3 +243,9 @@ all: DistributedExact.vo
 
 DistributedExact.vo: DistributedExact.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo
 	coqc -Q . NC DistributedExact.v
+
+# The distributed propagation model on monotone cycles (DistributedCycles.v).
+all: DistributedCycles.vo
+
+DistributedCycles.vo: DistributedCycles.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo
+	coqc -Q . NC DistributedCycles.v
