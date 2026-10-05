@@ -171,3 +171,93 @@ all: FederationEventsCyclesMulti.vo
 
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
+
+# Monotone cycles: exact validity and exact reachability of the lfp (MonotoneExact.v).
+all: MonotoneExact.vo
+
+MonotoneExact.vo: MonotoneExact.v Newman.vo Federation.vo Chaotic.vo ChaoticACC.vo FederationEventsCycles.vo MonotoneFederation.vo
+	coqc -Q . NC MonotoneExact.v
+
+# The exact condition for stream agreement (StreamExact.v).
+all: StreamExact.vo
+
+StreamExact.vo: StreamExact.v Newman.vo Governance.vo GovernanceCausal.vo GovernanceWF.vo GovernanceConverse.vo Stream.vo
+	coqc -Q . NC StreamExact.v
+
+# The exact converses over any well-founded order (GovernanceWFConverse.v).
+all: GovernanceWFConverse.vo
+
+GovernanceWFConverse.vo: GovernanceWFConverse.v Newman.vo Governance.vo GovernanceWF.vo GovernanceConverse.vo RhoStar.vo
+	coqc -Q . NC GovernanceWFConverse.v
+
+# Rootless propagation on invertible cycles (RootlessCycles.v).
+all: RootlessCycles.vo
+
+RootlessCycles.vo: RootlessCycles.v CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo Cohomology.vo
+	coqc -Q . NC RootlessCycles.v
+
+# Exact event-order condition under the coordination plan (CoordinatedExact.v).
+all: CoordinatedExact.vo
+
+CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
+	coqc -Q . NC CoordinatedExact.v
+
+# The exact condition for at-least-once delivery, free and causal (AtLeastOnceExact.v).
+all: AtLeastOnceExact.vo
+
+AtLeastOnceExact.vo: AtLeastOnceExact.v Trace.vo CausalReplay.vo AtLeastOnce.vo GovernanceConverse.vo
+	coqc -Q . NC AtLeastOnceExact.v
+
+# The root-set criterion for lossy networks without a spanning root (RootSet.v).
+all: RootSet.vo
+
+RootSet.vo: RootSet.v CohomologyGraph.vo CohomologyGeneral.vo
+	coqc -Q . NC RootSet.v
+
+# State-based CRDT merges as an instance of the exact theorems (CvRDTExact.v).
+all: CvRDTExact.vo
+
+CvRDTExact.vo: CvRDTExact.v Newman.vo Trace.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo Checker.vo CRDT.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo
+	coqc -Q . NC CvRDTExact.v
+
+# The 3-SAT reduction for lossy networks: correctness, parsimony and size (LossyHardness.v).
+all: LossyHardness.vo
+
+LossyHardness.vo: LossyHardness.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo
+	coqc -Q . NC LossyHardness.v
+
+# The exact event-order condition under root-set coordination (RootSetEvents.v).
+all: RootSetEvents.vo
+
+RootSetEvents.vo: RootSetEvents.v CohomologyGraph.vo CohomologyGeneral.vo Trace.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo CoordinatedExact.vo RootSet.vo
+	coqc -Q . NC RootSetEvents.v
+
+# Exact confluence when compensation may disable a buffered event (EnabledAfterComp.v).
+all: EnabledAfterComp.vo
+
+EnabledAfterComp.vo: EnabledAfterComp.v Newman.vo Governance.vo GovernanceConverse.vo GovernanceWFConverse.vo
+	coqc -Q . NC EnabledAfterComp.v
+
+# The exact condition for the distributed model with propagation steps (DistributedExact.v).
+all: DistributedExact.vo
+
+DistributedExact.vo: DistributedExact.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo
+	coqc -Q . NC DistributedExact.v
+
+# The distributed propagation model on monotone cycles (DistributedCycles.v).
+all: DistributedCycles.vo
+
+DistributedCycles.vo: DistributedCycles.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo
+	coqc -Q . NC DistributedCycles.v
+
+# The no-reset distributed model on monotone cycles, exactly (DistributedCyclesExact.v).
+all: DistributedCyclesExact.vo
+
+DistributedCyclesExact.vo: DistributedCyclesExact.v Trace.vo Federation.vo FederationEventsCycles.vo FederationEventsCyclesCheck.vo DistributedCycles.vo
+	coqc -Q . NC DistributedCyclesExact.v
+
+# The CRDT boundary theorem and the sharpened strictness witness (CRDTBoundary.v).
+all: CRDTBoundary.vo
+
+CRDTBoundary.vo: CRDTBoundary.v Trace.vo CRDT.vo CausalReplay.vo GovernanceConverse.vo CvRDTExact.vo
+	coqc -Q . NC CRDTBoundary.v
