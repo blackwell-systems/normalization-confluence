@@ -7,8 +7,8 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Audited at `main` `94ec0bd` (gate: `coq/verify.sh`, 1198 axiom-free results) and
-gsm `main` `a71a1b0`. Every Coq name cited was read as a statement in `coq/*.v`, not matched by
+It adds no proofs. Audited at `main` `c81f37c` (gate: `coq/verify.sh`, 1370 axiom-free results) and
+gsm `main` `ce02196` (gsm #34 adds the XU check read in section 8). Every Coq name cited was read as a statement in `coq/*.v`, not matched by
 name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
 History. The first version of this audit (at `bb8ea95`, gate 729) checked the earlier headline,
@@ -19,7 +19,9 @@ closed most of those gaps: #47 (`CoordinatedExact.v`), #48 (`RootlessCycles.v`),
 #55 (`AtLeastOnceExact.v`). The second revision (at the 989 gate) listed gaps 1 to 13 below; a second
 wave closed gaps 4, 6 and 7 (#59 `RootSetEvents.v`, #56 `EnabledAfterComp.v`, #58 `CvRDTExact.v`)
 and mechanized the 3-SAT reduction behind the lossy-network hardness result (#57 `LossyHardness.v`).
-The tables below are the current state; the conclusion re-answers the old questions and confirms the
+A third wave settled most of gap 1: the acyclic distributed model is exact (#60
+`DistributedExact.v`), and on monotone cycles the distributed model is exact under reset epochs and
+under `LowR` (#62 `DistributedCycles.v`); gap 1 is restated as the residual. The tables below are the current state; the conclusion re-answers the old questions and confirms the
 wording.
 
 ## How to read the tables
@@ -96,10 +98,20 @@ Three kinds of question are kept apart, because the convergence claim is about t
 
 ## 8. Distributed model with propagation steps
 
+The model of `FederationEvents.v`: a run is a word of local events (a registry applies an event to
+its own state) and propagation steps (a target overwrites its shared part from its sources' current,
+possibly stale, states). Acyclic: `DistributedExact.v` (#60). Monotone cycles: `DistributedCycles.v`
+(#62), where a state is the locals of every node and every shared value, a propagation step repairs
+one target from its sources' current values, `Lfp l` is the FedMachine's least fixed point for the
+locals `l`, and a quiescent state is one no propagation step changes.
+
 | Question | Exact (N and S) | Cheap sufficient, and the link | gsm | Gap |
 |---|---|---|---|---|
-| Acyclic: every interleaving of local events and propagation reaches one state once propagation completes | **None mechanized** | XU plus each registry's own CC: `propagation_flush`, `dist_interleavings_converge`; `xu_implies_c1_c2` | n/a (gsm's `FedMachine` is the synchronous model) | **open** (medium) |
-| Cyclic (monotone or coordinated) | **None; not modeled** | none | n/a | **open** (large; ROADMAP lower value, coq/README "not extended to cycles") |
+| Acyclic: from a valid start `s0`, any two words whose event sequences are federated-trace-equivalent give the same state after the final flush (`DistConv`) | XU at every reachable stale combination (`XUR`: the target's possibly stale shared part against the image of its flushed sources) plus C2 at states reachable from the flushed start: `dist_exact`; equivalently `XUR` plus reachable LocalCC: `dist_exact_local`; `XUR` plus FedMachine convergence from the flushed start: `dist_exact_tc`. Quantified starts: every valid start iff `XUG` and `C2G`: `dist_exact_global`; every consistent start: `dist_exact_consistent`; when every target's sources are roots, every valid start iff static XU and C2: `dist_global_exact_roots` | Static XU plus C2, no LocalCC needed: `dist_xu_c2_converge`; XU plus each registry's own CC: `dist_interleavings_converge` (recovered as `dist_interleavings_converge_recovered`), `propagation_flush`; `xu_implies_c1_c2` | `verifyProjectionMerge` (gsm #34) checks static XU per single-source target and reports it (`FedReport.ProjectionSafe`; opt-in `RequireProjectionSafe`); with `Build`'s C2 it is sound by `dist_xu_c2_converge`, exact for every valid start when the sources are roots (`dist_global_exact_roots`), and can over-reject for deployments that start consistent (`levels_exact_not_xu`). Multi-source targets are reported not certified (gsm sends one edge's image; the model's propagation step is the resolver merge) | The exact condition is strictly weaker than XU (`levels_exact_not_xu`: C1 and C2 hold and XU fails, yet every consistent start converges; from the stale start at the failing level two runs diverge, so the reachability qualifier is needed) and strictly stronger than FedMachine convergence (`dist_implies_fed`; `dist_strictly_stronger_than_fed`: every FedMachine order converges from every consistent start, two propagation timings of the same events diverge). - (closed by #60) |
+| Monotone cycles, repair alone (no events): does every fair propagation schedule from a stale start settle at `Lfp l` | From a sound start (`h0 <= F l h0`) and a fair schedule, the run reaches `Lfp l` iff `h0 <= Lfp l`: `q1_sound_iff` (from a sound start every fair schedule settles at the least fixed point above `h0`: `q1_sound_settles`); every fair schedule from every start settles at `Lfp l` iff `F l` has exactly one fixed point (with a top element and the dual step laws): `q1_unique_iff` | Any start at or below `Lfp l`: `q1_below` (bottom: `q1_from_bot`) | n/a (gsm reports cyclic projection deployments not certified, gsm #34) | Qualifiers: at or above a fixed point other than `Lfp l` no schedule reaches `Lfp l` (`q1_stuck`, a ghost); from an arbitrary stale start the fixed point reached depends on the schedule (`dist_schedule_dependence`), and a fair schedule on a monotone 3-cycle never reaches a quiescent state (`dist_ring_livelock`). - (closed by #62) |
+| Monotone cycles, events, with reset epochs (a barrier resets every shared value to bottom, then propagation to quiescence, no event inside the epoch); compared after a final epoch | Every run agrees with the FedMachine iff the event's local outcome is the same at every reachable stale state as at its flushed form (`XUcR`): `epoch_agree_iff`; all interleavings agree iff `XUcR` and the FedMachine converges from the flushed start: `epoch_conv_iff` (the cyclic form of `dist_exact_tc`) | gsm's per-target C1cyc and C2cyc over a set covering the reachable shared values (the start's values, bottom, the morphism images and what events write: `hs_reach`) give both: `lens_epoch`; an epoch computes the flushed state: `EP_run`, `epoch_flush` | No epoch mode; cyclic projection deployments are reported not certified (gsm #34) | Qualifier: the reset must be a barrier; a staggered reset re-creates the ghost in one propagation step (`dist_cyc_epoch_fix`, which also shows epochs repair the `dist_cyc_ghost` federation from every start). - (closed by #62) |
+| Monotone cycles, events, no resets, every reachable state at or below `Lfp` of its locals (`LowR`); compared at quiescent states | Every reachable quiescent state is the FedMachine state iff `XUcR`: `low_agree_iff`; all quiescent interleavings agree iff `XUcR` and FedMachine convergence from the flushed start: `low_conv_iff` (`LowR` gives `FlushR` and `NoGhostR`: `low_flush`, `low_noghost`) | Per event: inflationary events (locals only rise, no shared value raised) give `EvLow` (`infl_evlow`), and `EvLow` from a start at or below `Lfp` gives `LowR` (`evlow_lowr`); gsm's C1cyc and C2cyc over a covering set plus `LowR`: `lens_quiet` | n/a (as above) | - (closed by #62) |
+| Monotone cycles, events, no resets, general (no `LowR`) | Relative to two reachable hypotheses: `FlushR` (every reachable state can be propagated to quiescence) and `NoGhostR` (every reachable quiescent state holds `Lfp` of its locals). Under `FlushR`: agreement iff `XUcR` and `NoGhostR` (`quiet_agree_iff`); under `FlushR` and `NoGhostR`: convergence iff `XUcR` and FedMachine convergence (`quiet_conv_iff`). `XUcR` tracks the FedMachine through any run (`track`), so a quiescent state differs from it only by sitting at a larger fixed point (`quiet_ghost_only`) | The sufficient directions need no `FlushR`: `quiet_agree_suff`, `quiet_conv_suff`. For `NoGhostR`: a unique fixed point for every locals assignment (`uniq_agree`, `uniq_noghost`), or `EvLow` (above) | n/a (as above) | Counterexample `dist_cyc_ghost`: C1cyc and C2cyc hold, `XUcR` holds from every start, and the FedMachine converges from every normal form (every check gsm runs passes), yet `RaiseA; propagate B; propagate A; ClearA` is quiescent at `((false, false), (true, true))` while the FedMachine and the same events flushed later give `((false, false), (false, false))`, and no schedule leaves the ghost. **open** (gap 1, narrowed): `FlushR` is a hypothesis, not discharged on a general lattice, and `NoGhostR` has only sufficient per-event checks |
 
 ## 9. Monotone cycles: the repair normal form
 
@@ -178,7 +190,7 @@ Convergence:
 
 | # | Regime and question | Kind | Size |
 |---|---|---|---|
-| 1 | Distributed model with explicit propagation: acyclic has only a sufficient condition (`dist_interleavings_converge`); cyclic is not modeled (section 8) | open | medium (acyclic), large (cyclic) |
+| 1 | Distributed model on monotone cycles without reset epochs and without `LowR`: the exact theorems (`quiet_agree_iff`, `quiet_conv_iff`) assume the reachable hypotheses `FlushR` and `NoGhostR`; `NoGhostR` has only sufficient per-event checks (`EvLow`, a unique fixed point), and `FlushR` is not discharged (section 8). Narrowed: the acyclic model is exact (#60, `dist_exact`), and on monotone cycles the model is exact under reset epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`) (#62) | open (narrowed) | medium |
 | 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | open | medium |
 | 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open | medium to large |
 | 4 | Event order under non-invertible root-set coordination (section 12) | **closed**, #59 (`forest_events_exact`) | n/a |
@@ -188,7 +200,7 @@ Convergence:
 | 8 | Least fixed points on complete lattices without ACC (section 9) | design exclusion: classical Knaster-Tarski is outside the axiom-free gate; gsm's finite domains satisfy ACC, so nothing gsm accepts depends on it | n/a |
 | 9 | Infinite streams: eventual agreement (section 5) | design: the naive claim is refuted (`base_thm_convergence_transient_counterexample`) | n/a |
 
-Open convergence gaps after this wave: 1, 2, 3 and 5. Gaps 8 and 9 are design exclusions.
+Open convergence gaps after the third wave (#60, #62): 1 (narrowed to the residual above), 2, 3 and 5. Gaps 8 and 9 are design exclusions.
 
 Optimization and counting (unchanged since the first audit):
 
@@ -218,7 +230,8 @@ Yes, regime by regime:
 | Stream processors | `stream_exact`, `stream_exact_free` | | 9 (infinite streams, design) |
 | Acyclic federations, repair normal form | unconditional in the regime | | |
 | Acyclic federations, event order (guarded; unguarded) | `fed_exact`, `fed_guarded_exact`; `fed_grs_exact` | | |
-| Distributed propagation model | | | 1 |
+| Distributed propagation model, acyclic | `dist_exact`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots` | | |
+| Distributed propagation model, monotone cycles: repair alone; reset epochs; no resets under `LowR` | `q1_sound_iff`, `q1_unique_iff`; `epoch_agree_iff`, `epoch_conv_iff`; `low_agree_iff`, `low_conv_iff` | | 1 (no resets, no `LowR`: exact relative to `FlushR` and `NoGhostR`, `quiet_agree_iff`, `quiet_conv_iff`) |
 | Monotone cycles: normal form, reachability, validity | unconditional; `kleene_reach_exact`; `lfp_valid_iff_reached`, `Ncyc_valid_exact` | | 8 (no ACC, design) |
 | Monotone cycles, event order | `gc_iff` | | |
 | Invertible cycles: existence; root-driven convergence | `section_iff_coboundary`; `prop_minimal_qualified_iff` | | |
@@ -256,12 +269,16 @@ convergence gaps, these closed: at-least-once delivery (#55), ordinal and lexico
 reachability (#50), rootless single invertible cycles (#48), and the non-invertible existence
 criterion without a spanning root (#54). Of the gaps the 989-gate revision added, event order under
 root-set coordination (#59), enabledness a compensation step can disable (#56) and the state-based
-CRDT instance (#58) closed. Items 1, 2, 3 and 5 above remain, so the map is not complete. The
+CRDT instance (#58) closed, and the distributed propagation model became exact on acyclic
+federations (#60) and on monotone cycles under reset epochs or `LowR` (#62). Items 1 (narrowed), 2, 3
+and 5 above remain, so the map is not complete. The
 headline does not claim completeness; it claims that every regime's status is stated.
 
-**Is "exact conditions in every regime" accurate?** No. Items 1, 2, 3 and 5 are regimes with a
-sufficient condition only, or none; item 1 is a regime the development models
-(`FederationEvents.v`), so even "exact in every regime it covers" fails. Items 8 and 9 are design
+**Is "exact conditions in every regime" accurate?** No. Items 2, 3 and 5 are regimes with a
+sufficient condition only, or none, and item 1 is a regime whose exact theorems carry two reachable
+hypotheses (`FlushR`, `NoGhostR`) that no exact per-event check discharges. Item 1 is a regime the
+development models (`DistributedCycles.v`), so even "exact in every regime it covers" still fails,
+though now only for cyclic deployments without resets and without `LowR`. Items 8 and 9 are design
 exclusions. The headline's three-way disjunction (exact, hardness, open) is accurate.
 
 **"A checker for the practical ones."** Accurate, with two qualifications. gsm checks the cheap
@@ -273,7 +290,12 @@ design. Only the single-registry result is oracle-certified; the federation chec
 (`gsm_check_Ncyc_valid`, #50; gsm's comment in `federation_monotone.go` that its condition is "not
 part of the Coq lemmas" can now cite it), and `NotIdempotent` is placed exactly: sound at reachable
 witnesses, complete when exactly-once delivery converges, and able to over-report at unreachable
-states (#55).
+states (#55). New since the 1198 gate: gsm checks static XU for distributed projection merging and
+reports it (`FedReport.ProjectionSafe`, opt-in `RequireProjectionSafe`, gsm #34); with `Build`'s C2
+that check is sound (`dist_xu_c2_converge`) and exact for every valid start when the sources are
+roots (`dist_global_exact_roots`). gsm reports cyclic projection deployments not certified, which
+`dist_cyc_ghost` shows is required without epochs; it has no epoch mode, so `lens_epoch` is not yet a
+gsm check.
 
 ### Wording
 
@@ -284,7 +306,8 @@ The headline stays as adopted in the README, re-confirmed at this gate:
 > checker for the practical ones.**
 
 The line does not say the hardness results are machine-checked, so #57 does not change it; it
-changes the precision paragraph under it (previous section). The first audit proposed narrower lines
+changes the precision paragraph under it (previous section). #60 and #62 do not change it either:
+they move most of gap 1 into the exact column and leave a residual that is still listed. The first audit proposed narrower lines
 that named the exact core; they are superseded because the exact core now covers every delivery
 model of a single registry, the CRDT fragment in both forms, and every cyclic regime except those
 in the list above.
@@ -301,9 +324,9 @@ From the first audit's list (numbering kept):
 | 4 | Monotone cycles: exact validity, gsm's check sound, exact finite reachability | done, #50 |
 | 5 | Rootless invertible cycles | done for single coherently oriented cycles, #48; other graphs open (gap 2) |
 | 6 | At-least-once exact converse, free and causal | done, #55 |
-| 7 | Distributed propagation model, acyclic exact converse | open (gap 1), medium |
+| 7 | Distributed propagation model, acyclic exact converse | done, #60 (`dist_exact`, `dist_exact_global`, `dist_global_exact_roots`) |
 | 8 | Cyclic monotone collapse | open (gap 5), medium to large |
-| 9 | Distributed propagation model on monotone cycles | open (gap 1), large |
+| 9 | Distributed propagation model on monotone cycles | modeled and exact under reset epochs (`epoch_conv_iff`) and under `LowR` (`low_conv_iff`), #62; without resets and without `LowR`, exact relative to `FlushR` and `NoGhostR` (`quiet_agree_iff`, `quiet_conv_iff`); an exact per-event check for `NoGhostR` and a discharge of `FlushR` open (gap 1) |
 | 10 | Non-invertible graphs: exact section criterion; uniqueness and event order under coordination | criterion, counting and uniqueness done, #54; NP-completeness reduction mechanized, #57; event order done, #59; rootless dynamics open (gap 3) |
 | 11 | Complete lattices without ACC | stated as a design exclusion (gap 8) |
 | 12 | Minimum coordination linked to the plan model | open (gap 10), medium |
@@ -341,6 +364,14 @@ Found in the second-wave revision (at the 1198 gate), fixed in the same PR:
   called root-set NP-completeness "cited, not mechanized" after #57.
 - `REGIMES.md`: "for any enabledness (causal, guarded) the exact condition is JC" omitted the
   `enabled_after_comp` qualifier of `jc_exact`; it now points to `jcg_exact` for the general case.
+
+Found in the third revision (at the 1370 gate), fixed in the same PR:
+
+- `coq/README.md`: the `Print Assumptions` sentence and the build instructions still said 1198 after
+  #60 and #62 raised the gate to 1253 and 1370 (the expected tail and the roadmap line were updated by
+  those PRs); the gate paragraph's module list did not name the distributed modules.
+- `REGIMES.md`: "no exact condition is mechanized for that model, and it is not modeled on cycles"
+  was stale after #60 and #62.
 
 Still open:
 
