@@ -56,3 +56,6 @@ DistributedCycles.v
 DistributedCyclesExact.v
 CRDTBoundary.v
 SheafGluing.v
+CoordinationMinimum.v
+CohomologyNerve.v
+LossyMinimum.v
