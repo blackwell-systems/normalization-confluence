@@ -8,6 +8,7 @@
 % Paragraph spacing
 \setlength{\parskip}{0.6\baselineskip plus 2pt minus 1pt}
 \setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2em}
 
 \usepackage{mathtools,amsmath,amssymb,amsthm}
 \usepackage{booktabs}
@@ -35,6 +36,9 @@
 \newcommand{\Hz}{H^0}
 \newcommand{\Ho}{H^1}
 \newcommand{\Res}{\mathrm{Res}}
+% Allow line breaks after underscores in Coq names.
+\let\origunderscore\_
+\renewcommand{\_}{\origunderscore\allowbreak}
 
 \title{The Categorical Structure of Federated Convergence:\\
 Limits, Sheaves, and Minimal Coordination}
@@ -44,36 +48,45 @@ Dayna Blackwell\\
 \small\href{mailto:dayna@blackwell-systems.com}{dayna@blackwell-systems.com}\\
 \small Licensed under CC-BY-4.0.}
 
+\date{Version 2, 4 October 2026\\[0.6ex]
+\small Version 2. See Appendix~\ref{app:errata} (Errata and corrections) for changes from version 1.}
+
 \begin{document}
 \maketitle
 
 \begin{abstract}
 \setlength{\parskip}{0.6\baselineskip plus 2pt minus 1pt}
 Normalization confluence gives coordination-free convergence within a single registry, and its
-federated extension gives convergence across a network of registries connected by morphisms, under
-two decidable regimes: acyclic networks, and monotone repair on cycles~\cite{blackwell2026nc,
-blackwell2026federated}. Those regimes are stated as separate sufficient conditions. This paper
-gives the structure underneath them and, with it, an answer to a sharper question: when must a
-federation coordinate at all, and how little coordination suffices?
+federated extension gives a unique federated repair normal form across a network of registries
+connected by morphisms, in two decidable regimes: acyclic networks, and monotone repair on
+cycles~\cite{blackwell2026nc, blackwell2026federated}. Convergence of event order is a further
+condition: the cross-registry conditions $C1$ and $C2$ on acyclic networks (events firing at
+federally valid states), and the global condition $GC$ on cycles. This paper gives the structure
+underneath the repair layer and, with it, an answer to a sharper question: when must a federation
+coordinate at all, and how little coordination suffices?
 
-We show that a federation's convergent states are a limit and its federated normalizer is the
-retraction onto that limit, so compositionality (a verified sub-federation collapses to an effective
-registry) is a corollary of one structural fact rather than a per-topology argument. We then show
-that convergence certificates form a sheaf whose gluing condition is exactly the source-determinacy
-and validity-preservation hypotheses the federation already certifies, so the obstruction to a global
-convergent state is cohomological: $\Hz$ is the convergent states and $\Ho$ is the holonomy of the
-morphism cycles. The two convergence regimes are then one picture: an acyclic network has no cycles
-and $\Ho$ vanishes, while a monotone cycle collapses the obstruction to a least fixed point. The
-obstruction is computable as a loop composite over the shared subspace, implemented in the reference
-engine as a cycle diagnostic that names an obstructing cycle and exhibits its orbit. Finally we show
-that when the obstruction is nonzero, coordinating a cycle basis of the morphism network suffices to
-converge, localizing the global coordination verdict of CALM and invariant confluence into a
-mixed-consistency partition. The exact minimum coordination is the group feedback edge set number of
-the labeled nerve: NP-hard even in the abelian case, but fixed-parameter tractable in the size of the
-coordinated core and polynomial on planar or edge-disjoint nerves. The structural core (the limit,
-the retraction, compositionality, and order-independence) and the cohomological layer (the completion
-on arbitrary graphs, the cycle-basis criterion, $\Ho$ as a quotient with its rank, and the $S_3$
-separation) are mechanized axiom-free in Coq/Rocq.
+We show that a federation's consistent states are a finite limit and, under an explicit
+shared-component stability hypothesis, its federated normalizer is the idempotent retraction onto
+that limit, independent of the topological order, so compositionality (a verified sub-federation
+collapses to an effective registry) follows from one structural fact rather than a per-topology
+argument. At the paper level, convergence certificates glue like a sheaf whose gluing condition is
+supplied by the source-determinacy and validity-preservation hypotheses the federation already
+certifies, and the obstruction to a global consistent state is cohomological in the invertible
+fragment: $\Hz$ is the consistent states and $\Ho$ is the holonomy of the morphism cycles. Acyclicity
+and monotone repair are two sufficient routes to a non-empty $\Hz$, though not the only ones. Around a
+cycle, a section exists iff the loop composite over the shared subspace has a fixed point; the
+reference engine's cycle diagnostic tests one seed, which proves existence when it settles and, for a
+free (regular) action, refutes it when it orbits. Finally, in the invertible fragment with the regular
+action and a designated authority root, coordinating exactly the unbalanced non-tree edges of a
+spanning tree is sound, with a unique normal form for each authority value, and no smaller subset of
+those edges suffices, localizing the global coordination criterion of CALM and invariant confluence
+into a mixed-consistency partition. The exact minimum coordination is the group feedback edge set
+number of the labeled nerve: NP-hard even in the abelian case, fixed-parameter tractable in the size
+of the coordinated core, and never below the minimum for any homomorphic image of the transition
+group. The structural and cohomological results, the mathematics of the diagnostic and the
+coordination plan are mechanized axiom-free in Coq/Rocq, together with a counterexample for every
+statement of version~1 that this version corrects; the sheaf reading and the cited complexity
+results are not mechanized.
 \end{abstract}
 
 \medskip\noindent\textbf{Keywords:} Federated Convergence, Normalization Confluence, Sheaf
@@ -90,15 +103,19 @@ Normalization confluence certifies that a single registry converges: under well-
 and compensation commutativity, every processor that consumes the same events reaches the same valid
 state regardless of order~\cite{blackwell2026nc}. Its federated extension certifies that a network of
 such registries, connected by directed morphisms that carry one registry's authority over another's
-shared state, converges as a whole, in two regimes: any acyclic network whose morphisms preserve
-validity, and any network (cyclic included) whose repair is monotone~\cite{blackwell2026federated}.
-Both regimes are established by finite enumeration and are what the reference engine checks at build
-time.
+shared state, has a unique federated repair normal form in two regimes: any acyclic network whose
+morphisms preserve validity, and any network (cyclic included) whose repair is
+monotone~\cite{blackwell2026federated}. Both regimes are established by finite enumeration and are
+what the reference engine checks at build time. That every processor consuming the same events
+reaches that normal form regardless of event order needs more: on acyclic networks, with events
+firing only at federally valid states, the cross-registry conditions $C1$ and $C2$, which are exact
+there; on cycles, the global condition $GC$ (\Cref{sec:background}). The structure developed here
+concerns the repair layer: the normal forms, their limit, and the obstruction to their existence.
 
 Those two regimes are presented as independent sufficient conditions, proved by separate arguments.
 That leaves a structural question unanswered and a practical one unasked. The structural question:
 is there one reason both regimes work, rather than two? The practical question: when a federation
-falls into neither regime, the engine rejects it, but rejection is a blunt verdict. A designer wants
+falls into neither regime, the engine rejects it, but rejection is a blunt answer. A designer wants
 to know not merely that the network cannot converge coordination-free, but \emph{where} the conflict
 is and \emph{how little} coordination would repair it. This paper answers both, and the answers turn
 out to be the same object viewed twice.
@@ -107,7 +124,7 @@ out to be the same object viewed twice.
 A federation poses a local-to-global problem. Each registry is convergent on its own; each morphism,
 in isolation, is a clean rule for propagating authority. The question is whether, once every morphism
 constraint holds at once, there is a single global assignment the whole network agrees on, and
-whether it is reached regardless of event order. This is the shape of a limit, and of a sheaf gluing
+whether the network's repair reaches it. This is the shape of a limit, and of a sheaf gluing
 problem, and the obstruction to it is the shape of a cohomology class. Making that precise is what
 unifies the regimes: an acyclic network has no cycles to obstruct gluing, and a monotone cycle has an
 order that forces gluing even when a cycle is present. The same $\Ho$ that measures the obstruction
@@ -121,8 +138,9 @@ permutation, a bijective unit or schema map). There the transitions are group el
 genuine \v{C}ech cohomology; a cycle basis is a sufficient coordinated core, though computing the
 minimum one is NP-hard even here (\Cref{sec:minimal}). When morphisms collapse information (a clamp, a reset, a most-restrictive-wins merge,
 the shape most compensation takes), the transitions are monoid elements rather than group elements,
-classical $\Ho$ does not apply, and the correct statement is the operational one: a global convergent
-state exists iff the loop composite of each cycle has a reachable fixed point. We therefore lead with
+classical $\Ho$ does not apply, and the correct statement is the operational one: around a cycle, a
+global consistent state exists iff the cycle's loop composite has a fixed point (equivalently, some
+seed reaches one), and on a general graph the rooted form of \Cref{sec:minimal} applies. We therefore lead with
 the general, operational results (the limit, the retraction, compositionality, and the loop-composite
 diagnostic), which hold for arbitrary morphisms and are what the engine implements, and present the
 cohomology as the sharp closed form on the invertible fragment. We state which real federations
@@ -133,47 +151,56 @@ is clean.''
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Federation as a limit, and compositionality for free
   (Sections~\ref{sec:limit}--\ref{sec:compose}).} A registry's valid set is the equalizer of its
-  idempotent normalizer, a federation's convergent set is the equalizer of its shared-projection and
-  resolver maps, and the federated normalizer is the idempotent retraction onto that limit. Because
-  the normal forms are a limit, a convergent sub-federation collapses to an effective registry and
-  the combined normalizer factors through it; compositionality is a corollary of one structural fact,
-  not a per-topology theorem.
-\item \textbf{Convergence certificates form a sheaf, and $R1/R2$ is its gluing axiom
-  (Section~\ref{sec:sheaf}).} Local convergence certificates glue to a global one exactly when the
-  subsystems agree as normalizers on their overlap. The two regimes that force agreement,
+  idempotent normalizer, a federation's consistent set is the equalizer of its shared-projection and
+  resolver maps on the product of the valid sets, and, under shared-component stability (local
+  compensation never changes the shared component a morphism wrote), the federated normalizer is the
+  idempotent retraction onto that limit for every topological order. Because the normal forms are a
+  limit, a convergent sub-federation collapses to an effective registry and the combined normalizer
+  factors through it; compositionality is a corollary of one structural fact, not a per-topology
+  theorem.
+\item \textbf{Convergence certificates glue like a sheaf, and $R1/R2$ supply the gluing condition
+  (Section~\ref{sec:sheaf}, at the paper level).} Local repair certificates glue to a global one when
+  the subsystems agree as normalizers on their overlap. The two regimes that force agreement,
   single-writer authority and monotone overlap, are the federation's source-determinacy ($R1$) and
-  validity-preservation ($R2$) hypotheses. The existing federation design is validated as the sheaf
-  gluing check, not extended by a new mechanism.
-\item \textbf{The obstruction is cohomological, and it unifies the two regimes
-  (Section~\ref{sec:completion}).} $\Hz$ is the convergent states; $\Ho$ (in the invertible fragment)
-  is the holonomy of the morphism cycles, generated by a cycle basis. $\Ho$ vanishes in exactly two
-  ways, and they are the two convergence regimes: an acyclic network (no cycles) and a monotone cycle
-  (a least fixed point). The dichotomy the base work states as two conditions is one invariant.
+  validity-preservation ($R2$) hypotheses. The existing federation design is read as the gluing
+  check, not extended by a new mechanism.
+\item \textbf{The obstruction is cohomological, and the two regimes are two routes past it
+  (Section~\ref{sec:completion}).} $\Hz$ is the consistent states; $\Ho$ (in the invertible fragment)
+  is the holonomy of the morphism cycles, generated by a cycle basis. An acyclic network (no cycles)
+  and a monotone cycle (a least fixed point) are two sufficient ways for the obstruction to vanish,
+  and they are the two regimes of the base work; they are not the only ways.
 \item \textbf{A computable obstruction diagnostic (Section~\ref{sec:diagnostic}).} For a general
-  (possibly non-invertible) cycle, a global convergent state exists iff the cycle's loop composite has
-  a reachable fixed point, and the witness for its absence is the loop composite itself, computable
-  over the shared subspace rather than the product. This is implemented in the reference engine as a
-  cycle diagnostic that names the offending cycle and reports whether its repair settles or orbits.
-\item \textbf{Minimal coordination (Section~\ref{sec:minimal}).} When the obstruction is nonzero,
-  coordinating a cycle basis of the morphism network trivializes it, yielding a convergent
-  implementation that is strongly consistent only on those loops and coordination-free everywhere
-  else. This refines the global coordination verdict of
+  (possibly non-invertible) cycle, a global consistent state exists iff the cycle's loop composite has
+  a fixed point, iff some seed reaches one under iteration; restriction to one vertex identifies the
+  sections with the fixed points, so the test runs over the shared subspace rather than the product.
+  The reference engine implements it as a cycle diagnostic that names the cycle and reports whether
+  one seed settles or orbits. A settling seed proves a section exists; an orbiting seed is definitive
+  only when the action is free (the regular action of the invertible fragment).
+\item \textbf{Minimal coordination (Section~\ref{sec:minimal}).} In the invertible fragment with the
+  regular action and a designated authority root, $\Ho = 0$ is exactly coordination-free convergence
+  of the repair (a unique consistent state for every authority value, reached by every propagation
+  order). When $\Ho \neq 0$, coordinating the unbalanced non-tree edges of a spanning tree from the
+  root is sound, and relative to that tree it is exactly the set that must be coordinated. This
+  refines the global coordination criterion of
   CALM~\cite{hellerstein2010declarative,ameloot2013relational} and invariant
   confluence~\cite{bailis2014coordination} into a localized, mixed-consistency partition, and it
   upgrades the engine's blunt rejection of a nonconvergent cycle into an actionable ``coordinate
-  these loops.'' We identify the exact minimum with the group feedback edge set number of the
-  labeled nerve, resolving its complexity: NP-hard even in the abelian case (it contains edge
-  bipartization), fixed-parameter tractable in the size of the coordinated core, and polynomial on
-  planar or edge-disjoint nerves; and we show the minimum is never below the abelian count and can be
-  strictly above it, so abelianized sizing is unsound.
-\item \textbf{Mechanization.} The structural core (Contributions~1 and~2: the limit, the retraction
-  for arbitrary acyclic federations, and compositionality) is mechanized axiom-free in Coq/Rocq,
-  extending the machine-checked development of the base results, together with full
-  order-independence over arbitrary acyclic federations. So is the cohomological layer: the
-  completion theorem on an arbitrary group-labeled graph, the cycle-basis criterion, the sufficiency
-  of coordinating a spanning tree's complement, $\Ho$ as tuples of fundamental holonomies modulo
-  simultaneous conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation including the
-  graph-level counts $\min_G = 2 > 1 = \min_{G^{\mathrm{ab}}}$.
+  these edges.'' We identify the exact minimum with the group feedback edge set number of the
+  labeled nerve, citing its complexity: NP-hard even in the abelian case (it contains edge
+  bipartization) and fixed-parameter tractable in the size of the coordinated core. We prove that the
+  minimum is never below the minimum for any homomorphic image of the transition group, in
+  particular the abelian count, that it can be strictly above the abelian count, so abelianized sizing
+  is unsound, and that pairwise edge-disjoint obstructing cycles need one coordinated edge each. Off the
+  invertible fragment a cycle basis no longer suffices, and the correct form is rooted.
+\item \textbf{Mechanization.} Everything above except the sheaf reading and the cited complexity
+  results is mechanized axiom-free in Coq/Rocq, extending the machine-checked development of the
+  base results: the limit, the retraction on the paper's $L_F$ with full order-independence over
+  arbitrary acyclic federations, compositionality as the fold-append law; the completion theorem on an arbitrary
+  group-labeled graph, the cycle-basis criterion, $\Ho$ as tuples of fundamental holonomies modulo
+  simultaneous conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation; the general-map
+  obstruction and the diagnostic's bounds; the coordination plan with its event-order corollary; and
+  a counterexample for each statement of version~1 that this version corrects
+  (Appendix~\ref{app:errata}).
 \end{enumerate}
 
 %========================================
@@ -196,23 +223,25 @@ the holonomy of the morphism cycles. To our knowledge no prior sheaf-cohomology 
 eventual-consistency or replicated-convergence obstruction, and none yields a coordination-minimality
 result.
 
-\paragraph{Coordination avoidance: a global verdict we localize.}
+\paragraph{Coordination avoidance: a global criterion we localize.}
 The CALM theorem states that a problem has a coordination-free, consistent implementation iff it is
 monotone~\cite{hellerstein2010declarative, ameloot2013relational}, and invariant
 confluence~\cite{bailis2014coordination} gives a related global avoidability criterion; recent work
 sharpens the monotonicity boundary at the semantic level~\cite{completecalm2026,
 coordfree2025}. These answer \emph{whether} coordination can be avoided, as a global property of the
 whole problem. Our minimal-coordination result answers \emph{where} and \emph{how little}: it locates
-the irreducible coordination in a cycle basis of the morphism network and shows the rest can remain
-coordination-free, a localized mixed-consistency partition rather than a single yes-or-no. In the
-information-preserving fragment the core is provably minimal. We are not aware of prior work that
-localizes the coordination requirement to a cycle basis or bounds it by a Betti number.
+the irreducible coordination in the unbalanced edges of a cycle basis of the morphism network and
+shows the rest can remain coordination-free, a localized mixed-consistency partition rather than a
+single yes-or-no. In the information-preserving fragment, relative to a rooted spanning tree, the
+coordinated set is provably exact: no unbalanced edge can be kept. We are not aware of prior work
+that localizes the coordination requirement to a cycle basis or bounds it by a Betti number.
 
 \paragraph{Convergent replicated data and its algebra.}
 Conflict-free replicated data types achieve convergence by restricting to operations that never need
-repair; a state-based CRDT is the join-semilattice special case~\cite{shapiro2011crdt}, and the
-monotone regime here coincides with it (this correspondence is machine-checked in the base
-development). The well-founded-compensation regime is strictly broader, since it admits operations
+repair; a state-based CRDT is the join-semilattice special case~\cite{shapiro2011crdt}, and every
+state-based CRDT is an instance of the monotone regime here (merge order independence is
+machine-checked in the base development as \texttt{cvrdt\_SEC}; only this direction is claimed). The
+well-founded-compensation regime is strictly broader, since it admits operations
 that violate invariants and are repaired. The correspondence also holds against the literature's
 op-based definition, where only concurrent operations commute under causal delivery: the base
 development proves convergence when governed steps commute on concurrent pairs only
@@ -250,9 +279,12 @@ conditions make this well-behaved: \emph{well-founded compensation} (WFC), a com
 that strictly decreases on every invalid state, so compensation terminates and $\rho_R$ is total; and
 \emph{compensation commutativity} (CC), the local-confluence condition on event and repair steps.
 Under WFC and CC, Newman's Lemma~\cite{newman1942} gives unique normal forms: every processor that
-consumes the same events reaches the same valid state regardless of order. WFC also makes $\rho_R$
-idempotent (a normal form is a fixed point) and its valid set non-empty (compensation reaches a valid
-state from any state), the two facts \Cref{sec:limit} uses.
+consumes the same events reaches the same valid state regardless of order. WFC alone also makes the
+iterated-compensation map $\rho_R$ idempotent (a normal form is a fixed point) and sends every state to
+a valid one, so the valid set is non-empty whenever the state space is (the empty state space
+satisfies WFC vacuously and has no valid state). These are the two facts \Cref{sec:limit} uses;
+mechanized as \texttt{cat\_bg\_rho\_idempotent}, \texttt{cat\_bg\_valid\_from\_any\_state} and
+\texttt{cat\_bg\_lemma\_zero}, with \texttt{cat\_bg\_nonempty\_needs\_a\_state} for the qualifier.
 
 \paragraph{Federation.} Registries are connected by directed \emph{morphisms}. A morphism
 $\phi : A \to B$ makes $A$ authoritative over a designated \emph{shared} component of $B$: given
@@ -263,11 +295,40 @@ a symmetric constraint would introduce. A single-source morphism must preserve v
 overwrite ($M1$): overwriting a valid target's shared component with the morphism image of a valid
 source keeps the target valid. A target with several sources carries a \emph{resolver} that merges
 them, subject to source-determinacy ($R1$: it reads only the sources) and validity preservation
-($R2$: the single-source $M1$ generalized). The base work proves federated convergence in two
-regimes, each by finite enumeration: any acyclic network whose morphisms satisfy $M1/R1/R2$, and any
-network (cycles included) whose repair is monotone (least fixed point by Knaster-Tarski~\cite{tarski1955},
-reached by chaotic iteration~\cite{cousot1977}). Those two regimes are what this paper explains as one
-structure.
+($R2$: the single-source $M1$ generalized). $M1$ and $R2$ are validity conditions, and they are all
+this paper means by those names. The retraction theorem of \Cref{sec:limit} needs a different
+condition on each target $B$, which we name separately: \emph{shared-component stability} ($SC$),
+\[ \mathrm{get}_B\big(\rho_B(\mathrm{ovr}_B(v, r))\big) = r \quad \text{for every } v \text{ and every shared value } r, \]
+where $\mathrm{get}_B$ reads $B$'s shared component and $\mathrm{ovr}_B(v, r)$ overwrites it with $r$:
+$B$'s local compensation never changes the shared component a morphism or resolver wrote. $M1/R2$ is
+neither needed nor sufficient for that theorem (\Cref{sec:limit}). The base work establishes a unique
+federated repair normal form in two regimes, each by finite enumeration: any acyclic network whose
+morphisms satisfy $M1/R1/R2$, and any network (cycles included) whose repair is monotone (least fixed
+point by Knaster-Tarski~\cite{tarski1955}, reached by chaotic iteration~\cite{cousot1977} when the
+lattice satisfies the ascending chain condition, and federally valid when every component is valid
+at the bottom shared values). Those two regimes are what this paper explains as one structure.
+
+\paragraph{Repair confluence and event confluence.} The federated results come in two layers, and
+this paper is about the first. The \emph{repair} layer asks whether the federated normalizer has a
+unique result: a unique federated normal form of a given state. The \emph{event} layer asks whether
+processors that consume the same events in different orders, repairing as they go, reach the same
+state. Repair confluence does not give event confluence: an event of a target can read a shared
+variable that a morphism later overwrites, and the regimes above alone admit two-registry trees and
+monotone two-cycles whose event orders diverge~\cite{blackwell2026federated}. In the companion
+federation paper's model, events fire only at federally valid states (the guarded model), and on an
+acyclic network event confluence holds iff the cross-registry conditions $C1$ (an event's repaired
+outcome does not depend on which consistent source state it ran against) and $C2$ (two events of one
+registry commute after repair against a fixed source) hold at the reachable witnesses
+(\texttt{fed\_guarded\_exact}, \texttt{fed\_thm\_fed\_convergence\_guarded},
+\texttt{fed\_thm\_fed\_convergence\_exact}, \texttt{fed\_exact\_full}). If events may fire at
+federally invalid states, $C1$ and $C2$ are not enough (\texttt{fed\_grs\_c1\_c2\_insufficient}) and
+the uniform condition $XU$ is sufficient (\texttt{fed\_thm\_fed\_convergence\_corrected}). On a cycle,
+event confluence holds iff the global condition $GC$ holds: independent events commute after full
+renormalization at every reachable state (\texttt{cyc\_events\_converge\_iff},
+\texttt{net\_events\_converge\_iff}); on monotone cycles per-edge $C1$ and $C2$ checks suffice for
+$GC$ (\texttt{cyc\_check\_gc}). The limits, retractions and obstructions below describe the normal
+forms; when they are said to ``converge'' this means the repair layer, and event-order convergence
+always carries the event-layer condition of its regime.
 
 %========================================
 \section{Normal Forms Are a Limit}
@@ -276,7 +337,7 @@ structure.
 We work at the semantic level. A registry $R$ has a finite state space $D_R$ and a \emph{normalizer}
 $\rho_R : D_R \to D_R$, the iterated-compensation map, which is total (termination, from well-founded
 compensation) and idempotent ($\rho_R \circ \rho_R = \rho_R$: a normal form is a fixed point, from
-confluence plus termination). Write $\Phi_R \defeq \mathrm{im}(\rho_R)$ for the valid set, the normal
+WFC, \Cref{sec:background}). Write $\Phi_R \defeq \mathrm{im}(\rho_R)$ for the valid set, the normal
 forms.
 
 Everything in this section is elementary in $\mathbf{Set}$, and the load-bearing facts are mechanized
@@ -301,8 +362,16 @@ $\mathrm{id}$ and $\rho_R$, a limit. Mechanized as \texttt{image\_iff\_fixed} an
 \end{proof}
 
 Read as a retraction onto $\Phi_R$ (it fixes $\Phi_R$ and lands in it), $\rho_R$ is an idempotent
-monad on $\mathbf{Set}$ whose algebras are the normal forms, and a closure operator on the ordered
-domains of the cyclic regime. We need only the equalizer.
+monad on $\mathbf{Set}$ whose algebras are the normal forms. On the ordered domains of the cyclic
+regime it is a closure operator only when it is also monotone and extensive, which compensation need
+not be: a compensation that sends an invalid bottom value above a valid one breaks monotonicity, and
+so does a sub-federation's normalizer that starts with such component normalizers
+(\texttt{fed\_rem\_convexity\_refuted}; monotone component normalizers and a resolver operator
+monotone in both arguments restore it under the ascending chain condition,
+\texttt{fed\_rem\_convexity\_corrected}). We need only the equalizer.
+Mechanized as \texttt{image\_iff\_fixed}, \texttt{fixed\_is\_equalizer},
+\texttt{retract\_into\_fixed} and \texttt{retract\_fixes\_fixed}; with idempotence discharged from
+WFC for the constructed $\rho^*$, \texttt{cat\_bg\_lemma\_zero}.
 
 \subsection{A federation is a finite limit}
 
@@ -325,8 +394,14 @@ equalizer of a product of these, $L_F$ is a finite limit in $\mathbf{Set}$.
 \begin{proof}
 A tuple lies in $L_F$ iff every target's shared component equals its resolver value, that is, iff $g$
 and $h$ agree on it componentwise, that is, iff $g = h$ there. Componentwise agreement over the finite
-target set is equality of the two tuple-valued maps, so $L_F$ is their equalizer. Mechanized as
-\texttt{consistent\_iff\_equalizer}, with the product over targets modeled as a list so the
+target set is equality of the two tuple-valued maps, so $L_F$ is their equalizer on the product of
+the valid sets. That product is itself the equalizer of the identity and the product normalizer
+(factorwise \Cref{lem:zero}), so $L_F$ is a single equalizer of two maps into a finite product, a
+finite limit. Mechanized on one concrete federation model (registries indexed by $\mathbb{N}$, with
+each component's normal-form conjunct included) as \texttt{cat\_prop\_one} ($L_F = \mathrm{eq}(g,
+h)$ on $\prod_i \Phi_{R_i}$), \texttt{cat\_prop\_one\_product}, \texttt{cat\_prop\_one\_limit} and
+\texttt{cat\_LF\_split} ($L_F$ is the normal-form conjunct together with the target equations of
+\texttt{consistent\_iff\_equalizer}), with the product over targets modeled as a list so the
 characterization needs no functional extensionality.
 \end{proof}
 
@@ -336,26 +411,46 @@ Fix a topological order (sources before targets). The federated normalizer $\rho
 registries in that order: for each, overwrite its shared component with the resolver applied to the
 already-finalized sources, then apply the local normalizer. We model this as a left-to-right fold
 over the ordered components, writing $\mathrm{step}$ for the per-position operation (read finalized
-prefix, overwrite shared, normalize). The one hypothesis it needs is that $\mathrm{step}$ is
-idempotent given a fixed finalized prefix, which is exactly $M1/R2$ (the local normalizer fixes the
-overwritten shared component) together with local idempotence.
+prefix, overwrite shared, normalize). The hypothesis it needs is that $\mathrm{step}$ is idempotent
+given a fixed finalized prefix. That follows from local idempotence, the lens law, and
+shared-component stability ($SC$, \Cref{sec:background}), not from validity preservation: $M1/R2$ as
+defined in \Cref{sec:background} is neither needed nor sufficient.
 
 \begin{theorem}[Theorem 1: federation retraction, acyclic]
 \label{thm:one}
-$\rho_F$ is an idempotent retraction onto $L_F$: $\mathrm{im}(\rho_F) = \mathrm{Fix}(\rho_F) = L_F$.
-Equivalently, the federated normal forms are exactly the finite limit of \Cref{prop:one} and $\rho_F$
-is the retraction onto it. Moreover $\rho_F$ is independent of the chosen topological order.
+Let the network be acyclic, let each local normalizer $\rho_i$ be idempotent, and for every target
+$B$, every $v$ and every shared value $r$ let
+\[ \mathrm{ovr}_B(v, \mathrm{get}_B(v)) = v \quad\text{and}\quad
+   \mathrm{get}_B\big(\rho_B(\mathrm{ovr}_B(v, r))\big) = r \ \ (SC). \]
+Then for every topological order, $\rho_F$ lands in $L_F$ and fixes $L_F$, so $\rho_F$ is an
+idempotent retraction onto $L_F$: $\mathrm{im}(\rho_F) = \mathrm{Fix}(\rho_F) = L_F$. Equivalently,
+the federated normal forms are exactly the finite limit of \Cref{prop:one} and $\rho_F$ is the
+retraction onto it. Moreover any two topological orders of the same registries give the same
+$\rho_F$; order independence needs only acyclicity and that each step reads only its sources.
 \end{theorem}
+
+With $M1$ in place of $SC$ the theorem is false: \texttt{cat\_thm\_one\_m1\_counterexample} is a
+two-registry federation with Boolean (shared, local) values in which overwriting a valid state keeps
+it valid, $\rho_1$ is idempotent and the lens law holds, but registry~1 repairs an invalid local part
+by flipping the shared bit, undoing the morphism's write; $\rho_F$ then misses $L_F$ and is not
+idempotent. Theorem~1 is a statement about the repair layer: it says nothing about the order of
+events, which needs $C1$ and $C2$ (\Cref{sec:background}).
 \begin{proof}[Proof sketch]
 Two facts suffice and yield the retraction by a general argument: any operator that is sound and
 complete for a set $L$ is the idempotent retraction onto $L$, with image and fixed set $L$
-(mechanized as \texttt{RetractionOntoConsistent}). \emph{Soundness} (Lemma A): $\rho_F(s) \in L_F$,
-because each finalized position is $\mathrm{step}$ of its finalized prefix, which
-$\mathrm{step}$-idempotence leaves fixed (\texttt{rhoFold\_sound}). \emph{Completeness} (Lemma B): a
+(mechanized as \texttt{rhoL\_idempotent}, \texttt{rhoL\_image\_iff\_L}, \texttt{rhoL\_L\_iff\_fixed}).
+\emph{Soundness} (Lemma A): $\rho_F(s) \in L_F$, because each finalized position is $\mathrm{step}$ of
+its finalized prefix, which $\mathrm{step}$-idempotence leaves fixed; $\mathrm{step}$-idempotence is
+where $SC$ and the lens law enter (\texttt{rhoFold\_sound}). \emph{Completeness} (Lemma B): a
 consistent state is already fixed, since each position's step is a no-op on it; this uses only the
-definition of $L_F$, not $M1/R2$ (\texttt{rhoFold\_complete}). Hence $\rho_F$ is the idempotent
-retraction onto $L_F$ (\texttt{rhoFold\_retraction}, \texttt{rhoFold\_image\_iff\_consistent}), for
-arbitrary acyclic federations, not a fixed small instance.
+definition of $L_F$ (\texttt{rhoFold\_complete}). Hence $\rho_F$ is the idempotent retraction onto the
+consistent set (\texttt{rhoFold\_retraction}, \texttt{rhoFold\_image\_iff\_consistent}), for
+arbitrary acyclic federations, not a fixed small instance. The positional fold and the paper's $L_F$
+are bridged on the federation model of \Cref{prop:one}: the fold over a topological order computes the
+order-based normalizer (\texttt{rhoFold\_run}), its intrinsic consistent set is exactly $L_F$ under
+the hypotheses of the theorem (\texttt{consistentList\_iff\_LF}), and the theorem as stated is
+\texttt{cat\_thm\_one\_sound}, \texttt{cat\_thm\_one\_complete}, \texttt{cat\_thm\_one\_idempotent},
+\texttt{cat\_thm\_one\_image}, \texttt{cat\_thm\_one\_fixed} and \texttt{cat\_thm\_one\_fold\_image}.
 
 Order-independence reduces to the commutation of two incomparable registries: their reads and writes
 are disjoint, so processing them in either order gives the same result (\texttt{updates\_commute}).
@@ -363,7 +458,9 @@ Lifting this to all topological orders classically uses the connectivity of a fi
 extensions under adjacent transpositions of incomparable elements. The mechanization avoids that fact:
 it proves order-independence for arbitrary acyclic federations directly, by bubbling the first
 registry of one order to the front of the other, every registry it passes being independent of it
-(\texttt{order\_independent}, module \texttt{FederationOrder.v}).
+(\texttt{order\_independent}, module \texttt{FederationOrder.v}); on the model of the theorem this is
+\texttt{cat\_thm\_one\_order\_independent}, and the fold inherits it
+(\texttt{rhoFold\_order\_independent}, \texttt{rhoFold\_order\_perm}).
 \end{proof}
 
 %========================================
@@ -380,14 +477,17 @@ then runs $K$ over the finalized $J$-block.
 \begin{theorem}[Theorem 2: compositionality]
 \label{thm:two}
 The flat and staged normalizers agree: normalizing $J \cup K$ in one pass equals normalizing $J$,
-then normalizing $K$ over the finalized result. Consequently a verified sub-federation collapses to
-an effective registry (its valid set $L_J$), and the combined normalizer factors through it.
+then normalizing $K$ over the finalized result. Consequently, under the hypotheses of
+\Cref{thm:one}, a verified sub-federation collapses to an effective registry (its valid set $L_J$),
+and the combined normalizer factors through it.
 \end{theorem}
 \begin{proof}[Proof sketch]
 At the operator level this is the fold-append law: folding $J$ and then continuing with $K$ from the
 accumulated result equals folding the concatenation, because the accumulator after $J$ is exactly
 $\rho_J$'s output and each $K$-step reads only its own finalized sources. Mechanized as
-\texttt{rhoFold\_compositional}, via \texttt{rhoF\_from\_app}, axiom-free.
+\texttt{rhoFold\_compositional}, via \texttt{rhoF\_from\_app}, axiom-free. The reading of the
+$J$-block as one effective registry is the paper-level consequence of combining this law with
+\Cref{thm:one} for $J$; it is not a separate mechanized statement.
 \end{proof}
 
 This is what lets verification scale: a subsystem is checked once, in isolation, and reused as a
@@ -409,7 +509,7 @@ obstruction of \Cref{sec:completion}.
 
 \paragraph{The presheaf.} Over a system's variables, take a region to be a variable subset $U$, the
 subsystem on $U$ to be the rules whose footprint lies in $U$, and the section $F(U)$ to be that
-subsystem's normalizer $\rho_U$ together with its convergence verdict. Restriction $F(U) \to F(U')$
+subsystem's normalizer $\rho_U$ together with its convergence status. Restriction $F(U) \to F(U')$
 for $U' \subseteq U$ restricts the normalizer. The sheaf question is whether local certificates that
 agree on overlaps glue to a global one, checkable from the overlap alone.
 
@@ -427,9 +527,13 @@ first) or $2$ (running $B$ first): order-dependent, non-confluent.
 disagree as \emph{normalizers} on the shared state ($A : 1 \mapsto 0$, $B : 1 \mapsto 2$). So the
 correct sense of ``agree on the overlap'' is that the two certificates restrict to the \emph{same
 normal-form map} on the shared variables. Then the shared variable has one unambiguous normal form,
-the union is confluent, and the sections glue: the global normalizer runs each private part plus the
-agreed map on the overlap. This is checkable on the overlap alone, never on the joint product.
-Convergence certificates therefore form a sheaf on the site whose overlaps satisfy this agreement.
+the union's repair is confluent, and the sections glue: the global normalizer runs each private
+part plus the agreed map on the overlap. This is checkable on the overlap alone, never on the joint
+product. In this sense convergence certificates behave as a sheaf on covers whose overlaps satisfy
+this agreement; we state this at the paper level and do not construct the site or the presheaf
+formally. The certificates are repair certificates: gluing them yields a unique normal form, and
+event-order convergence of the glued system still needs the event-layer condition of
+\Cref{sec:background}.
 
 \paragraph{Two regimes force agreement, and they are the federation's.} The overlap agreement holds
 in two ways:
@@ -439,7 +543,13 @@ in two ways:
   authority / $M1$ discipline.
 \item \emph{Monotone overlap}: both write, but monotonically. The combined repair is a monotone
   operator with a unique least fixed point (Knaster-Tarski~\cite{tarski1955}), so the normalizers
-  agree on the glued result. This is the monotone-cycles regime.
+  agree on the glued result. This is the monotone-cycles regime. The least fixed point is reached by
+  finite iteration under the ascending chain condition, and it is valid when every component is
+  valid at the bottom shared values (\texttt{net\_lfp\_valid}); without that, the least fixed point
+  of a valid monotone 2-cycle can be invalid (\texttt{fed\_thm\_monotone\_cycles\_lfp\_invalid}).
+  Agreement of the normalizers is repair confluence; event orders on the cycle converge iff $GC$
+  holds (\texttt{net\_events\_converge\_iff}), and the monotone hypotheses alone do not give it
+  (\texttt{fed\_thm\_monotone\_cycles\_events\_refuted}).
 \end{itemize}
 
 \begin{proposition}[$R1 + R2$ is the gluing axiom]
@@ -447,14 +557,16 @@ in two ways:
 In a federation, distinct components do not literally share a writable variable; a shared writable
 variable is a multi-source target whose resolver merges its sources. The resolver hypotheses are
 exactly the sheaf gluing condition: source-determinacy ($R1$) makes the merged normal form
-single-valued (confluence on the overlap), and validity-preservation ($R2$) makes it land in the
-agreed valid set. Hence the federation's resolver verification \emph{is} the sheaf gluing check.
+single-valued (a unique repair value on the overlap), and validity-preservation ($R2$) makes it land
+in the agreed valid set. Hence the federation's resolver verification \emph{is} the sheaf gluing
+check, for the repair layer.
 \end{proposition}
 
 The existing federation design is thus validated by the sheaf structure rather than extended by a new
 primitive: the machinery that composes overlapping subsystems soundly is already present as $R1/R2$.
-The gluing counterexample (\Cref{ex:glue}) is mechanized axiom-free (module \texttt{Cohomology.v});
-\Cref{prop:gluing} and the sheaf assembly over the full cover are at the paper level.
+The gluing counterexample (\Cref{ex:glue}) is mechanized axiom-free (module \texttt{Cohomology.v},
+\texttt{gluing\_order\_dependent}); \Cref{prop:gluing} and the sheaf assembly over the full cover
+are at the paper level.
 
 %========================================
 \section{The Cohomological Completion}
@@ -472,12 +584,30 @@ normal form. A global section is a shared assignment fixed all the way around, s
 must be a fixed point of the loop composite $g = m_{CA} \circ m_{BC} \circ m_{AB}$ on the shared
 subspace.
 
+Say that a seed $x_0$ \emph{reaches a fixed point} of $g$ when $g(g^k(x_0)) = g^k(x_0)$ for some
+$k \ge 0$.
+
 \begin{theorem}[Obstruction, general case]
 \label{thm:obstruction}
-A global convergent section around a cycle exists iff the cycle's loop composite $g$ has a reachable
-fixed point, and the witness for its absence is $g$ itself, computable over the shared subspace
-rather than the product.
+Let a cycle carry arbitrary transport maps $f_0, \dots, f_{n-1}$ on the shared fiber, with loop
+composite $g = f_{n-1} \circ \dots \circ f_0$ at vertex $0$.
+\begin{enumerate}[label=(\roman*)]
+\item Restriction to vertex $0$ is a bijection from the sections of the cycle onto
+  $\mathrm{Fix}(g)$. Hence a global consistent section around the cycle exists iff $g$ has a fixed
+  point, and the test runs on the shared fiber, not the product.
+\item A seed $x_0$ reaches a fixed point iff some section has its vertex-$0$ value in the forward
+  orbit $\{g^k(x_0)\}$. Hence a section exists iff some seed reaches a fixed point.
+\item If the fiber is finite with $N$ elements, $x_0$ reaches a fixed point iff $g^N(x_0)$ is fixed;
+  otherwise no iterate is fixed and $g^i(x_0) = g^j(x_0)$ for some $i < j \le N$, an orbit witness.
+\end{enumerate}
 \end{theorem}
+\noindent Mechanized for any fiber and any maps: (i) \texttt{thm\_obstruction\_general},
+\texttt{sections\_are\_fixed\_points}; (ii) \texttt{reaches\_fixed\_iff\_section},
+\texttt{thm\_obstruction\_reachable}; (iii) \texttt{diagnose\_bounded},
+\texttt{diagnose\_orbit\_witness}, \texttt{diagnose\_dichotomy} (module
+\texttt{CohomologyGeneral.v}). The theorem is per cycle; on a graph with several cycles the fixed
+points must also be compatible, which is what \Cref{thm:completion} and the rooted criterion of
+\Cref{sec:minimal} handle.
 
 The minimal obstruction has shared values in $\{0,1\}$, two edges the identity and one the negation,
 so $g$ is the flip, which has no fixed point (it orbits $0 \mapsto 1 \mapsto 0$): no consistent global
@@ -531,29 +661,37 @@ tree-fixed labelings are cohomologous iff those values are simultaneously conjug
 (\texttt{betti\_number}). The nerve's triangles add relations that can lower the rank further; those
 are not modeled.
 
-\paragraph{The two regimes are one picture.} The obstruction vanishes in exactly two ways, and they
-are the two convergence regimes of the base work:
+\paragraph{The two regimes as two routes.} The two convergence regimes of the base work are two
+sufficient ways for the obstruction to vanish:
 \begin{itemize}[leftmargin=*]
-\item \emph{Trivial holonomy.} An acyclic nerve has no independent cycles (first Betti number $0$,
-  $\Ho$ trivial); more generally trivial loop composites give a coboundary. This is the acyclic /
-  tree route.
-\item \emph{Monotone fibers.} When $S$ carries a lattice order and the transitions are monotone (not
-  invertible, so outside the torsor picture), Knaster-Tarski gives a least fixed point of the loop
-  composite, so $\Hz$ is non-empty regardless of holonomy. This is the monotone route.
+\item \emph{Acyclicity.} In the invertible fragment an acyclic nerve has no independent cycles (first
+  Betti number $0$, $\Ho$ trivial) and a tree always carries a section (\texttt{tree\_has\_section},
+  \texttt{betti\_number}). For an acyclic federation with resolvers, \Cref{thm:one} gives a
+  consistent state directly. This is the acyclic route.
+\item \emph{Monotone fibers.} When $S$ carries a complete lattice order and the transitions are
+  monotone (not invertible, so outside the torsor picture), Knaster-Tarski gives a least fixed point
+  of the loop composite, so $\Hz$ is non-empty regardless of holonomy (\texttt{kleene\_lfp},
+  \texttt{cyc\_N\_lfp}; validity of that point needs the bottom-validity hypothesis of
+  \Cref{sec:sheaf}). This is the monotone route.
 \end{itemize}
-The first kills the cohomological obstruction; the second sidesteps it via order. The dichotomy the
-base papers state as two separate sufficient conditions is thus one invariant, and its non-vanishing
-is exactly what the engine rejects.
+The first kills the cohomological obstruction; the second sidesteps it via order. Neither is
+necessary. By \Cref{thm:obstruction} the obstruction vanishes on a cycle iff its loop composite has a
+fixed point, and two further cyclic, non-monotone ways are already visible on small examples: trivial
+holonomy (two negations on $\{0,1\}$) and a non-trivial holonomy acting non-freely (copy, then swap
+$0$ and $1$ on $\{0,1,2\}$, with fixed point $2$) (\texttt{c13\_two\_ways\_not\_exhaustive}). What the
+base engine rejects is a cyclic federation outside the monotone regime, which may or may not carry
+an obstruction.
 
 \paragraph{Scope.} The clean cohomological ``iff'' of \Cref{thm:completion} is the invertible /
 torsor fragment. When transitions are non-invertible (a repair that collapses values) the fiber is
 not a torsor and the transitions are monoid elements, so classical $\Ho$ does not apply; there the
-obstruction is $\Hz$ directly, via the reachable-fixed-point condition of \Cref{thm:obstruction}, a
-dynamical rather than cohomological statement. Mechanized axiom-free: the single-cycle essence of
+obstruction is $\Hz$ directly, via the fixed-point condition of \Cref{thm:obstruction} on each cycle
+and the rooted criterion of \Cref{sec:minimal} on a graph, a dynamical rather than cohomological
+statement. Mechanized axiom-free: the single-cycle essence of
 \Cref{thm:completion}, the gluing counterexample, and the negation obstruction (\texttt{Cohomology.v});
 and \Cref{thm:completion} itself on an arbitrary graph together with the cycle-basis criterion
 (\texttt{CohomologyGraph.v}), along with $\Ho$ of the graph as a quotient and its rank, for any
-group. At the paper level: the rank on the nerve as a 2-complex, where the triangle relations can
+group; and the general-map obstruction (\texttt{CohomologyGeneral.v}). At the paper level: the rank on the nerve as a 2-complex, where the triangle relations can
 lower it. The operational fixed-point test is implemented (\Cref{sec:diagnostic}).
 
 %========================================
@@ -568,9 +706,9 @@ registries with large local state spaces is analyzed on the small shared fiber a
 
 \paragraph{Implementation.} The reference engine implements this as \texttt{Federation.DiagnoseCycle}.
 It finds a directed cycle in the morphism network, iterates the cycle's repair from a representative
-seed on the finite shared space (which must either reach a fixed point or repeat), and reports which,
-returning the cycle, whether it converged, and, when it did not, the repeating configuration as an
-orbit witness.
+seed on the finite shared space (which must either reach a fixed point within $N$ steps or repeat,
+\Cref{thm:obstruction}~(iii)), and reports which, returning the cycle, whether it converged, and, when
+it did not, the repeating configuration as an orbit witness.
 
 \begin{example}[Settle versus orbit]
 \label{ex:diag}
@@ -580,21 +718,33 @@ diagnostic reports convergence. If instead $B$ copies back the negation, the loo
 flip, which orbits $0 \mapsto 1 \mapsto 0$; the diagnostic reports non-convergence and returns that
 orbit as the witness, pointing at the negation edge.
 \end{example}
+\noindent The mathematics of both cases is mechanized (\texttt{identity\_holonomy\_has\_section},
+\texttt{flip\_no\_section}, \texttt{copyback\_zero\_coordination},
+\texttt{negation\_one\_coordinated}); \texttt{DiagnoseCycle} itself is engine code.
 
-\paragraph{Reading the verdict.} A non-convergent verdict is definitive: an orbit exists, so the
-cycle cannot converge, and the orbit is a proof. A convergent verdict from a single seed is weaker:
-it establishes that this seed settles and names the cycle for reference, but does not by itself prove
-whole-network convergence, since another local state might still oscillate. The diagnostic is
-therefore a sound refuter and a cycle namer, not a whole-network decision procedure; deciding
-convergence outright is the exhaustive check the base engine already performs, and the diagnostic
-explains a rejection rather than replacing that check.
+\paragraph{Reading the result.} A convergent result is sound for existence: a settling seed is the
+vertex-$0$ value of a section (\texttt{c15\_convergent\_result\_sound}), though it does not show that
+every seed settles (\texttt{c15\_convergent\_result\_not\_global}). A non-convergent result from one
+seed is not definitive in general. On $\{0,1,2\}$ with the loop ``copy, then swap $0$ and $1$'', the
+seed $0$ orbits $0 \mapsto 1 \mapsto 0$, yet $2$ is fixed and gives a section
+(\texttt{c15\_definitive\_claim\_false}). The exact refuter quantifies over seeds: no section exists
+iff no seed reaches a fixed point (\texttt{c15\_exact\_refuter}). One seed is definitive when the
+fixed points of $g$ are all-or-nothing, in particular for the regular action, where $g$ is translation
+by the holonomy $h$ and a seed reaches a fixed point iff $h = e$ iff a section exists
+(\texttt{c15\_free\_definitive}, \texttt{c15\_regular\_definitive}). For an invertible composite
+acting non-freely, a seed reaches a fixed point iff it is itself fixed, so the diagnostic tests only
+that seed (\texttt{c15\_injective\_reaches\_iff\_fixed}). The diagnostic is therefore a cycle namer,
+a sound witness of existence, and a sound refuter on the regular action, not a whole-network decision
+procedure; deciding convergence outright is the exhaustive check the base engine already performs,
+and the diagnostic explains a rejection rather than replacing that check.
 
 \paragraph{What it delivers.} For federating $N$ independently-governed policies, the diagnostic
-answers two questions the bare convergence verdict does not: can these compose, and, when they
+answers two questions the bare convergence check does not: can these compose, and, when they
 cannot, where is the conflict. The answer is legible (it names the offending cycle and exhibits
 either its orbit or its missing fixed point) and cheap (it composes the cycle's morphisms and tests
 for a reachable fixed point over the shared subspace). Combined with \Cref{prop:minimal}, it is also
-constructive: the cycles it flags are exactly the ones any coordinated core must cover.
+constructive on the regular action: a cycle it flags there has non-trivial holonomy, so every feasible
+coordination must remove one of its edges.
 
 %========================================
 \section{Minimal Coordination}
@@ -602,36 +752,60 @@ constructive: the cycles it flags are exactly the ones any coordinated core must
 
 Normalization confluence is a strong-eventual-consistency guarantee: replicas that consume the same
 events reach the same valid state regardless of order. So the convergence question is a coordination
-question. A coordination-free, strongly-eventually-consistent implementation exists exactly when a
-consistent global normal form exists, that is, when $\Hz$ is non-empty, and the obstruction to it is
-the $\Ho$ class of \Cref{sec:completion}. This is the CALM boundary (monotone implies
+question. A coordination-free, strongly-eventually-consistent implementation needs a consistent
+global normal form, that is, a non-empty $\Hz$, and the obstruction to it is the $\Ho$ class of
+\Cref{sec:completion}; with the qualifiers of \Cref{prop:minimal} (the regular action and an
+authority root) the two are equivalent. This is the CALM boundary (monotone implies
 coordination-free) and invariant confluence, now not merely decided but \emph{classified}: the
 completion says precisely which configurations obstruct, so it turns coordination into a graph
 problem on the labeled nerve.
 
-\begin{proposition}[Coordinating a cycle basis suffices]
+\begin{proposition}[Coordinating the unbalanced edges of a cycle basis]
 \label{prop:minimal}
-In the invertible fragment, a federation admits a coordination-free, strongly-eventually-consistent
-convergent implementation iff $\Ho = 0$. When $\Ho \neq 0$, imposing a coordination boundary (a total
-order, or a single writer) on the shared variable along a cycle basis trivializes the obstruction,
-yielding a convergent implementation that is strongly consistent only on those loops and
-coordination-free everywhere else.
+Work in the invertible fragment with the regular action (every shared fiber is a $G$-torsor). Fix an
+authority root $r$, a spanning tree $T$ of a connected component, and its non-tree edges $X$. The
+\emph{coordination-free implementation} drives values along $T$ from $r$ and checks every edge of $X$
+as a constraint.
+\begin{enumerate}[label=(\roman*)]
+\item The labeling is a coboundary ($\Ho = 0$) iff, for every authority value, the coordination-free
+  implementation has a consistent state, that state is the unique consistent state with that root
+  value, and every propagation order reaches it.
+\item Let $B \subseteq X$ be the balanced and $C = X \setminus B$ the unbalanced non-tree edges
+  (relative to $T$). Coordinating $C$ (removing those edges from the propagation graph, to be
+  serialized or rejected by an external coordinator) is sound: for every initial state and every
+  topological order the normal form satisfies $T$ and $B$, keeps the authority value at $r$, is the
+  unique state satisfying $T \cup B$ with that root value, and is the same for every order. It is
+  exact relative to $T$: a set $K \subseteq X$ can be kept with a consistent state iff $K \cap C =
+  \emptyset$, and keeping any edge of $C$ leaves no consistent state at all.
+\item Under the plan of (ii), any two permutations of a buffer of local events converge, provided the
+  root's own events commute; events at non-root registries are overwritten by the drive.
+\end{enumerate}
+Both qualifiers of (i) are needed: with $\mathbb{Z}/2$ acting on $\{0,1,2\}$ by the swap, a
+non-coboundary still has a section, and without an authority root the copy-back loop ($\Ho = 0$) has
+two propagation orders reaching different consistent states. The normal form depends on the choice
+of root, so a plan must report it.
 \end{proposition}
 \begin{proof}[Proof sketch]
-Coordinating a loop forces its shared variable to a single agreed value, the single-writer overlap of
-\Cref{sec:sheaf}, so that loop's transition becomes a coboundary and its holonomy generator dies.
-Coordinating a cycle basis kills every generator, leaving the trivial class, so $\Hz$ becomes
-non-empty by \Cref{thm:completion}; off the coordinated loops the transitions are unchanged and stay
-coordination-free.
+Driving from $r$ along $T$ yields a section of $T$ with the authority value at $r$, and sections of a
+tree are unique up to one constant, which the root value fixes. Whether a non-tree edge holds at that
+section does not depend on which tree section is used, so balance is a property of the edge. A
+balanced edge holds at the driven state; an unbalanced one, kept as a writer or a constraint, admits no
+consistent state. The cycle-basis criterion (a section exists iff every fundamental cycle has trivial
+holonomy) gives exactness and, with every edge balanced, (i). Order independence is that of the acyclic
+driving network (\Cref{thm:one}), and (iii) composes it with event convergence on acyclic networks.
 \end{proof}
-\noindent Mechanized: a spanning tree always carries a section, so coordinating every non-tree edge
-suffices (\texttt{tree\_has\_section}); and relative to a fixed spanning tree, the edges that must be
-coordinated are exactly the unbalanced fundamental edges (\texttt{keep\_balanced\_suffices},
-\texttt{unbalanced\_blocks}), with a $\mathbb{Z}/2$ triangle discharging every hypothesis.
+\noindent Mechanized: (i) \texttt{prop\_minimal\_qualified\_iff}; the qualifiers
+\texttt{prop\_minimal\_qualifiers\_needed} (from \texttt{nonfree\_holonomy\_counterexample} and
+\texttt{copyback\_without\_authority}); (ii) \texttt{coordinated\_sound},
+\texttt{coordinated\_unique\_nf}, \texttt{plan\_exact}, \texttt{coordination\_needed}, on top of
+\texttt{tree\_has\_section}, \texttt{tree\_unique}, \texttt{keep\_balanced\_suffices},
+\texttt{unbalanced\_blocks} and \texttt{cycle\_basis\_criterion}; (iii)
+\texttt{coordinated\_events\_converge}; the root dependence \texttt{root\_choice\_matters}; instances
+\texttt{copyback\_zero\_coordination} and \texttt{negation\_one\_coordinated}.
 
 So a federation decomposes into a coordination-free majority (eventual consistency) and a coordinated
 core (strong consistency). For a distributed deployment this reads: put consensus only on the
-obstructing cycles, run everything else coordination-free. It refines the global coordination verdict
+unbalanced edges, run everything else coordination-free. It refines the global coordination criterion
 of CALM~\cite{hellerstein2010declarative, ameloot2013relational} and invariant
 confluence~\cite{bailis2014coordination} from a single yes-or-no into a localized, mixed-consistency
 partition.
@@ -643,15 +817,25 @@ every residual cycle is balanced. This resolves its complexity. It is NP-hard ev
 case, since for $G = \mathbb{Z}/2$ it is edge bipartization, the complement of Max Cut. Under the
 Unique Games Conjecture it has no constant-factor approximation ($O(\sqrt{\log n})$, the Min-Uncut
 bound, is the best known). But it is fixed-parameter tractable in the size of the coordinated core,
-which is the operative regime since one wants that core small, and polynomial on planar nerves
-(planar Max Cut) and on edge-disjoint obstructions (one hit per cycle, any $G$). A correct,
-polynomial, size-$\le b$ coordination is always available: coordinate the orbiting fundamental cycles
-of any spanning tree.
+which is the operative regime since one wants that core small, and for $G = \mathbb{Z}/2$ it is
+polynomial on planar nerves (planar Max Cut). On edge-disjoint obstructions the count is direct: if
+$k$ pairwise edge-disjoint cycles each have no section on their own, every feasible coordination
+deletes at least $k$ edges, for any transport labels (\texttt{edge\_disjoint\_lower\_bound}); if
+moreover some spanning tree has exactly $k$ unbalanced non-tree edges, as on a nerve where every edge
+lies on at most one cycle, deleting them is feasible and the minimum is exactly $k$
+(\texttt{edge\_disjoint\_min}, instance \texttt{bowtie\_min\_two}). A correct, polynomial,
+size-$\le b$ coordination is always available: coordinate the unbalanced non-tree edges of any rooted
+spanning tree (\Cref{prop:minimal}; $b$ is \texttt{betti\_number}).
 
 \paragraph{Non-commutativity raises the floor; it never lowers it.} The minimum is never below what
 the abelianized holonomy suggests, and can be strictly above. A section after coordinating $F$ needs
 $\pi_1(N \setminus F) \subseteq \ker \rho \subseteq \ker(\mathrm{ab} \circ \rho)$, so every feasible
-$F$ is feasible for the abelianized problem and $\min_G \ge \min_{G^{\mathrm{ab}}}$. The inequality is
+$F$ is feasible for the abelianized problem and $\min_G \ge \min_{G^{\mathrm{ab}}}$. More generally,
+for any group homomorphism $\varphi : G \to H$ and any labeled graph, a section, and a feasible
+coordination, for the $G$-labeling map to a section, and a feasible coordination of the same size, for
+the $\varphi$-image labeling, so $\min_G \ge \min_H$ (\texttt{section\_pushforward},
+\texttt{feasible\_pushforward}, \texttt{min\_G\_ge\_min\_image}); $H = G^{\mathrm{ab}}$ is the case
+above. The inequality is
 strict: on the theta graph with holonomies $(0\,1\,2)$ and $(0\,1)$ in $S_3$, the true minimum is
 $2$, while the sign-abelianized count is $1$ because the $3$-cycle is even and invisible to the sign.
 The consequence is a soundness warning: sizing coordination by any abelianized invariant
@@ -666,58 +850,224 @@ homomorphism, and the functoriality that every $S_3$ section induces an abelian 
 shared fiber exactly when it transports the shared value by a bijection (a lossless relabeling: a
 copy, a permutation, a bijective unit or schema map), and non-invertible when it collapses
 information (a clamp, a reset, a most-restrictive-wins merge, which includes every multi-source
-resolver). The clean cohomological classification is the invertible case; acyclic federations have
-nothing to coordinate, monotone cycles converge by the least fixed point, and only invertible cycles
-with non-trivial holonomy require the coordinated core. In the general non-invertible case the
-decomposition still holds (a cycle basis suffices, by the fixed-point form of \Cref{thm:obstruction}),
-with the same group-feedback-set minimum.
+resolver). The clean cohomological classification is the invertible case; acyclic federations with
+resolvers have nothing to coordinate for the repair layer, monotone cycles have a unique repair normal
+form at the least fixed point (event order still needs $GC$, \Cref{sec:background}), and among
+invertible cycles only those with non-trivial holonomy require the coordinated core. In the general
+non-invertible case a cycle basis no longer suffices: the tree $a \to c$ (constant $0$),
+$b \to c$ (constant $1$) has an empty cycle basis and no section, so its minimum coordination is $1$
+although it has no cycles, and the minimum is not the group feedback edge set number
+(\texttt{c22\_cycle\_basis\_fails}). The correct form is rooted. If every edge of a spanning tree
+$T$ points away from an authority root $r$, then for every root value the tree has a unique section
+with that value, obtained by driving along $T$ (\texttt{out\_tree\_section},
+\texttt{out\_tree\_unique}); the whole graph has a section with that root value iff the driven state
+satisfies every non-tree edge, a fixed-point condition on the root value that may hold for some
+values and fail for others (\texttt{rooted\_criterion}, instance \texttt{c22\_rooted\_instance}); and
+deleting all non-tree edges always leaves a section for every root value
+(\texttt{rooted\_coordination\_suffices}). Without that orientation there is no inverse to drive
+against an edge, and the statement fails.
 
 \paragraph{From rejection to repair.} The base engine rejects a non-monotone cyclic federation: it
 cannot converge coordination-free, and the build fails. \Cref{prop:minimal} upgrades that blunt
-verdict into an actionable one: rather than reject, accept the federation with a coordination
-boundary on a cycle basis, which the diagnostic of \Cref{sec:diagnostic} identifies. This turns
-``these policies do not compose'' into ``these policies compose if you coordinate exactly these
-loops.''
+answer into an actionable one: in the invertible fragment, rather than reject, accept the federation
+with a coordination boundary on the unbalanced non-tree edges of a spanning tree from a reported
+authority root, which on the regular action are the fundamental cycles the diagnostic of
+\Cref{sec:diagnostic} flags. This turns ``these policies do not compose'' into ``these policies
+compose if you coordinate exactly these edges.''
 
 \paragraph{Boundary.} This locates where coordination is needed for convergence, assuming the
 delivery layer gives each replica the same event set (normalization confluence is the convergence
-layer, not the transport). It is clean in the invertible fragment; the general non-invertible case
-reduces to the loop-composite fixed-point condition, where coordinating a loop still means forcing
-its shared variable to an agreed value but the minimal-basis count is not a cohomological rank.
+layer, not the transport). It is clean in the invertible fragment with the regular action; the
+general non-invertible case reduces to the rooted fixed-point condition above, where deleting the
+non-tree edges of an outward tree still suffices but the minimum is not a cohomological rank.
 
 %========================================
 \section{Conclusion}
 \label{sec:conclusion}
 
 Federated convergence has a structure, and naming it answers both a theoretical and a practical
-question. Theoretically, a federation's convergent states are a limit and its normalizer is the
-retraction onto that limit, so compositionality is a corollary rather than a separate theorem; the
-convergence certificates form a sheaf whose gluing axiom is exactly the federation's already-certified
-$R1/R2$; and the obstruction to a global convergent state is cohomological, with $\Hz$ the convergent
-states and $\Ho$ the holonomy of the morphism cycles. The two convergence regimes of the base work,
-acyclicity and monotone repair, are then one invariant: the first makes $\Ho$ vanish, the second
-sidesteps it by order.
+question. Theoretically, a federation's consistent states are a finite limit and, under
+shared-component stability, its normalizer is the idempotent retraction onto that limit for every
+topological order, so compositionality is a corollary rather than a separate theorem; at the paper
+level, the convergence certificates glue like a sheaf whose gluing condition is the federation's
+already-certified $R1/R2$; and the obstruction to a global consistent state is cohomological in the
+invertible fragment, with $\Hz$ the consistent states and $\Ho$ the holonomy of the morphism cycles.
+The two regimes of the base work, acyclicity and monotone repair, are two sufficient routes past that
+obstruction: the first makes $\Ho$ vanish, the second sidesteps it by order. They are not the only
+routes. All of this concerns the repair layer; convergence of event order is a separate condition,
+$C1$ and $C2$ on acyclic networks with events at federally valid states, and $GC$ on cycles.
 
-Practically, the same invariant is computable and actionable. Its witness is a cycle's loop composite
-over the shared subspace, implemented as a diagnostic that names an obstructing cycle and exhibits its
-orbit; and when the obstruction is non-zero, coordinating a cycle basis suffices to converge. This
-localizes the global coordination verdict of CALM and invariant confluence into a mixed-consistency
-partition, and it turns a rejection into a constructive ``coordinate exactly these loops.'' The exact
-minimum coordination is the group feedback edge set number, NP-hard even in the abelian case but
-fixed-parameter tractable in the core size and polynomial on planar or edge-disjoint nerves, and it
-is never below the abelian count.
+Practically, the obstruction is computable and actionable. Around a cycle, a section exists iff the
+loop composite over the shared subspace has a fixed point. The engine's diagnostic tests one seed: a
+settling seed proves a section exists, and an orbiting seed refutes existence on the regular action
+but not in general. In the invertible fragment with the regular action and an authority root,
+$\Ho = 0$ is exactly coordination-free convergence of the repair, and when it fails, coordinating the
+unbalanced non-tree edges of a rooted spanning tree is sound and exact relative to that tree. This
+localizes the global coordination criterion of CALM and invariant confluence into a mixed-consistency
+partition, and it turns a rejection into a constructive ``coordinate exactly these edges.'' The exact
+minimum coordination is the group feedback edge set number, NP-hard even in the abelian case and
+fixed-parameter tractable in the core size; it is never below the minimum for any homomorphic image
+of the transition group, and pairwise edge-disjoint obstructions need one edge each. Off the
+invertible fragment, a cycle basis no longer suffices and the rooted form takes its place.
 
-The structural core, the limit, the retraction for arbitrary acyclic federations, compositionality,
-and full order-independence, is mechanized axiom-free, and so is the cohomological layer: the
-completion on an arbitrary graph, the cycle-basis criterion, the sufficiency of coordinating a
-spanning tree's complement, $\Ho$ of the graph as tuples of fundamental holonomies modulo simultaneous
-conjugation with rank $|E| - |V| + 1$, and the $S_3$ separation. What is deliberately left at the
-paper level is scoped plainly: the clean cohomological classification is the invertible
-(lossless-relabeling) fragment, the general case reducing to the loop-composite fixed-point condition
-that the diagnostic already computes; the rank on the nerve as a 2-complex is not mechanized; and the
-complexity of the minimum is cited from the group feedback set literature. The open problems are a
-cohomological account of the non-invertible case and the classification on the full 2-dimensional
-nerve.
+Every theorem stated here is mechanized axiom-free in Coq/Rocq except the sheaf reading of
+\Cref{sec:sheaf} and \Cref{prop:gluing}, the input-port refinement of \Cref{sec:compose}, the rank on
+the nerve as a 2-complex, and the cited complexity of the minimum. Each statement of version~1 that
+this version corrects has a mechanized counterexample and a mechanized corrected form
+(Appendix~\ref{app:errata}); every Coq name cited is in the axiom gate of \texttt{coq/verify.sh},
+which checks 715 theorems at the time of this version. The open problems are a cohomological
+account of the non-invertible case and the classification on the full 2-dimensional nerve.
+
+\appendix
+\section{Errata and corrections}
+\label{app:errata}
+
+Version~1 of this paper stated the results below in a form that is false, imprecise or narrower than
+what holds. For each, we give the old statement, a counterexample (with its Coq name) where one exists,
+and the corrected statement as it now appears in the body (with Coq names). All Coq results named are
+axiom-free and in the gate.
+
+\begin{enumerate}[leftmargin=*, label=\textbf{E\arabic*.}]
+\item \textbf{Theorem~1 (\Cref{thm:one}): hypothesis.}
+  \emph{Old:} the one hypothesis is step-idempotence, ``exactly $M1/R2$'' with local idempotence,
+  where \Cref{sec:background} defined $M1$ as validity preservation under overwrite.
+  \emph{Counterexample:} \texttt{cat\_thm\_one\_m1\_counterexample}, a two-registry federation in
+  which $M1$ (as validity preservation), local idempotence and the lens law hold, but registry~1's
+  compensation flips the shared bit the morphism wrote; $\rho_F$ misses $L_F$ and is not idempotent.
+  \emph{Corrected:} assume local idempotence, the lens law $\mathrm{ovr}_B(v, \mathrm{get}_B v) = v$
+  and shared-component stability $\mathrm{get}_B(\rho_B(\mathrm{ovr}_B(v, r))) = r$; then for every
+  topological order $\rho_F$ lands in $L_F$ and fixes it, $\mathrm{im}(\rho_F) = \mathrm{Fix}(\rho_F)
+  = L_F$, $\rho_F$ is idempotent, and any two topological orders agree
+  (\texttt{cat\_thm\_one\_sound}, \texttt{cat\_thm\_one\_complete}, \texttt{cat\_thm\_one\_idempotent},
+  \texttt{cat\_thm\_one\_image}, \texttt{cat\_thm\_one\_fixed}, \texttt{cat\_thm\_one\_order\_independent},
+  \texttt{cat\_thm\_one\_fold\_image}; bridge \texttt{rhoFold\_run}, \texttt{consistentList\_iff\_LF},
+  \texttt{rhoFold\_order\_independent}, \texttt{rhoFold\_order\_perm}). \Cref{sec:background} now keeps
+  $M1/R2$ as validity conditions and names $SC$ separately.
+
+\item \textbf{Background: non-emptiness of the valid set.}
+  \emph{Old:} WFC makes the valid set non-empty. \emph{Counterexample:}
+  \texttt{cat\_bg\_nonempty\_needs\_a\_state}, the empty state space, which satisfies WFC vacuously.
+  \emph{Corrected:} under WFC, $\rho^*$ is idempotent and $\rho^*(s)$ is valid for every state $s$, so
+  the valid set is non-empty whenever the state space is (\texttt{cat\_bg\_rho\_idempotent},
+  \texttt{cat\_bg\_valid\_from\_any\_state}, \texttt{cat\_bg\_lemma\_zero}).
+
+\item \textbf{\Cref{thm:obstruction}: ``reachable fixed point''.}
+  \emph{Old:} a section around a cycle exists iff the loop composite has a reachable fixed point, with
+  ``reachable'' undefined. \emph{Corrected (made precise):} restriction to vertex~$0$ is a bijection
+  from sections onto $\mathrm{Fix}(g)$; with ``$x_0$ reaches a fixed point'' meaning $g(g^k(x_0)) =
+  g^k(x_0)$ for some $k$, a section exists iff some seed reaches a fixed point; on a finite fiber of
+  size $N$, $x_0$ reaches one iff $g^N(x_0)$ is fixed, and otherwise the orbit repeats within $N$
+  steps (\texttt{thm\_obstruction\_general}, \texttt{sections\_are\_fixed\_points},
+  \texttt{reaches\_fixed\_iff\_section}, \texttt{thm\_obstruction\_reachable},
+  \texttt{diagnose\_bounded}, \texttt{diagnose\_orbit\_witness}, \texttt{diagnose\_dichotomy}).
+
+\item \textbf{\Cref{sec:completion}: ``the obstruction vanishes in exactly two ways''.}
+  \emph{Old:} acyclicity and monotonicity are the only two ways. \emph{Counterexample:}
+  \texttt{c13\_two\_ways\_not\_exhaustive}: two negations on $\{0,1\}$ (trivial holonomy on a cycle),
+  and copy-then-swap on $\{0,1,2\}$ (non-trivial holonomy with a fixed point), both cyclic and
+  non-monotone with a section. \emph{Corrected:} the two regimes are sufficient, not exhaustive; on a
+  cycle the obstruction vanishes iff the loop composite has a fixed point.
+
+\item \textbf{\Cref{sec:diagnostic}: ``a non-convergent result is definitive''.}
+  \emph{Old:} an orbit from the diagnostic proves the cycle cannot converge; the diagnostic is a
+  sound refuter. \emph{Counterexample:} \texttt{c15\_definitive\_claim\_false} (with
+  \texttt{c15\_seed\_orbits}, \texttt{c15\_seed\_settles}, \texttt{c15\_tri\_section}): copy-then-swap on
+  $\{0,1,2\}$, where seed $0$ orbits but $2$ gives a section. \emph{Corrected:} no section exists iff
+  no seed reaches a fixed point (\texttt{c15\_exact\_refuter}); one seed is definitive when the fixed
+  points are all-or-nothing, in particular on the regular action (\texttt{c15\_free\_definitive},
+  \texttt{c15\_regular\_definitive}); for an injective composite a seed reaches a fixed point iff it is
+  fixed (\texttt{c15\_injective\_reaches\_iff\_fixed}); a convergent result proves existence but not
+  that every seed settles (\texttt{c15\_convergent\_result\_sound},
+  \texttt{c15\_convergent\_result\_not\_global}).
+
+\item \textbf{\Cref{prop:minimal}: the ``iff'' and the coordinated set.}
+  \emph{Old:} in the invertible fragment ($G \le \mathrm{Sym}(S)$), a coordination-free SEC convergent
+  implementation exists iff $\Ho = 0$, and coordinating a cycle basis yields a convergent
+  implementation. \emph{Counterexamples:} \texttt{nonfree\_holonomy\_counterexample} (a non-identity
+  holonomy acting on a non-torsor fiber still has a section), \texttt{copyback\_without\_authority}
+  (without an authority root, two propagation orders of a balanced loop reach different consistent
+  states), \texttt{root\_choice\_matters} (the normal form depends on the root);
+  \texttt{prop\_minimal\_qualifiers\_needed}. \emph{Corrected:} with the regular action and an
+  authority root, $\Ho = 0$ iff for every authority value the coordination-free implementation has a
+  unique consistent state with that root value reached by every propagation order
+  (\texttt{prop\_minimal\_qualified\_iff}); coordinating the unbalanced non-tree edges of a rooted
+  spanning tree is sound and exact relative to that tree (\texttt{coordinated\_sound},
+  \texttt{coordinated\_unique\_nf}, \texttt{plan\_exact}, \texttt{coordination\_needed}), and local
+  events converge under the plan when the root's events commute
+  (\texttt{coordinated\_events\_converge}).
+
+\item \textbf{\Cref{sec:minimal}: edge-disjoint obstructions.}
+  \emph{Old:} polynomial on edge-disjoint nerves, ``one hit per cycle, any $G$''. \emph{Corrected
+  (made precise):} $k$ pairwise edge-disjoint cycles without sections force every feasible
+  coordination to delete at least $k$ edges, for any labels; with a spanning tree having exactly $k$
+  unbalanced non-tree edges the minimum is exactly $k$ (\texttt{edge\_disjoint\_lower\_bound},
+  \texttt{edge\_disjoint\_min}, \texttt{bowtie\_min\_two}). The polynomial claim for planar nerves is
+  now stated for $G = \mathbb{Z}/2$, where it is planar Max Cut.
+
+\item \textbf{\Cref{sec:minimal}: $\min_G \ge \min_{G^{\mathrm{ab}}}$.}
+  \emph{Old:} proved by a paper argument and mechanized only on the theta instance. \emph{Corrected
+  (generalized):} for any homomorphism $\varphi : G \to H$ and any labeled graph, sections and feasible
+  coordinations push forward, so $\min_G \ge \min_H$ (\texttt{section\_pushforward},
+  \texttt{feasible\_pushforward}, \texttt{min\_G\_ge\_min\_image}, instance
+  \texttt{klein\_min\_ge\_1}).
+
+\item \textbf{\Cref{sec:minimal}: the non-invertible case.}
+  \emph{Old:} ``the decomposition still holds (a cycle basis suffices), with the same
+  group-feedback-set minimum''. \emph{Counterexample:} \texttt{c22\_cycle\_basis\_fails}: the tree
+  $a \to c$ (constant $0$), $b \to c$ (constant $1$) has an empty cycle basis and no section.
+  \emph{Corrected:} with every tree edge pointing away from an authority root, each root value gives a
+  unique tree section; the graph has a section with that root value iff the driven state satisfies
+  every non-tree edge; deleting the non-tree edges always suffices (\texttt{out\_tree\_section},
+  \texttt{out\_tree\_unique}, \texttt{rooted\_criterion}, \texttt{rooted\_coordination\_suffices},
+  \texttt{c22\_rooted\_instance}).
+
+\item \textbf{Federated convergence: repair versus event order.}
+  \emph{Old} (\Cref{sec:intro}, \Cref{sec:background}, \Cref{sec:sheaf}): the base work's acyclic and
+  monotone regimes give convergence, read as every processor reaching the same state regardless of
+  event order. \emph{Counterexamples:} \texttt{audit\_counterexample} as restated in
+  \texttt{fed\_thm\_fed\_convergence\_refuted} (an acyclic tree meeting every hypothesis whose event
+  orders diverge) and \texttt{cyc\_counterexample} as restated in
+  \texttt{fed\_thm\_monotone\_cycles\_events\_refuted} (a monotone 2-cycle). \emph{Corrected:} the
+  regimes give a unique federated repair normal form; event confluence needs, on acyclic networks
+  with events at federally valid states, $C1$ and $C2$, which are exact there
+  (\texttt{fed\_guarded\_exact}, \texttt{fed\_thm\_fed\_convergence\_guarded},
+  \texttt{fed\_thm\_fed\_convergence\_exact}, \texttt{fed\_exact\_full}); with events at arbitrary
+  states, $XU$ (\texttt{fed\_thm\_fed\_convergence\_corrected}; $C1 + C2$ are insufficient there,
+  \texttt{fed\_grs\_c1\_c2\_insufficient}); on cycles, $GC$, which is exact
+  (\texttt{cyc\_events\_converge\_iff}, \texttt{net\_events\_converge\_iff}), with per-edge checks
+  sufficient on monotone cycles (\texttt{cyc\_check\_gc}).
+
+\item \textbf{Monotone regime: validity of the least fixed point.}
+  \emph{Old} (\Cref{sec:sheaf}, \Cref{sec:completion}): the monotone regime's least fixed point is the
+  glued, valid normal form. \emph{Counterexample:}
+  \texttt{fed\_thm\_monotone\_cycles\_lfp\_invalid}: a monotone 2-cycle meeting every hypothesis whose
+  least fixed point is federally invalid. \emph{Corrected:} if every component is valid at the bottom
+  shared values, every iterate is locally valid, and under the ascending chain condition the least
+  fixed point is reached and federally valid (\texttt{net\_lfp\_valid}).
+
+\item \textbf{\Cref{lem:zero} remark: $\rho_R$ as a closure operator.}
+  \emph{Old:} on the ordered domains of the cyclic regime $\rho_R$ is a closure operator.
+  \emph{Counterexample:} \texttt{fed\_rem\_convexity\_refuted}: a compensation $a_0 \mapsto a_2$ on
+  $a_0 < a_1 < a_2$ is not monotone, and neither is a sub-federation normalizer built from it.
+  \emph{Corrected:} a closure operator only when monotone and extensive; for sub-federation
+  normalizers, monotone component normalizers and a resolver operator monotone in locals and shared
+  values give monotonicity under the ascending chain condition (\texttt{fed\_rem\_convexity\_corrected}).
+
+\item \textbf{\Cref{sec:related}: the CRDT correspondence.}
+  \emph{Old:} the monotone regime ``coincides'' with state-based CRDTs, machine-checked.
+  \emph{Corrected:} every state-based CRDT is an instance of the monotone regime (\texttt{cvrdt\_SEC});
+  the converse is not claimed.
+
+\item \textbf{Mechanization claims of version~1.}
+  \emph{Old:} \Cref{prop:one} and \Cref{thm:one} were described as mechanized, citing
+  \texttt{consistent\_iff\_equalizer} and \texttt{rhoFold\_retraction}. Those results omit the
+  ``each component is a normal form'' conjunct of $L_F$, use the fold's intrinsic consistent set rather
+  than $L_F$, and prove order independence in a different model from the retraction.
+  \emph{Corrected:} \Cref{prop:one} on $L_F$ itself (\texttt{cat\_prop\_one},
+  \texttt{cat\_prop\_one\_product}, \texttt{cat\_prop\_one\_limit}, \texttt{cat\_LF\_split}), and
+  \Cref{thm:one} on $L_F$ with the two models bridged (E1). The statement of \Cref{prop:one} is
+  unchanged.
+\end{enumerate}
 
 %========================================
 \begin{thebibliography}{99}
