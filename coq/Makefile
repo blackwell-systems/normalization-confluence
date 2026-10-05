@@ -201,3 +201,9 @@ all: CoordinatedExact.vo
 
 CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
 	coqc -Q . NC CoordinatedExact.v
+
+# The exact condition for at-least-once delivery, free and causal (AtLeastOnceExact.v).
+all: AtLeastOnceExact.vo
+
+AtLeastOnceExact.vo: AtLeastOnceExact.v Trace.vo CausalReplay.vo AtLeastOnce.vo GovernanceConverse.vo
+	coqc -Q . NC AtLeastOnceExact.v
