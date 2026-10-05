@@ -171,3 +171,9 @@ all: FederationEventsCyclesMulti.vo
 
 FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
 	coqc -Q . NC FederationEventsCyclesMulti.v
+
+# The exact converses over any well-founded order (GovernanceWFConverse.v).
+all: GovernanceWFConverse.vo
+
+GovernanceWFConverse.vo: GovernanceWFConverse.v Newman.vo Governance.vo GovernanceWF.vo GovernanceConverse.vo RhoStar.vo
+	coqc -Q . NC GovernanceWFConverse.v
