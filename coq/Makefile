@@ -165,3 +165,9 @@ all: Collapse.vo
 
 Collapse.vo: Collapse.v Newman.vo Governance.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo GovernanceConverse.vo FederationGRS.vo
 	coqc -Q . NC Collapse.v
+
+# Per-edge C1 composes on multi-edge targets (FederationEventsCyclesMulti.v).
+all: FederationEventsCyclesMulti.vo
+
+FederationEventsCyclesMulti.vo: FederationEventsCyclesMulti.v FederationEventsCyclesCheck.vo FederationEventsCycles.vo Federation.vo Trace.vo
+	coqc -Q . NC FederationEventsCyclesMulti.v

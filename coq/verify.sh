@@ -739,6 +739,21 @@ Print Assumptions bi_common.
 Print Assumptions sub_common.
 Print Assumptions path_first.
 Print Assumptions path_last.
+Require Import NC.FederationEventsCyclesMulti.
+Print Assumptions NC.FederationEventsCyclesMulti.upd_get_in.
+Print Assumptions NC.FederationEventsCyclesMulti.upd_prod.
+Print Assumptions NC.FederationEventsCyclesMulti.upd_full.
+Print Assumptions NC.FederationEventsCyclesMulti.chainW.
+Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_c1.
+Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_c1_free.
+Print Assumptions NC.FederationEventsCyclesMulti.m1_necessary.
+Print Assumptions NC.FederationEventsCyclesMulti.resolver_joint_c1.
+Print Assumptions NC.FederationEventsCyclesMulti.resolver_edge_insufficient.
+Print Assumptions NC.FederationEventsCyclesMulti.resolver_instance.
+Print Assumptions NC.FederationEventsCyclesMulti.prod_nf.
+Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_converges.
+Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_gc.
+Print Assumptions NC.FederationEventsCyclesMulti.multi_edge_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -749,8 +764,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 715 ]; then
-  echo "FAIL: expected 715 axiom-free results, got $N"
+if [ "$N" -lt 729 ]; then
+  echo "FAIL: expected 729 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
