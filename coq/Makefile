@@ -177,3 +177,15 @@ all: GovernanceWFConverse.vo
 
 GovernanceWFConverse.vo: GovernanceWFConverse.v Newman.vo Governance.vo GovernanceWF.vo GovernanceConverse.vo RhoStar.vo
 	coqc -Q . NC GovernanceWFConverse.v
+
+# Rootless propagation on invertible cycles (RootlessCycles.v).
+all: RootlessCycles.vo
+
+RootlessCycles.vo: RootlessCycles.v CohomologyGraph.vo CoordinatedCycles.vo FederationOrder.vo Cohomology.vo
+	coqc -Q . NC RootlessCycles.v
+
+# Exact event-order condition under the coordination plan (CoordinatedExact.v).
+all: CoordinatedExact.vo
+
+CoordinatedExact.vo: CoordinatedExact.v Trace.vo CohomologyGraph.vo FederationOrder.vo FederationEvents.vo FederationEventsConverse.vo CoordinatedCycles.vo
+	coqc -Q . NC CoordinatedExact.v

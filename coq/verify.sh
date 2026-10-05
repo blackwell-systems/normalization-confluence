@@ -805,6 +805,56 @@ Print Assumptions NC.GovernanceWFConverse.qe_cc2.
 Print Assumptions NC.GovernanceWFConverse.qe_unique_from.
 Print Assumptions NC.GovernanceWFConverse.qr_cc1_fails.
 Print Assumptions NC.GovernanceWFConverse.qr_not_unique.
+Require Import NC.RootlessCycles.
+Print Assumptions NC.RootlessCycles.fixed_iff_section.
+Print Assumptions NC.RootlessCycles.fire_section_stable.
+Print Assumptions NC.RootlessCycles.trivial_unique.
+Print Assumptions NC.RootlessCycles.section_shift.
+Print Assumptions NC.RootlessCycles.path_shift.
+Print Assumptions NC.RootlessCycles.rootless_section_iff_holonomy.
+Print Assumptions NC.RootlessCycles.rootless_section_iff_coboundary.
+Print Assumptions NC.RootlessCycles.rootless_reaches_section.
+Print Assumptions NC.RootlessCycles.rootless_nf_exists_iff.
+Print Assumptions NC.RootlessCycles.rootless_two_orders.
+Print Assumptions NC.RootlessCycles.rootless_not_unique.
+Print Assumptions NC.RootlessCycles.fair_unique_trivial.
+Print Assumptions NC.RootlessCycles.rootless_unique_iff.
+Print Assumptions NC.RootlessCycles.rootless_unique_iff_general.
+Print Assumptions NC.RootlessCycles.rootless_unique_normal_form_iff.
+Print Assumptions NC.RootlessCycles.rootless_copyback_not_unique.
+Print Assumptions NC.RootlessCycles.cb_bridge_01.
+Print Assumptions NC.RootlessCycles.cb_bridge_10.
+Print Assumptions NC.RootlessCycles.copyback_without_authority_recovered.
+Print Assumptions NC.RootlessCycles.rootless_negation_no_nf.
+Print Assumptions NC.RootlessCycles.rootless_trivial_unique.
+Print Assumptions NC.RootlessCycles.s3_assoc.
+Print Assumptions NC.RootlessCycles.rootless_s3_not_unique.
+Print Assumptions NC.RootlessCycles.rootless_selfloop_unique.
+Print Assumptions NC.RootlessCycles.rootless_orientation_matters.
+Require NC.CoordinatedExact.
+Print Assumptions NC.CoordinatedExact.coordinated_network_shape.
+Print Assumptions NC.CoordinatedExact.coordinated_c1_static.
+Print Assumptions NC.CoordinatedExact.coordinated_c1r1.
+Print Assumptions NC.CoordinatedExact.coordinated_c2at_iff.
+Print Assumptions NC.CoordinatedExact.applyF_root.
+Print Assumptions NC.CoordinatedExact.coordinated_root_run.
+Print Assumptions NC.CoordinatedExact.coordinated_root_reach.
+Print Assumptions NC.CoordinatedExact.root_only_run.
+Print Assumptions NC.CoordinatedExact.coordinated_gc_iff.
+Print Assumptions NC.CoordinatedExact.coordinated_fed_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_fed_exact_full.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_perm_exact.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact_global.
+Print Assumptions NC.CoordinatedExact.old_implies_rootcc.
+Print Assumptions NC.CoordinatedExact.coordinated_runs_kept.
+Print Assumptions NC.CoordinatedExact.coordinated_events_exact_plan.
+Print Assumptions NC.CoordinatedExact.coordinated_events_converge_recovered.
+Print Assumptions NC.CoordinatedExact.klein_group.
+Print Assumptions NC.CoordinatedExact.k_rrun_fixed.
+Print Assumptions NC.CoordinatedExact.old_condition_not_necessary.
+Print Assumptions NC.CoordinatedExact.copyback_events_exact.
+Print Assumptions NC.CoordinatedExact.negation_events_exact.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -815,8 +865,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 779 ]; then
-  echo "FAIL: expected 779 axiom-free results, got $N"
+if [ "$N" -lt 827 ]; then
+  echo "FAIL: expected 827 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

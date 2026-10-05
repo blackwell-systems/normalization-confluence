@@ -23,7 +23,7 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 729 theorems are Closed under the global context (no axioms, no admits)`.
+Expected tail: `PASS: all 827 theorems are Closed under the global context (no axioms, no admits)`.
 The gate runs `Print Assumptions` on all 327 headline results (among them the single-registry
 confluence and unique-normal-form theorems, the defensibility instance, the two gsm
 certification-soundness results, the two federated results, the two chaotic-iteration results, the
@@ -1239,6 +1239,128 @@ rest has a unique normal form, and keeping the coordinated edge leaves no consis
 Scope: the fiber is the group itself (the regular action). Choosing the spanning tree (and root)
 that minimizes the coordinated set is the group feedback edge set problem, cited at the paper level.
 
+## Rootless propagation on invertible cycles (`RootlessCycles.v`)
+
+`CoordinatedCycles.v` gives the exact condition for coordination-free convergence **given** an
+authority root, and records one instance without a root (`copyback_without_authority`). This file
+turns that instance into an exact theorem.
+
+**Model.** The network is a group-labeled graph as in `CohomologyGraph.v` (the fiber of every
+registry is the group `G`, the regular action). With no designated root, **every edge is a writer**:
+firing `(u, v, g)` sets `s(v) := g * s(u)` and changes nothing else (`fire1`). A schedule is any
+finite list of edges, fired left to right (`fire`); it is fair when it fires every edge at least
+once. The normal forms (states fixed by every writer) are exactly the sections
+(`fixed_iff_section`), and a section is stable under every continuation (`fire_section_stable`), so
+the reachable sections are exactly the limits of fair infinite schedules. The statements are about
+that set of reachable fixed points. The cycle `cycE gs gc` is coherently oriented on registries
+`0 .. n`: path edges `(i, i + 1, g_i)` and the closing edge `(n, 0, g_c)`, with holonomy
+`g_c * g_(n-1) * ... * g_0`.
+
+**Results** (any group, `n >= 1`).
+
+- `rootless_section_iff_holonomy`, `rootless_section_iff_coboundary`: a consistent state exists iff
+  the holonomy is trivial, iff the labeling is a coboundary.
+- `rootless_reaches_section`, `rootless_nf_exists_iff`: with trivial holonomy, the round "path, then
+  closing edge" reaches a consistent state from **every** initial state; so "every initial state
+  reaches a consistent state" iff the holonomy is trivial.
+- `rootless_two_orders`, `rootless_not_unique`: for any section `s` and any `c`, from `s` with
+  registry 0 shifted to `s(0) * c`, the two rounds "closing edge first" and "closing edge last" (both
+  permutations of the edge list, so fair) reach `s` and `s * c`, both consistent, and every
+  continuation keeps them there. With `c <> e` these differ.
+- **`rootless_unique_iff` (the exact statement).** With trivial holonomy, the reachable consistent
+  state is unique from every initial state **iff `|G| = 1`**, for all schedules and for fair ones
+  alike. `rootless_unique_iff_general` drops the holonomy hypothesis: unique iff (trivial holonomy
+  implies `|G| = 1`); with nontrivial holonomy uniqueness is vacuous because nothing consistent is
+  reachable. `rootless_unique_normal_form_iff` combines existence and uniqueness: "from every
+  initial state some fair round reaches a consistent state, and every schedule that reaches one
+  reaches the same" iff `|G| = 1`. So a rootless invertible cycle has a unique normal form iff the
+  group is trivial; any nontrivial group needs an authority (or another coordination).
+
+**Where the qualifiers are needed** (recorded as theorems).
+
+- `rootless_selfloop_unique`: `n >= 1` is needed. A self-loop with identity label over Z/2 has a
+  unique normal form (every state is consistent and no write changes anything) with `|G| = 2`.
+- `rootless_orientation_matters`: coherent orientation is needed. The triangle `0 -> 1`, `1 -> 2`,
+  `0 -> 2` of copies over Z/2 is a cycle of the underlying graph with trivial holonomy, yet its
+  normal form is unique: registry 0 has no incoming edge and is a de facto authority root.
+
+**Instances** (every hypothesis discharged). Z/2 copy-back: `rootless_copyback_not_unique`, and
+`copyback_without_authority_recovered` re-derives `copyback_without_authority` from
+`rootless_two_orders` (section `(1, 1)`, shift `1`), with `cb_bridge_01` and `cb_bridge_10`
+identifying `FederationOrder.run` of the registry writers with firing their in-edges. An S_3
+triangle labeled `a`, `b`, `(b a)^-1` (with `a b <> b a`): trivial holonomy, a consistent state
+from every initial state, not unique (`rootless_s3_not_unique`; S_3 is a six-constructor type whose
+product is `Cohomology.v`'s `S3Sep.comp`). The trivial group on a triangle: unique normal form
+(`rootless_trivial_unique`). The Z/2 negation loop: nontrivial holonomy, no consistent state is
+reachable (`rootless_negation_no_nf`).
+
+Scope: coherently oriented single cycles and the regular action. On a general graph the two
+general facts still hold (`trivial_unique`: `|G| = 1` gives uniqueness on any graph;
+`fixed_iff_section`, `fire_section_stable`), but registries with no incoming edge act as roots, so
+the exact condition there depends on the graph's root structure and is not stated here.
+
+## The exact event-order condition under the coordination plan (`CoordinatedExact.v`)
+
+`coordinated_events_converge` (above) is sufficient only: permutations of local events converge
+under the plan when the authority root's own events commute at every value. The plan's driving
+network (`dsrc`, `dfun`) is an acyclic federation (`drive_common`), so the exact converse of
+`FederationEventsConverse.v` applies to it. This file instantiates it and computes what it says.
+
+Setting: a group `G`, a root `r`, a spanning tree `T` from `r`, a topological order `o` of the
+driving network over exactly the tree's vertices, local events `(E, reg, sig)` on tree registries
+with any declared same-registry independence `J`, and any start `s0` consistent with the driving
+network (`Cons`). `TraceConv s0`: every two `J`-trace-equivalent event sequences reach the same state.
+
+**Direct instantiation.** `coordinated_gc_iff` (`GCF s0 <-> TraceConv s0`, from `acyclic_gc_iff`),
+`coordinated_fed_exact` (`TraceConv s0 <-> C1R1 s0 /\ C2R s0`, from `fed_exact`),
+`coordinated_fed_exact_full` (the same with `C1R`, from `fed_exact_full`).
+
+**What C1 and C2 reduce to on the driving network.**
+
+- `coordinated_network_shape`: each non-root tree vertex is driven by one group translation of its
+  tree parent (`g * s(p)` or `g^-1 * s(p)`, ignoring its own value), the root keeps its own value
+  (`dfun r s x = x`), and off-tree registries are untouched. Balanced non-tree edges never enter
+  `dfun` (they are constraints, checked on the result: `coordinated_runs_kept`), and coordinated
+  edges are absent.
+- `coordinated_c1_static`, `coordinated_c1r1`: C1 holds unconditionally (statically, hence at every
+  reachable witness). A driven repair overwrites the whole value, so both sides of C1 are the
+  translated parent value; the root's repair is the identity, so both sides are `sig e b`.
+- `coordinated_c2at_iff`: C2 at a reachable witness `s` is trivial on driven registries and, on the
+  root, is exactly `sig e2 (sig e1 (s r)) = sig e1 (sig e2 (s r))`.
+- `coordinated_root_run`, `coordinated_root_reach`, `root_only_run`: the root value of a run is the
+  start's root value pushed through the run's root events only; other events never reach the root.
+
+**The exact condition.**
+
+- **`coordinated_events_exact`**: for every consistent start `s0`,
+  `TraceConv s0 <-> RootCC J (s0 r)`, where `RootCC J x0` says every two `J`-independent root events
+  commute at every root value reachable from `x0` by root events (`RootReach`).
+- `coordinated_perm_exact`: with every pair declared, all permutations converge from `s0` iff root
+  events commute pairwise at every reachable root value.
+- `coordinated_events_exact_plan`: the iff together with "every reached state satisfies `T ++ B`".
+- `coordinated_events_exact_global`: convergence from **every** consistent start iff every two
+  `J`-independent root events commute at **every** value. So the old hypothesis is exactly the
+  uniform condition; `coordinated_events_converge_recovered` re-derives the old theorem
+  (`old_implies_rootcc`).
+
+**The old condition is not necessary for a fixed start** (`old_condition_not_necessary`). Over the
+Klein group `V4 = (bool * bool, xor)` (`klein_group`) on the tree A -> B rooted at A, the root events
+Swap `(a, b) -> (b, a)` and Clear `(a, b) -> (a, false)` do not commute at `(true, false)`, yet from the
+consistent start with root `(false, false)` every permutation of events (with a B event too)
+converges: both root events fix `(false, false)` (`k_rrun_fixed`). From the consistent start with
+root `(true, false)` the two orders of Swap and Clear diverge. (Over Z/2 no such example exists: two
+self-maps of `bool` that fail to commute fail at every point.)
+
+**Non-vacuity** (CoordinatedCycles.v's two Z/2 loops, with events).
+`copyback_events_exact`: the copy-back loop with root event Flip (negation) and a B event; from every
+consistent start `RootCC` holds, every permutation converges, and every reached state satisfies
+`cc_T ++ cb_B ++ cb_C`. `negation_events_exact`: the negation loop with root events Set0 and Set1
+and a B event; from every consistent start `RootCC` fails, the two orders of Set0 and Set1 diverge,
+permutations do not converge, every reached state satisfies the kept network `cc_T ++ neg_B`, and
+none satisfies `cc_T ++ neg_B ++ neg_C`. The two loops share the driving network (it depends only on
+`T` and `r`), so event convergence depends only on the root's events; `B` and `C` change only which
+constraints the reached states satisfy.
+
 ## The federated theorems in corrected form (`FederationGRS.v`)
 
 ROADMAP item 7, work package WP5 (rows F6 to F10 and F17 to F19 of `PAPER-MAP.md`). The federation
@@ -1636,7 +1758,7 @@ Kept at paper level (out of scope for the first mechanization pass):
   machinery.
 
 Status: these are targets for the companion submission, tracked here so the axiom-free gate above
-(currently 729 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
+(currently 827 theorems) stays legible. Nothing in this roadmap is claimed proven until it lands in a
 module and passes the gate.
 
 ## Build
