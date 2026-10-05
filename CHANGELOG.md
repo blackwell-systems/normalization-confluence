@@ -7,6 +7,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Experimental (do not cite yet): statement review of the canonical-execution modules (#78).
+  Every rederivation (`*_kernel`, `*_P`) has the same exported statement as the theorem it
+  rederives (`flush_fed_iff_kernel` with fewer premises), and the six-criteria outcome stands.
+  Added correctly-stated theorems where the prose claimed more than a statement:
+  `stream_free_hd_iff_pcc` (the kernel part of `stream_free_history`, which rereads
+  `stream_exact_free`), `xur_state_descent` (XUR as pointwise state descent),
+  `cyclic_lc_sound_fails` (`cyclic_lc_fails` does not mention `LC`), `factor_needs_exposed` (the
+  third premise of `factor_exact` is needed), `cyc_grun_nf` and `cyc_factor_sound_gc` (`GC` from
+  every normal form), `c_local_iff_r1` (the equivalence behind `common_r1`) and
+  `fed_state_and_interaction` (the two P halves as a conjunction). Qualifiers added to comments
+  and `coq/docs/canonical-execution.md`: the effective kernel's `ok_inj` (every event admissible
+  after every admissible word), `state_descent_iff_cc2` is the all-events CC2, peak kinds are
+  labels, Settlement sits on both sides of `esh_exact`, C1R1 is pointwise state descent with a
+  point-dependent canonicalizer. Gate raised from 1918 to 1926.
+- Experimental (do not cite yet): `coq/CanonicalLocality.v`, the P layer of the
+  canonical-execution meta-theory, interaction locality as factorization through a composition
+  boundary (#77). Generic: `factor_exact` (`LC -> Realizable -> (GlobalRes <-> LocalRes /\
+  InterfaceRes)`), `factor_pointwise`, with each premise shown necessary (`factor_needs_sound`,
+  `factor_needs_realizable`; `factor_needs_exposed` added in #78). Acyclic federation as an
+  instance: interface ambiguities are the C1 shape (kernel `StateDescentAt`), local ambiguities
+  the C2 shape (kernel `grun`), `LC` is `pair_commute` and realizability `pair_commute_nec`;
+  `gc_iff_reach_P`, `fed_exact_P` (criterion D now passes: kernel history layer, then the P
+  layer, without `gc_iff_reach`), `fed_exact_full_P`, `reach_commute_iff_P`, `fed_gc_sites`,
+  `fed_factor_supply` (non-vacuity). `cyclic_lc_fails`: on a two-registry cycle every field of
+  `Common` but the topological order holds, C1R1 and C2R hold, and `GCF` fails (the failure of
+  `LCSound` is `cyclic_lc_sound_fails`, #78). `cyc_factor_sound`: on monotone cycles, the
+  soundness half only, with a static decomposition. `common_r1`: `Common`'s `c_local` gives
+  `SheafGluing.R1`, the one hypothesis shared with state gluing (an observation, not a combined
+  theorem). Documented in `coq/docs/canonical-execution.md`. Gate raised from 1891 to 1918.
 - Experimental (do not cite yet): `coq/CanonicalExecution.v` and `coq/CanonicalInstances.v`, a
   candidate meta-theory in which convergence decomposes into effective canonicalization (E:
   settlement and canonical fidelity), state descent (S) and history descent (H) (#74). Kernel:
@@ -14,7 +43,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   `peak_exact` and `classified_peak_exact` (localized Newman, credited), `history_descent_exact`
   over admissible executions, `esh_exact`. Validation against six existing exact results:
   `jc_exact`/`jcg_exact`, `causal_exact`, the at-least-once results (free and causal), streams,
-  and the ghost family reduce to short corollaries; `fed_exact` is partial, pending a
+  and the ghost family reduce to short corollaries (`stream_exact_free` is reread rather than
+  rederived); `fed_exact` is partial, pending a
   compositional (P-layer) locality theorem. Documented in `coq/docs/canonical-execution.md`,
   marked experimental. Gate raised from 1783 to 1891.
 - `coq/CausalReplay.v`: convergence under causal delivery, where only concurrent events need to commute (#19).

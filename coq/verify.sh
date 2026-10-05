@@ -1910,12 +1910,14 @@ Print Assumptions NC.CanonicalInstances.c1r1_state_descent.
 Print Assumptions NC.CanonicalInstances.c2at_history.
 Print Assumptions NC.CanonicalInstances.xu_state_descent.
 Print Assumptions NC.CanonicalInstances.xuat_state_descent.
+Print Assumptions NC.CanonicalInstances.xur_state_descent.
 Print Assumptions NC.CanonicalInstances.stream_state_peaks_empty.
 Print Assumptions NC.CanonicalInstances.st_complete.
 Print Assumptions NC.CanonicalInstances.pjc_exact_kernel.
 Print Assumptions NC.CanonicalInstances.stream_exact_kernel.
 Print Assumptions NC.CanonicalInstances.pcc_gen_iff.
 Print Assumptions NC.CanonicalInstances.stream_free_history.
+Print Assumptions NC.CanonicalInstances.stream_free_hd_iff_pcc.
 Print Assumptions NC.CanonicalInstances.d_act_event.
 Print Assumptions NC.CanonicalInstances.d_act_internal.
 Print Assumptions NC.CanonicalInstances.d_flush_ok.
@@ -1945,6 +1947,7 @@ Print Assumptions NC.CanonicalLocality.factor_complete.
 Print Assumptions NC.CanonicalLocality.factor_exact.
 Print Assumptions NC.CanonicalLocality.factor_needs_sound.
 Print Assumptions NC.CanonicalLocality.factor_needs_realizable.
+Print Assumptions NC.CanonicalLocality.factor_needs_exposed.
 Print Assumptions NC.CanonicalLocality.freach_ok.
 Print Assumptions NC.CanonicalLocality.fed_lc_exposed.
 Print Assumptions NC.CanonicalLocality.fed_lc_sound.
@@ -1962,9 +1965,14 @@ Print Assumptions NC.CanonicalLocality.fed_gc_sites.
 Print Assumptions NC.CanonicalLocality.reach_commute_iff_P.
 Print Assumptions NC.CanonicalLocality.fed_factor_supply.
 Print Assumptions NC.CanonicalLocality.cyclic_lc_fails.
+Print Assumptions NC.CanonicalLocality.cyclic_lc_sound_fails.
 Print Assumptions NC.CanonicalLocality.cyc_lc.
 Print Assumptions NC.CanonicalLocality.cyc_factor_sound.
+Print Assumptions NC.CanonicalLocality.cyc_grun_nf.
+Print Assumptions NC.CanonicalLocality.cyc_factor_sound_gc.
 Print Assumptions NC.CanonicalLocality.common_r1.
+Print Assumptions NC.CanonicalLocality.c_local_iff_r1.
+Print Assumptions NC.CanonicalLocality.fed_state_and_interaction.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -1975,8 +1983,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 1918 ]; then
-  echo "FAIL: expected 1918 axiom-free results, got $N"
+if [ "$N" -lt 1926 ]; then
+  echo "FAIL: expected 1926 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
