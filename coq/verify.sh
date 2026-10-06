@@ -2345,6 +2345,97 @@ Print Assumptions NC.AtLeastOnceDeclared.absorb_idem_i.
 Print Assumptions NC.AtLeastOnceDeclared.idem_absorb_i.
 Print Assumptions NC.AtLeastOnceDeclared.free_comm_iff.
 Print Assumptions NC.AtLeastOnceDeclared.causal_comm_iff.
+Require NC.ProjectionChannels.
+Print Assumptions NC.ProjectionChannels.setb_eq.
+Print Assumptions NC.ProjectionChannels.setb_neq.
+Print Assumptions NC.ProjectionChannels.setn_eq.
+Print Assumptions NC.ProjectionChannels.setn_neq.
+Print Assumptions NC.ProjectionChannels.updF_eq.
+Print Assumptions NC.ProjectionChannels.updF_neq.
+Print Assumptions NC.ProjectionChannels.rmn_in.
+Print Assumptions NC.ProjectionChannels.crun_app.
+Print Assumptions NC.ProjectionChannels.cevs_app.
+Print Assumptions NC.ProjectionChannels.disc_app.
+Print Assumptions NC.ProjectionChannels.ok_capp.
+Print Assumptions NC.ProjectionChannels.cevs_emb.
+Print Assumptions NC.ProjectionChannels.ok_emb.
+Print Assumptions NC.ProjectionChannels.nth_error_in.
+Print Assumptions NC.ProjectionChannels.vinv_step.
+Print Assumptions NC.ProjectionChannels.vinv_run.
+Print Assumptions NC.ProjectionChannels.vinv_init.
+Print Assumptions NC.ProjectionChannels.emb_run.
+Print Assumptions NC.ProjectionChannels.topo_ndp.
+Print Assumptions NC.ProjectionChannels.frnd_ext.
+Print Assumptions NC.ProjectionChannels.frnd_run.
+Print Assumptions NC.ProjectionChannels.o_ndp.
+Print Assumptions NC.ProjectionChannels.fround_run.
+Print Assumptions NC.ProjectionChannels.ok_frnd.
+Print Assumptions NC.ProjectionChannels.ok_fround.
+Print Assumptions NC.ProjectionChannels.cevs_frnd.
+Print Assumptions NC.ProjectionChannels.cinv_step.
+Print Assumptions NC.ProjectionChannels.cinv_run.
+Print Assumptions NC.ProjectionChannels.cinv_init.
+Print Assumptions NC.ProjectionChannels.flush_merge.
+Print Assumptions NC.ProjectionChannels.cstep_flush.
+Print Assumptions NC.ProjectionChannels.crun_flush.
+Print Assumptions NC.ProjectionChannels.in_nth.
+Print Assumptions NC.ProjectionChannels.topo_noself.
+Print Assumptions NC.ProjectionChannels.cons_feq.
+Print Assumptions NC.ProjectionChannels.frun_cons.
+Print Assumptions NC.ProjectionChannels.xuat_feq.
+Print Assumptions NC.ProjectionChannels.cxur_xur.
+Print Assumptions NC.ProjectionChannels.chan_dist.
+Print Assumptions NC.ProjectionChannels.ok_prefix.
+Print Assumptions NC.ProjectionChannels.chan_flush.
+Print Assumptions NC.ProjectionChannels.chan_xur_nec.
+Print Assumptions NC.ProjectionChannels.chan_exact.
+Print Assumptions NC.ProjectionChannels.chan_exact_global.
+Print Assumptions NC.ProjectionChannels.chan_global_exact_roots.
+Print Assumptions NC.ProjectionChannels.chan_xu_c2.
+Print Assumptions NC.ProjectionChannels.drain_refused.
+Print Assumptions NC.ProjectionChannels.vsettle.
+Print Assumptions NC.ProjectionChannels.vsettle_settled.
+Print Assumptions NC.ProjectionChannels.vsettle_exact.
+Print Assumptions NC.ProjectionChannels.vsettle_exact_cond.
+Print Assumptions NC.ProjectionChannels.vsettle_cv.
+Print Assumptions NC.ProjectionChannels.vsettle_xu_c2.
+Print Assumptions NC.ProjectionChannels.drain_plain.
+Print Assumptions NC.ProjectionChannels.plain_settle_iff.
+Print Assumptions NC.ProjectionChannels.Forall_firstn'.
+Print Assumptions NC.ProjectionChannels.Forall_skipn'.
+Print Assumptions NC.ProjectionChannels.firstn_le_app.
+Print Assumptions NC.ProjectionChannels.firstn_split.
+Print Assumptions NC.ProjectionChannels.length_skipn'.
+Print Assumptions NC.ProjectionChannels.len_app.
+Print Assumptions NC.ProjectionChannels.firstn_all'.
+Print Assumptions NC.ProjectionChannels.dF_ev_local.
+Print Assumptions NC.ProjectionChannels.dF_ev_off.
+Print Assumptions NC.ProjectionChannels.src_root.
+Print Assumptions NC.ProjectionChannels.isR_ev.
+Print Assumptions NC.ProjectionChannels.isR_off.
+Print Assumptions NC.ProjectionChannels.isJ_off.
+Print Assumptions NC.ProjectionChannels.isJ_ok.
+Print Assumptions NC.ProjectionChannels.isR_ok.
+Print Assumptions NC.ProjectionChannels.comm_jev.
+Print Assumptions NC.ProjectionChannels.emu_ev.
+Print Assumptions NC.ProjectionChannels.emu_send.
+Print Assumptions NC.ProjectionChannels.emu_shrink.
+Print Assumptions NC.ProjectionChannels.emu_merge.
+Print Assumptions NC.ProjectionChannels.emu_step.
+Print Assumptions NC.ProjectionChannels.emu_run.
+Print Assumptions NC.ProjectionChannels.vchan_emulate.
+Print Assumptions NC.ProjectionChannels.N_root.
+Print Assumptions NC.ProjectionChannels.xuat_transfer.
+Print Assumptions NC.ProjectionChannels.cxur_twolevel.
+Print Assumptions NC.ProjectionChannels.vchan_twolevel_exact.
+Print Assumptions NC.ProjectionChannels.sp_twolevel.
+Print Assumptions NC.ProjectionChannels.ce_s0_inv.
+Print Assumptions NC.ProjectionChannels.plain_stale_counterexample.
+Print Assumptions NC.ProjectionChannels.plain_stale_in_flight.
+Print Assumptions NC.ProjectionChannels.version_order_counterexample.
+Print Assumptions NC.ProjectionChannels.no_final_send_counterexample.
+Print Assumptions NC.ProjectionChannels.late_delivery_instance.
+Print Assumptions NC.ProjectionChannels.vchan_cyc_ghost.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2355,8 +2446,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2290 ]; then
-  echo "FAIL: expected 2290 axiom-free results, got $N"
+if [ "$N" -lt 2380 ]; then
+  echo "FAIL: expected 2380 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

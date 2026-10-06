@@ -7,6 +7,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/ProjectionChannels.v`: propagation over channels that deliver projections late, reordered
+  or duplicated, for gsm's `MergeProjection` (plain) and `MergeProjectionAfter` (versioned);
+  narrows audit gap 21 (a new axis). Axiom-free.
+  - **Model:** projections in flight carry a version and a snapshot; `CDel` delivers any one of
+    them (reordering, delay), `CDup` delivers one and keeps it (duplication); the version discipline
+    `disc` is gsm's contract (strictly increasing per edge in send order). The current-value model
+    is immediate delivery (`emb_run`, no hypothesis).
+  - **Main results:** `chan_exact` (either mode, after a flush: `ChanConv <-> CXUR /\ C2R`),
+    `chan_exact_global`, `chan_global_exact_roots`, `chan_xu_c2`; versioned at drain `vsettle`,
+    `vsettle_exact`, `vsettle_exact_cond` (`SettleConv <-> CXUR true /\ C2R`, no outside flush),
+    `vsettle_cv` (the drained state is the current-value run's), `vsettle_xu_c2`; plain at drain
+    `plain_settle_iff`; two-level networks `vchan_emulate`, `vchan_twolevel_exact` (`dist_exact`'s
+    condition).
+  - **Counterexamples:** `plain_stale_counterexample` (plain merge under XU: a stale projection
+    delivered after the fresh one leaves a drained run unsettled, and two drained runs of the same
+    events disagree), `version_order_counterexample`, `no_final_send_counterexample`,
+    `vchan_cyc_ghost` (the ghost survives versioned channels). Non-vacuity: `late_delivery_instance`.
+  - **Residue:** the current-value form beyond two-level networks (`CXUR true` against `XUR`), and
+    channels on cycles (flush and reset epochs).
+  - **Docs:** `coq/README.md` row, `coq/docs/distributed.md` section, `REGIME-AUDIT.md` section 8
+    rows, gap 21 row, frontier row and summaries, `docs/COVERAGE.md` section 4, `docs/REGIMES.md`,
+    `docs/ROADMAP.md`, `README.md` open-gap sentence (nine open gaps, unchanged), and the count
+    lines.
+  - **Gate:** raised from 2290 to 2380.
+
 - `coq/AtLeastOnceDeclared.v`: at-least-once delivery under declared independence `I`, exactly;
   closes audit gap 15 (a). Gap 15 stays open for (b) to (d). Axiom-free.
   - **Model:** a delivery `d` of a history `o` is `ALOI o d` when every pair some copy delivers out
