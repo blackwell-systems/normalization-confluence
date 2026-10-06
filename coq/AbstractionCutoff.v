@@ -110,6 +110,9 @@ Proof.
     + destruct (Q x); simpl; lia.
 Qed.
 
+Lemma filter_all : forall {A : Type} (l : list A), filter (fun _ => true) l = l.
+Proof. intros A l. induction l as [|x l IH]; simpl; [reflexivity | rewrite IH; reflexivity]. Qed.
+
 Lemma filter_nil : forall {A : Type} (P : A -> bool) l, (forall x, In x l -> P x = false) -> filter P l = [].
 Proof.
   intros A P l H. induction l as [|x l IH]; simpl; [reflexivity|].
@@ -416,7 +419,7 @@ Lemma cnt_len_lt : forall P X y, In y X -> P y = false -> (cnt P X < length X)%n
 Proof.
   intros P X y Hy Hp. unfold cnt. eapply Nat.lt_le_trans.
   - apply (filter_lt P (fun _ => true) _ y); [auto | apply nodup_In; exact Hy | reflexivity | exact Hp].
-  - rewrite filter_true. apply NoDup_incl_length; [apply NoDup_nodup|].
+  - rewrite filter_all. apply NoDup_incl_length; [apply NoDup_nodup|].
     intros x Hx. apply nodup_In in Hx. exact Hx.
 Qed.
 
