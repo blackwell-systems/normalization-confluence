@@ -18,7 +18,10 @@ cells are 12 distinct questions, proposed as gaps 15 to 19. Outside the axes, se
 dimensions are not represented in the model at all (section 4): two become gaps 20 and 21 (new
 axes), five become explicit design exclusions X1 to X5, and the rest map onto existing cells or
 stated limits. Since the pass, cell C10 (gap 15 (a)) is exact (`AtLeastOnceDeclared.v`,
-`dalo_exact`); the counts in section 3 include that change.
+`dalo_exact`); the counts in section 3 include that change. The new axis of gap 21 (propagation
+over channels) is now modeled (`ProjectionChannels.v`) and partly covered: acyclic networks are
+exact in reachable form, two-level networks in the current-value form, and the residue is listed
+under gap 21 (section 4; the counts in section 3, which are cells of the axes, do not change).
 
 How to read the statuses:
 
@@ -272,7 +275,7 @@ dimension the model does not represent at all.
 |---|---|---|---|
 | Dynamic topology: registries or edges added or removed at run time | new axis (`src` is a fixed parameter of every module) | a change at a quiescent barrier is two runs, the second from the reached state, so each is an existing cell; a change while events or propagation are in flight is not represented | **gap 20** |
 | Rule or schema evolution mid-run | new axis (`apply`, `rho`, `f` are fixed parameters; gsm binds tables and certificates to `PolicyDigest` and `PolicyIdentityDigest` and rejects a mismatch in `EmbedCertified`) | barrier case as above; mixed-version replicas inside a run are not represented | **gap 20** (with dynamic topology) |
-| Propagation over channels: late, reordered or duplicated projections | new axis (the Coq propagation step reads the sources' current values; gsm's `MergeProjection` merges whatever arrives, and `MergeProjectionAfter` drops a projection not newer than the last applied) | not represented | **gap 21** |
+| Propagation over channels: late, reordered or duplicated projections | new axis (the current-value propagation step reads the sources' current values; gsm's `MergeProjection` merges whatever arrives, and `MergeProjectionAfter` drops a projection not newer than the last applied) | partly covered (`ProjectionChannels.v`): acyclic, exact over channel-reachable states in either mode (`chan_exact`); versioned merging converges at drain exactly when it does after a flush (`vsettle_exact_cond`); plain merging settles iff nothing stale is in flight (`plain_settle_iff`) and fails under XU (`plain_stale_counterexample`); two-level networks, the current-value condition (`vchan_twolevel_exact`); cycles, the ghost survives (`vchan_cyc_ghost`) | **gap 21**, narrowed |
 | Faulty or Byzantine participants | new axis | crash faults and lost messages are the eventual-delivery limit; a participant that deviates from its declared rules is not governed state | **design exclusion X1** |
 | Nondeterministic repair | new axis value (`rho : State -> State` is a function throughout; THEORY.md: "Compensation operator repairing violations deterministically") | excluded by the scope sentence "discrete, deterministic governed state"; made explicit | **design exclusion X2** |
 | Probabilistic schedules (convergence with probability 1) | new axis value of the schedule axis | not represented | **design exclusion X3** |
@@ -299,7 +302,7 @@ Numbered after the audit's last gap (14). Sizes follow the audit's scale.
 | 18 | Existence and counting in reading B without a spanning root (fixed points of the resolver map, in-degree two or more): no row. The polynomial reductions between the readings (LOSSY-NETWORKS.md section 1) are conjectures validated by checks 8 and 9; mechanizing one transfers `net_section_iff_sat` and `net_count` | cells | small | 12 |
 | 19 | Composition beyond acyclic collapse: (a) coordination-free networks whose cyclic blocks use different engines (a non-monotone cyclic block, invertible or lossy, feeding or fed by other blocks); (b) collapse preservation in the distributed model (a block whose internal propagation interleaves with outer events). An instance of the cyclic frontier for (a) | cells | medium to large | 14 |
 | 20 | **New axis.** Reconfiguration inside a run: the topology (`src`) or the rules (`apply`, `rho`, morphisms) change while events or propagation are in flight. A change at a quiescent barrier reduces to two runs of existing cells | new axis | medium | none (COVERAGE.md section 4) |
-| 21 | **New axis.** Propagation over channels: projections delivered late, reordered or duplicated. gsm's `MergeProjection` (no order check: a late or duplicate projection is merged as it arrives, and a stale one merged after a newer one wins) and `MergeProjectionAfter` (rejects a projection whose version is not newer than the last one applied from that edge) are outside the mechanized propagation model, whose step reads the sources' current values, so no theorem covers a deployment whose projections travel over such channels. Freshness keeps an older value from overwriting a newer one; it is not proved to give convergence (gsm's own documentation says the same) | new axis | small to medium | 8 |
+| 21 | **New axis.** Propagation over channels: projections delivered late, reordered or duplicated. gsm's `MergeProjection` (no order check: a late or duplicate projection is merged as it arrives, and a stale one merged after a newer one wins) and `MergeProjectionAfter` (rejects a projection whose version is not newer than the last one applied from that edge) are outside the mechanized propagation model, whose step reads the sources' current values, so no theorem covers a deployment whose projections travel over such channels. Freshness keeps an older value from overwriting a newer one; it is not proved to give convergence (gsm's own documentation says the same). Since narrowed by `ProjectionChannels.v` (`chan_exact`, `vsettle_exact_cond`, `vsettle_xu_c2`, `plain_settle_iff`, `vchan_twolevel_exact`); the residue is the current-value form beyond two-level networks and cycles | new axis | small to medium | 8 |
 
 Why gaps and not exclusions: each is a question in the model's own vocabulary that nothing in the
 scope ("discrete, deterministic governed state") rules out, and gsm meets 15 (a), 20 (policy
@@ -329,7 +332,7 @@ Dimensions that appear in gsm or in theorem premises but are not axes of the aud
 - **Declared independence** (a delivery value). gsm's `Independent` and `OnlyDeclaredPairs` and the
   premise `I : E -> E -> Prop`; crossing it with at-least-once delivery gives gap 15 (a).
 - **Propagation transport** (gsm only): `Projection.Version`, `MergeProjection`,
-  `MergeProjectionAfter`; gap 21.
+  `MergeProjectionAfter`; gap 21 (narrowed, `ProjectionChannels.v`).
 - **Policy identity** (gsm only): `PolicyDigest`, `PolicyIdentityDigest`, certificate digests;
   the theory fixes the rules, gsm checks that participants share them; gap 20.
 - **Closure purity and domains** (gsm only): `TrustClosureFootprints`, lazy machines, domain checks;

@@ -363,3 +363,11 @@ all: AtLeastOnceDeclared.vo
 
 AtLeastOnceDeclared.vo: AtLeastOnceDeclared.v Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo GovernanceConverse.vo
 	coqc -Q . NC AtLeastOnceDeclared.v
+
+# Propagation over channels that deliver projections late, reordered or duplicated: plain and
+# versioned merge, the exact condition over channels, convergence at drain, the two-level
+# emulation, and the counterexamples (gap 21, ProjectionChannels.v).
+all: ProjectionChannels.vo
+
+ProjectionChannels.vo: ProjectionChannels.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo
+	coqc -Q . NC ProjectionChannels.v

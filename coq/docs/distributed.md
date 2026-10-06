@@ -1,7 +1,8 @@
 # Distributed model with propagation steps
 
 Detailed results for the distributed propagation model: the exact condition on acyclic federations,
-the model on monotone cycles, that model without resets made exact, and convergence alone in it. Each module's one-line summary is in the [module
+the model on monotone cycles, that model without resets made exact, convergence alone in it, and
+propagation over channels that deliver projections late, reordered or duplicated. Each module's one-line summary is in the [module
 index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#8-distributed-model-with-propagation-steps), section 8.
 
@@ -446,3 +447,93 @@ state propagation settles in instead of `Lfp`. All conditions are reachable prop
 `flush_fed_iff`); `SoundR` removes the fidelity layer. No per-target check for `FlushXUR` or
 `QMConv` is given: gsm's `C1cyc` and `C2cyc` are stated against `Lfp`, so they discharge the
 ghost-free forms (`XUcR`, `FMConv`) only.
+
+## Propagation over channels (`ProjectionChannels.v`)
+
+The modules above have a propagation step that reads the sources' *current* states. gsm's nodes
+send projections (`SharedProjection`) over a transport and merge what arrives: `MergeProjection`
+applies every projection, `MergeProjectionAfter` refuses one whose `Version` is not newer than the
+last one applied from that edge. This file models the transport (audit gap 21, a new axis; 90 gated
+results, axiom-free).
+
+**Model.** A configuration holds every registry's state `cs`, the projections in flight to each
+target `cb j` (a version and a snapshot of the state when it was sent), the last applied version
+`cl j` and the last sent version `cv j`. Actions: `CEv e` (a local event), `CSend j v` (send `j`
+the projection of the current state with version `v`), `CDel j i` (deliver the `i`-th projection
+in flight to `j` and remove it: any `i`, so any order and any delay), `CDup j i` (deliver it and
+keep it, so it can arrive again later). A delivery merges `t j := f j z (t j)` with the snapshot
+`z`. `vm = false` is `MergeProjection`; `vm = true` is `MergeProjectionAfter`. `disc` is gsm's
+version contract: each send to `j` has a version above every earlier one. The channel is per
+target: for a single-source target it is gsm's per-edge channel; a multi-source target's channel
+carries all its sources at one snapshot, which gsm's per-edge projections do not provide (gsm
+reports those targets as not certified). `fround c` is the final round: in topological order each
+target is sent the projection of the current state with the next version, and that projection is
+delivered. A drain is any word of deliveries.
+
+- `ChanConv vm s0`: disciplined channel runs whose event sequences are federated-trace-equivalent
+  agree after a final flush `N` (as `DistConv` does).
+- `CXUR vm s0`: `XUat` at every state a disciplined channel run reaches.
+- `SettleConv s0`: versioned runs, each completed by its final round and any drain, agree **with no
+  outside flush**.
+
+**After a flush, either mode.**
+
+- `emb_run`: the current-value model is the channel model with every send delivered at once, in
+  either mode, with no hypothesis on the federation (so also on cycles).
+- **`chan_exact`**: `ChanConv vm s0 <-> CXUR vm s0 /\ C2R (N s0)`. `CXUR` contains `XUR` (by
+  `emb_run`), so a channel deployment needs XU at its own reachable states.
+- `chan_exact_global`: every valid start iff `XUG /\ C2G`, the current-value condition;
+  `chan_global_exact_roots`: when every target's sources are roots, iff static `XU /\ C2` (gsm's
+  check); `chan_xu_c2`: `XU` and `C2` suffice. `chan_flush`: under `CXUR`, every channel run flushes
+  to the FedMachine run of its events.
+
+**Versioned merge: the channels deliver the flush.**
+
+- **`vsettle`**: after the final round every projection still in flight is refused, so every drain
+  ends at `frun o (cs c)`, the current-value flush of the state reached; `vsettle_settled`: that
+  state is a fixed point of every repair.
+- **`vsettle_exact`** and **`vsettle_exact_cond`**: `SettleConv s0 <-> ChanConv true s0 <-> CXUR true
+  s0 /\ C2R (N s0)`.
+- `vsettle_cv`: the drained state is the state of the current-value run "the same events, then a
+  flush". `vsettle_xu_c2`: gsm's `XU` (`FedReport.ProjectionSafe`) and `C2` give `SettleConv`.
+- Two-level networks (`TwoLevel rt`: every registry is a pure root, whose repair is the identity,
+  or a sink nobody reads; any two-registry federation, any star). **`vchan_emulate`**: every state a
+  versioned channel run reaches is, at any target and at every root, the state of a current-value
+  run. The emulating word keeps the root events in order, appends the target's events since its
+  last merge, and places each applied projection where its snapshot was taken; the version check
+  is what makes those places move forward. **`vchan_twolevel_exact`**: `ChanConv true s0`,
+  `SettleConv s0` and `DistConv s0` are each equivalent to `XUR s0 /\ C2R (N s0)`, `dist_exact`'s
+  condition.
+
+**Plain merge: the channels cannot deliver the flush.**
+
+- **`plain_settle_iff`**: after the final round, every drain settles iff every projection still in
+  flight to `j` carries the image of the flushed state at `j`.
+- **`plain_stale_counterexample`**: the supply federation (Common, XU, LocalCC). The source is
+  projected, then recalls; the final round sends and delivers the fresh projection; a stale copy of
+  the first projection arrives after it. The drained state lists a recalled product (not a fixed
+  point), and the same events with the old projection delivered first end elsewhere. `ChanConv
+  false` holds there (the failure is the stale overwrite, not XU), and the versioned merge refuses
+  the stale copy (`SettleConv` holds). `plain_stale_in_flight` names the stale image in flight.
+
+**Hypotheses.**
+
+- `version_order_counterexample`: versions out of send order (a newer version on an older
+  snapshot: a retry restamped with a new version, or a version read off a value the source
+  revisits) let the versioned merge apply a stale projection last. A source that revisits a value
+  is harmless when versions follow the send order: the newer projection carries the current value.
+- `no_final_send_counterexample`: drained channels with no send after the last source change leave
+  the target stale, in either mode.
+- `late_delivery_instance`: non-vacuity, a projection snapshot before a sale and a recall, delivered
+  after both; the final round settles at the current-value run's state.
+
+**Cycles.** **`vchan_cyc_ghost`**: on the flag cycle of `dist_cyc_ghost`, a disciplined versioned
+run with in-order fresh deliveries and a final round is drained and settled at the ghost
+`((false, true), (false, true))`, while the same events, with no propagation between them, settle
+at the least fixed point. By `emb_run` every cyclic current-value run is a versioned channel run, so
+the cyclic counterexamples transfer; flush and reset epochs over channels have no theorem (an
+in-flight projection from before a reset is a hazard the current-value epoch theorems do not see).
+
+Not covered (the residue of gap 21): whether versioned channels reach new stale combinations beyond
+two-level networks (chains, multi-source targets), that is whether `CXUR true` equals `XUR` there;
+channels on cycles. Loss without redelivery is outside the model (the eventual-delivery limit).

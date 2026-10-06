@@ -71,3 +71,4 @@ LocalFairSettlement.v
 LocalTwoToken.v
 LocalTokenBalance.v
 AtLeastOnceDeclared.v
+ProjectionChannels.v

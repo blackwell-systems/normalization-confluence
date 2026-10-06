@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (2290 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2380 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -59,8 +59,11 @@ exact); the distributed model off its current hypotheses
 (rootless invertible cycles with events, ACC without finite height, compensation as separate
 steps on cycles, every fair schedule on an acyclic network); rootless edge-writer dynamics
 beyond the regular action; existence in the resolver reading; composition of cyclic blocks of
-different engines; and two dimensions the model does not represent at all, reconfiguration inside
-a run and propagation over channels that can deliver late, reorder or duplicate. Sheaf gluing on the companion paper's variable-level and
+different engines; reconfiguration inside a run, a dimension the model does not represent at all;
+and propagation over channels that can deliver late, reorder or duplicate, now modeled and exact
+in reachable form for acyclic networks (with versioned merging the channels deliver the flush
+themselves; plain merging cannot), open beyond two-level networks for the current-value form and on
+cycles. Sheaf gluing on the companion paper's variable-level and
 monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
 sources, are paper only. Least fixed points without ACC are a design exclusion, and so are
 Byzantine participants, nondeterministic repair, probabilistic schedules, infinite networks and

@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2290 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2290 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2380 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2380 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -33,7 +33,7 @@ the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over
 (`Cohomology.v` to `CohomologyGeneral.v`, `CohomologyNerve.v`, `RootSet.v`) with minimum
 coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
-rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles), the federated
+rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles, and over channels), the federated
 rewrite system and compositional collapse). The [module index](#modules-by-regime) below lists
 each module with its headline theorems; the pages in [`docs/`](docs) give each module's results in
 full.
@@ -137,6 +137,7 @@ is on the same page.
 | `DistributedCycles.v` | Monotone cycles: `q1_sound_iff`, `q1_unique_iff`; reset epochs `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`; under `LowR` `low_agree_iff`, `low_conv_iff`; relative to `FlushR` and `NoGhostR` `quiet_agree_iff`, `quiet_conv_iff`; the ghost `dist_cyc_ghost` | [On monotone cycles](docs/distributed.md#the-distributed-model-on-monotone-cycles-distributedcyclesv) |
 | `DistributedCyclesExact.v` | No resets, unconditional: `flush_agree_iff`, `fair_agree_iff`, `flush_fed_iff`, `fair_fed_iff`; each conjunct needed (`copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `ghost_exact`); gsm's per-target check: `lens_noreset_iff`, `lens_noreset_fair_iff` | [No-reset model, exactly](docs/distributed.md#the-no-reset-model-on-monotone-cycles-exactly-distributedcyclesexactv) |
 | `DistributedConvergenceExact.v` | No resets, convergence alone (gap 14): `conv_quiet_exact` (`FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the canonical state is where propagation settles, ghost allowed), `fair_conv_exact`; each conjunct needed (`flip_conv_noflush`, `fork_conv_nodet`, `copy_conv_noxu`, `fm_conv_noqm`); ghost-free case `quiet_conv_recovered`, `agree_conv_noghost`, `flush_fed_recovered`; `soundr_conv_iff`; `conv_ghost_instance`, `ghost_conv_not_fed` | [Convergence alone](docs/distributed.md#convergence-alone-on-monotone-cycles-distributedconvergenceexactv) |
+| `ProjectionChannels.v` | Channels that deliver projections late, reordered or duplicated (gap 21, narrowed), plain and versioned merge: `chan_exact`, `chan_exact_global`, `chan_global_exact_roots`; versioned converges at drain `vsettle`, `vsettle_exact_cond`, `vsettle_cv`, `vsettle_xu_c2`; plain `plain_settle_iff`, `plain_stale_counterexample`; two-level `vchan_emulate`, `vchan_twolevel_exact`; `version_order_counterexample`, `no_final_send_counterexample`; cycles `vchan_cyc_ghost` | [Propagation over channels](docs/distributed.md#propagation-over-channels-projectionchannelsv) |
 
 ### 9 and 10. Monotone cycles ([docs/monotone-cycles.md](docs/monotone-cycles.md))
 
@@ -237,7 +238,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2290
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2380
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

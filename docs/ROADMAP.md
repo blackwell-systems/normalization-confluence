@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2290 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2380 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -317,8 +317,9 @@ of one question, what additional structure makes P exact on cycles: gap 3 (rootl
 P2), gap 5 (cyclic monotone collapse), and the monotone-overlap part of gap 13. Gap 13's other
 residues (relative certificates on covers not closed under sources, and the variable-level site)
 are not cyclic and stay separate. Of the gaps the coverage pass added, 16 (a to c), 17, 18 and 19
-are cyclic, 19 (a) being this question for cyclic blocks of different engines; 15, 16 (d), 20 and
-21 are not (classified in the audit's frontier table). Gap 14 (convergence alone in the no-reset cyclic distributed
+are cyclic, 19 (a) being this question for cyclic blocks of different engines; 15, 16 (d) and 20
+are not, and 21 is in part (its residue (b), channels on cycles; classified in the audit's frontier
+table). Gap 14 (convergence alone in the no-reset cyclic distributed
 model) was on this list and is closed (#90) without P: its exact condition (`conv_quiet_exact`)
 is a whole-system E, S and H statement whose canonical state is the quiescent state propagation
 settles in, ghost allowed, instead of the least fixed point. The obstacle there was the choice of
@@ -357,7 +358,7 @@ something outside P.
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
 | Composition beyond acyclic collapse (gap 19): cyclic blocks of different engines, coordination-free; collapse in the distributed model | open | medium to large |
 | Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | open | medium |
-| Propagation over channels (gap 21, **new axis**): late, reordered or duplicated projections; gsm's `MergeProjection` and `MergeProjectionAfter` are outside the mechanized propagation model | open | small to medium |
+| Propagation over channels (gap 21, **new axis**): late, reordered or duplicated projections; gsm's `MergeProjection` and `MergeProjectionAfter` | narrowed: modeled in `ProjectionChannels.v`; acyclic, exact over channel-reachable states in either mode (`chan_exact`, `chan_exact_global`); versioned merging converges at drain exactly when it does after a flush, and under gsm's XU and C2 (`vsettle_exact_cond`, `vsettle_xu_c2`); plain merging settles iff nothing stale is in flight (`plain_settle_iff`; fails under XU, `plain_stale_counterexample`); two-level networks, `dist_exact`'s condition (`vchan_twolevel_exact`). Open: (a) the current-value form beyond two-level networks (does `CXUR true` equal `XUR`); (b) flush and reset epochs over channels on cycles (the ghost survives, `vchan_cyc_ghost`) | small to medium |
 
 Optimization and counting, which do not bear on when state converges (audit gaps 10 to 13):
 
