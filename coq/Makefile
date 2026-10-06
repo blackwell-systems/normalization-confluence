@@ -334,3 +334,11 @@ all: RootlessNetworks.vo
 
 RootlessNetworks.vo: RootlessNetworks.v CohomologyGraph.vo RootlessCycles.vo
 	coqc -Q . NC RootlessNetworks.v
+
+# Fair asynchronous settlement under local conditions (gap 3): the synchronous orbit theorem
+# (Shih and Ho 1999, Theorem 3.1, with (A) needed only on the orbit), token monotonicity, the
+# single-token lemma, and fair settlement from acyclicity (LocalFairSettlement.v).
+all: LocalFairSettlement.vo
+
+LocalFairSettlement.vo: LocalFairSettlement.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo
+	coqc -Q . NC LocalFairSettlement.v

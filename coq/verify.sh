@@ -2211,6 +2211,36 @@ Print Assumptions NC.RootlessNetworks.rootless_global_holonomy.
 Print Assumptions NC.RootlessNetworks.selfloop_recovered.
 Print Assumptions NC.RootlessNetworks.orientation_matters_recovered.
 Print Assumptions NC.RootlessNetworks.copyback_recovered_net.
+Require Import NC.LocalFairSettlement.
+Print Assumptions NC.LocalFairSettlement.acyclic_at_all.
+Print Assumptions NC.LocalFairSettlement.ru_cases.
+Print Assumptions NC.LocalFairSettlement.fixed_ru.
+Print Assumptions NC.LocalFairSettlement.fixed_xw.
+Print Assumptions NC.LocalFairSettlement.outdeg_filter.
+Print Assumptions NC.LocalFairSettlement.sync_orbit_fixed.
+Print Assumptions NC.LocalFairSettlement.nodup_states_bound.
+Print Assumptions NC.LocalFairSettlement.pigeon.
+Print Assumptions NC.LocalFairSettlement.sync_simple.
+Print Assumptions NC.LocalFairSettlement.ucnt_mono.
+Print Assumptions NC.LocalFairSettlement.one_step_F.
+Print Assumptions NC.LocalFairSettlement.orbit_of_run.
+Print Assumptions NC.LocalFairSettlement.one_token_closed.
+Print Assumptions NC.LocalFairSettlement.prs_xw.
+Print Assumptions NC.LocalFairSettlement.settles_fixed.
+Print Assumptions NC.LocalFairSettlement.round.
+Print Assumptions NC.LocalFairSettlement.fair_settles_closed.
+Print Assumptions NC.LocalFairSettlement.fair_settlement_of_acyclic.
+Print Assumptions NC.LocalFairSettlement.rank_closed.
+Print Assumptions NC.LocalFairSettlement.one_token_fair_settlement.
+Print Assumptions NC.LocalFairSettlement.fair_shift.
+Print Assumptions NC.LocalFairSettlement.fair_settles_once_one_token.
+Print Assumptions NC.LocalFairSettlement.blists_len.
+Print Assumptions NC.LocalFairSettlement.blists_all.
+Print Assumptions NC.LocalFairSettlement.rank_ok_sound.
+Print Assumptions NC.LocalFairSettlement.shih_ho_instance.
+Print Assumptions NC.LocalFairSettlement.outdeg_needed.
+Print Assumptions NC.LocalFairSettlement.no_neg_not_enough.
+Print Assumptions NC.LocalFairSettlement.no_pos_not_enough.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2221,8 +2251,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2160 ]; then
-  echo "FAIL: expected 2160 axiom-free results, got $N"
+if [ "$N" -lt 2189 ]; then
+  echo "FAIL: expected 2189 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
