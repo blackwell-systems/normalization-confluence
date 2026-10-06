@@ -323,6 +323,15 @@ The original item text follows. Known gaps at the time, from the README's [paper
 - **Done when.** The reductions pass the gate, gsm can verify a model with realistic domains by
   one of them, and its report names which reduction was used and what it assumed.
 
+- **History-side reduction (partial-order reduction).** The checks that explore reachable states by
+  running event sequences (GC on cycles, the reachable-state forms CXUR and C2R, the planned
+  migration check) can follow one order per group of commuting events. The theorem to prove, per
+  condition: exploring the reduced set of orders (persistent or sleep sets) reaches every state the
+  exact condition quantifies over, or a representative under the equivalence it respects. The
+  ingredient is the existing trace-equivalence machinery (`run_tequiv`, `causal_tequiv`); the new
+  part is the soundness of the pruning. The reductions above are state descent used for checking;
+  this one is history descent used for checking ([THEORY.md](THEORY.md#canonical-execution)).
+
 ### 9. Reconfiguration inside a run (gap 20)
 
 **Status: planned.** The coverage pass recorded this as a new axis ([COVERAGE.md](COVERAGE.md),
