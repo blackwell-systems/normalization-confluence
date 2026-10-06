@@ -575,16 +575,96 @@ counterexamples).
 | `NoLocalNeg` and `OutDeg1` | at least one (`richard_t3`) | yes | no (`ring_local_conditions`) | no (same) |
 | `NoLocalNeg` and a vertex on every local positive cycle | at least one (`richard_t4`) | yes | no (`ring_local_conditions`) | no (same) |
 | `NoLocalCycle` | exactly one (`shih_dong_E`) | yes | yes | no (`shih_dong_not_fair`) |
+| `NoLocalCycle` and `OutDeg1` | exactly one | yes | yes | yes from every start with at most one unstable vertex (`one_token_fair_settlement`, [below](#fair-settlement-under-local-conditions-localfairsettlementv)); from every start open |
 
 **For gap 3 (rootless propagation on lossy networks).** On fidelity the local route strictly
 extends the global certificates of `SignedResolver.v` (`local_weaker_than_global`: a network
 outside every global sign condition, with E certified). On settlement, local conditions certify
 E's Settlement half (flush words: Theorems 3 and 4, Shih and Dong) and, with `NoLocalCycle`, all of
-E, but no local condition here gives fair-schedule settlement: that still needs the global
-switching (`local_signed_fidelity`) or a globally acyclic graph. The certificates remain
+E, but none of these local conditions alone gives fair-schedule settlement: from every start that
+still needs the global switching (`local_signed_fidelity`) or a globally acyclic graph.
+`NoLocalCycle` with `OutDeg1` gives it from starts with at most one unstable vertex
+(`LocalFairSettlement.v`, next section). The certificates remain
 sufficient, not an exact condition; multivalued value sets are not covered (the multivalued
 local results of Richard and Comet 2007 and Richard 2010 are cited).
 
 Decision procedure for the instances: `chk` enumerates every state and every list of distinct
 vertices (`nl_complete`) and is proved sound (`chk_sound`); the 6-vertex check covers 64 states
 and 1,957 vertex lists.
+
+## Fair settlement under local conditions (`LocalFairSettlement.v`)
+
+**Setting.** The Boolean lens model of `LocalSigned.v`. (A) is `NoLocalCycle js`; `AcyclicAt x`
+is (A) at the single state `x`. (B) is `OutDeg1 js`, out-degree at most one in every local graph,
+which is Hamming non-expansiveness of `Fsync` (`outdeg_nonexpansive`). `ucnt x` counts the unstable
+vertices of `x` (the tokens). `orb n x` is the synchronous orbit. `NoClosedChange P` says that no
+closed asynchronous run from a state in `P` changes the state: if the word `w1 ++ w2` leads from
+`x` back to `x`, so does `w1`; on a finite state space this is acyclicity of the asynchronous state
+graph. `Fair` and `Settles` are those of `DistributedCycles.v`, as in `LocalSigned.v`.
+
+**Synchronous form.**
+
+- `sync_orbit_fixed`: `NoDup js`, (B), a periodic orbit `orb (S L) x = x`, and (A) at one state
+  `orb t x` of it imply `Fsync x = x`. Proof: let `U` be the vertices that flip on the orbit and `D`
+  the Hamming distance on `U` between orbit points. Non-expansiveness gives
+  `D (i + 1) (k + 1) <= D i k`, and periodicity turns this into equality. If some `u` in `U` had no
+  out-arc into `U` in `G(orb t x)`, then flipping `u` at `orb t x` would not change `Fsync` on
+  `U`, and comparing with an orbit point that differs from `orb t x` at `u` gives
+  `D s t <= D s t - 1`. So `G(orb t x)` restricted to `U` has no sink, hence a cycle
+  (`cycle_or_sink`), against (A) there.
+- `sync_simple`: (A) and (B) give a unique fixed point `q` that every synchronous orbit reaches
+  within `2^|js|` steps (`pigeon`, `nodup_states_bound`). This is the conclusion of Shih and Ho
+  1999, Theorem 3.1, read in full: their hypothesis (b), `F(V(x))` inside `V(F(x))`, is (B) by
+  their Lemma 4.1 (column `j` of their discrete Jacobian holds the out-arcs of `j`). Their proof
+  goes through a fixed point and its von Neumann neighborhood; this one needs (A) only on the orbit.
+
+**Tokens and the single-token case.**
+
+- `ucnt_mono`: (B) alone, every asynchronous step: `ucnt (rupd v x) <= ucnt x` (firing `v` makes
+  `v` stable unless it has a self-loop, and changes the status of at most one other vertex).
+- `one_step_F`, `orbit_of_run`: with at most one unstable vertex, an asynchronous step is a no-op
+  or the synchronous step, so every run from such a state stays on its synchronous orbit.
+- `one_token_closed`: (B), `AcyclicAt x` and `ucnt x <= 1`: no closed asynchronous run from `x`
+  changes the state. This is the report's single-token lemma, localized to one state and with no
+  fixed point used.
+
+**From acyclicity to fair settlement.**
+
+- `fair_settles_closed`: if `P` is preserved by every asynchronous step and `NoClosedChange P`
+  holds, every `Fair` schedule from every start in `P` `Settles` at a fixed point. The proof
+  splits the schedule into fair rounds (`round`); a round with no change ends at a fixed point,
+  and more than `2^|js|` rounds with changes would revisit a state, giving a closed run with a
+  change.
+- `fair_settlement_of_acyclic`: (A) and `NoClosedChange True`: every fair schedule from every
+  start settles at the unique fixed point (the E-side analogue of `FairFlushR`).
+- `one_token_fair_settlement`, `fair_settles_once_one_token`: (A) and (B): every fair schedule
+  from a start with at most one unstable vertex settles at the unique fixed point; so does every
+  fair run that ever reaches such a state.
+- `rank_closed`, `rank_ok_sound`: a rank that strictly decreases along every real move certifies
+  `NoClosedChange True`; on Boolean vectors it is decided by `rank_ok_b`.
+
+**Instances.**
+
+- `shih_ho_instance` (non-vacuity): Shih and Ho's 4-vertex example (their Section 3, item (5)),
+  `x0 := not x1 || not x2 || x3`, `x1 := 1`, `x2 := 1`, `x3 := not x0 || x1 || x2`. It has (A)
+  and (B), local arcs `0 -> 3` at `0000` and `3 -> 0` at `0110` (so the global interaction graph
+  has a cycle and Robert's theorem does not apply), an acyclic asynchronous state graph (the
+  longest-path rank, checked by `rank_ok_b`), so every fair schedule from every start settles at
+  `1111`; the state `0110` has exactly one unstable vertex.
+- `outdeg_needed`: (B) is needed. Shih and Dong's network `sd_F` has (A) and out-degree 2 at
+  `0000`, a synchronous periodic orbit of length 3 through `0110`, a closed asynchronous run that
+  changes the state, and a fair schedule that never settles (`shih_dong_not_fair`).
+- `no_neg_not_enough`: no local negative cycle is not enough. The positive 3-ring has (B) and no
+  local negative cycle, and a fair schedule that never settles (`ring_local_conditions`).
+- `no_pos_not_enough`: no local positive cycle is not enough. The negative 3-ring
+  `x0 := x1`, `x1 := x2`, `x2 := not x0` has (B) and no local positive cycle, a closed
+  asynchronous run `2, 1, 0, 2, 1, 0` from `000` that changes the state, and no fixed point, so no
+  fair schedule settles from any start.
+
+**What is open (gap 3 stays open).** Under (A) and (B): no closed asynchronous run whose states all
+have two or more unstable vertices. With `fair_settlement_of_acyclic` that would give fair
+settlement from every start. Computational evidence, not mechanized: no such run for n = 3 to 6
+([research/gap3-fair-settlement](../../research/gap3-fair-settlement/README.md)); the key lemma F2
+there is proved here for one token (inside `sync_orbit_fixed`) and open for two or more. Not found
+in the literature searched; Shih and Ho 1999 treat synchronous iteration only. These are sufficient
+conditions; an exact condition for gap 3 is also open.

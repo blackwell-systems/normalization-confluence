@@ -7,6 +7,47 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/LocalFairSettlement.v` (#92): fair settlement for Boolean resolver networks under no local
+  cycle (A) plus out-degree at most one (B); progress on audit gap 3, which stays open.
+  Axiom-free, every `n`.
+  - **Synchronous form:** `sync_orbit_fixed` shows that (B), with (A) at one state of a
+    synchronous periodic orbit, makes the orbit a fixed point. The proof uses isometry of the
+    orbit under the shift, from non-expansiveness and periodicity, plus `cycle_or_sink`.
+    `sync_simple` follows: (A) and (B) give a unique fixed point that every synchronous orbit
+    reaches within `2^n` steps. This is the conclusion of Shih and Ho 1999, Theorem 3.1, by a
+    different proof.
+  - **Single-token lemma:** `ucnt_mono` shows that (B) alone makes the number of unstable
+    vertices non-increasing. With one unstable vertex an asynchronous move is the synchronous
+    step (`one_step_F`, `orbit_of_run`). So `one_token_closed` holds: under (B), with (A) at a
+    state with at most one unstable vertex, no closed asynchronous run through that state changes
+    it.
+  - **Fair settlement from acyclicity:** `fair_settles_closed` (by fair rounds and pigeonhole:
+    `round`, `pigeon`, `nodup_states_bound`) and `fair_settlement_of_acyclic`. A rank certificate
+    can supply the acyclicity: `rank_closed`, decided on Boolean vectors by `rank_ok_b`
+    (`rank_ok_sound`).
+  - **Fair settlement under (A) and (B):** `one_token_fair_settlement` gives it from every start
+    with at most one unstable vertex. `fair_settles_once_one_token` gives it for every fair run
+    that ever reaches such a state.
+  - **Boundary instances:**
+    - `shih_ho_instance` is Shih and Ho's 4-vertex example. It satisfies (A) and (B), its global
+      graph has a cycle, its asynchronous state graph is acyclic, and every fair schedule from
+      every start settles.
+    - `outdeg_needed` (Shih and Dong's network): (A) without (B), with a synchronous 3-cycle and a
+      fair schedule that never settles.
+    - `no_neg_not_enough`: the positive 3-ring.
+    - `no_pos_not_enough`: the negative 3-ring, with a closed asynchronous run and no fixed point.
+  - **Open:** under (A) and (B), closed asynchronous runs with two or more unstable vertices at
+    every state (F2 for k >= 2). Not found in the literature searched; Shih and Ho 1999, now read
+    in full, treat synchronous iteration only.
+  - **Docs:**
+    - `REGIME-AUDIT.md`: section 12 rootless row, gap 3 row, the cyclic frontier, header, history.
+    - `docs/ROADMAP.md`: Done row and gap 3's "Next".
+    - `docs/LOSSY-NETWORKS.md`: P2 and the literature list.
+    - `docs/LANDSCAPE.md`, `docs/THEORY.md`, `docs/REGIMES.md`, `README.md` (open-gap sentence).
+    - `coq/README.md` row and `coq/docs/non-invertible.md`, new section.
+    - `research/gap3-fair-settlement/README.md`.
+    - Current-count lines.
+  - **Gate:** raised from 2160 to 2189.
 - `coq/RootlessNetworks.v` (#91): rootless propagation on any finite invertible network, exactly;
   closes audit gap 2. Axiom-free. Same semantics as `RootlessCycles.v` (every edge a writer, the
   regular action), on an arbitrary edge list: several cycles, mixed orientation, sources feeding

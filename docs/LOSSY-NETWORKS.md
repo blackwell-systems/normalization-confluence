@@ -629,20 +629,54 @@ research directions, not missing exact conditions for a listed regime).
   certificates stay sufficient, not exact. Since P2's statement asks for every fair order, the
   local results answer it only through E (Settlement in its existential, flush form: some update
   word reaches the fixed point from every reachable state), not in its fair form; that fair form
-  from local conditions is still open.
-- **Computational evidence for one candidate (October 2026; not mechanized, not proved).** Add
-  out-degree at most one in every local graph (`OutDeg1`, non-expansiveness by
-  `outdeg_nonexpansive`) to "no cycle in any local graph". An exhaustive SAT search finds no
-  network on n = 3, 4, 5 or 6 vertices with any cycle in its asynchronous state graph, so there
-  every schedule, fair or not, settles at the unique fixed point.
+  from local conditions is open in general, with the progress below.
+- **Progress: fair settlement under no local cycle plus out-degree at most one** (#92,
+  `LocalFairSettlement.v`; details in
+  [coq/docs/non-invertible.md](../coq/docs/non-invertible.md#fair-settlement-under-local-conditions-localfairsettlementv)).
+  Write (A) for "no cycle in any local graph" and (B) for "out-degree at most one in every local
+  graph" (`OutDeg1`, non-expansiveness by `outdeg_nonexpansive`). Mechanized for every `n`:
+  1. Synchronous form. (B), with (A) at one state of a synchronous periodic orbit, makes the orbit
+     a fixed point (`sync_orbit_fixed`): along the orbit, non-expansiveness and periodicity make
+     the Hamming distance between orbit points invariant under the shift, and a vertex that flips
+     on the orbit but has no out-arc into the flipped set at some orbit state would make a shifted
+     distance strictly smaller; so the local graph there has a cycle. Hence (A) and (B) make every
+     synchronous orbit reach the unique fixed point within `2^n` steps (`sync_simple`). This is the
+     conclusion of Shih and Ho 1999 (Adv. Appl. Math. 22(1):60-102), Theorem 3.1, whose hypothesis
+     (b), `F(V(x))` inside `V(F(x))`, is (B) by their Lemma 4.1 (column `j` of their discrete
+     Jacobian holds the out-arcs of `j`); the proof here is different, and `sync_orbit_fixed`
+     needs (A) only on the orbit.
+  2. Single-token asynchronous case. (B) alone makes the number of unstable vertices
+     non-increasing along asynchronous runs (`ucnt_mono`). With one unstable vertex an
+     asynchronous move is the synchronous step, so a closed run is a synchronous orbit and part 1
+     applies: with (A) at a state with at most one unstable vertex, no closed run through it
+     changes the state (`one_token_closed`). So every fair schedule from a start with at most one
+     unstable vertex, and every fair run that ever reaches such a state, settles at the unique
+     fixed point (`one_token_fair_settlement`, `fair_settles_once_one_token`).
+  3. Generic step. An acyclic asynchronous state graph gives fair settlement at the unique fixed
+     point from every start (`fair_settles_closed`, `fair_settlement_of_acyclic`, by fair rounds
+     and pigeonhole), so the open part reduces to acyclicity.
+  Needed, as theorems: (B) (`outdeg_needed`: Shih and Dong's network has (A), a synchronous
+  3-cycle and a fair schedule that never settles); no local positive cycle (`no_neg_not_enough`:
+  the positive 3-ring has (B), no local negative cycle and a fair schedule that never settles); no
+  local negative cycle (`no_pos_not_enough`: the negative 3-ring has (B), no local positive cycle,
+  a closed asynchronous run, and no fixed point). Non-vacuity: `shih_ho_instance`, Shih and Ho's
+  own 4-vertex example (their Section 3, item (5)), with (A), (B), local arcs `0 -> 3` and `3 -> 0`
+  at different states (so the global graph has a cycle and Robert's theorem does not apply), and
+  an asynchronous state graph that is acyclic (a rank certificate), so every fair schedule from
+  every start settles at `1111`.
+- **Open: the multi-token case (computational evidence, not mechanized).** Under (A) and (B), no
+  closed asynchronous run whose states all have two or more unstable vertices. An exhaustive SAT
+  search finds no network on n = 3, 4, 5 or 6 vertices with (A) and (B) and any cycle in its
+  asynchronous state graph; with `fair_settlement_of_acyclic` this would give fair settlement from
+  every start.
   - **Cross-checks:** brute force at n = 3, two encodings, three solvers. Dropping either
     condition gives counterexamples at once.
-  - **Proved by hand:** a cycle with a single unstable vertex is impossible (a Hamming-distance
-    argument with `outdeg_nonexpansive`).
   - **What a proof may need:** the search suggests no local cycle is needed only at the states a
-    cycle visits.
-  - **General case:** open; the conjectured key lemma is F2. Shih and Ho 1999 (Adv. Appl. Math.
-    22(1):60-102) could not be read and may already contain the result.
+    cycle visits, as in `sync_orbit_fixed`. The conjectured key lemma F2 is proved for one
+    unstable vertex (part 2) and open for two or more.
+  - **Literature:** not found in the literature searched (Shih and Ho 1999 treat synchronous
+    iteration only; their proof maps von Neumann neighborhoods into von Neumann neighborhoods,
+    which single asynchronous updates do not do).
   - **Details and scripts:** [research/gap3-fair-settlement](../research/gap3-fair-settlement/README.md).
 - **Novelty check for `shih_dong_not_fair`.** The weaker fact is in the literature: Richard,
   "Positive and negative cycles in Boolean networks," J. Theoret. Biol. 463 (2019) 67-76, section
@@ -658,8 +692,8 @@ research directions, not missing exact conditions for a listed regime).
   may already exhibit it. Not mechanized, a cross-check: over all 3-vertex Boolean networks (680
   have no local cycle) the asynchronous state graph is acyclic and the synchronous iteration
   converges in every case, so 4 vertices is the least for the known phenomenon and for the fair
-  form. Search scope (October 2026): Shih and Ho 1999 and Shih and Dong 2005 (abstracts and
-  restatements), Remy, Ruet and Thieffry 2008, Richard 2010, 2011, 2015 and 2019, Richard and Ruet
+  form. Search scope (October 2026): Shih and Ho 1999 (full text, read for #92; synchronous
+  iteration only) and Shih and Dong 2005 (abstract and restatements), Remy, Ruet and Thieffry 2008, Richard 2010, 2011, 2015 and 2019, Richard and Ruet
   2013, Ruet 2016 and 2017, Tonello 2017, Tonello, Farcot and Chaouiya 2018, Melliti, Regnault,
   Richard and Sené 2013, the fixing-word papers (Gadouleau and Richard 2018; Aracena, Gadouleau,
   Richard and Salinas 2020), and web searches on fair, periodic and chaotic asynchronous iterations
@@ -714,6 +748,14 @@ research directions, not missing exact conditions for a listed regime).
     the full text was not accessible to us). Conjectured by Shih and Ho, *Solution of the Boolean
     Markus-Yamabe problem*, Adv. Appl. Math. 22(1) (1999) 60-102. Mechanized here, with paths
     (`sd_path`), as `shih_dong_E`.
+  - Shih and Ho, *Solution of the Boolean Markus-Yamabe problem*, Adv. Appl. Math. 22(1) (1999)
+    60-102 (full text read for #92): Theorem 3.1, no cycle in any local graph plus
+    `F(V(x))` inside `V(F(x))` (out-degree at most one in every local graph, their Lemma 4.1;
+    Hamming non-expansiveness, their Lemma 4.3) makes the synchronous iteration reach the unique
+    fixed point from every start; Theorem 3.2, without the second condition this holds for
+    `n <= 3` only. Synchronous iteration only. The conclusion of Theorem 3.1 is mechanized here, by
+    a different proof, as `sync_simple` (`sync_orbit_fixed` needs the first condition only on the
+    orbit); their 4-vertex example of Section 3, item (5), is `shih_ho_instance`.
 
   P2 is part of the cyclic frontier: the acyclic case is
   Robert's theorem, and what is open is the cyclic one, an instance of the question of what
