@@ -1,7 +1,7 @@
 # Non-monotone cycles, invertible transports
 
 Detailed results for the invertible fragment: the cohomological layer, coordination from an
-authority root, rootless cycles, and event order under the coordination plan. Each module's one-line
+authority root, rootless cycles and rootless networks, and event order under the coordination plan. Each module's one-line
 summary is in the [module index](../README.md#modules-by-regime); the status of each question in
 this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#11-non-monotone-cycles-invertible-transports), section 11
@@ -297,10 +297,96 @@ product is `Cohomology.v`'s `S3Sep.comp`). The trivial group on a triangle: uniq
 (`rootless_trivial_unique`). The Z/2 negation loop: nontrivial holonomy, no consistent state is
 reachable (`rootless_negation_no_nf`).
 
-Scope: coherently oriented single cycles and the regular action. On a general graph the two
-general facts still hold (`trivial_unique`: `|G| = 1` gives uniqueness on any graph;
-`fixed_iff_section`, `fire_section_stable`), but registries with no incoming edge act as roots, so
-the exact condition there depends on the graph's root structure and is not stated here.
+Scope: coherently oriented single cycles and the regular action. Every other finite network is
+settled in [`RootlessNetworks.v`](#rootless-propagation-on-any-invertible-network-rootlessnetworksv)
+below, which recovers these statements as corollaries and explains both corners: the self-loop
+registry and registry 0 of the mixed triangle are de facto roots.
+
+## Rootless propagation on any invertible network (`RootlessNetworks.v`)
+
+Closes REGIME-AUDIT gap 2: the rootless semantics of `RootlessCycles.v` on an arbitrary finite
+edge list (several cycles, mixed orientation, sources feeding cycles), any group, the regular
+action. Nothing is assumed about the shape of the network.
+
+**Model.** Exactly `RootlessCycles.v`: every edge `(u, v, g)` is a writer, firing it sets
+`s(v) := g * s(u)` (`fire1`), a schedule is a finite list of edges of the network (`fire`), fair
+when it fires every edge, and a consistent state is a section. Graph notions, all on the directed
+edge list:
+
+- `reach es r w`: a directed path from `r` to `w` (`r` is upstream of `w`; reflexive).
+- `linked es x y`: `x` and `y` are in the same weakly connected component.
+- `co_rooted es`: every two linked registries have a common upstream registry. Equivalently
+  (`co_rooted_iff_roots`) every weakly connected component has a registry upstream of all of it;
+  in condensation terms (the DAG of strongly connected components), each component's condensation
+  has a single source.
+- `de_facto_root es r`: no edge into `r` from another registry, so nobody else ever overwrites it
+  (self-loops allowed). `root_cover es`: every component contains one.
+- `authority_cover es`: every component contains a de facto root upstream of all of it, an
+  authority root in the sense of `CoordinatedCycles.v`. `authority_cover_iff`: this is exactly
+  `co_rooted` together with `root_cover`.
+
+**The mechanism** (`net_origin`). Relative to any section `sg`, firing an edge copies the offset
+`sg(u)^-1 t(u)` from `u` to `v` unchanged, so every value in a reachable state is an initial value
+transported from upstream. Invertibility and the regular action make every cycle rigid: a section
+of a weakly connected component is fixed by its value at one registry (`linked_shift`).
+
+**Results** (any group, any finite network; every qualifier is inside the statement).
+
+- **The reachable set** (`net_reachable_iff`, fair form `net_reachable_fair_iff`). For a section
+  `sg` and a start `t0`, some schedule (equivalently some fair schedule) drives `t0` to `sg` on
+  every registry iff every registry has an upstream registry, possibly itself, at which `sg` and
+  `t0` already agree. Hence `net_nf_from_iff`: a consistent state is reachable from `t0` iff some
+  section agrees with `t0` somewhere upstream of every registry.
+- **Existence from every start** (`net_nf_exists_iff`). Every start reaches a consistent state by a
+  fair schedule iff the labeling is a coboundary (`has_section`, so `H^1 = 0` on the whole
+  underlying graph) and (`co_rooted` or `|G| = 1`). Over a nontrivial group:
+  `net_nf_exists_iff_nontrivial`.
+- **Uniqueness** (`net_unique_iff`, `net_unique_fair_iff`). Any two schedules (equivalently any two
+  fair schedules, `unique_fair_iff`) that reach consistent states from one start reach the same one
+  iff (`has_section` implies `root_cover` or `|G| = 1`). The free choice lives exactly in the
+  components with no de facto root (informally, those in which every source component of the
+  condensation contains an edge between two distinct registries). `root_cover` alone suffices for any group (`net_unique_sufficient`); over a
+  nontrivial group with a section it is necessary (`net_unique_iff_nontrivial`).
+- **Both together** (`net_unique_normal_form_iff`). From every start some fair schedule reaches a
+  consistent state and every schedule that reaches one reaches the same, iff `has_section` and
+  (`authority_cover` or `|G| = 1`). So a rootless invertible network has a unique normal form
+  exactly when each component already is an authority-rooted network, or the group is trivial.
+  Over a nontrivial group: `net_unique_normal_form_iff_nontrivial`.
+- **Strongly connected networks** (`net_strong_iff`). With an edge between distinct registries:
+  existence from every start iff `has_section`, and uniqueness iff (`has_section` implies
+  `|G| = 1`).
+
+**Recovered** (statements identical to `RootlessCycles.v`, derived from the network theorems through
+`cyc_sc`, the cycle is strongly connected): `cycle_nf_exists_recovered` (`rootless_nf_exists_iff`),
+`cycle_unique_recovered` (`rootless_unique_iff`), `cycle_unique_general_recovered`
+(`rootless_unique_iff_general`), `cycle_unique_normal_form_recovered`
+(`rootless_unique_normal_form_iff`); the corners `selfloop_recovered` (the self-loop registry is a de
+facto root) and `orientation_matters_recovered` (registry 0 of `tri_mixed` is an authority root);
+the copy-back loop as an instance of the cycle corollary (`copyback_recovered_net`).
+
+**Boundary cases and counterexamples** (Z/2, proved).
+
+- `rootless_figure_eight`: two coherently oriented cycles sharing a registry
+  (`0 <-> 1`, `0 <-> 2`). Strongly connected; every start reaches a consistent state; not unique.
+- `rootless_mixed_square`: the undirected 4-cycle `0 -> 1 <- 2 -> 3 <- 0`, mixed orientation with
+  two sources. A coboundary whose reached state is always unique (`root_cover`), yet some start
+  reaches no consistent state (`~ co_rooted`). So "a coboundary gives existence from every start",
+  true on one coherent cycle, is false on networks.
+- `rootless_source_feeds_cycle`: a source feeding the 2-cycle `1 <-> 2`. A unique normal form from
+  every start (`authority_cover`), although the network contains a coherently oriented cycle and
+  `|G| = 2`. So the single-cycle iff "unique iff `|G| = 1`" does not extend to networks containing a
+  cycle.
+- `rootless_cycle_feeds_cycle`: the 2-cycle `0 <-> 1` feeding the 2-cycle `2 <-> 3`. Existence from
+  every start, not unique: only the source component of the condensation is free, the downstream
+  one is forced.
+- `rootless_global_holonomy`: the triangle `0 -> 1 -> 2` with `0 -> 2` labeled by the flip. An
+  authority root, no directed cycle (every strongly connected component is one registry), yet no
+  consistent state. The existence obstruction is `H^1` of the whole underlying graph, not holonomy
+  inside strongly connected components.
+
+Scope: the regular action, as in `RootlessCycles.v`, and finite edge lists. The proofs decide
+reachability on finite edge lists (`closure`, `reach_dec`) and choose a minimal dominating set of
+a component (`min_dom`) to build the two distinct reachable sections; no classical axiom is used.
 
 ## The exact event-order condition under the coordination plan (`CoordinatedExact.v`)
 

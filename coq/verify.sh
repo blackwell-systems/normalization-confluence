@@ -2117,6 +2117,100 @@ Print Assumptions NC.DistributedConvergenceExact.x_inv.
 Print Assumptions NC.DistributedConvergenceExact.x_quiet.
 Print Assumptions NC.DistributedConvergenceExact.ghost_conv_not_fed.
 Print Assumptions NC.DistributedConvergenceExact.raise_only_conv.
+Require Import NC.RootlessNetworks.
+Print Assumptions NC.RootlessNetworks.reach_edge.
+Print Assumptions NC.RootlessNetworks.reach_trans.
+Print Assumptions NC.RootlessNetworks.reach_incl.
+Print Assumptions NC.RootlessNetworks.in_rev_edges.
+Print Assumptions NC.RootlessNetworks.reach_rev.
+Print Assumptions NC.RootlessNetworks.reach_rev'.
+Print Assumptions NC.RootlessNetworks.linked_refl.
+Print Assumptions NC.RootlessNetworks.linked_of_reach.
+Print Assumptions NC.RootlessNetworks.linked_trans.
+Print Assumptions NC.RootlessNetworks.linked_sym.
+Print Assumptions NC.RootlessNetworks.linked_edge_fwd.
+Print Assumptions NC.RootlessNetworks.linked_edge_bwd.
+Print Assumptions NC.RootlessNetworks.linked_verts.
+Print Assumptions NC.RootlessNetworks.list_split.
+Print Assumptions NC.RootlessNetworks.filter_prop.
+Print Assumptions NC.RootlessNetworks.memb_spec.
+Print Assumptions NC.RootlessNetworks.filter_le.
+Print Assumptions NC.RootlessNetworks.filter_lt.
+Print Assumptions NC.RootlessNetworks.outside_lt.
+Print Assumptions NC.RootlessNetworks.cross_or_closed.
+Print Assumptions NC.RootlessNetworks.closed_reach.
+Print Assumptions NC.RootlessNetworks.closure.
+Print Assumptions NC.RootlessNetworks.reach_dec.
+Print Assumptions NC.RootlessNetworks.anc_list.
+Print Assumptions NC.RootlessNetworks.comp_list.
+Print Assumptions NC.RootlessNetworks.common_dec.
+Print Assumptions NC.RootlessNetworks.co_rooted_or_witness.
+Print Assumptions NC.RootlessNetworks.dfr_or_proper.
+Print Assumptions NC.RootlessNetworks.root_cover_or_witness.
+Print Assumptions NC.RootlessNetworks.reach_to_dfr.
+Print Assumptions NC.RootlessNetworks.co_rooted_root.
+Print Assumptions NC.RootlessNetworks.co_rooted_iff_roots.
+Print Assumptions NC.RootlessNetworks.authority_cover_iff.
+Print Assumptions NC.RootlessNetworks.co_rooted_of_root.
+Print Assumptions NC.RootlessNetworks.authority_of_root.
+Print Assumptions NC.RootlessNetworks.proper_in.
+Print Assumptions NC.RootlessNetworks.sc_co_rooted.
+Print Assumptions NC.RootlessNetworks.sc_not_root_cover.
+Print Assumptions NC.RootlessNetworks.min_dom.
+Print Assumptions NC.RootlessNetworks.seeds.
+Print Assumptions NC.RootlessNetworks.reach_mono.
+Print Assumptions NC.RootlessNetworks.lcancel.
+Print Assumptions NC.RootlessNetworks.rcancel.
+Print Assumptions NC.RootlessNetworks.tr_back.
+Print Assumptions NC.RootlessNetworks.off_edge.
+Print Assumptions NC.RootlessNetworks.off_e.
+Print Assumptions NC.RootlessNetworks.section_verts.
+Print Assumptions NC.RootlessNetworks.translate_section.
+Print Assumptions NC.RootlessNetworks.piece_section.
+Print Assumptions NC.RootlessNetworks.linked_shift.
+Print Assumptions NC.RootlessNetworks.stable_from.
+Print Assumptions NC.RootlessNetworks.extend_fair.
+Print Assumptions NC.RootlessNetworks.untargeted.
+Print Assumptions NC.RootlessNetworks.dfr_stable.
+Print Assumptions NC.RootlessNetworks.selfloop_e.
+Print Assumptions NC.RootlessNetworks.flood.
+Print Assumptions NC.RootlessNetworks.net_origin.
+Print Assumptions NC.RootlessNetworks.net_reachable_iff.
+Print Assumptions NC.RootlessNetworks.net_reachable_fair_iff.
+Print Assumptions NC.RootlessNetworks.net_nf_from_iff.
+Print Assumptions NC.RootlessNetworks.inclosed_stable.
+Print Assumptions NC.RootlessNetworks.net_reach_all.
+Print Assumptions NC.RootlessNetworks.net_nf_exists_iff.
+Print Assumptions NC.RootlessNetworks.net_nf_exists_iff_nontrivial.
+Print Assumptions NC.RootlessNetworks.unique_fair_iff.
+Print Assumptions NC.RootlessNetworks.net_unique_sufficient.
+Print Assumptions NC.RootlessNetworks.net_unique_iff.
+Print Assumptions NC.RootlessNetworks.net_unique_fair_iff.
+Print Assumptions NC.RootlessNetworks.net_unique_iff_nontrivial.
+Print Assumptions NC.RootlessNetworks.net_unique_normal_form_iff.
+Print Assumptions NC.RootlessNetworks.net_unique_normal_form_iff_nontrivial.
+Print Assumptions NC.RootlessNetworks.net_strong_iff.
+Print Assumptions NC.RootlessNetworks.path_in.
+Print Assumptions NC.RootlessNetworks.cyc_reach_up.
+Print Assumptions NC.RootlessNetworks.cyc_sc.
+Print Assumptions NC.RootlessNetworks.cyc_proper.
+Print Assumptions NC.RootlessNetworks.cycle_nf_exists_recovered.
+Print Assumptions NC.RootlessNetworks.cycle_unique_recovered.
+Print Assumptions NC.RootlessNetworks.cycle_unique_general_recovered.
+Print Assumptions NC.RootlessNetworks.cycle_unique_normal_form_recovered.
+Print Assumptions NC.RootlessNetworks.all_false_section.
+Print Assumptions NC.RootlessNetworks.fig8_sc.
+Print Assumptions NC.RootlessNetworks.rootless_figure_eight.
+Print Assumptions NC.RootlessNetworks.sq_dfr0.
+Print Assumptions NC.RootlessNetworks.sq_dfr2.
+Print Assumptions NC.RootlessNetworks.sq_linked02.
+Print Assumptions NC.RootlessNetworks.rootless_mixed_square.
+Print Assumptions NC.RootlessNetworks.rootless_source_feeds_cycle.
+Print Assumptions NC.RootlessNetworks.rootless_cycle_feeds_cycle.
+Print Assumptions NC.RootlessNetworks.rootless_global_holonomy.
+Print Assumptions NC.RootlessNetworks.selfloop_recovered.
+Print Assumptions NC.RootlessNetworks.orientation_matters_recovered.
+Print Assumptions NC.RootlessNetworks.copyback_recovered_net.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2127,8 +2221,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2067 ]; then
-  echo "FAIL: expected 2067 axiom-free results, got $N"
+if [ "$N" -lt 2160 ]; then
+  echo "FAIL: expected 2160 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

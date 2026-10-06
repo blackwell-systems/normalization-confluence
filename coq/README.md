@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2067 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2067 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2160 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2160 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -33,7 +33,7 @@ the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over
 (`Cohomology.v` to `CohomologyGeneral.v`, `CohomologyNerve.v`, `RootSet.v`) with minimum
 coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
-rootless cycles, the distributed propagation model (acyclic and on monotone cycles), the federated
+rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles), the federated
 rewrite system and compositional collapse). The [module index](#modules-by-regime) below lists
 each module with its headline theorems; the pages in [`docs/`](docs) give each module's results in
 full.
@@ -159,6 +159,7 @@ is on the same page.
 | `CohomologyGraph.v` | `section_iff_coboundary`, `cycle_basis_criterion`, `H1_classification`, `betti_number` | [Cohomological layer](docs/non-monotone-invertible.md#cohomological-layer-cohomologyv) |
 | `CoordinatedCycles.v` | `coordinated_sound`, `coordinated_unique_nf`, `plan_exact`, `coordination_needed`; `root_choice_matters`, `copyback_without_authority` | [Under a computed coordination](docs/non-monotone-invertible.md#non-monotone-cycles-under-a-computed-coordination-coordinatedcyclesv) |
 | `RootlessCycles.v` | `rootless_section_iff_holonomy`, `rootless_nf_exists_iff`, `rootless_unique_iff`, `rootless_unique_normal_form_iff` | [Rootless propagation](docs/non-monotone-invertible.md#rootless-propagation-on-invertible-cycles-rootlesscyclesv) |
+| `RootlessNetworks.v` | `net_reachable_iff`, `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`, `net_strong_iff`; recovered `cycle_unique_normal_form_recovered`; `rootless_mixed_square`, `rootless_source_feeds_cycle`, `rootless_global_holonomy` | [Rootless networks](docs/non-monotone-invertible.md#rootless-propagation-on-any-invertible-network-rootlessnetworksv) |
 | `CoordinatedExact.v` | `coordinated_events_exact`, `coordinated_events_exact_global`; `old_condition_not_necessary` | [Event order under the plan](docs/non-monotone-invertible.md#the-exact-event-order-condition-under-the-coordination-plan-coordinatedexactv) |
 | `CoordinationMinimum.v` | `plan_min_exact`, `feasible_plan`, `plan_coord_feasible`, `plan_min_attained`, `maxcut_reduction`; `plan_min_connected_needed`, `plan_min_nodup_needed`, `s3_tree_choice` | [Minimum coordination and the plan model](docs/non-monotone-invertible.md#minimum-coordination-and-the-plan-model-coordinationminimumv) |
 
@@ -232,7 +233,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2067
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2160
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

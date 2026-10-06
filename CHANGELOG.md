@@ -7,6 +7,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/RootlessNetworks.v` (#91): rootless propagation on any finite invertible network, exactly;
+  closes audit gap 2. Axiom-free. Same semantics as `RootlessCycles.v` (every edge a writer, the
+  regular action), on an arbitrary edge list: several cycles, mixed orientation, sources feeding
+  cycles. Graph notions: `reach`, `linked` (weak connectivity), `co_rooted` (every two linked
+  registries have a common upstream registry; `co_rooted_iff_roots`: each weakly connected
+  component has a registry upstream of all of it), `de_facto_root` (no in-edge from another
+  registry), `root_cover`, `authority_cover` (`authority_cover_iff`: `co_rooted` and `root_cover`).
+  The reachable set: `net_origin` (offsets relative to a section copy downstream),
+  `net_reachable_iff`, `net_reachable_fair_iff` (a section is reached from `t0` iff it agrees with
+  `t0` somewhere upstream of every registry), `net_nf_from_iff`. Existence from every start:
+  `net_nf_exists_iff` (iff a section exists and `co_rooted`, or `|G| = 1`),
+  `net_nf_exists_iff_nontrivial`. Uniqueness: `net_unique_iff`, `net_unique_fair_iff` (iff, given a
+  section, `root_cover` or `|G| = 1`), `unique_fair_iff`, `net_unique_sufficient`,
+  `net_unique_iff_nontrivial`. Both: `net_unique_normal_form_iff` (iff a section exists and
+  `authority_cover`, or `|G| = 1`), `net_unique_normal_form_iff_nontrivial`. Strongly connected:
+  `net_strong_iff`. Recovered from the network theorems: `cycle_nf_exists_recovered`,
+  `cycle_unique_recovered`, `cycle_unique_general_recovered`,
+  `cycle_unique_normal_form_recovered` (the statements of `rootless_nf_exists_iff`,
+  `rootless_unique_iff`, `rootless_unique_iff_general`, `rootless_unique_normal_form_iff`),
+  `selfloop_recovered`, `orientation_matters_recovered`, `copyback_recovered_net`. Boundary cases
+  over Z/2: `rootless_figure_eight` (two cycles sharing a registry: existence, not unique),
+  `rootless_mixed_square` (mixed orientation: unique, yet some start reaches nothing),
+  `rootless_source_feeds_cycle` (a cycle with `|G| = 2` and a unique normal form),
+  `rootless_cycle_feeds_cycle`, `rootless_global_holonomy` (an authority root and no directed
+  cycle, yet no consistent state: the obstruction is global `H^1`). Docs:
+  `coq/docs/non-monotone-invertible.md` (new section), a `coq/README.md` row, `REGIME-AUDIT.md`
+  (gap 2 row, section 11, the cyclic frontier, header, open-gap summary), `docs/ROADMAP.md`,
+  `README.md` (open-gap list), `docs/REGIMES.md`, `docs/THEORY.md`. Gate raised from 2067 to 2160.
 - `coq/DistributedConvergenceExact.v` (#90): convergence among quiescent interleavings alone in
   the no-reset distributed model on monotone cycles (`FlushR /\ DConvQ`), exactly; closes audit gap
   14. Axiom-free. The canonical state is the quiescent state propagation settles in (a ghost is

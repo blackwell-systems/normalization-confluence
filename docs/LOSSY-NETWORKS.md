@@ -560,7 +560,9 @@ research directions, not missing exact conditions for a listed regime).
   the resolver reading). The invertible single-cycle case is done, #48 (`RootlessCycles.v`:
   `rootless_unique_iff`, `rootless_two_orders`, `rootless_not_unique`), which answers the
   copy-back generalization below for one coherently oriented invertible cycle; invertible
-  networks beyond one cycle are gap 2.
+  networks beyond one cycle were gap 2, closed by #91 (`RootlessNetworks.v`:
+  `net_unique_normal_form_iff`, a unique normal form iff an authority root per component, given a
+  section, or a trivial group).
 - **Progress: sufficient certificates for E, not an identity** (`SignedCycles.v`,
   `SignedResolver.v`). Resolver semantics made explicit: one value type with a least and a greatest
   element and finite height; each vertex updated by its resolver from the current state; fair
@@ -713,7 +715,7 @@ research directions, not missing exact conditions for a listed regime).
     Markus-Yamabe problem*, Adv. Appl. Math. 22(1) (1999) 60-102. Mechanized here, with paths
     (`sd_path`), as `shih_dong_E`.
 
-  networks beyond one cycle are gap 2. P2 is part of the cyclic frontier: the acyclic case is
+  P2 is part of the cyclic frontier: the acyclic case is
   Robert's theorem, and what is open is the cyclic one, an instance of the question of what
   additional structure makes the composition layer P exact on cycles
   ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier);
