@@ -129,7 +129,7 @@ per edge, so a gsm check for it explores the federated state space.
 
 Each item below lists the theorem it would add, the approach, and the acceptance criterion. Items 1
 to 4 and 6 are done, and item 7 is done except the parts listed under it; the "Today" paragraphs
-record the state before they landed. Item 5 is open.
+record the state before they landed. Item 5 is open; items 8 and 9 are planned.
 
 ### 1. "Finite state" becomes a statement about checking only
 
@@ -300,6 +300,46 @@ The original item text follows. Known gaps at the time, from the README's [paper
   counterexample is mechanized; the positive assembly is not.
 - **Done when.** Every numbered result in the papers has a named Coq theorem in the gate, except
   results cited from the literature (group-feedback-edge-set complexity), which stay cited.
+
+### 8. Checking scales to realistic domains
+
+**Status: planned.**
+
+- **Today.** gsm decides the exact and sufficient conditions by enumerating states, so a model must
+  use small finite domains. Realistic types (64-bit amounts, string identifiers, thousands of
+  independent items) have to be shrunk by hand, and nothing proves that a check on the shrunk
+  model says anything about the real one. `BuildCompositional` already enumerates per footprint
+  component instead of the global product.
+- **Target.** Theorems that make a check on a small or abstract model imply the property on the
+  real one: data independence and symmetry (independent, identically governed items: checking one
+  suffices), abstraction soundness (a rule that depends only on relations between values, checked
+  over representatives of every relation, implies the condition for all values), and
+  compositional checking as the default path (per footprint, with the soundness of the footprint
+  reduction stated for the conditions gsm checks).
+- **Approach.** State each reduction as a theorem about the existing conditions (CC, C1, C2, XU,
+  at-least-once), with the reduction's hypotheses as checkable side conditions, and a
+  counterexample for each hypothesis dropped. Symbolic checking (an SMT query per rule pair over
+  all values) can then be justified by the abstraction theorem rather than trusted.
+- **Done when.** The reductions pass the gate, gsm can verify a model with realistic domains by
+  one of them, and its report names which reduction was used and what it assumed.
+
+### 9. Reconfiguration inside a run (gap 20)
+
+**Status: planned.** The coverage pass recorded this as a new axis ([COVERAGE.md](COVERAGE.md),
+gap 20 in [REGIME-AUDIT.md](../REGIME-AUDIT.md)).
+
+- **Today.** Every module fixes the topology and the rules for a whole run. Real deployments add
+  services, migrate schemas and change rules while events and projections are in flight. A change
+  at a barrier (drain, then switch) reduces to the existing results applied per run; a live change
+  has no theorem.
+- **Target.** Exact conditions for a live change from configuration A to configuration B: when every
+  run that mixes A-events and B-events (and projections sent under A, merged under B) converges, and
+  when a barrier is necessary, with a counterexample at each boundary.
+- **Approach.** Model a run as a sequence of configurations with a switch step, reuse the
+  convergence conditions on each side, and characterize the cross-configuration critical pairs
+  (an event or projection of A meeting one of B), in the style of C1 and C2.
+- **Done when.** The exact conditions pass the gate, and gsm can expose them as a migration check
+  that classifies a change as safe online, safe behind a barrier, or unsafe with a witness.
 
 ## Open items
 
