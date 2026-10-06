@@ -2241,6 +2241,59 @@ Print Assumptions NC.LocalFairSettlement.shih_ho_instance.
 Print Assumptions NC.LocalFairSettlement.outdeg_needed.
 Print Assumptions NC.LocalFairSettlement.no_neg_not_enough.
 Print Assumptions NC.LocalFairSettlement.no_pos_not_enough.
+Require Import NC.LocalTwoToken.
+Print Assumptions NC.LocalTwoToken.ltt_filter_zero.
+Print Assumptions NC.LocalTwoToken.ltt_filter_le1.
+Print Assumptions NC.LocalTwoToken.nH_nT.
+Print Assumptions NC.LocalTwoToken.uc_un.
+Print Assumptions NC.LocalTwoToken.two_sym.
+Print Assumptions NC.LocalTwoToken.two_in.
+Print Assumptions NC.LocalTwoToken.uc_ge2.
+Print Assumptions NC.LocalTwoToken.uc_le1.
+Print Assumptions NC.LocalTwoToken.uc_two.
+Print Assumptions NC.LocalTwoToken.un_flip.
+Print Assumptions NC.LocalTwoToken.noself.
+Print Assumptions NC.LocalTwoToken.ru_fire.
+Print Assumptions NC.LocalTwoToken.ru_noop.
+Print Assumptions NC.LocalTwoToken.un_true.
+Print Assumptions NC.LocalTwoToken.uc_xw_mono.
+Print Assumptions NC.LocalTwoToken.fire.
+Print Assumptions NC.LocalTwoToken.F_two.
+Print Assumptions NC.LocalTwoToken.dS_flip_good.
+Print Assumptions NC.LocalTwoToken.dS_flip_bad.
+Print Assumptions NC.LocalTwoToken.get_flip_other.
+Print Assumptions NC.LocalTwoToken.acx.
+Print Assumptions NC.LocalTwoToken.Fp.
+Print Assumptions NC.LocalTwoToken.dF_p.
+Print Assumptions NC.LocalTwoToken.nonexp_p.
+Print Assumptions NC.LocalTwoToken.not_both_bad.
+Print Assumptions NC.LocalTwoToken.tight.
+Print Assumptions NC.LocalTwoToken.tight_arc.
+Print Assumptions NC.LocalTwoToken.head_arc.
+Print Assumptions NC.LocalTwoToken.G1_T.
+Print Assumptions NC.LocalTwoToken.G1_H.
+Print Assumptions NC.LocalTwoToken.G1_uniq.
+Print Assumptions NC.LocalTwoToken.swap_core.
+Print Assumptions NC.LocalTwoToken.W_nil.
+Print Assumptions NC.LocalTwoToken.W_T.
+Print Assumptions NC.LocalTwoToken.W_H.
+Print Assumptions NC.LocalTwoToken.W_app.
+Print Assumptions NC.LocalTwoToken.W_app_inv.
+Print Assumptions NC.LocalTwoToken.W_dp.
+Print Assumptions NC.LocalTwoToken.W_G1.
+Print Assumptions NC.LocalTwoToken.swap_TH.
+Print Assumptions NC.LocalTwoToken.W_pushT.
+Print Assumptions NC.LocalTwoToken.W_pullH.
+Print Assumptions NC.LocalTwoToken.W_sort.
+Print Assumptions NC.LocalTwoToken.W_main.
+Print Assumptions NC.LocalTwoToken.conv.
+Print Assumptions NC.LocalTwoToken.run_bad_or_dec.
+Print Assumptions NC.LocalTwoToken.two_token_closed_p.
+Print Assumptions NC.LocalTwoToken.two_token_closed.
+Print Assumptions NC.LocalTwoToken.two_token_no_closed_change.
+Print Assumptions NC.LocalTwoToken.two_token_fair_settlement.
+Print Assumptions NC.LocalTwoToken.fair_settles_once_two_tokens.
+Print Assumptions NC.LocalTwoToken.two_token_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2251,8 +2304,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2189 ]; then
-  echo "FAIL: expected 2189 axiom-free results, got $N"
+if [ "$N" -lt 2241 ]; then
+  echo "FAIL: expected 2241 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

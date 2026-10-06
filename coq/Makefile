@@ -342,3 +342,10 @@ all: LocalFairSettlement.vo
 
 LocalFairSettlement.vo: LocalFairSettlement.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo
 	coqc -Q . NC LocalFairSettlement.v
+
+# No closed asynchronous run with two unstable vertices under no local cycle plus out-degree at
+# most one, hence fair settlement from at most two tokens (gap 3 progress, LocalTwoToken.v).
+all: LocalTwoToken.vo
+
+LocalTwoToken.vo: LocalTwoToken.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo
+	coqc -Q . NC LocalTwoToken.v
