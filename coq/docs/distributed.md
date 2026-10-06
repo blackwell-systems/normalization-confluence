@@ -579,3 +579,97 @@ causal or at-least-once delivery only a sufficient condition followed, by restri
   idempotence hold, commutation fails. `inc_idem_needed`: `DistConv` holds (`dist_exact`) and
   at-least-once delivery fails. Non-vacuity: `mk_alo_holds` (a max-register and a mark, events on
   both registries, every class from every valid start).
+
+## Fair schedules on acyclic networks (`RobertFair.v`)
+
+Gap 16 (d) of the audit, closed. The gated acyclic results were the unique fixed point and the
+runs that follow a topological order or end in a final flush (`frun_solves`, `solve_unique`,
+`order_independent`, `propagation_flush`, `dist_exact`). That every fair asynchronous schedule of
+propagation steps settles is the asynchronous half of Robert's theorem (F. Robert, *Discrete
+Iterations*, 1986, and *Les systèmes dynamiques discrets*, 1995; Theorem 1 of A. Richard's 2019
+survey, "Positive and negative cycles in Boolean networks"). It was cited; this module mechanizes
+it. The theorem is Robert's.
+
+**Model.** The distributed model of `FederationEvents.v`: a state `t : nat -> V`; the propagation
+step of target `j` is `fstep t j`, which overwrites `j`'s shared part with `f j t (t j)`, the image
+of its sources' current states; `o` lists the targets in a topological order (`topoF src o`). The
+hypotheses are the propagation part of `Common`: `f j` reads only `src j`, preserves validity, and
+a later overwrite absorbs an earlier one (`f j z (f j z' x) = f j z x`). A schedule is fair
+(`DistributedCycles.Fair o sg`) when it names only targets and every target infinitely often;
+`RSettles sg h q` says the run from `h` is `q` (pointwise) from some step on.
+
+**Propagation alone.**
+
+- **`rb_robert_fair`**: every fair schedule from every valid start `h` settles at `frun o h`, the
+  run of one topological order. The proof goes along the topological order: the image a target is
+  repaired to does not depend on the stale values it held (`rb_image`, from absorption), so once
+  its sources are final, its next update makes it final (`rb_final`, `rb_final_after`).
+- **`rb_limit_quiet`**, **`rb_unique`**: the limit is quiescent, and it is the only quiescent state
+  any propagation word reaches from `h`. **`rb_topo_runs`**, **`rb_order_independent`**: every
+  topological order of the targets reaches it (`FederationOrder.order_independent`, recovered in
+  this model). **`rb_settles_quiet`**: a fair run can only settle at a quiescent state.
+- **Rounds.** `RCovers sg a b`: every target is updated in `[a, b)`. **`rb_rounds`**: with any
+  level function strictly increasing along source arcs (the depth, the longest source path into a
+  target, is the least one) and rounds `T 0 <= T 1 <= ...`, a target of level `d` is final from
+  `T (d + 1)` on; **`rb_rounds_all`**: the whole state is final from `T R` when every level is
+  below `R`; **`rb_rounds_pos`**: with the position in `o` as the level, after `|o|` rounds.
+- **Effective steps.** With decidable values, a step is effective when it changes the state.
+  **`rb_effective`**: along ANY propagation word, fair or not, fewer than `2^|o|` steps are
+  effective; **`rb_closed`**: a closed word changes nothing, so the asynchronous state graph is
+  acyclic. The potential reads the unstable targets as a binary number, most significant first in
+  `o`: an effective step at `j` clears `j`'s bit and changes only bits of targets after `j`
+  (`rb_pot_step`).
+
+**With events** (under `Common` and XU):
+
+- **`rb_events`**: a word of events and propagation steps followed by any fair propagation schedule
+  settles at the FedMachine run of its events (`propagation_flush` with the final flush replaced by
+  a fair schedule). **`rb_event_schedule`**: the same for an infinite schedule of events and
+  propagation steps with finitely many events in which every target propagates infinitely often.
+- **`rb_fair_dist_exact`** (`Common` only, `o` non-empty): the limits of fair schedules after
+  words with federated-trace-equivalent events agree (`RFairConv s0`) iff `XUR s0` and
+  `C2R (N s0)`, `dist_exact`'s condition; `rb_fair_conv_iff` shows that agreement of the limits is
+  `DistConv`. Non-vacuity: `rb_supply_events`, `rb_supply_fair_conv` (the supply federation);
+  `rb_gg_not_fair_conv` (the federation of `dist_strictly_stronger_than_fed`). Infinitely many
+  events give no settlement in general and are not stated.
+
+**Resolver model and Boolean networks.**
+
+- **`rb_lens_robert`**: in the resolver model of `SignedResolver.v` (values `X`, a lens on `js`,
+  the asynchronous step `rupd j`), if every resolver reads only its sources and the sources form
+  an acyclic graph (a topological order `o` of `js`), there is a unique fixed point and every fair
+  schedule from every start settles at it. The proof reads the resolver step through the lens as
+  the distributed step (`rb_obs_step`, `rb_obs_run`). **`rb_lens_closed`**: with decidable values,
+  no closed asynchronous run changes the state.
+- **`rb_robert_boolean`**: Robert's theorem for a Boolean network on `n` vertices. If the global
+  interaction graph `rb_garc` (`j -> i` when flipping `x_j` changes `F_i` at some state) has no
+  cycle, then no local graph has one (`rb_global_local`), the asynchronous state graph is acyclic
+  (`NoClosedChange`), and `F` has a unique fixed point at which every fair schedule from every start
+  settles; the last two conclusions go through `LocalFairSettlement.fair_settlement_of_acyclic`.
+  `rb_reads_bool`: a Boolean resolver reads only its in-neighbors in `G(F)`;
+  `rb_topo_of_acyclic`: an acyclic graph has a topological order (remove a sink, recurse).
+  `rb_gacyclic_b` decides acyclicity of `G(F)` on small instances (`rb_gacyclic_sound`).
+
+**Boundaries.**
+
+- `rb_neg2_cycle`: acyclicity cannot be dropped. `x0 := not x1`, `x1 := x0` has the cycle
+  `0 -> 1 -> 0` in `G(F)`, no fixed point, and no fair schedule settles from any start.
+- `rb_copyback_cycle`: `x0 := x1`, `x1 := x0` has two fixed points, and from `(0, 1)` the fair
+  round-robin schedules `0, 1, 0, ...` and `1, 0, 1, ...` settle at `(1, 1)` and `(0, 0)`.
+- `rb_converse_fails`: the converse of Robert's theorem fails. Shih and Ho's network
+  (`shih_ho_instance`) has the cycle `0 -> 3 -> 0` in `G(F)`, and every fair schedule from every
+  start still settles at its unique fixed point.
+- `rb_dist_cycle_needed`: in the distributed model, a negation loop satisfies every hypothesis but
+  acyclicity (no list containing both targets is topological) and no fair schedule settles.
+  `rb_absorb_needed`: a counter (`f 0 z x = x + 1`) satisfies every hypothesis but absorption and
+  no fair schedule settles.
+
+**Non-vacuity.** `rb_example`: `FederationOrder.v`'s three registries (registry 2 reads 0 and 1):
+every fair schedule from every start settles at the state with 12 at registry 2, within 2 rounds
+by the depth levels (the position bound gives 3), both topological orders agree, and fewer than 8
+steps of any propagation word change the state. `rb_bool3`: `x0 := 1`, `x1 := not x0`,
+`x2 := x0 xor x1`, whose global graph `0 -> 1`, `0 -> 2`, `1 -> 2` is acyclic, with fixed point
+`(1, 0, 1)`.
+
+Not covered: infinitely many events; events interleaved with propagation on cyclic networks (gap
+16 (a) to (c)).

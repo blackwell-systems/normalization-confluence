@@ -540,12 +540,13 @@ unique fixed point reachable from every state, hence all of E (`shih_dong_E`; Sh
 The Settlement certified is E's existential (flush) form. Fair-schedule settlement does not
 follow from any of these local conditions: a 4-vertex network with no local cycle has a fair
 schedule of period 8 that never settles (`shih_dong_not_fair`), while Robert's theorem gives fair
-convergence when the global graph is acyclic. Under no local cycle plus out-degree at most one
-(`LocalFairSettlement.v`), every synchronous orbit reaches the unique fixed point (`sync_simple`,
-the conclusion of Shih and Ho 1999, Theorem 3.1; `sync_orbit_fixed` needs the local acyclicity
-only on the orbit), and every fair schedule from a start with at most two unstable vertices settles
-there (`one_token_fair_settlement`; `two_token_fair_settlement` in `LocalTwoToken.v`). What stays
-open (REGIME-AUDIT gap 3): fair settlement from local conditions from every start (under those two
+convergence when the global graph is acyclic (mechanized: `rb_robert_boolean`,
+`coq/RobertFair.v`). Under no local cycle plus out-degree at most one (`LocalFairSettlement.v`),
+every synchronous orbit reaches the unique fixed point (`sync_simple`, the conclusion of Shih and
+Ho 1999, Theorem 3.1; `sync_orbit_fixed` needs the local acyclicity only on the orbit), and every
+fair schedule from a start with at most two unstable vertices settles there
+(`one_token_fair_settlement`; `two_token_fair_settlement` in `LocalTwoToken.v`). What stays open
+(REGIME-AUDIT gap 3): fair settlement from local conditions from every start (under those two
 conditions, runs with three or more unstable vertices at every state), multivalued local graphs, value sets without bounds, and an exact
 condition. The research note on lossy networks,
 [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver

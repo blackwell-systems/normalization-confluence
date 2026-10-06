@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (2467 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2569 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -58,7 +58,7 @@ processors, causal and at-least-once delivery in the distributed model, and buff
 federations), so eight convergence gaps are open in all: the distributed model off its current
 hypotheses
 (rootless invertible cycles with events, ACC without finite height, compensation as separate
-steps on cycles, every fair schedule on an acyclic network); rootless edge-writer dynamics
+steps on cycles; every fair schedule on an acyclic network, Robert's theorem, is now mechanized); rootless edge-writer dynamics
 beyond the regular action; existence in the resolver reading; composition of cyclic blocks of
 different engines; reconfiguration inside a run, a dimension the model does not represent at all;
 and propagation over channels that can deliver late, reorder or duplicate, now modeled and exact
