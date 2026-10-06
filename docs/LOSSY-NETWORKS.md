@@ -664,16 +664,35 @@ research directions, not missing exact conditions for a listed regime).
   at different states (so the global graph has a cycle and Robert's theorem does not apply), and
   an asynchronous state graph that is acyclic (a rank certificate), so every fair schedule from
   every start settles at `1111`.
-- **Open: the multi-token case (computational evidence, not mechanized).** Under (A) and (B), no
-  closed asynchronous run whose states all have two or more unstable vertices. An exhaustive SAT
+- **Progress: two unstable vertices** (#93, `LocalTwoToken.v`; details in
+  [coq/docs/non-invertible.md](../coq/docs/non-invertible.md#two-unstable-vertices-localtwotokenv)).
+  Under (A) and (B), no closed asynchronous run from a state with at most two unstable vertices
+  changes the state (`two_token_closed`), so every fair schedule from such a start, and every fair
+  run that ever reaches such a state, settles at the unique fixed point
+  (`two_token_fair_settlement`, `fair_settles_once_two_tokens`). Call a token good when its vertex
+  disagrees with the fixed point p and bad otherwise. With two tokens, non-expansiveness leaves at
+  least one good (`not_both_bad`); with one of each, `F(x)` is exactly as far from p as x, which
+  forces every vertex of the disagreement set D(x) to have an out-arc into D(x) plus the bad token
+  (`tight_arc`), so the bad token cannot point into D(x) without closing a local cycle
+  (`head_arc`). Hence the token types never change on a closed two-token run, a run with two good
+  tokens moves strictly toward p, and in the mixed case "good then bad" can always be swapped into
+  "bad then good" (`swap_TH`). The closed run then rearranges into (good, bad) pairs (`W_sort`,
+  `W_main`), each pair being the synchronous step F, which gives a synchronous periodic orbit
+  through a non-fixed state against `sync_orbit_fixed`. Non-vacuity: `two_token_instance` (Shih
+  and Ho's network at 1110, one good and one bad token). The same case is decided by SAT for
+  n = 3 to 7 (`research/gap3-fair-settlement/K2.md`, which also lists the potentials that fail).
+- **Open: three or more tokens (computational evidence, not mechanized).** Under (A) and (B), no
+  closed asynchronous run whose states all have three or more unstable vertices. An exhaustive SAT
   search finds no network on n = 3, 4, 5 or 6 vertices with (A) and (B) and any cycle in its
   asynchronous state graph; with `fair_settlement_of_acyclic` this would give fair settlement from
-  every start.
+  every start. For three tokens a bad token can pass to a good receiver (a SAT witness at n = 4),
+  so the two-token argument does not apply as it stands.
   - **Cross-checks:** brute force at n = 3, two encodings, three solvers. Dropping either
     condition gives counterexamples at once.
   - **What a proof may need:** the search suggests no local cycle is needed only at the states a
     cycle visits, as in `sync_orbit_fixed`. The conjectured key lemma F2 is proved for one
-    unstable vertex (part 2) and open for two or more.
+    unstable vertex (part 2); two unstable vertices are settled by the route above; three or more
+    are open.
   - **Literature:** not found in the literature searched (Shih and Ho 1999 treat synchronous
     iteration only; their proof maps von Neumann neighborhoods into von Neumann neighborhoods,
     which single asynchronous updates do not do).

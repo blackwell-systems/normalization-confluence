@@ -575,7 +575,7 @@ counterexamples).
 | `NoLocalNeg` and `OutDeg1` | at least one (`richard_t3`) | yes | no (`ring_local_conditions`) | no (same) |
 | `NoLocalNeg` and a vertex on every local positive cycle | at least one (`richard_t4`) | yes | no (`ring_local_conditions`) | no (same) |
 | `NoLocalCycle` | exactly one (`shih_dong_E`) | yes | yes | no (`shih_dong_not_fair`) |
-| `NoLocalCycle` and `OutDeg1` | exactly one | yes | yes | yes from every start with at most one unstable vertex (`one_token_fair_settlement`, [below](#fair-settlement-under-local-conditions-localfairsettlementv)); from every start open |
+| `NoLocalCycle` and `OutDeg1` | exactly one | yes | yes | yes from every start with at most two unstable vertices (`one_token_fair_settlement`, [below](#fair-settlement-under-local-conditions-localfairsettlementv); `two_token_fair_settlement`, [below](#two-unstable-vertices-localtwotokenv)); from every start open |
 
 **For gap 3 (rootless propagation on lossy networks).** On fidelity the local route strictly
 extends the global certificates of `SignedResolver.v` (`local_weaker_than_global`: a network
@@ -584,7 +584,7 @@ E's Settlement half (flush words: Theorems 3 and 4, Shih and Dong) and, with `No
 E, but none of these local conditions alone gives fair-schedule settlement: from every start that
 still needs the global switching (`local_signed_fidelity`) or a globally acyclic graph.
 `NoLocalCycle` with `OutDeg1` gives it from starts with at most one unstable vertex
-(`LocalFairSettlement.v`, next section). The certificates remain
+(`LocalFairSettlement.v`, next section) and at most two (`LocalTwoToken.v`, the section after). The certificates remain
 sufficient, not an exact condition; multivalued value sets are not covered (the multivalued
 local results of Richard and Comet 2007 and Richard 2010 are cited).
 
@@ -665,6 +665,59 @@ graph. `Fair` and `Settles` are those of `DistributedCycles.v`, as in `LocalSign
 have two or more unstable vertices. With `fair_settlement_of_acyclic` that would give fair
 settlement from every start. Computational evidence, not mechanized: no such run for n = 3 to 6
 ([research/gap3-fair-settlement](../../research/gap3-fair-settlement/README.md)); the key lemma F2
-there is proved here for one token (inside `sync_orbit_fixed`) and open for two or more. Not found
-in the literature searched; Shih and Ho 1999 treat synchronous iteration only. These are sufficient
-conditions; an exact condition for gap 3 is also open.
+there is proved here for one token (inside `sync_orbit_fixed`). Two tokens are settled in
+`LocalTwoToken.v` (next section); three or more are open. Not found in the literature searched;
+Shih and Ho 1999 treat synchronous iteration only. These are sufficient conditions; an exact
+condition for gap 3 is also open.
+
+## Two unstable vertices (`LocalTwoToken.v`)
+
+**Setting.** As in `LocalFairSettlement.v`: (A) is `NoLocalCycle js`, (B) is `OutDeg1 js`,
+`ucnt x` counts the tokens. `un x t` says that `t` is unstable at `x`; `TwoTok x a c` says that
+the tokens of `x` are exactly `a` and `c`. Inside the proof `p` is the unique fixed point (from
+`shih_dong_E`), `dp x` is the Hamming distance from `x` to `p`, a token at `v` is good when
+`x_v <> p_v` (firing it moves toward `p`) and bad otherwise, and `G1 x b v` says that the tokens
+of `x` are a good `b` and a bad `v`.
+
+**Main results.**
+
+- `two_token_closed`: `NoDup js`, (A), (B) and `ucnt x <= 2`: no closed asynchronous run from `x`
+  changes the state. `two_token_no_closed_change` is the same statement as
+  `NoClosedChange (fun x => ucnt x <= 2)`.
+- `two_token_fair_settlement`, `fair_settles_once_two_tokens`: (A) and (B): every fair schedule
+  from a start with at most two unstable vertices settles at the unique fixed point, and so does
+  every fair run that ever reaches such a state (from `fair_settles_closed`).
+
+**The proof, in five steps.**
+
+1. `not_both_bad`: with two tokens at least one is good. If both were bad, `Fsync x` would be two
+   steps further from `p` than `x`, against non-expansiveness (`outdeg_nonexpansive`).
+2. `tight`, `tight_arc`, `head_arc` (rigidity). At a `G1` state `Fsync x` is exactly as far from
+   `p` as `x`. Then every `j` where `x` and `p` differ has an out-arc in `G(x)` to a vertex `i`
+   with `F_i(x) <> p_i`: otherwise `Fsync (flip j x)` would be too far from `p`. So every vertex
+   of `D(x)` plus the bad token `v` has an out-arc inside that set as soon as `v` points into
+   `D(x)`, and `G(x)` would have a cycle (`cycle_or_sink`). Hence the bad token never points into
+   `D(x)`: not at a stable vertex, and not at the good token either.
+3. `G1_T`, `G1_H`, `run_bad_or_dec`. Every move that keeps two tokens keeps `G1`: the bad token
+   passes to a bad receiver by step 2, and the good token passes to a good one by step 1. If no
+   state of a closed two-token run is `G1`, every move fires a good token and `dp` strictly
+   decreases, which is impossible; so every state of the run is `G1`.
+4. `swap_TH`. At a `G1` state, "fire the good token, then the bad one" can be replaced by "fire the
+   bad token, then the good one", reaching the same state with two tokens throughout: the bad
+   token keeps an out-arc (`ucnt_mono` rules out losing a token), and by step 2 it does not point
+   at the good token. The converse swap can fail.
+5. `W_sort`, `W_main`. A closed `G1` walk (the inductive `W`, labelled by which token moves) is
+   rearranged with `swap_TH`: all bad-token moves first (`H^h T^h`, `W_sort`; `W_dp` gives
+   equally many of each), rotated to start between the two blocks (`T^h H^h`), and then each `H`
+   is pulled forward next to a `T` (`W_pullH`), giving `(T H)^h`. From a state with tokens
+   `{b, v}`, "fire `b`, then `v`" is the synchronous step (`F_two`). So the closed run yields
+   `orb h z = z` with `h >= 1` at a state `z` that is not fixed, against `sync_orbit_fixed`.
+
+**Instance.** `two_token_instance`: Shih and Ho's network `sh_F` at `1110` has exactly two
+unstable vertices, `0` (bad: it agrees with the fixed point `1111`) and `3` (good), so the `G1`
+case occurs, and every fair schedule from `1110` settles at `1111`.
+
+**What is open.** Three or more tokens. For three tokens a bad token can pass to a good receiver
+(a SAT witness at n = 4, [K2.md](../../research/gap3-fair-settlement/K2.md)), so the token types
+are not invariant and step 3 does not hold as stated; step 4's swap fails exactly when one
+token's vertex points at another token. Gap 3 stays open.

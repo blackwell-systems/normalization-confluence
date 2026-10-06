@@ -7,11 +7,11 @@ The claim this audit certifies (the README's headline):
 > checker for the practical ones.**
 
 This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Current at `main` `226ef2d` with #92 (gate: `coq/verify.sh`, 2189 axiom-free
+It adds no proofs. Current at `main` `226ef2d` with #92 and #93 (gate: `coq/verify.sh`, 2241 axiom-free
 results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were
 read at `dc610a9`, the rows #83 changed at `69ef03a`, the rows #90 changed at `a0d4713`, and the
-rows #91 changed against #91's `RootlessNetworks.v`, and the rows #92 changed against #92's
-`LocalFairSettlement.v`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+rows #91 changed against #91's `RootlessNetworks.v`, the rows #92 changed against #92's
+`LocalFairSettlement.v`, and the rows #93 changed against #93's `LocalTwoToken.v`) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
 since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
 matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
@@ -35,8 +35,9 @@ Fair-schedule settlement, the analogue of `FairFlushR`, fails under each of thes
 under no local cycle (A) plus out-degree at most one (B): the synchronous form (`sync_simple`, the
 conclusion of Shih and Ho 1999, Theorem 3.1, with (A) needed only at one orbit state:
 `sync_orbit_fixed`), and fair settlement from every start with at most one unstable vertex
-(`one_token_fair_settlement`). Runs whose states all have two or more unstable vertices are the
-open part. Every open convergence gap is cyclic, and
+(`one_token_fair_settlement`); #93 (`LocalTwoToken.v`) extends this to every start with at most two
+unstable vertices (`two_token_closed`, `two_token_fair_settlement`). Runs whose states all have three
+or more unstable vertices are the open part. Every open convergence gap is cyclic, and
 [the cyclic frontier](#the-cyclic-frontier) states them as one question: what additional structure
 makes P, the composition layer of the canonical-execution framework, exact on cycles.
 
@@ -81,6 +82,10 @@ Then #92 (`LocalFairSettlement.v`) brought the gate to 2189: the rootless resolv
 fair-schedule settlement under no local cycle plus out-degree at most one, in the synchronous form
 and from starts with at most one unstable vertex, and gap 3 records it as progress; no gap closes
 and no status changes.
+Then #93 (`LocalTwoToken.v`) brought the gate to 2241: under the same two conditions no closed
+asynchronous run with two unstable vertices changes the state, so fair schedules from starts with
+at most two unstable vertices settle; gap 3 records it as progress; no gap closes and no status
+changes.
 The tables below are the current state; the conclusion re-answers the old questions and confirms
 the wording.
 
@@ -263,7 +268,7 @@ Convergence:
 |---|---|---|---|
 | 1 | Distributed model with propagation steps (section 8) | **closed**: acyclic #60 (`dist_exact`); monotone cycles with reset epochs and under `LowR` #62 (`epoch_conv_iff`, `low_conv_iff`); monotone cycles without resets, unconditionally, #64 (`flush_fed_iff`, `fair_fed_iff`, with `FlushR` and `NoGhostR` characterized) | n/a |
 | 2 | Rootless invertible networks beyond a single coherently oriented cycle (section 11) | **closed**, #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`; the reachable set `net_reachable_iff`; single cycles recovered) | n/a |
-| 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open; progress #80: sufficient signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`, each hypothesis shown needed); progress #83: sufficient certificates on Boolean local interaction graphs for every `n` (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), which certify E with Settlement in its existential (flush) form and not fair-schedule settlement (`shih_dong_not_fair`, `ring_local_conditions`). Open: fair-schedule settlement from local conditions, multivalued local graphs, value sets without bounds, an exact condition | medium to large |
+| 3 | Rootless propagation on non-invertible networks in the resolver reading (section 12) | open; progress #80: sufficient signed certificates for E on the global interaction graph (`signed_settlement`, `signed_fidelity`, each hypothesis shown needed); progress #83: sufficient certificates on Boolean local interaction graphs for every `n` (`local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`), which certify E with Settlement in its existential (flush) form and not fair-schedule settlement (`shih_dong_not_fair`, `ring_local_conditions`); progress #92 and #93: under no local cycle plus out-degree at most one, fair-schedule settlement in the synchronous form (`sync_simple`) and from every start with at most two unstable vertices (`one_token_fair_settlement`, `two_token_fair_settlement`). Open: fair-schedule settlement from local conditions in general (under those two conditions, runs with three or more unstable vertices), multivalued local graphs, value sets without bounds, an exact condition | medium to large |
 | 4 | Event order under non-invertible root-set coordination (section 12) | **closed**, #59 (`forest_events_exact`) | n/a |
 | 5 | Cyclic monotone sub-federations under collapse (section 14) | paper only | medium to large |
 | 6 | Single registry with enabledness that a compensation step can disable (section 1) | **closed**, #56 (`jcg_exact`) | n/a |
@@ -331,7 +336,7 @@ Each open gap, checked against its own description above:
 | Gap | Cyclic? | Why, from the gap's row | Exact acyclic or single-cycle counterpart |
 |---|---|---|---|
 | 2 (closed, #91) | yes | Section 11 scoped it as rootless invertible networks with several cycles or mixed orientation: a registry with no incoming edge is never written and acts as a de facto root (`rootless_orientation_matters`), the single coherently oriented cycle was exact, and what was open was how several cycles compose with no authority. Closed without P, like gap 14: `net_unique_normal_form_iff` is a whole-system statement. It does name the structure. With invertible transports and the regular action every cycle is rigid: relative to a section, propagation copies offsets downstream (`net_origin`), so the only cyclic content left is `H^1` of the whole underlying graph (whether a section exists) and the source components of the condensation, which is acyclic. Existence from every start needs one source component per weakly connected component, uniqueness a de facto root in each, and both an authority root per component. In this regime no compositional form of P is needed: invertibility reduces the cyclic dynamics to a global `H^1` condition plus the acyclic condensation. That reduction uses bijective transports and says nothing about P on the non-invertible (gap 3) or monotone (gap 5) cycles; it removes gap 2 from the frontier | `net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`; earlier `rootless_unique_iff` (one cycle), `prop_minimal_qualified_iff` (with an authority root) |
-| 3 | yes | Section 12 and [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2 state it for a cyclic network in the resolver reading; the acyclic case is Robert's theorem, which the federation model already has (LOSSY-NETWORKS.md section 4.2). On cycles, sufficient signed certificates on the global interaction graph (#80) and on Boolean local interaction graphs (#83) are mechanized. The local ones give E's existential Settlement and not fair-schedule settlement, even with no cycle in any local graph (`shih_dong_not_fair`): by Robert's theorem a fair schedule that never settles needs a cycle in the global graph, and here that cycle shows in no single local graph. #92 adds, under no local cycle plus out-degree at most one, the synchronous form and the single-token asynchronous case. Fair settlement from local conditions on runs with two or more unstable vertices, multivalued local graphs and an exact condition are the open part | acyclic resolver networks (Robert's theorem: every fair schedule converges); on cycles, sufficient only (`signed_settlement`, `signed_fidelity`; locally `local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`, `sync_simple`, `one_token_fair_settlement`) |
+| 3 | yes | Section 12 and [LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model) P2 state it for a cyclic network in the resolver reading; the acyclic case is Robert's theorem, which the federation model already has (LOSSY-NETWORKS.md section 4.2). On cycles, sufficient signed certificates on the global interaction graph (#80) and on Boolean local interaction graphs (#83) are mechanized. The local ones give E's existential Settlement and not fair-schedule settlement, even with no cycle in any local graph (`shih_dong_not_fair`): by Robert's theorem a fair schedule that never settles needs a cycle in the global graph, and here that cycle shows in no single local graph. #92 adds, under no local cycle plus out-degree at most one, the synchronous form and the single-token asynchronous case, and #93 the two-token case (`two_token_closed`: a closed two-token run rearranges into a synchronous orbit). Fair settlement from local conditions on runs with three or more unstable vertices, multivalued local graphs and an exact condition are the open part | acyclic resolver networks (Robert's theorem: every fair schedule converges); on cycles, sufficient only (`signed_settlement`, `signed_fidelity`; locally `local_fidelity_canon`, `richard_t3`, `richard_t4`, `shih_dong_E`, `sync_simple`, `one_token_fair_settlement`, `two_token_fair_settlement`) |
 | 5 | yes | Section 14: collapse of a sub-federation `J` that is itself a monotone cycle | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) |
 | 14 (closed, #90) | yes | Section 8: the no-reset distributed model on monotone cycles, convergence alone. What separated it from the exact rows was the ghost: interleavings can agree on a quiescent state that is a fixed point of the cyclic repair other than the least one (`conv_ghost_normal`). Closed without P: `conv_quiet_exact` is a whole-system E, S and H statement with the quiescent state propagation settles in as the canonical state. The obstacle was the choice of canonicalizer, not composition, so the result says nothing about P on cycles; it removes gap 14 from the frontier | `conv_quiet_exact`; earlier `dist_exact` (acyclic), `epoch_conv_iff` (reset epochs), `flush_fed_iff` (jointly with agreement) |
 | 13, monotone-overlap site | yes | Section 13: the Cat paper's monotone-overlap regime is the cyclic, least-fixed-point site; `SheafGluing.v` is acyclic throughout | `sheaf_iff_refines`, `cert_sheaf` (registry-level site) |
@@ -372,7 +377,10 @@ The cyclic raw material already mechanized:
   theorem with the local condition at one orbit state (`sync_orbit_fixed`, `sync_simple`), token
   monotonicity (`ucnt_mono`) and the single-token asynchronous case (`one_token_closed`,
   `one_token_fair_settlement`); acyclicity of the asynchronous state graph gives fair settlement
-  (`fair_settlement_of_acyclic`). The multi-token case is the open part.
+  (`fair_settlement_of_acyclic`). The two-token case (#93, `LocalTwoToken.v`): at a state with one
+  token on each side of the fixed point the token agreeing with it never points into the
+  disagreement set (`head_arc`), so the closed run rearranges into a synchronous orbit
+  (`swap_TH`, `W_main`) and `two_token_closed` follows. Three or more tokens are the open part.
 - Root sets, which turn a rootless network into a driven one once their values are pinned:
   `root_set_criterion_graph`, `root_set_count`.
 

@@ -15,8 +15,17 @@ proved in Coq:
 - **Boundary instances:** `outdeg_needed`, `no_neg_not_enough`, `no_pos_not_enough`, and
   `shih_ho_instance`.
 
-Still open: closed asynchronous runs with two or more unstable vertices at every state, which is F2
-for k >= 2 tokens. Gap 3 stays open.
+**Mechanized since (#93, `coq/LocalTwoToken.v`, every n): two tokens.** Under (A) and (B), no
+closed asynchronous run from a state with at most two unstable vertices changes the state
+(`two_token_closed`), so every fair schedule from such a start settles
+(`two_token_fair_settlement`). The proof is not F2: with one token on each side of the fixed point
+the token agreeing with it never points into the disagreement set (`head_arc`), and a closed run
+rearranges into a synchronous orbit (`swap_TH`, `W_main`). The SAT decision for exactly two tokens
+(n = 3 to 7), the invariants mined on the way and the ones that fail are in [K2.md](K2.md).
+
+Still open: closed asynchronous runs with three or more unstable vertices at every state. For
+three tokens a token agreeing with the fixed point can pass to one that disagrees (K2.md), so the
+two-token argument does not apply as it stands. Gap 3 stays open.
 
 **Question.** A Boolean network may have no cycle in any local interaction graph G(x) (condition
 (A), `NoLocalCycle` in `coq/LocalSigned.v`) and out-degree at most 1 in every G(x) (condition (B),
@@ -50,6 +59,12 @@ every start.
 | `localized.py` | (A) only on the cycle states |
 | `f2_sat.py` | the F2 lemma |
 | `n6s_*.log` | n = 6 solver logs |
+| `K2.md` | the two-token case: SAT decision, mined invariants, the proof in `LocalTwoToken.v` |
+| `run_k2.py`, `k2_n7_*.log` | SAT search for closed runs with exactly two tokens, n = 7 logs |
+| `sample.py`, `sample_rich.py` | samplers of (A)+(B) networks (random, or with a forced long two-token walk) |
+| `mine.py`, `mine2.py` | candidate invariants on count-preserving two-token moves |
+| `fals_good.py` | SAT test of "a bad token passes to a good receiver" |
+| `checkproof.py` | the two-token proof steps on sampled instances |
 
 **Reproduce.**
 ```

@@ -7,6 +7,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/LocalTwoToken.v` (#93): no closed asynchronous run with two unstable vertices under no
+  local cycle (A) plus out-degree at most one (B); progress on audit gap 3, which stays open.
+  Axiom-free, every `n`.
+  - **Main results:** `two_token_closed` (no closed asynchronous run from a state with at most two
+    unstable vertices changes the state), `two_token_no_closed_change`, and fair settlement at the
+    unique fixed point from every start with at most two unstable vertices
+    (`two_token_fair_settlement`) and for every fair run that ever reaches such a state
+    (`fair_settles_once_two_tokens`).
+  - **Proof:** relative to the fixed point p, a token is good when its vertex disagrees with p.
+    With two tokens one is good (`not_both_bad`, from non-expansiveness). With one of each, the
+    synchronous step is exactly as far from p as the state (`tight`), which forces every vertex
+    of the disagreement set to have an out-arc into it plus the bad token (`tight_arc`); so the
+    bad token never points into that set (`head_arc`), and the token types are invariant on
+    two-token runs (`G1_T`, `G1_H`). Two good tokens move strictly toward p (`run_bad_or_dec`).
+    In the mixed case "good then bad" swaps into "bad then good" (`swap_TH`), and a closed run
+    rearranges into (good, bad) pairs (`W_sort`, `W_main`), each the synchronous step, which
+    `sync_orbit_fixed` excludes.
+  - **Instance:** `two_token_instance`, Shih and Ho's network at `1110` (one good and one bad
+    token), from which every fair schedule settles at `1111`.
+  - **Evidence and mining:** `research/gap3-fair-settlement/K2.md` and scripts: the two-token case
+    decided UNSAT by SAT for n = 3 to 7 (two solvers, two encodings of (A)); the candidate
+    invariants tested and how each fails; the good-token count is the one that survives, and for
+    three tokens it can rise (a SAT witness at n = 4).
+  - **Open:** three or more tokens.
+  - **Docs:**
+    - `REGIME-AUDIT.md`: header, current state, history, gap 3 rows (open-gap table and cyclic
+      frontier), and the cyclic raw material.
+    - `docs/ROADMAP.md`: Done row and gap 3's progress and "Next".
+    - `docs/LOSSY-NETWORKS.md`: P2.
+    - `docs/LANDSCAPE.md`, `docs/THEORY.md`, `docs/REGIMES.md`, `README.md` (open-gap sentence).
+    - `coq/README.md` row and `coq/docs/non-invertible.md`, a section on `LocalTwoToken.v`.
+    - `research/gap3-fair-settlement/README.md`.
+    - Current-count lines.
+  - **Gate:** raised from 2189 to 2241.
 - `coq/LocalFairSettlement.v` (#92): fair settlement for Boolean resolver networks under no local
   cycle (A) plus out-degree at most one (B); progress on audit gap 3, which stays open.
   Axiom-free, every `n`.
