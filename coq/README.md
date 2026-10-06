@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2974 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2974 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 3029 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 3029 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -216,6 +216,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 |---|---|---|
 | `SymmetryCutoff.v` | Symmetry over keyed collections (roadmap item 8, step 1): independent, identically governed items, cutoff 1 for unique normal forms `un_cutoff`, `un_cutoff_uniform`, `un_cutoff_global`, for WFC `wfc_cutoff`, CC2 `cc2_cutoff`, at-least-once `alo_cutoff_exact`, federation `c1_cutoff`, `c2_cutoff`; CC1 alone cutoff 2, tight: `cc1_cutoff`, `cc1_cutoff_tight`; cross-item pairs `cross_item_reduces`, `cross_valid_commute`; the hypotheses decided `idgov_lift`, `symcheck_decides`, `symmetry_sound`; boundaries `aggregate_diverges`, `agg_not_idgov`, `nonidentical_misleads`; non-vacuity `inventory_any_n` | [Symmetry](docs/symmetry.md#independent-identically-governed-items-symmetrycutoffv) |
 | `AbstractionCutoff.v` | Abstraction over integer-valued state (roadmap item 8, step 2): for rules that compare and copy values and declared constants, each condition over all integers iff over `\|C\|(N+1) + N` representatives, N = n + 2m for CC1 `cc1_abs`, n + m for CC2 `cc2_abs`, n for WFC and the repair bound `wfc_abs`, `term_abs`; unique normal forms `un_abs`, `abs_check_exact`; one check per order type `cc1_order_type`; the fragment decided `ord_frag_sound`, `build_sound`; linear rules through generated formulas, each condition iff its formula is valid `phi_cc1_exact`, `phi_cc2_exact`, `lin_exact`, linear `lin_frag_linear` (solver external); boundaries `exact13_diverges`, `triangle_diverges`, `copy_tight`; non-vacuity `capped_un`, `wallet_un`; with symmetry `sym_abs`, `capped_catalog` | [Abstraction](docs/abstraction.md#integer-valued-registries-abstractioncutoffv) |
+| `AbstractionGsm.v` | The gsm instantiation of abstraction (m = 0 gives cutoff N = n): CC1 for checked pairs at the valid states over all integers iff over the representatives `cc1_valid_abs`; idempotence transfers, at every state `idem_abs`, at the valid states `idem_valid_abs`, for the runtime step `idem_runtime_abs`; order-invariant maps compose `oimap_comp`, `oimap_itr`, and the repair-first registry stays in the fragment `derived_ordinv`; the prose route mechanized `cc1_derived_valid`, `cc1_valid_derived_abs`; gsm's guarantee through `run_tequiv`: exact for runs from valid states `gsm_abs_exact`, the runtime converges from every integer state `gsm_abs_sound`, `gsm_abs_sound_all`; boundary `idem13_diverges`; non-vacuity `capped_runtime`, `inventory_runtime`, `inventory_idem`, `swapxy_not_idem` | [gsm instantiation](docs/abstraction.md#gsm-instantiation-abstractiongsmv) |
 
 ### Infrastructure ([docs/infrastructure.md](docs/infrastructure.md))
 
@@ -256,7 +257,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2974
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3029
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

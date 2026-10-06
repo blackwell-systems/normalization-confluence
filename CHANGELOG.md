@@ -7,6 +7,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/AbstractionGsm.v`: the gsm instantiation of `AbstractionCutoff.v` (roadmap item 8 step 2,
+  gsm roadmap item 1b). gsm's Build checks CC1 at the valid representative states only and its
+  runtime normalizes before applying; these theorems cover exactly that, for general m (gsm's
+  m = 0 gives cutoff N = n). Axiom-free. Roadmap work, not a regime gap: no gap status changes.
+  - **CC1 at the valid states:** `cc1_valid_abs` (for the checked pairs of a relation I on event
+    kinds, over all integers iff over `reps N C`, N >= n + 2m), `cc1v_order_type`, the finite check
+    `cc1v_check` (`cc1v_check_spec`).
+  - **Idempotence transfers:** `idem_abs` (every state), `idem_valid_abs` (valid states),
+    `idem_runtime_abs` (gsm's runtime step from every integer state), N >= n + m;
+    `idem_order_type`, `idemv_check` (`idemv_check_spec`). gsm's `NotIdempotent` list computed from
+    the representatives is exact for every integer state.
+  - **Fragment preservation:** `OIMap`, `oimap_closed`, `oimap_id`, `oimap_comp` (order-invariant
+    maps compose), `oimap_itr`, `oimap_rp`, `oi_ap_after`; the repair-first registry `apR` stays in
+    the fragment (`derived_shaped`, `derived_ordinv`).
+  - **The prose route mechanized:** `cc1_derived_valid` (CC1 at every state of the repair-first
+    registry iff CC1 at the valid states), `cc1_valid_derived_abs` (through `cc1_abs`).
+  - **gsm's guarantee:** `gsm_abs_exact` (given repair within K steps over the representatives,
+    CC1 for I at the valid representative states iff trace-equivalent runs from every valid
+    integer state converge, through `Trace.run_tequiv`), `gsm_abs_sound` (gsm's runtime step
+    converges from every integer state, the zero state included), `gsm_abs_sound_all`
+    (permutations).
+  - **Boundary and non-vacuity:** `idem13_passes`, `idem13_diverges`, `idem13_refused` (an
+    undeclared exact test fools the idempotence check); the capped inventory (`capped_cc1_valid`,
+    `capped_idem`, `capped_derived`, `capped_runtime`); gsm's documented example with m = 0 over 343
+    representative states (`inventory_runtime`, `inventory_idem`); a non-idempotent swap reported
+    with an integer witness (`swapxy_not_idem`).
+  - **Docs:** `coq/docs/abstraction.md` section "gsm instantiation", `coq/README.md` row, and the
+    count lines.
+  - **Gate:** raised from 2974 to 3029.
+
 - `coq/AbstractionCutoff.v`: the abstraction reduction over integer-valued state, roadmap item 8
   step 2 (gsm roadmap item 1b: check relationships, not values). Axiom-free. Roadmap work, not a
   regime gap: no gap status changes.

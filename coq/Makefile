@@ -426,3 +426,11 @@ all: AbstractionCutoff.vo
 
 AbstractionCutoff.vo: AbstractionCutoff.v Newman.vo Governance.vo GovernanceConverse.vo SymmetryCutoff.vo
 	coqc -Q . NC AbstractionCutoff.v
+
+# The gsm instantiation of abstraction: CC1 at the valid states and idempotence transfer from the
+# representatives to every integer, the repair-first registry stays in the fragment, and gsm's
+# runtime converges from every integer state (roadmap item 8, step 2, AbstractionGsm.v).
+all: AbstractionGsm.vo
+
+AbstractionGsm.vo: AbstractionGsm.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo
+	coqc -Q . NC AbstractionGsm.v

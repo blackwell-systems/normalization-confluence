@@ -3037,6 +3037,62 @@ Print Assumptions NC.AbstractionCutoff.triangle_refused.
 Print Assumptions NC.AbstractionCutoff.triangle_formula_refuted.
 Print Assumptions NC.AbstractionCutoff.copy_shaped.
 Print Assumptions NC.AbstractionCutoff.copy_tight.
+Require NC.AbstractionGsm.
+Print Assumptions NC.AbstractionGsm.implb_true.
+Print Assumptions NC.AbstractionGsm.incl_l.
+Print Assumptions NC.AbstractionGsm.cc1v_check_spec.
+Print Assumptions NC.AbstractionGsm.idemv_check_spec.
+Print Assumptions NC.AbstractionGsm.cc1v_order_type.
+Print Assumptions NC.AbstractionGsm.idem_order_type.
+Print Assumptions NC.AbstractionGsm.cmp_tup.
+Print Assumptions NC.AbstractionGsm.tup_len.
+Print Assumptions NC.AbstractionGsm.cc1_valid_abs.
+Print Assumptions NC.AbstractionGsm.idem_abs.
+Print Assumptions NC.AbstractionGsm.idem_valid_abs.
+Print Assumptions NC.AbstractionGsm.oimap_closed.
+Print Assumptions NC.AbstractionGsm.oimap_id.
+Print Assumptions NC.AbstractionGsm.oimap_comp.
+Print Assumptions NC.AbstractionGsm.oimap_itr.
+Print Assumptions NC.AbstractionGsm.oimap_rp.
+Print Assumptions NC.AbstractionGsm.oi_ap_after.
+Print Assumptions NC.AbstractionGsm.sigb_spec.
+Print Assumptions NC.AbstractionGsm.derived_shaped.
+Print Assumptions NC.AbstractionGsm.derived_ordinv.
+Print Assumptions NC.AbstractionGsm.nf_fix.
+Print Assumptions NC.AbstractionGsm.nf_len.
+Print Assumptions NC.AbstractionGsm.G_valid.
+Print Assumptions NC.AbstractionGsm.GR_eq.
+Print Assumptions NC.AbstractionGsm.runH_len.
+Print Assumptions NC.AbstractionGsm.runH_valid.
+Print Assumptions NC.AbstractionGsm.GR_len.
+Print Assumptions NC.AbstractionGsm.GR_valid.
+Print Assumptions NC.AbstractionGsm.GR_comm.
+Print Assumptions NC.AbstractionGsm.cc1_derived_valid.
+Print Assumptions NC.AbstractionGsm.cc1_valid_derived_abs.
+Print Assumptions NC.AbstractionGsm.gsm_abs_exact.
+Print Assumptions NC.AbstractionGsm.gsm_abs_sound.
+Print Assumptions NC.AbstractionGsm.gsm_abs_sound_all.
+Print Assumptions NC.AbstractionGsm.idem_runtime_abs.
+Print Assumptions NC.AbstractionGsm.capped_term.
+Print Assumptions NC.AbstractionGsm.capped_cc1v_check.
+Print Assumptions NC.AbstractionGsm.capped_idemv_check.
+Print Assumptions NC.AbstractionGsm.capped_cc1_valid.
+Print Assumptions NC.AbstractionGsm.capped_idem.
+Print Assumptions NC.AbstractionGsm.capped_derived.
+Print Assumptions NC.AbstractionGsm.capped_runtime.
+Print Assumptions NC.AbstractionGsm.inventory_frag.
+Print Assumptions NC.AbstractionGsm.inventory_reps.
+Print Assumptions NC.AbstractionGsm.inventory_term.
+Print Assumptions NC.AbstractionGsm.inventory_cc1v_check.
+Print Assumptions NC.AbstractionGsm.inventory_idemv_check.
+Print Assumptions NC.AbstractionGsm.inventory_runtime.
+Print Assumptions NC.AbstractionGsm.inventory_idem.
+Print Assumptions NC.AbstractionGsm.swapxy_frag.
+Print Assumptions NC.AbstractionGsm.swapxy_check_fails.
+Print Assumptions NC.AbstractionGsm.swapxy_not_idem.
+Print Assumptions NC.AbstractionGsm.idem13_passes.
+Print Assumptions NC.AbstractionGsm.idem13_diverges.
+Print Assumptions NC.AbstractionGsm.idem13_refused.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3047,8 +3103,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2974 ]; then
-  echo "FAIL: expected 2974 axiom-free results, got $N"
+if [ "$N" -lt 3029 ]; then
+  echo "FAIL: expected 3029 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
