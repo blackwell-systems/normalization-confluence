@@ -683,6 +683,12 @@ research directions, not missing exact conditions for a listed regime).
   through a non-fixed state against `sync_orbit_fixed`. Non-vacuity: `two_token_instance` (Shih
   and Ho's network at 1110, one good and one bad token). The same case is decided by SAT for
   n = 3 to 7 (`research/gap3-fair-settlement/K2.md`, which also lists the potentials that fail).
+- **General imbalance law** (`LocalTokenBalance.v`; details in
+  [coq/docs/non-invertible.md](../coq/docs/non-invertible.md#the-imbalance-law-localtokenbalancev)).
+  Under (B) alone, for every number of tokens, at most half of the tokens are bad relative to a
+  fixed point (`bad_le_good`, from the identity d(F x, p) = d(x, p) - g + b, `image_distance`);
+  with two tokens this is `not_both_bad`, with three it leaves the shapes (3, 0) and (2, 1). It
+  says nothing about closed runs: gap 3 is still open.
 - **Open: three or more tokens (computational evidence, not mechanized).** Under (A) and (B), no
   closed asynchronous run whose states all have three or more unstable vertices. An exhaustive SAT
   search finds no network on n = 3, 4, 5 or 6 vertices with (A) and (B) and any cycle in its

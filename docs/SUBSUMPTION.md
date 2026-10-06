@@ -230,5 +230,5 @@ is neither claimed nor needed.
 - `coq/GovernanceCausal.v`: the co-enabled-events Convergence Theorem for the rewrite system.
 - `coq/AtLeastOnce.v`, `coq/AtLeastOnceExact.v`: duplicate delivery for governed machines.
 - `coq/Checker.v`: `run_perm_invariant`.
-- `coq/verify.sh`: gates all of the above on being `Closed under the global context` (2241
+- `coq/verify.sh`: gates all of the above on being `Closed under the global context` (2251
   theorems at the time of writing; `verify.sh` is the source of truth).

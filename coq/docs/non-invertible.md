@@ -721,3 +721,32 @@ case occurs, and every fair schedule from `1110` settles at `1111`.
 (a SAT witness at n = 4, [K2.md](../../research/gap3-fair-settlement/K2.md)), so the token types
 are not invariant and step 3 does not hold as stated; step 4's swap fails exactly when one
 token's vertex points at another token. Gap 3 stays open.
+
+## The imbalance law (`LocalTokenBalance.v`)
+
+**Setting.** As in `LocalTwoToken.v`, but with no acyclicity hypothesis. For any state `p`,
+`ng p x` and `nb p x` count the tokens of `x` that are good (`x_t <> p_t`) and bad
+(`x_t = p_t`); `ucnt_split` says that they add up to `ucnt x`.
+
+**Main results.**
+
+- `image_distance` (no hypothesis, any `p`): `dS (Fsync x) p + ng p x = dS x p + nb p x`, that is
+  d(F x, p) = d(x, p) - g + b. `Fsync x` differs from `x` exactly at the tokens; a good token flips
+  toward `p` and a bad one away.
+- `bad_le_good`: `NoDup js`, (B) and `Fsync p = p`: `nb p x <= ng p x` at every state, for every
+  number of tokens. Non-expansiveness with `Fsync p = p` (`outdeg_nonexpansive`) gives
+  d(F x, p) <= d(x, p), and `image_distance` turns it into b <= g. Neither (A) nor the absence of
+  self-loops is used.
+- `bad_half`, `bad_le_half`: `2 * nb p x <= ucnt x` and `nb p x <= ucnt x / 2`: one token is good,
+  two or three tokens have at most one bad, four or five at most two.
+- `not_both_bad_k2`: `LocalTwoToken.not_both_bad` recovered as the case of two tokens.
+- `three_token_shape`: with exactly three tokens, (g, b) is (3, 0) or (2, 1). A counting
+  consequence only.
+
+**Instance.** `token_balance_instance`: Shih and Ho's network `sh_F` with (A), (B) and the fixed
+point `1111` has two tokens (1, 1) at `1110`, where the bound b <= g is attained, three tokens
+(3, 0) at `0100`, and three tokens (2, 1) at `1001`.
+
+**What is open.** Nothing here is about closed runs with three or more tokens. The structural
+lemmas mined for that case, and the obstruction, are in
+[K3.md](../../research/gap3-fair-settlement/K3.md). Gap 3 stays open.

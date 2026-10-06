@@ -7,6 +7,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/LocalTokenBalance.v`: the imbalance law under out-degree at most one (B), for every number
+  of tokens; progress on audit gap 3, which stays open. Axiom-free, every `n`.
+  - **Main results:** `image_distance` (d(F x, p) + g = d(x, p) + b for any state p, no
+    hypothesis), `ucnt_split`, `bad_le_good` ((B) and a fixed point p: at most half the tokens are
+    bad; neither (A) nor the absence of self-loops is used), `bad_half`, `bad_le_half`
+    (b <= floor(k/2)).
+  - **Corollaries:** `not_both_bad_k2` (`LocalTwoToken.not_both_bad` as the case k = 2) and
+    `three_token_shape` (with three tokens, (g, b) is (3, 0) or (2, 1); counting only).
+  - **Instance:** `token_balance_instance`, Shih and Ho's network: (1, 1) at `1110` (the bound
+    attained), (3, 0) at `0100`, (2, 1) at `1001`.
+  - **Docs:** `coq/README.md` row, `coq/docs/non-invertible.md` section, one line in the
+    `REGIME-AUDIT.md` gap 3 row and in `docs/LOSSY-NETWORKS.md` P2, and the count lines.
+  - **Gate:** raised from 2241 to 2251.
+
 - `research/gap3-fair-settlement/K3.md` and scripts: the three-token case of audit gap 3, not
   proved and not mechanized. No closed asynchronous run with exactly three unstable vertices under
   (A) and (B) for n = 3 to 6 (SAT, two encodings of (A), two solvers; n = 7 running at the time of
