@@ -26,7 +26,7 @@ rearranges into a synchronous orbit (`swap_TH`, `W_main`). The SAT decision for 
 Still open: closed asynchronous runs with three or more unstable vertices at every state. For
 three tokens a token agreeing with the fixed point can pass to one that disagrees (K2.md), so the
 two-token argument does not apply as it stands. The three-token case is decided UNSAT by SAT for
-n = 3 to 6 (n = 7 running at the time of writing); [K3.md](K3.md) records the decision, transition
+n = 3 to 7; [K3.md](K3.md) records the decision, transition
 statistics over 31,490 sampled moves, the proved structural lemmas (at most half the tokens are
 bad; near-rigidity at one bad token; the critical pairs are exactly "same token" and "follow"),
 every candidate order tried and how it fails, and the obstruction: normalizing a closed run into
@@ -71,7 +71,7 @@ every start.
 | `fals_good.py` | SAT test of "a bad token passes to a good receiver" |
 | `checkproof.py` | the two-token proof steps on sampled instances |
 | `K3.md` | the three-token case: SAT decision, transition statistics, candidate orders, the obstruction |
-| `run_k3.py`, `k3_n3to6.log` | SAT search for closed runs with exactly k tokens (k = 3 by default) |
+| `run_k3.py`, `k3_n3to6.log`, `k3_n7_cadical195_*.log` | SAT search for closed runs with exactly k tokens (k = 3 by default) |
 | `fals_f12.py`, `check3.py`, `commute3.py` | the structural lemmas of K3.md, section 2 (SAT and samples) |
 | `sample3.py`, `stats3.py`, `mine3.py`, `mine3_all.log` | three-token walk sampler, transition statistics, candidate orders |
 | `episode.py`, `episodes.log` | SAT falsification of episode orders |

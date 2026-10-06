@@ -1,0 +1,1 @@
+{"n": 7, "opts": ["sym", "tok", "alldir"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 9204.1, "build": 0.4, "vars": 10432, "clauses": 355722}
