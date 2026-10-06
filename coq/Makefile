@@ -356,3 +356,10 @@ all: LocalTokenBalance.vo
 
 LocalTokenBalance.vo: LocalTokenBalance.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo LocalTwoToken.vo
 	coqc -Q . NC LocalTokenBalance.v
+
+# At-least-once delivery under declared independence I: the exact condition, the per-event form,
+# unordered retries, and gsm's NotIdempotent under I (gap 15 (a), AtLeastOnceDeclared.v).
+all: AtLeastOnceDeclared.vo
+
+AtLeastOnceDeclared.vo: AtLeastOnceDeclared.v Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo GovernanceConverse.vo
+	coqc -Q . NC AtLeastOnceDeclared.v

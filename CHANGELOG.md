@@ -7,6 +7,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/AtLeastOnceDeclared.v`: at-least-once delivery under declared independence `I`, exactly;
+  closes audit gap 15 (a). Gap 15 stays open for (b) to (d). Axiom-free.
+  - **Model:** a delivery `d` of a history `o` is `ALOI o d` when every pair some copy delivers out
+    of `o`'s order is declared independent; on exactly-once deliveries this is trace equivalence
+    (`aloi_nodup_iff`).
+  - **Main results:** `dalo_exact` (convergence iff declared pairs commute after every reachable
+    exactly-once prefix, `CommI`, and every event is idempotent at reachable first deliveries),
+    `dalo_exact_absorb`, `dalo_exact_trace`, `tconv_exact`; per event `safe_i_exact`,
+    `safe_i_iff_idem`; unordered retries `dalo_r_exact`, `safe_r_exact`, `dalo_r_implies`.
+  - **Recovered:** `alo_exact_declared` (free) and `causal_alo_exact_declared` (causal) through
+    `dalo_exact`.
+  - **gsm:** `Report.NotIdempotent` with `Independent` pairs is sound at reachable witnesses
+    (`dalo_notidem_needs_dedup`) and complete when the declared pairs commute at reachable states
+    and every reachable state is valid (`dalo_gsm_unlisted_safe`); deduplicating the listed events
+    then suffices (`dalo_unlisted_converge`); Build plus an empty report gives convergence
+    (`build_comm_i`, `dalo_gsm_build`).
+  - **Counterexamples:** `fl_retry_order_needed` (a retry of `Add` that crosses the undeclared
+    `Remove` diverges although `Add` is idempotent everywhere: retries must respect the declared
+    order), `fl_partner_overtakes` (`Add` and `Remove` declared: the redelivered `Add` overtakes its
+    declared partner, so completeness needs `CommI`), `inc_declared_fails`,
+    `jmp_declared_unreachable`. Non-vacuity: `fl_declared_exact`, `fl_gsm_build`, `mx_declared_r`.
+  - **Docs:** `coq/README.md` row, `coq/docs/at-least-once.md` section, `REGIME-AUDIT.md` section 3
+    rows, gap 15 row and summaries, `docs/COVERAGE.md` cell C10 and counts, `docs/REGIMES.md`,
+    `docs/ROADMAP.md`, `README.md` open-gap sentence (nine open gaps, unchanged), and the count
+    lines.
+  - **Gate:** raised from 2251 to 2290.
+
 - `coq/LocalTokenBalance.v`: the imbalance law under out-degree at most one (B), for every number
   of tokens; progress on audit gap 3, which stays open. Axiom-free, every `n`.
   - **Main results:** `image_distance` (d(F x, p) + g = d(x, p) + b for any state p, no

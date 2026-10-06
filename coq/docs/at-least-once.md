@@ -1,7 +1,7 @@
 # At-least-once delivery
 
 Detailed results for the at-least-once modules: when a duplicate is absorbed, and the exact
-conditions, free and causal. Each module's one-line summary is in the [module
+conditions, free, causal and under declared independence. Each module's one-line summary is in the [module
 index](../README.md#modules-by-regime); the status of each question in this regime is in
 [REGIME-AUDIT.md](../../REGIME-AUDIT.md#3-at-least-once-delivery), section 3.
 
@@ -78,9 +78,8 @@ form is its instance with `hb` empty. Axiom-free:
   exactly-once delivery converges from `s0` and every reachable state is valid, an unlisted event
   needs no deduplication). Exactly: under `CommReach`, needing deduplication is non-idempotence at a
   reachable state where the event is first delivered; `NotIdempotent` quantifies over valid states
-  instead of reachable ones. These placements are for free and causal delivery. For a registry that
-  declares `Independent` pairs, exactly-once delivery covers only trace-equivalent orders, and no
-  theorem places `NotIdempotent` there (REGIME-AUDIT.md gap 15 (a)).
+  instead of reachable ones. These placements are for free and causal delivery; for a registry that
+  declares `Independent` pairs see the next section (`AtLeastOnceDeclared.v`).
 - Recovered: `old_free_implies` / `alo_commuting_recovered` and `old_causal_implies` /
   `causal_alo_recovered` derive the exact conditions from the hypotheses of
   `alo_commuting_exactly_once` and `causal_alo_exactly_once`.
@@ -99,3 +98,60 @@ form is its instance with `hb` empty. Axiom-free:
   max-register), `n_causal_alo_exact` (GovernanceConverse's `n_step`: `CCR` holds from `0` but
   `cc_concurrent` fails, so `causal_alo_exactly_once` does not apply, yet every causally consistent
   at-least-once delivery converges from `0`).
+
+## At-least-once delivery under declared independence (`AtLeastOnceDeclared.v`)
+
+A registry that declares `Independent` pairs `I` promises less than free delivery: Build checks CC1
+only on the declared pairs, and gsm reports every undeclared pair that does not commute as one that
+must be causally ordered. Its exactly-once guarantee is trace equivalence (`Trace.v`'s
+`run_tequiv`): sequences that differ by reordering declared-independent events agree. A delivery is
+therefore pinned to a reference history `o` (a duplicate-free list over `Ev`, causal for an
+irreflexive `hb` that says which histories exist; `nohb` for gsm), and `I` is symmetric, irreflexive
+and never declared on an `hb`-ordered pair. `AtLeastOnceDeclared.v` closes audit gap 15 (a).
+Axiom-free:
+
+- The model. `ALOI o d`: every pair that some copy in `d` delivers out of `o`'s order is declared
+  independent (`prec a b o`, `d = l ++ r`, `b` in `l`, `a` in `r` imply `I a b`). The first copy
+  and every redelivery may move only as far as `I` permits. On exactly-once deliveries this is
+  trace equivalence: `aloi_nodup_iff` (`NoDup d`, `Permutation d o`: `ALOI o d <-> tequiv I d o`).
+  `DALOConv s0`: every `ALOI` delivery of a history reaches the history's state from `s0`.
+- `dalo_exact`, `dalo_exact_absorb`, `dalo_exact_trace`: `DALOConv s0` iff declared pairs commute
+  after every reachable exactly-once prefix (`CommI s0`, equivalently exactly-once trace
+  convergence `TConvI s0`, `tconv_exact`) and every event is idempotent at every reachable state
+  where it is first delivered (`IdemAt s0 a`, the same clause as the free and causal forms),
+  equivalently absorbed after every history containing it whose later events are all declared
+  independent of it (`AbsorbI s0 a`). Only the commutation clause narrows, from every pair
+  (`CommReach`) to the declared ones.
+- Per event: `safe_i_exact` (`SafeI s0 a`, no `ALOI` delivery duplicating only `a` diverges from its
+  exactly-once projection, iff `AbsorbI s0 a`), `safe_i_iff_idem` (under `CommI`, iff `IdemAt`),
+  `dalo_safe`.
+- Recovered through `dalo_exact`: the free form with `I` every distinct pair and `hb` empty
+  (`free_dalo_iff`, `free_comm_iff`, `alo_exact_declared`), and the causal form with `I` the
+  concurrent pairs (`causal_dalo_iff`, `causal_comm_iff`, `causal_alo_exact_declared`).
+- Unordered retries (a weaker transport: only first copies respect the declared order, a
+  redelivery may land anywhere after its first copy). `dalo_r_exact`: `DALOConvR s0` iff `CommI s0`
+  and every event's redelivery is absorbed after EVERY history containing it (`AbsorbR`);
+  `safe_r_exact` per event; `dalo_r_implies` (`DALOConvR` implies `DALOConv`, strictly).
+- gsm's `Report.NotIdempotent` under declared `I`: sound at reachable witnesses
+  (`dalo_notidem_needs_dedup`, and `dalo_notidem_needs_dedup_once` for a witness reached by a
+  history); complete when `CommI s0` holds and every reachable state is valid
+  (`dalo_gsm_unlisted_safe`), and then deduplicating exactly the listed events suffices
+  (`dalo_unlisted_converge`). Build's check on declared pairs gives `CommI` when reachable states
+  are valid (`build_comm_i`); with `NotIdempotent` empty every `ALOI` delivery converges
+  (`dalo_gsm_build`). It still over-reports at unreachable witnesses (`jmp_declared_unreachable`).
+- Counterexamples. `fl_retry_order_needed`: the flag with a max-register, `Add`/`Remove` undeclared
+  and every other distinct pair declared; `DALOConv` holds although free at-least-once delivery
+  fails, `Add` is idempotent at every state, yet `[Add; Remove; Add]`, whose first copies are the
+  history `[Add; Remove]` itself, diverges: the retry crosses the undeclared `Remove`, so it is not
+  `ALOI`, and under unordered retries `Add` needs deduplication (`SafeR` and `DALOConvR` fail).
+  Completeness of `NotIdempotent` needs retries to respect the declared order.
+  `fl_partner_overtakes`: `Add` and `Remove` declared independent; every event is idempotent
+  everywhere, so `NotIdempotent` lists nothing, yet the redelivery of `Add` overtakes its declared
+  partner `Remove`: `Add` needs deduplication, `CommI` and `DALOConv` fail. Completeness needs
+  `CommI` (Build rejects this declaration). `inc_declared_fails`: `CommI` holds and `IdemAt` fails
+  (the idempotence clause is needed).
+- Non-vacuity: `fl_declared_exact` (every hypothesis and conclusion of `dalo_exact` and
+  `dalo_safe`), `fl_gsm_build` (Build and an empty `NotIdempotent` on that registry), and
+  `mx_declared_r` (the clamped max-register satisfies `CommI` and `AbsorbR`, so `DALOConvR` holds).
+- Scope. The FedMachine with declared `I` is an instance by the generic-step principle (P1 in
+  [COVERAGE.md](../../docs/COVERAGE.md)), with states compared by equality as in `alo_exact`.

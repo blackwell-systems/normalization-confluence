@@ -17,7 +17,8 @@ into a named representative cell), 14 are ill-formed, and 21 had no row at all. 
 cells are 12 distinct questions, proposed as gaps 15 to 19. Outside the axes, seven candidate
 dimensions are not represented in the model at all (section 4): two become gaps 20 and 21 (new
 axes), five become explicit design exclusions X1 to X5, and the rest map onto existing cells or
-stated limits.
+stated limits. Since the pass, cell C10 (gap 15 (a)) is exact (`AtLeastOnceDeclared.v`,
+`dalo_exact`); the counts in section 3 include that change.
 
 How to read the statuses:
 
@@ -187,7 +188,7 @@ step by P1); stream processors; distributed propagation.
 | C7 | The federal guard (FedMachine) versus none | **exact**: none: `fed_grs_exact`; guard: `fed_guarded_exact` | **exact**: `fed_exact` | **degenerate**: C2 replay (with every event enabled at every federally valid state, a settled processor is the FedMachine run of its received set) | **exact**: `dist_exact` (no guard) |
 | C8 | At-least-once, free | **degenerate**: C8 replay (the property compares duplicated deliveries with the exactly-once result, which the replay model states) | **exact**: `alo_exact`, `safe_free_exact` (any step, P1) | **uncovered**: `stream_exact` is stated at duplicate-free event sets; gap 15 (b) | **uncovered**: gap 15 (c) |
 | C9 | At-least-once, causal | **degenerate**: C9 replay | **exact**: `causal_alo_exact`, `causal_alo_exact_idem`, `safe_at_exact` | **degenerate**: C8 streams | **degenerate**: C8 distributed |
-| C10 | At-least-once, declared independence `I` | **degenerate**: C10 replay | **uncovered**: the at-least-once theorems are stated for free and causal delivery only (gsm: `NotIdempotent` with `Independent` pairs; the FedMachine with declared `I`); gap 15 (a) | **degenerate**: C8 streams | **degenerate**: C8 distributed |
+| C10 | At-least-once, declared independence `I` | **degenerate**: C10 replay | **exact**: `dalo_exact`, `dalo_exact_absorb`, `safe_i_exact`; unordered retries `dalo_r_exact`, `safe_r_exact` (any step, P1, so the FedMachine with declared `I`); gsm's `NotIdempotent` placed by `dalo_notidem_needs_dedup`, `dalo_gsm_unlisted_safe`; gap 15 (a), closed | **degenerate**: C8 streams | **degenerate**: C8 distributed |
 | C11 | Unordered merges with duplication | **degenerate**: C11 replay (compensation-free, identity repair: `cf_cc_exact_from`) | **exact**: `merge_action_exact`, `cvrdt_on_iff` | **degenerate**: C11 replay | **ill-formed**: in the merge model the merges are the propagation |
 | C12 | Infinite streams | **ill-formed**: the other models compare finite words | **ill-formed**: as before | **excluded (design)**: gap 9 (`base_thm_convergence_transient_counterexample`) | **ill-formed**: as before |
 
@@ -228,7 +229,7 @@ step by P1); stream processors; distributed propagation.
 
 | Status | Cells |
 |---|---|
-| exact | 54 |
+| exact | 55 |
 | exact + hardness | 4 |
 | sufficient (no owning gap) | 0 |
 | excluded (design: gaps 8 and 9, and B8's counterexamples) | 9 |
@@ -236,17 +237,18 @@ step by P1); stream processors; distributed propagation.
 | open, existing gaps 3, 5, 13 and one ROADMAP item | 19 |
 | degenerate | 55 |
 | ill-formed | 14 |
-| **uncovered (now gaps 15 to 19)** | **21** |
+| **uncovered (now gaps 15 to 19)** | **20** |
 | total | 179 |
 
 Cells are counted per table row and column (sections 3.1 to 3.3), and per row in sections 3.4
 and 3.5, by the status that leads the cell; A14's normalizer cell, open for monotone blocks and
-uncovered otherwise, counts as open. One question can span several cells, so the 21 uncovered
-cells are 12 distinct questions: A2's fair schedules (16 d); the edge-writer dynamics of A3, A8
+uncovered otherwise, counts as open. One question can span several cells, so the 20 uncovered
+cells are 11 distinct questions (C10, at-least-once under declared independence, gap 15 (a), was
+the twelfth and is now exact): A2's fair schedules (16 d); the edge-writer dynamics of A3, A8
 and A10 (17); reading-B existence and counting, A11 and F7 (18); composition across engines, A14
 and B13 (19 a), and collapse in the distributed model, B11 (19 b); local compensation as steps on
 cycles, B3 (16 c); distributed ACC, B4 (16 b); rootless propagation with events, B7 (16 a); and,
-off the replay model, at-least-once under declared independence, C10 (15 a), at-least-once
+off the replay model, at-least-once
 streams, C8 (15 b), causal or at-least-once distributed delivery, C3 and C8 (15 c), and buffered
 federation guards, C6 (15 d).
 
@@ -258,7 +260,8 @@ fair update schedules on an acyclic network have no gated statement. The pages a
 the same change (LOSSY-NETWORKS.md sections 2, 4.1, 4.2 and P2, LANDSCAPE.md, the audit's frontier
 row for gap 3). Also C10: at-least-once delivery with declared independence is the case
 gsm's `Report.NotIdempotent` meets whenever a registry declares `Independent` pairs, and the exact
-theorems cover only free and causal delivery.
+theorems covered only free and causal delivery (since closed: `dalo_exact`,
+`dalo_notidem_needs_dedup`, `dalo_gsm_unlisted_safe`).
 
 ## 4. Candidates outside the axes
 

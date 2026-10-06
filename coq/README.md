@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2251 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2251 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2290 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2290 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -92,6 +92,7 @@ what gsm checks) are on the linked page in [`docs/`](docs).
 |---|---|---|
 | `AtLeastOnce.v` | Sufficient conditions: `alo_absorbed`, `alo_commuting_converges`, `causal_alo_converges`; divergence: `non_idempotent_diverges`, `late_duplicate_diverges` | [At-least-once delivery](docs/at-least-once.md#at-least-once-delivery-atleastoncev) |
 | `AtLeastOnceExact.v` | Exact, free and causal: `alo_exact`, `causal_alo_exact`, `safe_free_exact`; gsm's report: `notidem_needs_dedup`, `gsm_unlisted_safe` | [At-least-once delivery, exact](docs/at-least-once.md#at-least-once-delivery-exact-atleastonceexactv) |
+| `AtLeastOnceDeclared.v` | Exact under declared independence `I`: `dalo_exact`, `safe_i_exact`, unordered retries `dalo_r_exact`; free and causal recovered (`alo_exact_declared`, `causal_alo_exact_declared`); gsm's report under `I`: `dalo_notidem_needs_dedup`, `dalo_gsm_unlisted_safe`, `dalo_gsm_build` | [At-least-once delivery under declared independence](docs/at-least-once.md#at-least-once-delivery-under-declared-independence-atleastoncedeclaredv) |
 
 ### 4. CRDT fragment ([docs/crdt.md](docs/crdt.md))
 
@@ -236,7 +237,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2251
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2290
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
