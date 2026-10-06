@@ -1,7 +1,7 @@
 # Companion paper: outline and decisions
 
 > **Status note.** The mechanization-status lines on this page are a historical snapshot from the
-> outline stage and the 254-theorem gate (the gate is now 2974), and much of what they list as
+> outline stage and the 254-theorem gate (the gate is now 3029), and much of what they list as
 > paper level is now mechanized. They are kept as written.
 > [REGIME-AUDIT.md](../REGIME-AUDIT.md) is the current status, regime by regime.
 
@@ -164,7 +164,7 @@ Snapshot from the outline stage (gate at 29 to 33 theorems). Since then the item
 paper-level have been mechanized: `H^1` as a quotient with cycle-basis generators and rank
 `|E| - |V| + 1`, non-abelian included (`CohomologyGraph.v`, `CohomologyMin.v`), and full
 order-independence over all topological orders (`FederationOrder.v`, by bubbling, without
-linear-extension connectivity). The gate has grown well past this snapshot (2974 theorems at the time of writing);
+linear-extension connectivity). The gate has grown well past this snapshot (3029 theorems at the time of writing);
 `coq/README.md` and `coq/verify.sh` are the current status.
 The structural core is mechanized axiom-free in `Categorical.v` (gate at 29 theorems):
 - Lemma 0: image = fixed-point set = equalizer of (id, rho).

@@ -1,7 +1,7 @@
 # Abstraction: check relationships between values, not the values
 
 Detailed results for the abstraction reduction over integer-valued state (roadmap item 8, step 2;
-gsm roadmap item 1b). Each module's one-line summary is in the
+gsm roadmap item 1b), and its gsm instantiation. Each module's one-line summary is in the
 [module index](../README.md#modules-by-regime). This is a reduction for checking, not a regime:
 it does not change any gap in [REGIME-AUDIT.md](../../REGIME-AUDIT.md).
 
@@ -185,6 +185,8 @@ The reduction gsm needs (gsm roadmap item 1b):
    - A pass is unique normal forms over all integers (`abs_check_exact`, `build_sound`). A failure
      is a real failure: the representative witness is itself an integer state.
    - gsm may instead enumerate one tuple per order type (`cc1_order_type`, `cc2_order_type`).
+   - gsm's `Build` as implemented checks CC1 at the valid states only and normalizes before
+     applying; the theorems for that are in [gsm instantiation](#gsm-instantiation-abstractiongsmv).
 3. **Build, formula route** (rules use `+`, `-` or multiplication by a literal: `lin_frag`).
    - Generate `phi_term`, `phi_cc1 k1 k2` for every pair of kinds (no-op included) and `phi_cc2 k`
      for every kind, as defined in `AbstractionCutoff.v`.
@@ -224,3 +226,114 @@ The reduction gsm needs (gsm roadmap item 1b):
 | Failure is a real divergence | `un_at` |
 | Refusals justified | `exact13_diverges`, `triangle_diverges` |
 | With symmetry | `sym_abs` |
+
+## gsm instantiation (`AbstractionGsm.v`)
+
+**What gsm checks.** gsm's `Build` on a registry declared with `Abstract` does not run
+`abs_check`. Over the states built from `reps N C` it checks that repair reaches a valid state
+within `K` steps (`TermD K N`, with `K` the deepest repair chain it finds), CC1 for the checked
+event pairs at the **valid** representative states only (not CC2), and which events are
+idempotent at the valid representative states. Its runtime `Apply` normalizes every invalid
+input first, the zero state included, then applies the event and normalizes. gsm's events take no
+parameters (`m = 0`), so its cutoff is `N = n`. Every statement below is for general `m` and
+specializes to `m = 0`. Axiom-free.
+
+**The conditions.** `InSig e`: `e` is an event of the registry (kind below `nk`, `m` parameters).
+`I` is a relation on event kinds (gsm's checked pairs; every pair by default).
+
+- `CC1VZ K I`: for every integer state `s` with `vd s = true` and all events `(k1, p1)`,
+  `(k2, p2)` of the registry with `I k1 k2`,
+  `govK (k2, p2) (govK (k1, p1) s) = govK (k1, p1) (govK (k2, p2) s)`.
+  This is gsm's CC1 as `verifyCC` and `absWitness` compute it: `step[j][step[i][s]]` against
+  `step[i][step[j][s]]`, where each step applies the event (a no-op when its guard fails) and then
+  repairs to validity.
+- `CC1VD K N I`: the same over states in `tup (reps N C) n` and parameters in `tup (reps N C) m`.
+- `IdemVZ K k`: for every valid integer state `s` and parameters `p`,
+  `govK (k, p) (govK (k, p) s) = govK (k, p) s`. `IdemZ K k`: the same at every state.
+  `IdemVD`, `IdemD`: over the representatives.
+- `apR K`: the repair-first registry, `apR K e s = ap e (rp^K s)` for an event of the registry
+  (and `s` otherwise). Its governed step `govK (apR K) e s = rp^K (ap e (rp^K s))` is gsm's runtime
+  `Apply`.
+
+**The transfers.** Each is an iff, for registries in the order-invariant fragment (`Shaped`,
+`OrdInv`).
+
+| Condition | Representatives `N` | Theorem |
+|---|---|---|
+| CC1 for `I` at every valid state | `n + 2m` | `cc1_valid_abs` |
+| Idempotence of kind `k` at every state | `n + m` | `idem_abs` |
+| Idempotence of kind `k` at every valid state | `n + m` | `idem_valid_abs` |
+| Idempotence of gsm's runtime step, from every integer state (given `TermD`) | `n + m` | `idem_runtime_abs` |
+
+- `cc1v_order_type`, `idem_order_type`: one check per order type, as `cc1_order_type`.
+- `cc1v_check`, `idemv_check`: the finite boolean checks; `cc1v_check_spec`, `idemv_check_spec`:
+  each passes iff its representative condition holds.
+
+**Idempotence transfers.** "Event `k` is idempotent at every valid state" holds over the integers
+iff it holds at the valid representative states (`idem_valid_abs`). So gsm can compute
+`NotIdempotent` from the representatives, and the list is exact for every integer state: a listed
+event has an integer witness (the representative state itself), and an unlisted event is
+idempotent at every valid integer state, so the at-least-once results apply to it
+(`AtLeastOnce.v`, `AtLeastOnceDeclared.v`). Deduplicating every event is not needed.
+
+**Fragment preservation.** `OIMap g`: `g` keeps `n` variables and commutes with every order
+isomorphism of its input that fixes `C`.
+
+- `oimap_closed`: an order-invariant map outputs only input values and constants.
+- `oimap_comp`: the composition of order-invariant maps is order invariant. `oimap_id`,
+  `oimap_itr`: so is the identity and every iterate.
+- `oimap_rp`: the repair of an `OrdInv` registry is one.
+- `oi_ap_after`: an event applied after an order-invariant map is order invariant.
+- `derived_shaped`, `derived_ordinv`: the repair-first registry `apR K` stays in the fragment.
+
+**The derived-registry argument, mechanized.** gsm's docs justified the CC1 transfer in prose:
+`cc1_abs` applied to the registry whose events first repair to validity, whose CC1 at every state
+is gsm's CC1 at the valid states. Both steps are now theorems.
+
+- `cc1_derived_valid`: under `TermK`, CC1 at every state of `apR K` iff `CC1VZ K` for every pair.
+- `cc1_valid_derived_abs`: under `TermK`, `CC1VZ K` for every pair iff `CC1D` of `apR K` over
+  `reps N C`, `N >= n + 2m` (through `derived_shaped`, `derived_ordinv` and `cc1_abs`).
+
+`cc1_valid_abs` proves the transfer directly instead, for any relation `I` and without `TermK`.
+
+**gsm's guarantee.** It is the guarantee of the table oracle (`TableCheck.check_tables_converges`):
+event sequences that differ only by reordering adjacent independent events reach the same state.
+Both rest on `Trace.run_tequiv`. `RunConvZ K I`: from every valid integer state, any two sequences
+of events of the registry related by `tequiv` (trace equivalence for `I`) reach the same state
+under `govK`.
+
+- `gsm_abs_exact`: given `TermD K N` over the representatives (`N >= n + 2m`),
+  `CC1VD K N I <-> RunConvZ K I`. The converse is the two-event case.
+- `gsm_abs_sound`: given `TermD K N` and `CC1VD K N I`, gsm's runtime step `govK (apR K)` gives the
+  same state for trace-equivalent sequences from every integer state of length `n`, the zero
+  state included.
+- `gsm_abs_sound_all`: with every pair checked, any permutation.
+
+**Non-vacuity.**
+
+- Capped inventory, `m = 1` (`capped_term`, `capped_cc1v_check`, `capped_idemv_check`,
+  `capped_cc1_valid`, `capped_idem`, `capped_derived`, `capped_runtime`): every statement
+  instantiated over the 7 representatives of `reps 3 [5]`. Restock is idempotent at every valid
+  integer stock, and every permutation of restocks converges at run time from every integer stock.
+- gsm's documented example, `m = 0` (`inventory_frag`, `inventory_reps`, `inventory_term`,
+  `inventory_cc1v_check`, `inventory_idemv_check`, `inventory_runtime`, `inventory_idem`): stock,
+  ship_a, ship_b; receive_a and receive_b copy a shipment level into stock when it is higher; cap 5.
+  `N = n = 3`, 343 representative states. Every permutation of receive events converges from every
+  integer state, and both events are idempotent at every valid integer state.
+- A failure (`swapxy_frag`, `swapxy_check_fails`, `swapxy_not_idem`): `(x, y) := (y, x)` is in the
+  fragment and not idempotent; the representative check reports it, and `(0, 1)` is an integer
+  witness.
+
+**Boundary.** `idem13_passes`, `idem13_diverges`, `idem13_refused`: "if z = 13 then swap x and y"
+with 13 undeclared is idempotent at every representative state of `reps 3 []` and not at the
+integer state `(0, 1, 13)`. `ord_frag []` refuses it; with 13 declared it is in the fragment and the
+representative check fails, as it should.
+
+| gsm step | Theorem |
+|---|---|
+| CC1 at the valid representative states, for the checked pairs | `cc1_valid_abs` |
+| Runs converge from every integer state | `gsm_abs_sound`, `gsm_abs_sound_all` |
+| The check is exact for runs from valid states | `gsm_abs_exact` |
+| `NotIdempotent` from the representatives | `idem_valid_abs`, `idem_runtime_abs` |
+| The repair-first registry is in the fragment | `derived_ordinv`, `oimap_comp` |
+| The prose route | `cc1_derived_valid`, `cc1_valid_derived_abs` |
