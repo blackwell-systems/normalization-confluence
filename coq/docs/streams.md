@@ -91,3 +91,40 @@ condition is the joinability condition of `prstep` itself, not the rewrite-syste
   `stream_exact_free`), `zw_stream_exact_iff`, `zw_jc_stream_agreement` (the `JC` route with the
   nat potential); every counterexample registry discharges the hypotheses of the section it
   instantiates.
+
+## At-least-once delivery for stream processors (`StreamAtLeastOnce.v`)
+
+`StreamExact.v` requires duplicate-free received lists (`is_processor` asks `NoDup (recv p t)`).
+Under at-least-once delivery a processor may receive an event more than once; every copy enters the
+buffer and is applied. `StreamAtLeastOnce.v` drops the `NoDup` requirement and closes audit gap
+15 (b).
+
+- Delivery classes. `is_processor_d D` is `is_processor` with `NoDup (recv p t)` replaced by
+  `D (recv p t)`; `StreamAgreeD D s0` is agreement of settled `D`-processors with the same received
+  SET. `procd_nodup_iff`, `stream_agree_nodup_iff`: the class `NoDup` is `StreamExact`'s.
+  `StreamAgreeA s0` (every list allowed) is at-least-once agreement: lists with the same events
+  are compared whatever the multiplicities. `stream_agree_d_set_function`: agreement iff, for
+  every two `D`-lists with the same events, the finished reductions from `s0` end in the same state.
+- Any enabledness, under `Progress`: `stream_alo_exact`,
+  `StreamAgreeA s0 <-> (forall E, PJC (s0, E)) /\ DupAbsorb s0`, with `PJC` at every received list
+  (duplicates allowed) and `DupAbsorb s0`: for `a` in `E`, some finished reduction from
+  `(s0, a :: E)` ends where some finished reduction from `(s0, E)` ends. This reduces agreement to
+  one redelivered copy at a time (`sa_reduce`); it is not a local condition. The two conjuncts are
+  independent (`ct_general`, `ow_general`). `stream_exact_recovered`: the duplicate-free class
+  gives `stream_exact` back through the same set-function form (duplicate-free lists with the same
+  events are permutations).
+- Free delivery (canonical repair `rho*`, valid and reached by compensation): every finished
+  reduction from `(s0, E)` is the governed run of a reordering of `E` from `rho* s0` (`sf_final`),
+  so `StreamAgreeA s0` is `ALOConv` of the governed step from `rho* s0` (`stream_alo_aloconv`).
+  `stream_alo_exact_free`: `StreamAgreeA s0 <-> PCC s0 /\ forall a, PIdem s0 a`, where
+  `PIdem s0 a` is idempotence of `a` at every state `grun (rho* s0) u` with `u ++ [a]`
+  duplicate-free (where a processor first applies `a`); through `AtLeastOnceExact.alo_exact`.
+  `stream_alo_free_split`: `StreamAgreeA s0 <-> StreamAgree s0 /\ forall a, PIdem s0 a`, so the
+  at-least-once condition is `stream_exact_free`'s plus reachable idempotence.
+- Counterexamples. `ct_alo_fails` (the counter): `PCC`, exactly-once agreement and `PJC` at every
+  list hold; `PIdem`, `DupAbsorb` and `StreamAgreeA` fail, and processors receiving `[0]` and
+  `[0; 0]` settle at 1 and 2. So `stream_exact`'s condition does not give at-least-once agreement,
+  and the idempotence clause is needed. `ow_alo_fails` (the overwrite register): every event is
+  idempotent at every state and `DupAbsorb` holds, yet `PCC`, `PJC` and `StreamAgreeA` fail.
+- Non-vacuity: `mx_alo_holds` (the max-register: `PCC` and `PIdem` from every start; processors
+  receiving `[1; 2; 1]` and `[2; 1]` settle at the same state).

@@ -537,3 +537,45 @@ in-flight projection from before a reset is a hazard the current-value epoch the
 Not covered (the residue of gap 21): whether versioned channels reach new stale combinations beyond
 two-level networks (chains, multi-source targets), that is whether `CXUR true` equals `XUR` there;
 channels on cycles. Loss without redelivery is outside the model (the eventual-delivery limit).
+
+## Causal and at-least-once event delivery (`DistributedDelivery.v`)
+
+`DistributedExact.v` compares words whose event sequences are federated-trace-equivalent. Under
+causal or at-least-once delivery only a sufficient condition followed, by restricting `dist_exact`.
+`DistributedDelivery.v` states the exact condition for any delivery class and closes audit gap
+15 (c).
+
+- A delivery class is a set `Adm` of admissible event sequences closed under prefixes, with a
+  comparison `Rel` reflexive on them. `XURD Adm s0`: XU (`XUat`) at every state `drun p s0` with
+  `evs p ++ [e]` admissible. `DistConvD Adm Rel s0`: admissible words with related event sequences
+  agree after the final flush. `FedConvD Adm Rel s`: the FedMachine runs of related admissible
+  sequences agree (pointwise).
+- `dist_delivery_exact`: `Inv s0 -> (DistConvD s0 <-> XURD s0 /\ FedConvD (N s0))`. The first
+  conjunct is the propagation layer (an event at a stale state against the event at its flush:
+  `dist_xu_runs` gives two words with the same events), the second the event-order layer on the
+  FedMachine; `dist_flush_d` is `dist_flush` for the class. `dist_exact_tc_recovered`: every
+  sequence, compared by federated trace equivalence, gives `dist_exact_tc`.
+- The FedMachine compares states pointwise, so its conditions are stated up to an equivalence:
+  `causal_conv_s_exact` (`CConvS <-> CCRonS`) and `causal_alo_s_exact`
+  (`CALOConvS <-> CCRonS /\ forall a, IdemAtS a`) for a step respecting any equivalence; at `eq`
+  they give `GovernanceConverse.causal_exact` and `AtLeastOnceExact.causal_alo_exact_idem` back
+  (`causal_exact_recovered`, `causal_alo_exact_recovered`).
+- Instances. Causal (`Adm = causal hb`, `Rel = Permutation`): `dist_causal_exact`,
+  `DistCausal s0 <-> XURC s0 /\ CCRF (N s0)` (concurrent pairs commute on the FedMachine after
+  every causal prefix). Free at-least-once (every sequence, compared by its set of events):
+  `dist_alo_exact`, `DistALO s0 <-> XUR s0 /\ CommRF (N s0) /\ forall a, IdemRF (N s0) a`, with
+  `XUR` exactly `dist_exact`'s propagation condition. Causal at-least-once (`causal_alo hb`):
+  `dist_causal_alo_exact`, `DistCALO s0 <-> XURCA s0 /\ CCRF (N s0) /\ forall a, IdemF (N s0) a`.
+- gsm: `xu_xurd`, static XU (what `FedReport.ProjectionSafe` checks) gives `XURD` for every class
+  from every valid start, and `xur_xurd` the same from reachable XU; the delivery class changes
+  only the FedMachine conjunct.
+- Counterexamples (two registries over `nat * nat`, registry 1's shared part copies registry 0's).
+  `tr_causal_instance`: `TRead` (registry 1 adds its shared value to its local part) happens before
+  `RSet` (registry 0 sets its value to 1), from the zero start. `XURC`, `XURCA`, `CCRF` and `IdemF`
+  hold, so causal and causal at-least-once delivery converge, while `XUR` fails (`RSet` then
+  `TRead` with no propagation reads a stale value), so `DistConv` and free at-least-once delivery
+  fail: restricting `dist_exact` is not exact for causal delivery. `snap_xu_needed`: every
+  FedMachine condition holds, a stale start makes every class diverge. `set_comm_needed`: XU and
+  idempotence hold, commutation fails. `inc_idem_needed`: `DistConv` holds (`dist_exact`) and
+  at-least-once delivery fails. Non-vacuity: `mk_alo_holds` (a max-register and a mark, events on
+  both registries, every class from every valid start).

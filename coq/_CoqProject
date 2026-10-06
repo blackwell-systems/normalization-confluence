@@ -72,3 +72,6 @@ LocalTwoToken.v
 LocalTokenBalance.v
 AtLeastOnceDeclared.v
 ProjectionChannels.v
+StreamAtLeastOnce.v
+FederatedGuards.v
+DistributedDelivery.v

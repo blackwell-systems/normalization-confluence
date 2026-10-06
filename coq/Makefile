@@ -371,3 +371,26 @@ all: ProjectionChannels.vo
 
 ProjectionChannels.vo: ProjectionChannels.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo
 	coqc -Q . NC ProjectionChannels.v
+
+# At-least-once delivery for stream processors: delivery classes of received lists, the exact
+# condition for any enabledness and the local one under free delivery (gap 15 (b),
+# StreamAtLeastOnce.v).
+all: StreamAtLeastOnce.vo
+
+StreamAtLeastOnce.vo: StreamAtLeastOnce.v Newman.vo GovernanceCausal.vo GovernanceWF.vo Stream.vo StreamExact.vo Trace.vo AtLeastOnce.vo AtLeastOnceExact.vo GovernanceConverse.vo
+	coqc -Q . NC StreamAtLeastOnce.v
+
+# Buffered guards in acyclic federations: JC' for any enabledness, and the local exact condition
+# for events that wait under the federal guard (gap 15 (d), FederatedGuards.v).
+all: FederatedGuards.vo
+
+FederatedGuards.vo: FederatedGuards.v Newman.vo Governance.vo GovernanceConverse.vo EnabledAfterComp.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo
+	coqc -Q . NC FederatedGuards.v
+
+# Causal and at-least-once event delivery in the distributed model: the exact condition for any
+# delivery class, and the causal, free and causal at-least-once instances (gap 15 (c),
+# DistributedDelivery.v).
+all: DistributedDelivery.vo
+
+DistributedDelivery.vo: DistributedDelivery.v Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo FederationEvents.vo FederationEventsConverse.vo DistributedExact.vo GovernanceConverse.vo
+	coqc -Q . NC DistributedDelivery.v

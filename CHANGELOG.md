@@ -7,6 +7,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Gap 15 closed in full: `coq/StreamAtLeastOnce.v`, `coq/DistributedDelivery.v` and
+  `coq/FederatedGuards.v` close audit gap 15 (b), (c) and (d); (a) closed earlier
+  (`AtLeastOnceDeclared.v`). Axiom-free.
+  - **(b) Streams:** received lists may repeat events. Free delivery: `stream_alo_exact_free`
+    (`StreamAgreeA <-> PCC /\ PIdem`, idempotence where a processor first applies the event),
+    `stream_alo_free_split` (exactly-once agreement plus `PIdem`, so `stream_exact_free` is
+    recovered). Any enabledness under `Progress`: `stream_alo_exact` (PJC at every list plus
+    absorption of one redelivered copy, a reduction); `stream_exact_recovered`.
+  - **(c) Distributed model:** `dist_delivery_exact` for any delivery class closed under prefixes
+    (XU at the class's reachable states plus FedMachine convergence over the class);
+    `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`; `dist_exact_tc` recovered.
+    The FedMachine conditions are a setoid form of `causal_exact` and `causal_alo_exact_idem`
+    (`causal_conv_s_exact`, `causal_alo_s_exact`, with the Leibniz theorems recovered). gsm:
+    static XU gives the propagation conjunct for every class (`xu_xurd`).
+  - **(d) Buffered guards:** `fed_buffered_exact`, `fed_buffered_cr` (co-enabled events stay
+    enabled after each other and commute at guard-feasible states), per edge `fed_buffered_edge`,
+    the trivial guard recovers `fed_guarded_exact`'s condition (`fed_buffered_recovers`); any
+    enabledness: `fed_jcg_exact` (JC', termination discharged).
+  - **Counterexamples:** `ct_alo_fails`, `ow_alo_fails`, `ct_general`, `ow_general` (streams);
+    `tr_causal_instance` (restricting `dist_exact` is not exact for causal delivery),
+    `snap_xu_needed`, `set_comm_needed`, `inc_idem_needed` (distributed);
+    `bg_persistence_needed`, `bg_commute_needed`, `bg_wait_exact` (guards). Non-vacuity:
+    `mx_alo_holds`, `mk_alo_holds`, `bg_wait_exact`.
+  - **Docs:** `coq/README.md` rows, `coq/docs/streams.md`, `coq/docs/distributed.md`,
+    `coq/docs/federation-events.md` sections and an `at-least-once.md` pointer; `REGIME-AUDIT.md`
+    sections 3, 5, 7 and 8 rows, gap 15 row (closed), frontier and regime tables, summaries;
+    `docs/COVERAGE.md` cells C3, C6, C8 and counts (59 exact, 16 uncovered); `docs/REGIMES.md`,
+    `docs/ROADMAP.md`, `README.md` open-gap sentence (now eight open gaps), and the count lines.
+  - **Gate:** raised from 2380 to 2467.
+
 - `research/gap3-fair-settlement/K3.md`: the three-token SAT decision extended to n = 7 (UNSAT
   with both encodings of (A) under CaDiCaL, about 2.5 h each). Gap 3 stays open.
 - `coq/ProjectionChannels.v`: propagation over channels that deliver projections late, reordered

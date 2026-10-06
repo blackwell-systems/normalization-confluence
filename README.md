@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (2380 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2467 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -52,10 +52,11 @@ for starts with at most two unstable vertices), and cyclic
 monotone collapse (paper only). Both are cyclic; the audit states them as one question, what
 makes composition exact on cycles. A systematic coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md))
 derived the regime space from the model's axes, mapped every combination to the audit, and found
-seven more open gaps, 15 to 21, so nine convergence gaps are open in all: delivery and
-enabledness off the replay model (at-least-once delivery for stream processors and in the
-distributed model, and buffered guards in federations; under declared independence it is now
-exact); the distributed model off its current hypotheses
+seven more open gaps, 15 to 21. Gap 15, delivery and enabledness off the replay model, is now
+exact in all four parts (at-least-once delivery under declared independence and for stream
+processors, causal and at-least-once delivery in the distributed model, and buffered guards in
+federations), so eight convergence gaps are open in all: the distributed model off its current
+hypotheses
 (rootless invertible cycles with events, ACC without finite height, compensation as separate
 steps on cycles, every fair schedule on an acyclic network); rootless edge-writer dynamics
 beyond the regular action; existence in the resolver reading; composition of cyclic blocks of

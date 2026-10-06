@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2380 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2380 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2467 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2467 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -108,6 +108,7 @@ what gsm checks) are on the linked page in [`docs/`](docs).
 |---|---|---|
 | `Stream.v` | `stream_convergence`, `base_thm_convergence`, `stream_order_independence`, `base_cor_quiescent`; refuted: `base_thm_convergence_transient_counterexample` | [Stream processors](docs/streams.md#stream-processors-and-stream-convergence-streamv) |
 | `StreamExact.v` | `stream_exact`, `stream_exact_free`, `pjc_exact`, `stream_agree_set_function`; `jc_not_necessary`, `progress_needed` | [Stream agreement, exact](docs/streams.md#the-exact-condition-for-stream-agreement-streamexactv) |
+| `StreamAtLeastOnce.v` | At-least-once (gap 15 (b)): free delivery `stream_alo_exact_free`, `stream_alo_free_split`; any enabledness `stream_alo_exact`; `stream_exact_recovered`; `ct_alo_fails`, `ow_alo_fails`, `mx_alo_holds` | [At-least-once delivery for stream processors](docs/streams.md#at-least-once-delivery-for-stream-processors-streamatleastoncev) |
 
 ### 6. Acyclic federation, repair normal form ([docs/federation-repair.md](docs/federation-repair.md))
 
@@ -128,12 +129,14 @@ is on the same page.
 |---|---|---|
 | `FederationEvents.v` | `fed_interleavings_converge`, `fed_permutations_converge`, `dist_interleavings_converge`, `xu_implies_c1_c2`; `audit_counterexample`, `c2_counterexample` | [Event interleavings across registries](docs/federation-events.md#event-interleavings-across-registries-federationeventsv) |
 | `FederationEventsConverse.v` | `fed_exact`, `fed_exact_full`, `acyclic_gc_iff`, `static_c1_c2_gc`; `naive_converse_fails` | [Monotone cycles and the exact converse](docs/federation-events.md#monotone-cycles-and-the-exact-converse-federationeventscyclesv-federationeventsconversev) |
+| `FederatedGuards.v` | Buffered guards (gap 15 (d)): `fed_buffered_exact`, `fed_buffered_cr`, per edge `fed_buffered_edge`, trivial guard `fed_buffered_recovers`; any enabledness `fed_jcg_exact`; `bg_persistence_needed`, `bg_wait_exact` | [Buffered guards](docs/federation-events.md#buffered-guards-federatedguardsv) |
 
 ### 8. Distributed model with propagation steps ([docs/distributed.md](docs/distributed.md))
 
 | Module | Headline theorems | Details |
 |---|---|---|
 | `DistributedExact.v` | Acyclic, exact: `dist_exact`, `dist_exact_local`, `dist_exact_tc`, `dist_exact_global`, `dist_global_exact_roots`, `dist_xu_c2_converge`; `levels_exact_not_xu`, `dist_strictly_stronger_than_fed` | [The exact condition](docs/distributed.md#the-distributed-model-the-exact-condition-distributedexactv) |
+| `DistributedDelivery.v` | Causal and at-least-once event delivery (gap 15 (c)): `dist_delivery_exact` (any prefix-closed class), `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`; setoid `causal_alo_s_exact`; gsm `xu_xurd`; `tr_causal_instance`, `inc_idem_needed` | [Causal and at-least-once event delivery](docs/distributed.md#causal-and-at-least-once-event-delivery-distributeddeliveryv) |
 | `DistributedCycles.v` | Monotone cycles: `q1_sound_iff`, `q1_unique_iff`; reset epochs `epoch_agree_iff`, `epoch_conv_iff`, `lens_epoch`; under `LowR` `low_agree_iff`, `low_conv_iff`; relative to `FlushR` and `NoGhostR` `quiet_agree_iff`, `quiet_conv_iff`; the ghost `dist_cyc_ghost` | [On monotone cycles](docs/distributed.md#the-distributed-model-on-monotone-cycles-distributedcyclesv) |
 | `DistributedCyclesExact.v` | No resets, unconditional: `flush_agree_iff`, `fair_agree_iff`, `flush_fed_iff`, `fair_fed_iff`; each conjunct needed (`copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `ghost_exact`); gsm's per-target check: `lens_noreset_iff`, `lens_noreset_fair_iff` | [No-reset model, exactly](docs/distributed.md#the-no-reset-model-on-monotone-cycles-exactly-distributedcyclesexactv) |
 | `DistributedConvergenceExact.v` | No resets, convergence alone (gap 14): `conv_quiet_exact` (`FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the canonical state is where propagation settles, ghost allowed), `fair_conv_exact`; each conjunct needed (`flip_conv_noflush`, `fork_conv_nodet`, `copy_conv_noxu`, `fm_conv_noqm`); ghost-free case `quiet_conv_recovered`, `agree_conv_noghost`, `flush_fed_recovered`; `soundr_conv_iff`; `conv_ghost_instance`, `ghost_conv_not_fed` | [Convergence alone](docs/distributed.md#convergence-alone-on-monotone-cycles-distributedconvergenceexactv) |
@@ -238,7 +241,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2380
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2467
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
