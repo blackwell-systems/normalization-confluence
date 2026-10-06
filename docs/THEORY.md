@@ -242,6 +242,16 @@ out. An aggregate invariant breaks the decomposition at S: its repair must chang
 valid on their own, so the canonicalizer is not a product of item canonicalizers, and the
 collection diverges while the single item converges (`aggregate_diverges`).
 
+Abstraction (`AbstractionCutoff.v`) is the same move on value relations instead of item keys.
+For rules that compare and copy values and declared constants, two states with the same order
+type relative to the constants are related by an order isomorphism that the rules commute with
+(`OrdInv`), so every condition gives them the same answer (`cc1_order_type`, `cc2_order_type`). The
+quotient by order type is a state descent the checker can use: each condition over all integers
+is decided over a finite set of representatives (`cc1_abs`, `un_abs`). The equivalence fails for
+additive rules, where states of one order type can differ on `x + y < z` (`triangle_diverges`).
+There the reduction is to the validity of one formula per condition (`lin_exact`), not to a finite
+quotient.
+
 ### Scope
 
 - **Exact for single systems:** E, S and H.

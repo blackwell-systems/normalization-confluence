@@ -2889,6 +2889,154 @@ Print Assumptions NC.SymmetryCutoff.inventory_item_un.
 Print Assumptions NC.SymmetryCutoff.inventory_any_n.
 Print Assumptions NC.SymmetryCutoff.inventory_repair_fires.
 Print Assumptions NC.SymmetryCutoff.inventory_idgov.
+Require NC.AbstractionCutoff.
+Print Assumptions NC.AbstractionCutoff.lenA.
+Print Assumptions NC.AbstractionCutoff.lenM.
+Print Assumptions NC.AbstractionCutoff.lenS.
+Print Assumptions NC.AbstractionCutoff.lenF.
+Print Assumptions NC.AbstractionCutoff.nodup_filter'.
+Print Assumptions NC.AbstractionCutoff.filter_le.
+Print Assumptions NC.AbstractionCutoff.filter_lt.
+Print Assumptions NC.AbstractionCutoff.filter_nil.
+Print Assumptions NC.AbstractionCutoff.map_fix_in.
+Print Assumptions NC.AbstractionCutoff.map_fix_pt.
+Print Assumptions NC.AbstractionCutoff.nodup_interval.
+Print Assumptions NC.AbstractionCutoff.rp_len.
+Print Assumptions NC.AbstractionCutoff.itr_len.
+Print Assumptions NC.AbstractionCutoff.itr_stable_after.
+Print Assumptions NC.AbstractionCutoff.itr_valid_mono.
+Print Assumptions NC.AbstractionCutoff.govK_len.
+Print Assumptions NC.AbstractionCutoff.steps_stable.
+Print Assumptions NC.AbstractionCutoff.reachB.
+Print Assumptions NC.AbstractionCutoff.reach_len.
+Print Assumptions NC.AbstractionCutoff.term_all.
+Print Assumptions NC.AbstractionCutoff.wfcB.
+Print Assumptions NC.AbstractionCutoff.rstarB_valid.
+Print Assumptions NC.AbstractionCutoff.rstarB_gov.
+Print Assumptions NC.AbstractionCutoff.un_bounded.
+Print Assumptions NC.AbstractionCutoff.un_at.
+Print Assumptions NC.AbstractionCutoff.oiso_sub.
+Print Assumptions NC.AbstractionCutoff.oiso_inj.
+Print Assumptions NC.AbstractionCutoff.oiso_lt.
+Print Assumptions NC.AbstractionCutoff.oiso_le.
+Print Assumptions NC.AbstractionCutoff.oiso_eq.
+Print Assumptions NC.AbstractionCutoff.lo_none.
+Print Assumptions NC.AbstractionCutoff.lo_some.
+Print Assumptions NC.AbstractionCutoff.lo_const.
+Print Assumptions NC.AbstractionCutoff.mn_spec.
+Print Assumptions NC.AbstractionCutoff.cnt_le.
+Print Assumptions NC.AbstractionCutoff.cnt_lt.
+Print Assumptions NC.AbstractionCutoff.cnt_len.
+Print Assumptions NC.AbstractionCutoff.cnt_len_lt.
+Print Assumptions NC.AbstractionCutoff.cnt_pos.
+Print Assumptions NC.AbstractionCutoff.cnt_interval.
+Print Assumptions NC.AbstractionCutoff.reps_length.
+Print Assumptions NC.AbstractionCutoff.reps_C.
+Print Assumptions NC.AbstractionCutoff.reps_mono.
+Print Assumptions NC.AbstractionCutoff.cmp_const.
+Print Assumptions NC.AbstractionCutoff.notC_of_none.
+Print Assumptions NC.AbstractionCutoff.cmp_strict.
+Print Assumptions NC.AbstractionCutoff.compress.
+Print Assumptions NC.AbstractionCutoff.tup_spec.
+Print Assumptions NC.AbstractionCutoff.tup_map.
+Print Assumptions NC.AbstractionCutoff.leq_spec.
+Print Assumptions NC.AbstractionCutoff.term_bound.
+Print Assumptions NC.AbstractionCutoff.bump_oiso.
+Print Assumptions NC.AbstractionCutoff.bump_fix.
+Print Assumptions NC.AbstractionCutoff.bump_out.
+Print Assumptions NC.AbstractionCutoff.closure_ap.
+Print Assumptions NC.AbstractionCutoff.closure_rp.
+Print Assumptions NC.AbstractionCutoff.nev_shape.
+Print Assumptions NC.AbstractionCutoff.ap_nev.
+Print Assumptions NC.AbstractionCutoff.gov_nev.
+Print Assumptions NC.AbstractionCutoff.rp_len_n.
+Print Assumptions NC.AbstractionCutoff.G_len.
+Print Assumptions NC.AbstractionCutoff.itr_closed.
+Print Assumptions NC.AbstractionCutoff.gov_closed.
+Print Assumptions NC.AbstractionCutoff.itr_map_f.
+Print Assumptions NC.AbstractionCutoff.gov_map.
+Print Assumptions NC.AbstractionCutoff.cc1_order_type.
+Print Assumptions NC.AbstractionCutoff.cc2_order_type.
+Print Assumptions NC.AbstractionCutoff.abs_check_spec.
+Print Assumptions NC.AbstractionCutoff.cmp_in_reps.
+Print Assumptions NC.AbstractionCutoff.nev_in_evD.
+Print Assumptions NC.AbstractionCutoff.nev_len.
+Print Assumptions NC.AbstractionCutoff.term_abs.
+Print Assumptions NC.AbstractionCutoff.wfc_abs.
+Print Assumptions NC.AbstractionCutoff.cc1_abs.
+Print Assumptions NC.AbstractionCutoff.cc2_abs.
+Print Assumptions NC.AbstractionCutoff.un_abs.
+Print Assumptions NC.AbstractionCutoff.abs_check_exact.
+Print Assumptions NC.AbstractionCutoff.abs_check_sound.
+Print Assumptions NC.AbstractionCutoff.ord_eval.
+Print Assumptions NC.AbstractionCutoff.wf_parts.
+Print Assumptions NC.AbstractionCutoff.ord_parts.
+Print Assumptions NC.AbstractionCutoff.prog_shaped.
+Print Assumptions NC.AbstractionCutoff.ord_frag_sound.
+Print Assumptions NC.AbstractionCutoff.build_sound.
+Print Assumptions NC.AbstractionCutoff.subst_eval.
+Print Assumptions NC.AbstractionCutoff.evE_subst.
+Print Assumptions NC.AbstractionCutoff.evF_subst.
+Print Assumptions NC.AbstractionCutoff.isCst_subst.
+Print Assumptions NC.AbstractionCutoff.subst_lin.
+Print Assumptions NC.AbstractionCutoff.ev_seq.
+Print Assumptions NC.AbstractionCutoff.forallb_map_subst.
+Print Assumptions NC.AbstractionCutoff.lin_vars.
+Print Assumptions NC.AbstractionCutoff.lin_parts.
+Print Assumptions NC.AbstractionCutoff.lin_symA.
+Print Assumptions NC.AbstractionCutoff.lin_iteL.
+Print Assumptions NC.AbstractionCutoff.lin_symR.
+Print Assumptions NC.AbstractionCutoff.lin_itr.
+Print Assumptions NC.AbstractionCutoff.lin_symG.
+Print Assumptions NC.AbstractionCutoff.lin_eqL.
+Print Assumptions NC.AbstractionCutoff.lin_frag_linear.
+Print Assumptions NC.AbstractionCutoff.ev_iteL.
+Print Assumptions NC.AbstractionCutoff.len_iteL.
+Print Assumptions NC.AbstractionCutoff.len_pr.
+Print Assumptions NC.AbstractionCutoff.len_symR.
+Print Assumptions NC.AbstractionCutoff.len_itr.
+Print Assumptions NC.AbstractionCutoff.len_symA.
+Print Assumptions NC.AbstractionCutoff.len_symG.
+Print Assumptions NC.AbstractionCutoff.len_S0.
+Print Assumptions NC.AbstractionCutoff.ev_symR.
+Print Assumptions NC.AbstractionCutoff.ev_itr.
+Print Assumptions NC.AbstractionCutoff.len_ev_slot.
+Print Assumptions NC.AbstractionCutoff.ev_symA.
+Print Assumptions NC.AbstractionCutoff.ev_symG.
+Print Assumptions NC.AbstractionCutoff.ev_eqL.
+Print Assumptions NC.AbstractionCutoff.env3.
+Print Assumptions NC.AbstractionCutoff.split3.
+Print Assumptions NC.AbstractionCutoff.sap_norm.
+Print Assumptions NC.AbstractionCutoff.gov_norm.
+Print Assumptions NC.AbstractionCutoff.phi_term_exact.
+Print Assumptions NC.AbstractionCutoff.phi_cc1_exact.
+Print Assumptions NC.AbstractionCutoff.phi_cc2_exact.
+Print Assumptions NC.AbstractionCutoff.lin_exact.
+Print Assumptions NC.AbstractionCutoff.lin_sound.
+Print Assumptions NC.AbstractionCutoff.sym_abs.
+Print Assumptions NC.AbstractionCutoff.capped_frag.
+Print Assumptions NC.AbstractionCutoff.capped_reps.
+Print Assumptions NC.AbstractionCutoff.capped_check.
+Print Assumptions NC.AbstractionCutoff.capped_un.
+Print Assumptions NC.AbstractionCutoff.capped_repair_fires.
+Print Assumptions NC.AbstractionCutoff.capped_catalog.
+Print Assumptions NC.AbstractionCutoff.wallet_frag.
+Print Assumptions NC.AbstractionCutoff.wallet_formulas.
+Print Assumptions NC.AbstractionCutoff.wallet_un.
+Print Assumptions NC.AbstractionCutoff.wallet_repair_fires.
+Print Assumptions NC.AbstractionCutoff.ex13_shaped.
+Print Assumptions NC.AbstractionCutoff.ex13_term.
+Print Assumptions NC.AbstractionCutoff.exact13_passes.
+Print Assumptions NC.AbstractionCutoff.exact13_diverges.
+Print Assumptions NC.AbstractionCutoff.exact13_refused.
+Print Assumptions NC.AbstractionCutoff.exact13_declared.
+Print Assumptions NC.AbstractionCutoff.triangle_shaped.
+Print Assumptions NC.AbstractionCutoff.triangle_passes.
+Print Assumptions NC.AbstractionCutoff.triangle_diverges.
+Print Assumptions NC.AbstractionCutoff.triangle_refused.
+Print Assumptions NC.AbstractionCutoff.triangle_formula_refuted.
+Print Assumptions NC.AbstractionCutoff.copy_shaped.
+Print Assumptions NC.AbstractionCutoff.copy_tight.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2899,8 +3047,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2827 ]; then
-  echo "FAIL: expected 2827 axiom-free results, got $N"
+if [ "$N" -lt 2974 ]; then
+  echo "FAIL: expected 2974 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

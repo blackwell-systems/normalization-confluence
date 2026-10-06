@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2827 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2974 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -303,8 +303,10 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 ### 8. Checking scales to realistic domains
 
-**Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); abstraction, compositional checking
-and the history-side reduction planned.**
+**Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); step 2 (abstraction) landed for
+comparison-only rules with a finite representative domain and for linear rules as an exact
+reduction to formula validity (`AbstractionCutoff.v`); compositional checking and the history-side
+reduction planned.**
 
 - **Step 1, symmetry: check one item, conclude for all.** For a keyed collection of independent,
   identically governed items, WFC, CC2, CC1 with CC2 (so unique normal forms), at-least-once
@@ -322,6 +324,27 @@ and the history-side reduction planned.**
   (`nonidentical_misleads`); non-vacuity is per-product inventory at any catalog size
   (`inventory_any_n`). Details: [coq/docs/symmetry.md](../coq/docs/symmetry.md). Not yet done: a
   shared global component alongside the items, and the gsm side.
+
+- **Step 2, abstraction: check relationships, not values.** Over integer-valued state (n
+  variables, events with m parameters, declared constants C), for rules invariant under the order
+  isomorphisms that fix C (`OrdInv`: they compare and copy values and constants), repair within K
+  steps, WFC, CC2, CC1 and unique normal forms each hold over all integers iff over the finite
+  domain `reps N C` of `|C|(N+1) + N` representatives, with N = n for repair and WFC, n + m for
+  CC2 and n + 2m for CC1 and unique normal forms (`term_abs`, `wfc_abs`, `cc2_abs`, `cc1_abs`,
+  `un_abs`, `abs_check_exact`); a check instance has the truth value of every instance of the same
+  order type (`cc1_order_type`, `cc2_order_type`). On a rule language, `ord_frag` decides membership
+  syntactically and is sound (`ord_frag_sound`, `build_sound`). Linear rules (+, -, multiplication
+  by a literal) get the formula form, not a representative set: repair within K steps, CC1 and CC2
+  each hold over all integers iff a generated quantifier-free linear formula is valid
+  (`phi_term_exact`, `phi_cc1_exact`, `phi_cc2_exact`, `lin_exact`, `lin_frag_linear`); deciding
+  validity is the external solver's step. Boundaries: an undeclared exact test passes the
+  representative check and diverges (`exact13_diverges`), an additive guard fools the order-pattern
+  check (`triangle_diverges`), and the bound cannot drop below n (`copy_tight`). Non-vacuity:
+  capped inventory over 7 representatives (`capped_un`), a wallet with integer balances through its
+  13 formulas (`wallet_un`), and with symmetry a capped catalog of any size (`sym_abs`,
+  `capped_catalog`). Details: [coq/docs/abstraction.md](../coq/docs/abstraction.md). Not yet done:
+  a finite representative set for the linear fragment (a small-model bound), repair whose step
+  count depends on the values, dense orders (strings, decimals), and the gsm side.
 
 - **Today.** gsm decides the exact and sufficient conditions by enumerating states, so a model must
   use small finite domains. Realistic types (64-bit amounts, string identifiers, thousands of
