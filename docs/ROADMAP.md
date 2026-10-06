@@ -303,7 +303,7 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 ### 8. Checking scales to realistic domains
 
-**Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #PRNUM); abstraction, compositional checking
+**Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); abstraction, compositional checking
 and the history-side reduction planned.**
 
 - **Step 1, symmetry: check one item, conclude for all.** For a keyed collection of independent,
