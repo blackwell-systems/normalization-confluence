@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2693 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2827 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -303,7 +303,25 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 ### 8. Checking scales to realistic domains
 
-**Status: planned.**
+**Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #PRNUM); abstraction, compositional checking
+and the history-side reduction planned.**
+
+- **Step 1, symmetry: check one item, conclude for all.** For a keyed collection of independent,
+  identically governed items, WFC, CC2, CC1 with CC2 (so unique normal forms), at-least-once
+  convergence, idempotence, declared independence, and federation C1 and C2 across a pointwise
+  morphism each hold for any number of items iff they hold for one item (`wfc_cutoff`,
+  `cc2_cutoff`, `un_cutoff`, `un_cutoff_global`, `alo_cutoff_exact`, `declared_cutoff`,
+  `c1_cutoff`, `c2_cutoff`). CC1 alone has cutoff 2, and the cutoff is tight (`cc1_cutoff`,
+  `cc1_cutoff_tight`): its cross-item pairs are the item's repair-then-event obligation
+  (`cross_item_reduces`), which CC2 implies (`cc2_star`). The hypotheses (events and repair at a key
+  read and write only that key, rules invariant under permutations of keys, invariant a
+  conjunction of item invariants) are equivalent to being the lift of the one-item registry
+  (`idgov_lift`), decided on finite descriptions by `symcheck` (`symcheck_decides`), and sound for
+  the reduction (`symmetry_sound`). Each dropped hypothesis has a counterexample: an aggregate
+  invariant (`aggregate_diverges`, `agg_not_idgov`) and different rules per item
+  (`nonidentical_misleads`); non-vacuity is per-product inventory at any catalog size
+  (`inventory_any_n`). Details: [coq/docs/symmetry.md](../coq/docs/symmetry.md). Not yet done: a
+  shared global component alongside the items, and the gsm side.
 
 - **Today.** gsm decides the exact and sufficient conditions by enumerating states, so a model must
   use small finite domains. Realistic types (64-bit amounts, string identifiers, thousands of
@@ -353,7 +371,8 @@ The original item text follows. Known gaps at the time, from the README's [paper
   - duplicates make a local swap unsound: `late_duplicate_diverges`, `fl_partner_overtakes`;
   - compensation changes later enabledness: the `jcg_exact` setting;
   - masked commutation under guarded enabledness: `masked_cc1`;
-  - different items with a shared aggregate constraint: the symmetry step's aggregate counterexample.
+  - different items with a shared aggregate constraint: the symmetry step's aggregate counterexample
+    (`aggregate_diverges`).
 
   **Prior work.** Mazurkiewicz traces and partial-order reduction (persistent, stubborn and ample
   sets) are classical. What is specific here is deriving the reduction relation from the same

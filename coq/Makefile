@@ -410,3 +410,11 @@ all: Reconfiguration.vo
 
 Reconfiguration.vo: Reconfiguration.v Newman.vo Governance.vo GovernanceConverse.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo
 	coqc -Q . NC Reconfiguration.v
+
+# Symmetry reduction for keyed collections: independent, identically governed items; each
+# convergence condition holds for any number of items iff at a cutoff of one item (two for CC1
+# alone) (roadmap item 8, step 1, SymmetryCutoff.v).
+all: SymmetryCutoff.vo
+
+SymmetryCutoff.vo: SymmetryCutoff.v Newman.vo Governance.vo GovernanceConverse.vo Trace.vo AtLeastOnce.vo AtLeastOnceExact.vo
+	coqc -Q . NC SymmetryCutoff.v

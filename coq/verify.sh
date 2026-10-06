@@ -2754,6 +2754,141 @@ Print Assumptions NC.Reconfiguration.le_B_at.
 Print Assumptions NC.Reconfiguration.le_perm_unit.
 Print Assumptions NC.Reconfiguration.late_edge.
 Print Assumptions NC.Reconfiguration.late_edge_fresh.
+Require NC.SymmetryCutoff.
+Print Assumptions NC.SymmetryCutoff.modk_length.
+Print Assumptions NC.SymmetryCutoff.modk_nth_same.
+Print Assumptions NC.SymmetryCutoff.modk_nth_other.
+Print Assumptions NC.SymmetryCutoff.modk_nth.
+Print Assumptions NC.SymmetryCutoff.list_ext.
+Print Assumptions NC.SymmetryCutoff.nth_map'.
+Print Assumptions NC.SymmetryCutoff.len_map'.
+Print Assumptions NC.SymmetryCutoff.nth_repeat'.
+Print Assumptions NC.SymmetryCutoff.len_repeat'.
+Print Assumptions NC.SymmetryCutoff.map_repeat'.
+Print Assumptions NC.SymmetryCutoff.nth_some_lt.
+Print Assumptions NC.SymmetryCutoff.nth_lt_some.
+Print Assumptions NC.SymmetryCutoff.swap_length.
+Print Assumptions NC.SymmetryCutoff.swap_nth.
+Print Assumptions NC.SymmetryCutoff.tau_lt.
+Print Assumptions NC.SymmetryCutoff.tau_invol.
+Print Assumptions NC.SymmetryCutoff.tau_eqb.
+Print Assumptions NC.SymmetryCutoff.tau_0kk.
+Print Assumptions NC.SymmetryCutoff.swap_repeat.
+Print Assumptions NC.SymmetryCutoff.itr_add.
+Print Assumptions NC.SymmetryCutoff.itr_fix.
+Print Assumptions NC.SymmetryCutoff.itr_map.
+Print Assumptions NC.SymmetryCutoff.remove1_pair.
+Print Assumptions NC.SymmetryCutoff.remove1_incl.
+Print Assumptions NC.SymmetryCutoff.sum_wfc.
+Print Assumptions NC.SymmetryCutoff.sumPhi_in.
+Print Assumptions NC.SymmetryCutoff.wfc_cutoff.
+Print Assumptions NC.SymmetryCutoff.run_proj.
+Print Assumptions NC.SymmetryCutoff.in_projk.
+Print Assumptions NC.SymmetryCutoff.nodup_projk.
+Print Assumptions NC.SymmetryCutoff.projk_pair.
+Print Assumptions NC.SymmetryCutoff.nodup_pair.
+Print Assumptions NC.SymmetryCutoff.in_pair.
+Print Assumptions NC.SymmetryCutoff.alo_cutoff.
+Print Assumptions NC.SymmetryCutoff.alo_cutoff_exact.
+Print Assumptions NC.SymmetryCutoff.alo_cutoff_uniform.
+Print Assumptions NC.SymmetryCutoff.cross_commute.
+Print Assumptions NC.SymmetryCutoff.idem_reduces.
+Print Assumptions NC.SymmetryCutoff.declared_cutoff.
+Print Assumptions NC.SymmetryCutoff.nv_false.
+Print Assumptions NC.SymmetryCutoff.itr_valid.
+Print Assumptions NC.SymmetryCutoff.rstar_valid.
+Print Assumptions NC.SymmetryCutoff.itr_stable.
+Print Assumptions NC.SymmetryCutoff.rstar_fix.
+Print Assumptions NC.SymmetryCutoff.rstar_idem.
+Print Assumptions NC.SymmetryCutoff.rstar_g.
+Print Assumptions NC.SymmetryCutoff.rstar_r.
+Print Assumptions NC.SymmetryCutoff.i_itr_reach.
+Print Assumptions NC.SymmetryCutoff.i_reach.
+Print Assumptions NC.SymmetryCutoff.validL_in.
+Print Assumptions NC.SymmetryCutoff.validL_nth.
+Print Assumptions NC.SymmetryCutoff.invalid_nth.
+Print Assumptions NC.SymmetryCutoff.rL_fix.
+Print Assumptions NC.SymmetryCutoff.rstarL_itr.
+Print Assumptions NC.SymmetryCutoff.l_itr_reach.
+Print Assumptions NC.SymmetryCutoff.l_reach.
+Print Assumptions NC.SymmetryCutoff.rstarL_valid.
+Print Assumptions NC.SymmetryCutoff.wfcL.
+Print Assumptions NC.SymmetryCutoff.gL_nth.
+Print Assumptions NC.SymmetryCutoff.rL_nth.
+Print Assumptions NC.SymmetryCutoff.lreach_len.
+Print Assumptions NC.SymmetryCutoff.lreach_proj.
+Print Assumptions NC.SymmetryCutoff.ireach_lift.
+Print Assumptions NC.SymmetryCutoff.cc2_star.
+Print Assumptions NC.SymmetryCutoff.gL2_nth.
+Print Assumptions NC.SymmetryCutoff.same_item_reduces.
+Print Assumptions NC.SymmetryCutoff.cross_item_reduces.
+Print Assumptions NC.SymmetryCutoff.cross_valid_commute.
+Print Assumptions NC.SymmetryCutoff.cc2_cutoff.
+Print Assumptions NC.SymmetryCutoff.pos_comm.
+Print Assumptions NC.SymmetryCutoff.cc_lift_iff.
+Print Assumptions NC.SymmetryCutoff.un_cutoff.
+Print Assumptions NC.SymmetryCutoff.un_cutoff_uniform.
+Print Assumptions NC.SymmetryCutoff.un_cutoff_global.
+Print Assumptions NC.SymmetryCutoff.cc1_cutoff.
+Print Assumptions NC.SymmetryCutoff.cc1_cutoff_one.
+Print Assumptions NC.SymmetryCutoff.cc1_cutoff_uniform2.
+Print Assumptions NC.SymmetryCutoff.cc2_cutoff_uniform.
+Print Assumptions NC.SymmetryCutoff.sim_step.
+Print Assumptions NC.SymmetryCutoff.sim_star.
+Print Assumptions NC.SymmetryCutoff.inf_nf.
+Print Assumptions NC.SymmetryCutoff.lnf_valid.
+Print Assumptions NC.SymmetryCutoff.un_in_to_item.
+Print Assumptions NC.SymmetryCutoff.gL_lst.
+Print Assumptions NC.SymmetryCutoff.lst_g_valid.
+Print Assumptions NC.SymmetryCutoff.run_bridge.
+Print Assumptions NC.SymmetryCutoff.alo_gov_cutoff.
+Print Assumptions NC.SymmetryCutoff.owL_nth.
+Print Assumptions NC.SymmetryCutoff.owL_repeat.
+Print Assumptions NC.SymmetryCutoff.fa_nth.
+Print Assumptions NC.SymmetryCutoff.c1_cutoff.
+Print Assumptions NC.SymmetryCutoff.c2_cutoff.
+Print Assumptions NC.SymmetryCutoff.hd_nth.
+Print Assumptions NC.SymmetryCutoff.idgov_lift.
+Print Assumptions NC.SymmetryCutoff.tuples_spec.
+Print Assumptions NC.SymmetryCutoff.beql_spec.
+Print Assumptions NC.SymmetryCutoff.symcheck_spec.
+Print Assumptions NC.SymmetryCutoff.symcheck_decides.
+Print Assumptions NC.SymmetryCutoff.lift_idgov.
+Print Assumptions NC.SymmetryCutoff.step_agree.
+Print Assumptions NC.SymmetryCutoff.inc_step.
+Print Assumptions NC.SymmetryCutoff.star_agree.
+Print Assumptions NC.SymmetryCutoff.nf_agree.
+Print Assumptions NC.SymmetryCutoff.inc_star.
+Print Assumptions NC.SymmetryCutoff.un_agree.
+Print Assumptions NC.SymmetryCutoff.symmetry_sound.
+Print Assumptions NC.SymmetryCutoff.tk_wfc.
+Print Assumptions NC.SymmetryCutoff.tk_fix.
+Print Assumptions NC.SymmetryCutoff.cc1_cutoff_tight.
+Print Assumptions NC.SymmetryCutoff.ag_wfc.
+Print Assumptions NC.SymmetryCutoff.ag_fix.
+Print Assumptions NC.SymmetryCutoff.ag_itr.
+Print Assumptions NC.SymmetryCutoff.ag_rstar.
+Print Assumptions NC.SymmetryCutoff.agg_item_un.
+Print Assumptions NC.SymmetryCutoff.itemwise_converges.
+Print Assumptions NC.SymmetryCutoff.agg_one_item.
+Print Assumptions NC.SymmetryCutoff.agg_apply.
+Print Assumptions NC.SymmetryCutoff.agg_comp.
+Print Assumptions NC.SymmetryCutoff.agg_nf.
+Print Assumptions NC.SymmetryCutoff.aggregate_diverges.
+Print Assumptions NC.SymmetryCutoff.agg_not_idgov.
+Print Assumptions NC.SymmetryCutoff.ni_nf.
+Print Assumptions NC.SymmetryCutoff.nonidentical_misleads.
+Print Assumptions NC.SymmetryCutoff.nonidentical_not_idgov.
+Print Assumptions NC.SymmetryCutoff.inv_fix.
+Print Assumptions NC.SymmetryCutoff.inv_r_valid.
+Print Assumptions NC.SymmetryCutoff.inv_wfc.
+Print Assumptions NC.SymmetryCutoff.inv_rstar.
+Print Assumptions NC.SymmetryCutoff.inv_r_a_r.
+Print Assumptions NC.SymmetryCutoff.inv_a_comm.
+Print Assumptions NC.SymmetryCutoff.inventory_item_un.
+Print Assumptions NC.SymmetryCutoff.inventory_any_n.
+Print Assumptions NC.SymmetryCutoff.inventory_repair_fires.
+Print Assumptions NC.SymmetryCutoff.inventory_idgov.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2764,8 +2899,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2693 ]; then
-  echo "FAIL: expected 2693 axiom-free results, got $N"
+if [ "$N" -lt 2827 ]; then
+  echo "FAIL: expected 2827 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

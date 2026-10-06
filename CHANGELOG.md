@@ -7,6 +7,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/SymmetryCutoff.v`: the symmetry reduction for keyed collections, roadmap item 8 step 1 (gsm
+  roadmap item 1a: check one item, conclude for all). Axiom-free. Roadmap work, not a regime gap:
+  no gap status changes.
+  - **Cutoffs:** for independent, identically governed items, cutoff 1 for unique normal forms
+    (`un_cutoff`, `un_cutoff_uniform`, `un_cutoff_global`, through `cc_lift_iff` and
+    `cc_exact_from`), WFC (`wfc_cutoff`), CC2 (`cc2_cutoff`), at-least-once convergence with
+    commutation and idempotence (`alo_cutoff`, `alo_cutoff_exact`, `alo_gov_cutoff`), idempotence
+    and declared independence (`idem_reduces`, `declared_cutoff`), and federation C1 and C2 across a
+    pointwise morphism (`c1_cutoff`, `c2_cutoff`). CC1 alone has cutoff 2 (`cc1_cutoff`,
+    `cc1_cutoff_uniform2`), tight (`cc1_cutoff_tight`).
+  - **Cross-item pairs:** `same_item_reduces`, `cross_item_reduces` (one repair-then-event
+    obligation per item), `cross_valid_commute` (no hypothesis at valid states), `cc2_star`,
+    `cross_commute`.
+  - **Hypotheses made checkable:** `IdGov` (writes and reads only its key, repair pointwise, rules
+    invariant under exchanging keys, invariant a conjunction of item invariants); `idgov_lift`,
+    `lift_idgov`, `symcheck_decides` (a sound and complete decision on finite descriptions),
+    `symmetry_sound`; `un_in_to_item` (the converse from in-range buffers).
+  - **Counterexamples and non-vacuity:** `aggregate_diverges`, `agg_item_un`, `agg_not_idgov`,
+    `itemwise_converges` (an aggregate invariant: one item converges, two diverge, the check
+    refuses it); `nonidentical_misleads`, `nonidentical_not_idgov`; per-product inventory
+    `inventory_any_n`, `inventory_repair_fires`, `inventory_idgov`.
+  - **Docs:** new `coq/docs/symmetry.md` (with the gsm design input), `coq/README.md` row,
+    `docs/ROADMAP.md` item 8, `docs/THEORY.md` (symmetry and state descent), and the count lines.
+  - **Gate:** raised from 2693 to 2827.
+
 - `coq/Reconfiguration.v`: reconfiguration inside a run, a switch from configuration A to
   configuration B (a migration `m` of the state, a translation `tau` of the A-events in flight);
   narrows audit gap 20 (a new axis). Axiom-free.
