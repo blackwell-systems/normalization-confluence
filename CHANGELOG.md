@@ -20,6 +20,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   - **Docs:** `coq/README.md` row, `coq/docs/non-invertible.md` section, one line in the
     `REGIME-AUDIT.md` gap 3 row and in `docs/LOSSY-NETWORKS.md` P2, and the count lines.
   - **Gate:** raised from 2241 to 2251.
+
+- `research/gap3-fair-settlement/K3.md` and scripts: the three-token case of audit gap 3, not
+  proved and not mechanized. No closed asynchronous run with exactly three unstable vertices under
+  (A) and (B) for n = 3 to 6 (SAT, two encodings of (A), two solvers; n = 7 running at the time of
+  writing); transition statistics over 31,490 sampled moves; structural lemmas with short proofs
+  (at most half the tokens are bad, near-rigidity at one bad token, the two critical pairs); every
+  candidate order tried and how it fails; and the obstruction (a per-token rate balance needed to
+  normalize a closed run into synchronous rounds). Gap 3 stays open.
 - `docs/COVERAGE.md`, the regime coverage matrix: a systematic coverage pass that checks
   `REGIME-AUDIT.md` from the model's axes. Thirteen axes are derived from the Coq premises and the
   audit's vocabulary (composition, transport class, writer semantics, authority, execution model,
