@@ -318,6 +318,19 @@ is where `LC` fails (`cyclic_lc_sound_fails`).
   stated per ambiguity, so its content is its premises. The composition argument lives in each
   instance's proof of `LC`.
 
+### Quotients for checking
+
+Every proved semantic quotient is also a potential verification quotient. State descent (S) says
+which states an event's canonical outcome cannot tell apart; the same equivalence lets a checker
+visit one representative instead of every state, which is what the symmetry and abstraction
+reductions of [ROADMAP.md](ROADMAP.md) item 8 do. History descent (H) says which histories reach the
+same canonical state; the same equivalence lets a checker follow one order per class, which is
+partial-order reduction. "Potential" carries the qualification: a quotient is usable for a check
+only when that check's condition respects it, and each reduction is to be stated with a soundness
+theorem for the condition it serves. Partial-order reduction itself is classical (Mazurkiewicz
+traces; persistent, stubborn and ample sets); the point here is that the reduction relation is the
+one the convergence proofs already establish.
+
 ### What it is not yet
 
 The framework has rederived the six existing exact results and explained the absent laws above.
