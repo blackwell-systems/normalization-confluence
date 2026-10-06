@@ -1,0 +1,56 @@
+{"n": 5, "L": 2, "mode": "e30", "K": 3, "sat": true, "t": 0.0, "walk": [["11110", "ggg", [1, 2, 3]], ["10110", "ggb", [2, 3, 4]], ["10111", "ggg", [0, 2, 3]]], "verified": true, "d": [4, 3, 4]}
+{"n": 5, "L": 3, "mode": "e30", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 4, "mode": "e30", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 5, "mode": "e30", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 6, "mode": "e30", "K": 3, "sat": false, "t": 0.7}
+{"n": 5, "L": 7, "mode": "e30", "K": 3, "sat": false, "t": 0.3}
+{"n": 5, "L": 8, "mode": "e30", "K": 3, "sat": false, "t": 0.7}
+{"n": 6, "L": 2, "mode": "e30", "K": 3, "sat": true, "t": 0.0, "walk": [["111010", "ggg", [0, 2, 4]], ["111000", "ggb", [0, 2, 5]], ["111001", "ggg", [0, 1, 2]]], "verified": true, "d": [4, 3, 4]}
+{"n": 6, "L": 3, "mode": "e30", "K": 3, "sat": true, "t": 0.0, "walk": [["111100", "ggg", [1, 2, 3]], ["111000", "ggb", [1, 2, 4]], ["111010", "ggb", [1, 2, 5]], ["111011", "ggg", [0, 1, 2]]], "verified": true, "d": [4, 3, 4, 5]}
+{"n": 6, "L": 4, "mode": "e30", "K": 3, "sat": true, "t": 0.0, "walk": [["111001", "ggg", [0, 2, 5]], ["011001", "gbg", [2, 4, 5]], ["011011", "gbg", [2, 3, 5]], ["010011", "bgg", [3, 4, 5]], ["010111", "ggg", [1, 4, 5]]], "verified": true, "d": [4, 3, 4, 3, 4]}
+{"n": 6, "L": 5, "mode": "e30", "K": 3, "sat": false, "t": 6.2}
+{"n": 6, "L": 6, "mode": "e30", "K": 3, "sat": false, "t": 29.3}
+{"n": 6, "L": 7, "mode": "e30", "K": 3, "sat": false, "t": 36.8}
+{"n": 6, "L": 8, "mode": "e30", "K": 3, "sat": false, "t": 83.9}
+{"n": 5, "L": 2, "mode": "sameU", "K": 3, "sat": false, "t": 0.1}
+{"n": 5, "L": 3, "mode": "sameU", "K": 3, "sat": false, "t": 0.1}
+{"n": 5, "L": 4, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 5, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 6, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 7, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 8, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 6, "L": 2, "mode": "sameU", "K": 3, "sat": false, "t": 0.2}
+{"n": 6, "L": 3, "mode": "sameU", "K": 3, "sat": false, "t": 1.4}
+{"n": 6, "L": 4, "mode": "sameU", "K": 3, "sat": false, "t": 6.5}
+{"n": 6, "L": 5, "mode": "sameU", "K": 3, "sat": false, "t": 5.5}
+{"n": 6, "L": 6, "mode": "sameU", "K": 3, "sat": false, "t": 6.2}
+{"n": 6, "L": 7, "mode": "sameU", "K": 3, "sat": false, "t": 6.3}
+{"n": 6, "L": 8, "mode": "sameU", "K": 3, "sat": false, "t": 9.3}
+{"n": 5, "L": 2, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 3, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 4, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 5, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 6, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 7, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 8, "mode": "sameUt", "K": 3, "sat": false, "t": 0.0}
+{"n": 6, "L": 2, "mode": "sameUt", "K": 3, "sat": false, "t": 0.1}
+{"n": 6, "L": 3, "mode": "sameUt", "K": 3, "sat": false, "t": 0.2}
+{"n": 6, "L": 4, "mode": "sameUt", "K": 3, "sat": false, "t": 0.2}
+{"n": 6, "L": 5, "mode": "sameUt", "K": 3, "sat": false, "t": 0.3}
+{"n": 6, "L": 6, "mode": "sameUt", "K": 3, "sat": false, "t": 0.3}
+{"n": 6, "L": 7, "mode": "sameUt", "K": 3, "sat": false, "t": 0.6}
+{"n": 6, "L": 8, "mode": "sameUt", "K": 3, "sat": false, "t": 0.3}
+{"n": 5, "L": 2, "mode": "e21", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 3, "mode": "e21", "K": 3, "sat": false, "t": 0.0}
+{"n": 5, "L": 4, "mode": "e21", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 5, "mode": "e21", "K": 3, "sat": false, "t": 0.1}
+{"n": 5, "L": 6, "mode": "e21", "K": 3, "sat": false, "t": 0.2}
+{"n": 5, "L": 7, "mode": "e21", "K": 3, "sat": false, "t": 0.1}
+{"n": 5, "L": 8, "mode": "e21", "K": 3, "sat": false, "t": 0.3}
+{"n": 6, "L": 2, "mode": "e21", "K": 3, "sat": false, "t": 0.1}
+{"n": 6, "L": 3, "mode": "e21", "K": 3, "sat": false, "t": 0.6}
+{"n": 6, "L": 4, "mode": "e21", "K": 3, "sat": false, "t": 5.0}
+{"n": 6, "L": 5, "mode": "e21", "K": 3, "sat": false, "t": 3.7}
+{"n": 6, "L": 6, "mode": "e21", "K": 3, "sat": false, "t": 5.8}
+{"n": 6, "L": 7, "mode": "e21", "K": 3, "sat": false, "t": 5.1}
+{"n": 6, "L": 8, "mode": "e21", "K": 3, "sat": false, "t": 6.9}
