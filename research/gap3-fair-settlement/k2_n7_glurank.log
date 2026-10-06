@@ -1,0 +1,1 @@
+{"n": 7, "opts": ["sym", "tok", "alldir", "rank"], "solver": "glucose4", "k": "exactly 2", "sat": false, "t": 322.1, "vars": 16704, "clauses": 95114}
