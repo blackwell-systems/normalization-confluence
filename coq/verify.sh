@@ -3244,6 +3244,7 @@ Print Assumptions NC.CompositionalCheck.ast_hyps.
 Print Assumptions NC.CompositionalCheck.ast_rho_repair1.
 Print Assumptions NC.CompositionalCheck.ast_N_normalize.
 Print Assumptions NC.CompositionalCheck.ast_demo.
+Print Assumptions NC.Checker.run_perm_invariant.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3254,8 +3255,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3179 ]; then
-  echo "FAIL: expected 3179 axiom-free results, got $N"
+if [ "$N" -lt 3180 ]; then
+  echo "FAIL: expected 3180 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
