@@ -563,6 +563,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/ROADMAP.md` item 8: a history-side reduction (partial-order reduction) for the checks that explore reachable states, with soundness to be proved per condition. No theorem added, removed or renamed.
 - `docs/COVERAGE.md`: the header distinguishes the commit the coverage pass ran at (2241) from the current state it is kept at (2380).
 - `docs/ROADMAP.md`: two planned items. Item 8, checking scales to realistic domains (data independence and symmetry, abstraction soundness, compositional checking as the default, each a theorem about the existing conditions). Item 9, reconfiguration inside a run (gap 20): exact conditions for live changes between configurations, and a migration check in gsm. No theorem added, removed or renamed.
 - Gap 3 computational evidence (not mechanized): `research/gap3-fair-settlement/` (SAT search scripts, n = 6 logs, report). Under no local cycle plus out-degree at most one, no asynchronous state-graph cycle exists for n = 3 to 6, so fair schedules settle there; the general case is open (conjectured lemma F2; Shih and Ho 1999 unread). Noted in `REGIME-AUDIT.md` (gap 3 row), `docs/ROADMAP.md` and `docs/LOSSY-NETWORKS.md` P2. No theorem added, removed or renamed.
