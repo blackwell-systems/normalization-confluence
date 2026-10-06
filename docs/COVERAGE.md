@@ -5,8 +5,8 @@ hardness-backed, or a numbered gap. That claim is complete relative to the rows 
 This page tests it from the other side. It derives the regime space from the model's own axes (the
 hypotheses that vary across the Coq theorems and the audit's vocabulary), maps every meaningful
 combination to the audit, and lists what no row covered. It adds no proofs and changes no
-existing gap's status. Current at `main` `d24d26d` (gate: 2241 axiom-free results) and gsm `main`
-`0f094f1`.
+existing gap's status. The pass ran at `main` `d24d26d` (gate: 2241 axiom-free results) and gsm
+`main` `0f094f1`; the page has been kept current since, through #98 (gate: 2380).
 
 Results, in one paragraph. Thirteen axes vary in the source. Of the 179 cells of the matrix below
 (section 3), 58 are covered (54 by an exact theorem, 4 more by an exact theorem together with a
