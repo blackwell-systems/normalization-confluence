@@ -1,7 +1,22 @@
 # Gap 3: fair settlement under local acyclicity plus out-degree at most one
 
-Computational evidence, **not mechanized and not proved**. It is recorded here so that the search
-can be reproduced. Nothing in this directory is in the axiom-free gate.
+Computational evidence for the general case, **not mechanized and not proved**. It is recorded here
+so that the search can be reproduced. Nothing in this directory is in the axiom-free gate.
+
+**Mechanized since (#92, `coq/LocalFairSettlement.v`, every n).** Part of the question is now
+proved in Coq:
+- **Synchronous form:** (B), with (A) at one state of a synchronous periodic orbit, makes the orbit
+  a fixed point (`sync_orbit_fixed`). So under (A) and (B) every synchronous orbit reaches the
+  unique fixed point (`sync_simple`, the conclusion of Shih and Ho 1999, Theorem 3.1).
+- **Single-token lemma:** localized and with no fixed point used (`one_token_closed`), with token
+  monotonicity (`ucnt_mono`). Hence every fair schedule from a start with at most one unstable
+  vertex settles (`one_token_fair_settlement`).
+- **Acyclicity gives fair settlement:** the report's step 4 (`fair_settlement_of_acyclic`).
+- **Boundary instances:** `outdeg_needed`, `no_neg_not_enough`, `no_pos_not_enough`, and
+  `shih_ho_instance`.
+
+Still open: closed asynchronous runs with two or more unstable vertices at every state, which is F2
+for k >= 2 tokens. Gap 3 stays open.
 
 **Question.** A Boolean network may have no cycle in any local interaction graph G(x) (condition
 (A), `NoLocalCycle` in `coq/LocalSigned.v`) and out-degree at most 1 in every G(x) (condition (B),
@@ -17,9 +32,11 @@ every start.
   (A) to "no self-loops", makes the solver find cycles at once, and each one is replayed by an
   independent checker (`verify.py`).
 - **n = 7:** running at the time of writing.
-- **General case:** open. The conjectured key lemma F2 is in `REPORT.md`, section 5.
+- **General case:** open. The conjectured key lemma F2 is in `REPORT.md`, section 5. It is proved
+  for one token, as the isometry argument inside `sync_orbit_fixed`, and open for two or more.
 - **Literature:** not found in the literature searched. Shih and Ho 1999 (Adv. Appl. Math.
-  22(1):60-102) could not be read and may already cover this; see `REPORT.md`, section 3.
+  22(1):60-102) has since been read in full and treats synchronous iteration only (its Theorem 3.1
+  is the synchronous form above). `REPORT.md`, section 3, is kept as written at the time.
 
 **Files.**
 

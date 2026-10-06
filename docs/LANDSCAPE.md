@@ -449,9 +449,20 @@ reading B) through Thomas-type conditions. The research note
     all 3-vertex Boolean networks (680 have no local cycle; not mechanized) finds an acyclic
     asynchronous state graph and a convergent synchronous iteration in every case, so 4 vertices
     is the least for both the known phenomenon and its fair form.
+  - Shih and Ho 1999 (read in full for #92): Theorem 3.1, no cycle in any local graph plus
+    `F(V(x))` inside `V(F(x))` (out-degree at most one in every local graph, their Lemma 4.1;
+    Hamming non-expansiveness, their Lemma 4.3) makes the synchronous iteration reach the unique
+    fixed point from every start, within `2^n` steps; Theorem 3.2, without the second condition
+    only for `n <= 3`. The paper treats synchronous iteration only. Its conclusion is mechanized
+    here, by a different proof, as `sync_simple` (`LocalFairSettlement.v`; `sync_orbit_fixed`
+    needs the local acyclicity only on the orbit), and its 4-vertex example is `shih_ho_instance`.
+    The asynchronous counterpart, fair settlement under the same two conditions, is mechanized for
+    starts with at most one unstable vertex (`one_token_fair_settlement`) and open in general (for
+    n <= 6 there is computational evidence, not mechanized); it was not found in the literature
+    searched (Shih and Ho 1999 treat synchronous iteration only).
 
-  Search scope for the last item (October 2026): Shih and Ho 1999 and Shih and Dong 2005 (abstracts
-  and their restatements; full texts not accessible), Remy, Ruet and Thieffry 2008, Richard 2010,
+  Search scope for the last two items (October 2026): Shih and Ho 1999 (full text, read for #92)
+  and Shih and Dong 2005 (abstract and restatements; full text not accessible), Remy, Ruet and Thieffry 2008, Richard 2010,
   2011, 2015 and 2019, Richard and Ruet 2013, Ruet 2016 and 2017, Tonello 2017, Tonello, Farcot and
   Chaouiya 2018, Melliti, Regnault, Richard and Sené 2013 (global graphs without negative cycles),
   the fixing-word papers (Gadouleau and Richard 2018; Aracena, Gadouleau, Richard and Salinas 2020,
@@ -473,8 +484,12 @@ can be a merge on a tree with no loop at all; and, on local graphs, the reading 
 theorems as certificates for E's two halves (CanonicalFidelity from `local_fidelity_canon`,
 existential Settlement from `richard_t3`, `richard_t4` and `shih_dong_E`), with the split between
 existential and fair-schedule settlement made explicit (`shih_dong_not_fair`,
-`ring_local_conditions`). Not claimed: an exact condition, fair-schedule settlement from local
-conditions, or multivalued local graphs; those are open (REGIME-AUDIT gap 3).
+`ring_local_conditions`); and, under no local cycle plus out-degree at most one, the synchronous
+conclusion of Shih and Ho 1999 with the local condition needed only on the orbit
+(`sync_orbit_fixed`) and fair settlement from starts with at most one unstable vertex
+(`one_token_fair_settlement`). Not claimed: an exact condition, fair-schedule settlement from
+local conditions from every start, or multivalued local graphs; those are open (REGIME-AUDIT gap
+3).
 
 ## The ideas it connects (and makes rigorous)
 

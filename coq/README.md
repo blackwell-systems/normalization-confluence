@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2160 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2160 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2189 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2189 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -175,6 +175,7 @@ is on the same page.
 | `SignedCycles.v` | Loops versus merges: `invertible_merge_is_holonomy`, `holonomy_free_section`, `section_transport`, `fundamental_cycles_holonomy`, `obstruction_loop_vs_merge`; Harary balance proved at Z/2: `harary_balance`, `balanced_no_positive_acyclic` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
 | `SignedResolver.v` | The signed-cycle to E bridge (sufficient certificates, reading B): `switched_monotone`, `resp_reads_in_neighbors`, `signed_settlement`, `signed_settlement_harary`, `signed_fidelity`, `signed_fidelity_harary`; breaks `neg2_no_fixed_point`, `copyback_ghost`, `toggle_ghost`, `ring_needs_low_start`, `ring_low_start_E`, `unbalanced_unique_oscillates`, `flip_needs_top`, `flip_needs_top_resolver`, `xor_no_certificate`, `cyc3_unsignable`; `unique_pos_cycle_every_certificate` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
 | `LocalSigned.v` | Local interaction graphs (Boolean, every `n`): local fidelity `rrt_sub`, `local_fidelity`, `local_fidelity_canon`, `local_signed_fidelity`, `global_to_local`; local settlement `richard_t3` (non-expansive), `outdeg_nonexpansive`, `richard_t4`, `shih_dong_E`; counterexamples `local_weaker_than_global`, `local_neg_free_no_fixed_point`, `shih_dong_not_fair`, `ring_local_conditions` | [Local interaction graphs](docs/non-invertible.md#local-interaction-graphs-local-fidelity-and-local-settlement-localsignedv) |
+| `LocalFairSettlement.v` | Fair settlement under no local cycle plus out-degree at most one (gap 3 progress): synchronous form `sync_orbit_fixed` (no local cycle needed only on the orbit), `sync_simple` (Shih and Ho 1999, Theorem 3.1, by a different proof); token monotonicity `ucnt_mono`; single-token case `one_token_closed`, `one_token_fair_settlement`, `fair_settles_once_one_token`; from acyclicity `fair_settles_closed`, `fair_settlement_of_acyclic`, `rank_closed`; instances `shih_ho_instance`, `outdeg_needed`, `no_neg_not_enough`, `no_pos_not_enough`. The multi-token case is open | [Fair settlement under local conditions](docs/non-invertible.md#fair-settlement-under-local-conditions-localfairsettlementv) |
 
 ### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
@@ -233,7 +234,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2160
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2189
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

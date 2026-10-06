@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (2160 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (2189 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
@@ -46,7 +46,9 @@ root (a registry no other registry writes, upstream of the whole component), or 
 gaps still open are rootless propagation on
 lossy networks (where sufficient signed-cycle certificates are mechanized, with Harary's balance
 theorem proved for finite signed graphs, and sufficient certificates on Boolean local interaction
-graphs, which give settlement by some update order but not under every fair schedule), and cyclic
+graphs, which give settlement by some update order but not under every fair schedule; under no
+local cycle plus out-degree at most one, fair settlement is mechanized for synchronous updates and
+for starts with at most one unstable vertex), and cyclic
 monotone collapse (paper only). Both are cyclic; the audit states them as one question, what
 makes composition exact on cycles. Sheaf gluing on the companion paper's variable-level and
 monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
