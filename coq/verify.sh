@@ -2305,6 +2305,46 @@ Print Assumptions NC.LocalTokenBalance.bad_le_half.
 Print Assumptions NC.LocalTokenBalance.not_both_bad_k2.
 Print Assumptions NC.LocalTokenBalance.three_token_shape.
 Print Assumptions NC.LocalTokenBalance.token_balance_instance.
+Require NC.AtLeastOnceDeclared.
+Print Assumptions NC.AtLeastOnceDeclared.aloi_nodup_iff.
+Print Assumptions NC.AtLeastOnceDeclared.tconv_exact.
+Print Assumptions NC.AtLeastOnceDeclared.safe_i_exact.
+Print Assumptions NC.AtLeastOnceDeclared.safe_i_iff_idem.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_exact_absorb.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_exact.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_exact_trace.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_safe.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_notidem_needs_dedup.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_notidem_needs_dedup_once.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_gsm_unlisted_safe.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_unlisted_converge.
+Print Assumptions NC.AtLeastOnceDeclared.build_comm_i.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_gsm_build.
+Print Assumptions NC.AtLeastOnceDeclared.safe_r_exact.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_r_exact.
+Print Assumptions NC.AtLeastOnceDeclared.dalo_r_implies.
+Print Assumptions NC.AtLeastOnceDeclared.free_dalo_iff.
+Print Assumptions NC.AtLeastOnceDeclared.alo_exact_declared.
+Print Assumptions NC.AtLeastOnceDeclared.causal_dalo_iff.
+Print Assumptions NC.AtLeastOnceDeclared.causal_alo_exact_declared.
+Print Assumptions NC.AtLeastOnceDeclared.fl_declared_exact.
+Print Assumptions NC.AtLeastOnceDeclared.fl_retry_order_needed.
+Print Assumptions NC.AtLeastOnceDeclared.fl_partner_overtakes.
+Print Assumptions NC.AtLeastOnceDeclared.inc_declared_fails.
+Print Assumptions NC.AtLeastOnceDeclared.jmp_declared_unreachable.
+Print Assumptions NC.AtLeastOnceDeclared.fl_gsm_build.
+Print Assumptions NC.AtLeastOnceDeclared.mx_declared_r.
+Print Assumptions NC.AtLeastOnceDeclared.inv_tequiv.
+Print Assumptions NC.AtLeastOnceDeclared.tequiv_inv.
+Print Assumptions NC.AtLeastOnceDeclared.comm_i_tequiv.
+Print Assumptions NC.AtLeastOnceDeclared.absorb_dedup_i.
+Print Assumptions NC.AtLeastOnceDeclared.absorb_dedup_r.
+Print Assumptions NC.AtLeastOnceDeclared.aloi_dedup.
+Print Assumptions NC.AtLeastOnceDeclared.aloi_dedup_causal.
+Print Assumptions NC.AtLeastOnceDeclared.absorb_idem_i.
+Print Assumptions NC.AtLeastOnceDeclared.idem_absorb_i.
+Print Assumptions NC.AtLeastOnceDeclared.free_comm_iff.
+Print Assumptions NC.AtLeastOnceDeclared.causal_comm_iff.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2315,8 +2355,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2251 ]; then
-  echo "FAIL: expected 2251 axiom-free results, got $N"
+if [ "$N" -lt 2290 ]; then
+  echo "FAIL: expected 2290 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

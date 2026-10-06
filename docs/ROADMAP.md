@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2251 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2290 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -351,7 +351,7 @@ something outside P.
 | State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`; the iff as exported: `cvrdt_on_iff`) | n/a |
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence ([LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#32-the-reduction-from-3-sat) 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
-| Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); at-least-once delivery for stream processors; causal or at-least-once delivery in the distributed model; buffered guards in federations | open | small to medium |
+| Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): (a) at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); (b) at-least-once delivery for stream processors; (c) causal or at-least-once delivery in the distributed model; (d) buffered guards in federations | narrowed: (a) done (`AtLeastOnceDeclared.v`: `dalo_exact`, `safe_i_exact`, unordered retries `dalo_r_exact`; `NotIdempotent` sound at reachable witnesses, complete when declared pairs commute at reachable states and retries respect the declared order); (b), (c), (d) open | small to medium |
 | Distributed propagation off its current hypotheses (gap 16): events with rootless propagation on cyclic invertible networks; ACC without finite height; local compensation as separate steps on cycles; every fair update schedule on an acyclic network (Robert's asynchronous half; gated are topological orders and a final flush) | open | medium |
 | Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
