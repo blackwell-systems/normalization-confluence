@@ -12,8 +12,9 @@ results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 an
 read at `dc610a9`, the rows #83 changed at `69ef03a`, the rows #90 changed at `a0d4713`, and the
 rows #91 changed against #91's `RootlessNetworks.v`, the rows #92 changed against #92's
 `LocalFairSettlement.v`, and the rows #93 changed against #93's `LocalTwoToken.v`, and the rows the closing of gap 15 changed against `StreamAtLeastOnce.v`,
-`DistributedDelivery.v` and `FederatedGuards.v`, gate 2467, and the rows the closing of gap 16 (d)
-changed against `RobertFair.v`, gate 2569) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+`DistributedDelivery.v` and `FederatedGuards.v`, gate 2467, the rows the closing of gap 16 (d)
+changed against `RobertFair.v`, gate 2569, and the rows the narrowing of gap 20 changed against
+`Reconfiguration.v`, gate 2693) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
 since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
 matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
 
@@ -35,7 +36,16 @@ channels is stated in either merge mode (`chan_exact`), versioned merging conver
 when it does after a flush (`vsettle_exact_cond`), plain merging cannot be settled by its channels
 (`plain_settle_iff`, `plain_stale_counterexample`), and on two-level networks the versioned condition
 is `dist_exact`'s own (`vchan_twolevel_exact`); open beyond two-level networks (the current-value
-form) and on cycles. Gap 14
+form) and on cycles. Gap 20 (reconfiguration inside a run) is narrowed by `Reconfiguration.v`: for a
+single registry under free delivery, a switch at a quiescent barrier is exact (`barrier_exact`;
+each side's own condition when the migration is faithful, `barrier_exact_faithful`), and so is a
+live switch with events in flight (`live_exact`: B's condition from every migrated reachable state
+plus two cross-configuration critical pairs; A's own condition is not necessary,
+`forgetful_migration`), with the outcome (online, behind a barrier only, unsafe) decidable on finite
+instances (`classify_finite`); federation topology changes are exact under FedMachine semantics
+(`fed_live_exact`, `fed_barrier_exact`). Open: a live switch while propagation is in flight (the
+distributed model), other delivery classes across the switch, and a local form of the barrier's A
+part for a migration that is not faithful. Gap 14
 (convergence alone in the no-reset cyclic distributed model) is closed by #90
 (`conv_quiet_exact`), and gap 2 (rootless invertible networks beyond a single coherently oriented
 cycle) is closed by #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`). The
@@ -117,7 +127,7 @@ does not represent (reconfiguration inside a run, propagation over channels) bec
 21, and five became design exclusions X1 to X5. It adds no proofs; no existing gap's status
 changes. Since then gap 15 has closed: part (a) with `AtLeastOnceDeclared.v` (#97), parts (b) to (d)
 with `StreamAtLeastOnce.v`, `DistributedDelivery.v` and `FederatedGuards.v` (gate 2467); gap 21 is
-narrowed (#98); gap 16 is narrowed, (d) closed with `RobertFair.v` (gate 2569).
+narrowed (#98); gap 16 is narrowed, (d) closed with `RobertFair.v` (gate 2569); gap 20 is narrowed (`Reconfiguration.v`, gate 2693).
 The tables below are the current state; the conclusion re-answers the old questions and confirms
 the wording.
 
@@ -335,7 +345,7 @@ Convergence:
 | 17 | Rootless edge-writer dynamics beyond the regular action (sections 11, 12): lossy maps at in-degree two or more, where the edge-writer and resolver readings differ, and invertible maps under a non-free action. Quiescent states are reading-A sections, so existence is exact and NP-complete (`root_set_criterion_graph`, `net_section_iff_sat`); open: when every fair order reaches one, and uniqueness. Gap 3 is the resolver reading only | open; from the coverage pass (cells A3, A8, A10) | medium |
 | 18 | Existence and counting in reading B without a spanning root (section 12): fixed points of the resolver map at in-degree two or more have no row; the polynomial reductions between the readings ([LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md#how-the-readings-relate)) are conjectures, and mechanizing one would transfer `net_section_iff_sat` and `net_count` | open; from the coverage pass (cells A11, F7) | small |
 | 19 | Composition beyond acyclic collapse (section 14): (a) coordination-free networks whose cyclic blocks use different engines (a non-monotone cyclic block feeding or fed by other blocks; gap 5 is the monotone case); (b) collapse preservation in the distributed model, a block whose internal propagation interleaves with outer events | open; from the coverage pass (cells A14, B11, B13) | medium to large |
-| 20 | **New axis**: reconfiguration inside a run. The topology (`src`) or the rules (`apply`, `rho`, morphisms) change while events or propagation are in flight; every module fixes them, and gsm only checks that participants share one policy (`PolicyDigest`, `PolicyIdentityDigest`). A change at a quiescent barrier reduces to two runs of existing cells | open; from the coverage pass ([COVERAGE.md section 4](docs/COVERAGE.md#4-candidates-outside-the-axes)) | medium |
+| 20 | **New axis**: reconfiguration inside a run. The topology (`src`) or the rules (`apply`, `rho`, morphisms) change while events or propagation are in flight; every other module fixes them, and gsm only checks that participants share one policy (`PolicyDigest`, `PolicyIdentityDigest`). Modeled in `Reconfiguration.v`: a run under configuration A, one switch (a migration `m` of the state, a translation `tau` of the A-events still in flight), then a run under B. Single registry, free delivery: at a quiescent barrier, exact (`barrier_exact`: B's condition after every quiescent reachable state, and A's normal forms agreeing after `rhoB_star o m`); when that map is injective on the quiescent reachable states, each side's own condition (`barrier_exact_faithful`), the claim this row made, with its qualifier (`forgetful_migration`: an unfaithful migration hides a divergence of A). Live, exact (`live_exact`): B's condition from `m s` for every reachable `s`, quiescent or not, plus the cross-configuration critical pairs (S1) an in-flight event commutes with the switch and (S2) the switch absorbs A's compensation, both up to B's repair; A's own condition is not a conjunct, and is implied exactly for a faithful migration (`live_exact_faithful`); `live_no_change` recovers `cc_exact_from`. Each conjunct is needed, with A converging and the barrier switch converging: `cap_raise` (a cap of 5 raised to 10 with in-flight adds; S2), `doubling_migration` (S1), `migrated_transient` (B's condition at a migrated non-quiescent state); non-vacuity `rescaled_cap`. Classification for gsm's planned `CheckMigration` (online, behind a barrier only, unsafe): unique (`classified_unique`), decidable on finite instances (`live_dec`; `barrier_dec_faithful` and `classify_finite` for a faithful migration). Federations under FedMachine semantics (topology and rules change; what is in flight is the buffered events): live, exact with B's condition at the migrated start only (`fed_live_exact`: C1R1 and C2R of B at `M s0`, plus `feq (M (applyF_A e t)) (applyF_B (tau e) (M t))` at reachable `t`); barrier, each side's `fed_exact` condition (`fed_barrier_exact`); adding an edge read by an in-flight event diverges live and not at a barrier (`late_edge`; `late_edge_fresh` non-vacuity). Residue: (a) a live switch in the distributed model, where propagation is in flight (projections sent under A merged under B); (b) declared independence, causal or at-least-once delivery across the switch; (c) a local form of the barrier's A part for a migration that is not faithful | open (narrowed: single registry and FedMachine exact, at a barrier and live; (a) to (c) open); from the coverage pass ([COVERAGE.md section 4](docs/COVERAGE.md#4-candidates-outside-the-axes)) | small to medium |
 | 21 | **New axis**: propagation over channels (section 8). Projections delivered late, reordered or duplicated: gsm's `MergeProjection` (no order check, so a late or duplicate projection is merged as it arrives and a stale one merged after a newer one wins) and `MergeProjectionAfter` (rejects a projection whose version is not newer than the last one applied). Modeled in `ProjectionChannels.v`: on acyclic networks, exact over channel-reachable states in either mode (`chan_exact`, `chan_exact_global`, `chan_global_exact_roots`); versioned merging converges at drain exactly when it does after a flush (`vsettle_exact_cond`, `vsettle_cv`, `vsettle_xu_c2`), plain merging settles iff nothing stale is in flight (`plain_settle_iff`) and fails under XU (`plain_stale_counterexample`); on two-level networks the versioned condition is `dist_exact`'s (`vchan_emulate`, `vchan_twolevel_exact`). Residue: (a) whether versioned channels reach new stale combinations beyond two-level networks (chains, multi-source targets), that is whether `CXUR true` equals `XUR` there; (b) cycles: the ghost survives versioned channels (`vchan_cyc_ghost`), and flush or reset epochs over channels have no theorem | open (narrowed: acyclic exact in reachable form; (a) and (b) open); from the coverage pass (section 4) | small to medium |
 
 Open convergence gaps after the coverage pass: 3, 5 and 16 to 21. Gaps 1, 2, 14 and 15 are closed.
@@ -417,7 +427,7 @@ Each open gap, checked against its own description above:
 | 17 | yes | Rootless edge-writer dynamics on lossy or non-free networks: the cyclic content is the same as gap 3's, in the other reading | `net_unique_normal_form_iff` (regular action), `root_set_criterion_graph` (existence) |
 | 18 | yes | Reading-B fixed points without a spanning root; on acyclic networks one always exists (Robert; `rb_lens_robert`) | `net_section_iff_sat` (reading A) |
 | 19 | yes | (a) is the frontier question itself for blocks of different engines; gap 5 is its monotone case. (b) is collapse in the distributed model | `collapse_c_exact` (acyclic), `collapse_c_runs_agree` |
-| 20 | no | A new axis: the topology and rules are fixed in every module | each existing row, per run, at a barrier |
+| 20 | no | A new axis: the topology and rules are fixed in every other module. The single-registry and FedMachine parts are exact, at a barrier and live; residue (a) is the acyclic distributed model, (b) and (c) are not cycle questions | `barrier_exact`, `live_exact`, `fed_barrier_exact`, `fed_live_exact` |
 | 21 | in part | A new axis: the channel between a source and its target. The acyclic part is exact in reachable form (`chan_exact`, `vsettle_exact_cond`); residue (a) is acyclic; residue (b) is cyclic: the ghost survives versioned channels (`vchan_cyc_ghost`) | `chan_exact`, `vchan_twolevel_exact`; `flush_fed_iff`, `epoch_conv_iff` (propagation reads current values) |
 
 Gaps 8 and 9, and X1 to X5, are design exclusions, not open problems, and are not part of the
@@ -488,7 +498,7 @@ Yes, regime by regime:
 | Invertible, coordinated: what to coordinate; event order | `plan_exact`; `coordinated_events_exact` | | |
 | Non-invertible: single cycle; rooted; root set; event order under root-set coordination | `thm_obstruction_general`, `rooted_criterion`, `root_set_criterion_graph`, `root_set_count`; `forest_events_exact` | existence NP-complete: reduction mechanized (`net_section_iff_sat`, `net_count`, `net_size`, `np_certificate`, #57), NP-completeness by the standard argument | 3 (rootless dynamics, resolver reading); 17 (edge-writer reading); 18 (reading-B existence) |
 | Collapse | `collapse_a_guarded_exact`, `collapse_c_exact` (acyclic) | | 5 (cyclic); 19 (other engines; distributed) |
-| Reconfiguration inside a run (new axis) | each existing row, per run, at a quiescent barrier | | 20 |
+| Reconfiguration inside a run (new axis): single registry, free delivery; federations under FedMachine semantics; at a quiescent barrier and live | `barrier_exact`, `barrier_exact_faithful`, `live_exact`, `live_exact_faithful`; `fed_barrier_exact`, `fed_live_exact`; classification `classify_finite` | | 20 (narrowed: the distributed model; other delivery classes; an unfaithful migration's barrier A part) |
 | Minimum coordination: invertible (plan model); lossy | `plan_min_exact`; `lmin_root_set`, `lmin_decide`, `lossy_min_is_gfes` | invertible: NP-hard, Max-Cut reduction mechanized (`maxcut_reduction`, #72), Max-Cut NP-completeness cited; lossy: NP-hard, even minimum 0 vs 1, 3-SAT reduction mechanized (`lmin_reduction`, #70), with an NP certificate (`min_le_np_certificate`) | |
 | 2-complex: `H^1` with triangle relations; sheaf gluing | `nerve_H1_classification`, `nerve_H1_Z2_count`; `sheaf_iff_refines`, `sheaf_exact`, `cert_sheaf` (registry-level site) | | 13 (narrowed: variable-level and monotone-overlap site, paper) |
 
@@ -540,7 +550,8 @@ sufficient condition only, or none; item 2 was one until #91 made it exact. Item
 exact (`conv_quiet_exact`). Item 15, from the coverage pass, is now exact in all four parts
 (`dalo_exact`, `stream_alo_exact_free`, `dist_delivery_exact`, `fed_buffered_exact`). Items 16 to
 21 have no exact condition (some have a sufficient one), except the acyclic part of item 21, now
-exact in reachable form (`chan_exact`, `vsettle_exact_cond`). Items 8 and 9, and X1 to X5, are design exclusions. The headline's three-way disjunction (exact, hardness, open) is
+exact in reachable form (`chan_exact`, `vsettle_exact_cond`), and the single-registry and FedMachine
+parts of item 20, now exact at a barrier and live (`barrier_exact`, `live_exact`, `fed_live_exact`). Items 8 and 9, and X1 to X5, are design exclusions. The headline's three-way disjunction (exact, hardness, open) is
 accurate.
 
 **"A checker for the practical ones."** Accurate, with two qualifications. gsm checks the cheap
@@ -569,7 +580,10 @@ convergence once the channels drain after a final round (`vsettle_xu_c2`, gap 21
 merging (`MergeProjection`) converges only after an outside flush (`chan_xu_c2`;
 `plain_stale_counterexample`). gsm reports cyclic projection deployments not certified, which
 `dist_cyc_ghost` shows is required without epochs; it has no epoch mode, so `lens_epoch` is not yet a
-gsm check. New since the 1370 gate: `lens_noreset_iff` says what a no-reset cyclic check would need on
+gsm check. For reconfiguration gsm checks only that participants share one policy
+(`PolicyDigest`, `PolicyIdentityDigest`); the exact conditions for a change at a barrier and live
+(`barrier_exact_faithful`, `live_exact`, `fed_live_exact`) and the classification
+(`classify_finite`) are the basis of its planned `CheckMigration` (gap 20). New since the 1370 gate: `lens_noreset_iff` says what a no-reset cyclic check would need on
 top of gsm's C1cyc and C2cyc, exactly: `FlushR` and `NoGhostR`. The per-event and per-network
 sufficient checks (`infl_evsound`, `evlow_fairflush`, `step_sound_fairflush`, `nc_sound_low`) are cheap;
 `NoGhostR` in general needs a global invariant (`noghost_inv_iff`, `unique_or_low_noghost`) or a
@@ -599,7 +613,9 @@ column. #91 does not change it: it moves gap 2 to the exact column. The coverage
 change it: it lists seven more gaps (15 to 21), so every regime it derives is still exact,
 hardness-backed, or listed open, or a stated design exclusion. Closing gap 15 does not change
 it: a listed gap moves to the exact column, part (a) first and parts (b) to (d) after. Narrowing gap 21 does not change it either:
-its acyclic part moves to the exact column, and the residue stays listed. The fifth wave (#70 to #73) does not change it: three listed gaps
+its acyclic part moves to the exact column, and the residue stays listed. Narrowing gap 20 does
+not change it: its single-registry and FedMachine parts move to the exact column, and the residue
+stays listed. The fifth wave (#70 to #73) does not change it: three listed gaps
 move to the exact column with mechanized hardness reductions, and the fourth (gap 13) narrows to a
 residual that stays listed. The precision paragraph changes (minimum coordination's hardness is now
 a mechanized reduction, not only a citation). The first audit proposed narrower lines

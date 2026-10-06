@@ -264,6 +264,40 @@ P = NP. Event order under root-set coordination is exact (`forest_events_exact`,
 whose residual passes the root-set criterion (`lmin_root_set`, decided by `lmin_decide`,
 `coq/LossyMinimum.v`); even telling 0 from 1 is NP-hard (`lmin_reduction`).
 
+## Changing the configuration inside a run
+
+Every regime above fixes the topology and the rules for the whole run. When they change (a schema
+migration, a rule change, a new edge or registry) while events are in flight, the question is
+whether the change can be made online or needs a barrier (drain, then switch). `coq/Reconfiguration.v`
+models a run under configuration A, one switch (a migration `m` of the state, a translation `tau` of
+the A-events still buffered), then a run under B (gap 20 in [REGIME-AUDIT.md](../REGIME-AUDIT.md),
+narrowed).
+
+- *At a barrier.* For a single registry under free delivery, every run converges **iff** B converges
+  after every quiescent state A can reach and A's normal forms agree after the migration
+  (`barrier_exact`); when the migration followed by B's repair is injective on those quiescent
+  states, that is A's own condition and B's (`barrier_exact_faithful`). A migration that forgets
+  data can hide a divergence of A (`forgetful_migration`).
+- *Live.* Every interleaving of A-events, the switch, and in-flight A-events applied under B
+  converges **iff** B converges from the migration of every state A can reach, quiescent or not, and
+  two cross-configuration critical pairs hold: an in-flight event commutes with the switch (apply
+  under A then migrate equals migrate then apply its B version, up to B's repair) and the switch
+  absorbs A's compensation (`live_exact`). Raising a cap from 5 to 10 with adds in flight fails the
+  second (`cap_raise`); a migration that rescales the state but not the events fails the first
+  (`doubling_migration`); B's repair of a migrated transient state can fail even when every
+  quiescent state is fine (`migrated_transient`). Rescaling both fixes the cap change
+  (`rescaled_cap`). A's own condition is not needed for the live change, only through the migration.
+- *Classification.* Online, behind a barrier only, or unsafe: at most one holds
+  (`classified_unique`), and on finite instances the outcome is decidable (`classify_finite`); this
+  is the basis of gsm's planned `CheckMigration`.
+- *Federations.* Under FedMachine semantics (each Apply repairs and propagates), a live topology or
+  rule change converges **iff** B's C1 and C2 hold at reachable witnesses from the migrated start and
+  the migration commutes with every in-flight event at every reachable state (`fed_live_exact`); at
+  a barrier, each side's `fed_exact` condition (`fed_barrier_exact`). Adding an edge that an
+  in-flight event reads can diverge live and not at a barrier (`late_edge`). Open: a live change
+  while propagation itself is in flight (the distributed model), and delivery classes other than
+  free delivery across the switch.
+
 ## The decision, as a flowchart
 
 ```mermaid
@@ -346,6 +380,7 @@ although its operations do not all commute. The precise relationship is in
 | Non-monotone cycles, coordinated | `CoordinationPlan` (cuts every cycle; each `CoordinationPoint` names its `Authority`) | `coq/CoordinatedCycles.v` (soundness of the holonomy-minimal plan in gsm's `HOLONOMY-COORDINATION-DESIGN.md`), `coq/CoordinatedExact.v` (event order), `coq/CoordinationMinimum.v` (the minimum number of coordinated edges, attained by a plan) |
 | Non-monotone cycles, no root | (rejected by `Build`) | `coq/RootlessCycles.v` (single invertible cycles), `coq/RootlessNetworks.v` (any finite invertible network) |
 | Non-invertible transports | `Federation.DiagnoseCycle` | `coq/CohomologyGeneral.v` (single cycle, rooted), `coq/RootSet.v` (root sets), `coq/LossyHardness.v` (the 3-SAT reduction), `coq/RootSetEvents.v` (event order), `coq/LossyMinimum.v` (minimum coordination); with no root, sufficient signed certificates only (`coq/SignedCycles.v`, `coq/SignedResolver.v`, `coq/LocalSigned.v`, `coq/LocalFairSettlement.v`, `coq/LocalTwoToken.v`; audit gap 3, open) |
+| Reconfiguration inside a run (barrier and live) | `PolicyDigest`, `PolicyIdentityDigest` (participants share one policy); `CheckMigration` planned | `coq/Reconfiguration.v` (single registry: `barrier_exact`, `live_exact`, `classify_finite`; FedMachine federations: `fed_barrier_exact`, `fed_live_exact`) |
 | Compositional collapse | `Federation.Embed` | `coq/Collapse.v` (acyclic blocks); cyclic monotone blocks are paper only |
 
 Regime by regime status, including the gaps still open, is in [REGIME-AUDIT.md](../REGIME-AUDIT.md).

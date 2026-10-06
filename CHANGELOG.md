@@ -7,6 +7,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/Reconfiguration.v`: reconfiguration inside a run, a switch from configuration A to
+  configuration B (a migration `m` of the state, a translation `tau` of the A-events in flight);
+  narrows audit gap 20 (a new axis). Axiom-free.
+  - **Single registry, barrier:** `barrier_exact` (B's condition after every quiescent reachable
+    state, and A's normal forms agreeing after `rhoB_star o m`); `barrier_exact_faithful` (each
+    side's own condition when that map is injective on the quiescent reachable states);
+    `barrier_sufficient`.
+  - **Single registry, live:** `live_exact` (`LiveConv <-> LiveCond`: B's condition from `m s` for
+    every reachable `s`, quiescent or not, plus the cross pairs S1, an in-flight event commutes with
+    the switch, and S2, the switch absorbs A's compensation), `live_exact_faithful` (with A's
+    condition, for a faithful migration), `live_implies_barrier`, `live_no_change` (recovers
+    `cc_exact_from`); witnesses `s1_runs`, `s2_runs`, `live_b_runs`, `live_b2_runs`,
+    `barrier_b_runs`, `amodf_runs`.
+  - **Classification:** `classified_unique`, `classify`; on finite instances `reach_dec` (via
+    `star_fin_dec`), `live_dec`, `faithful_dec`, `barrier_dec_faithful`, `classify_finite`.
+  - **Federations (FedMachine):** `det_live_exact`, `det_barrier_exact`, `det_barrier_faithful`
+    (deterministic steps, free delivery); `fed_live_exact` (B's C1R1 and C2R at the migrated start
+    plus the switch commuting with in-flight events), `fed_barrier_exact`.
+  - **Counterexamples:** `cap_raise` (S2), `doubling_migration` (S1), `migrated_transient` (B's
+    condition at a migrated transient state), each with A and the barrier switch converging;
+    `forgetful_migration` (A's condition not necessary, and the barrier qualifier needed);
+    `late_edge` (adding an edge read by an in-flight event). Non-vacuity: `rescaled_cap`,
+    `late_edge_fresh`, `finite_instance`, `instances_classified`, `lww_target`.
+  - **Residue:** a live switch in the distributed model (propagation in flight); other delivery
+    classes across the switch; a local form of the barrier's A part for an unfaithful migration.
+  - **Docs:** `coq/docs/reconfiguration.md` and the `coq/README.md` row; `REGIME-AUDIT.md` gap 20
+    row (narrowed), frontier and regime tables, summaries; `docs/COVERAGE.md` section 4 and section
+    5's gap 20 row (cell counts unchanged: a new axis); `docs/ROADMAP.md` item 9; `docs/REGIMES.md`;
+    `README.md` open-gap sentence (still eight open gaps), and the count lines.
+  - **Gate:** raised from 2569 to 2693.
 - `coq/RobertFair.v`: Robert's theorem for fair asynchronous schedules on acyclic networks,
   mechanized in the repository's propagation model; closes audit gap 16 (d). Gap 16 stays open for
   (a) to (c). The theorem is Robert's (1986, 1995; Richard 2019, Theorem 1). Axiom-free.

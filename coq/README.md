@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2569 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2569 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2693 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2693 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -34,7 +34,8 @@ the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over
 coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
 rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles, and over channels), the federated
-rewrite system and compositional collapse). The [module index](#modules-by-regime) below lists
+rewrite system and compositional collapse), and reconfiguration inside a run (`Reconfiguration.v`).
+The [module index](#modules-by-regime) below lists
 each module with its headline theorems; the pages in [`docs/`](docs) give each module's results in
 full.
 
@@ -203,6 +204,12 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 |---|---|---|
 | `Collapse.v` | Acyclic `J`: `collapse_a_guarded_exact`, `collapse_c_exact`, `collapse_c_guarded_iff`, `collapse_modular_converges`; ports `port_c1_transfer`; refuted: `collapse_a_refuted` | [Compositional collapse](docs/collapse.md#compositional-collapse-sub-federations-as-effective-registries-collapsev) |
 
+### 15. Reconfiguration inside a run ([docs/reconfiguration.md](docs/reconfiguration.md))
+
+| Module | Headline theorems | Details |
+|---|---|---|
+| `Reconfiguration.v` | A switch from configuration A to configuration B with events in flight (gap 20, narrowed). Single registry: barrier `barrier_exact`, `barrier_exact_faithful`; live `live_exact` (B's CC from every migrated reachable state, plus the cross pairs S1 and S2), `live_exact_faithful`, `live_implies_barrier`, `live_no_change` (recovers `cc_exact_from`); counterexamples `cap_raise`, `doubling_migration`, `migrated_transient`, `forgetful_migration`; non-vacuity `rescaled_cap`. Classification: `classified_unique`, `classify`, `classify_finite`, `live_dec`, `barrier_dec_faithful`, `reach_dec`. Federations (FedMachine): `det_live_exact`, `det_barrier_exact`, `fed_live_exact`, `fed_barrier_exact`; `late_edge`, `late_edge_fresh` | [Reconfiguration](docs/reconfiguration.md) |
+
 ### Infrastructure ([docs/infrastructure.md](docs/infrastructure.md))
 
 | Module | Headline theorems | Details |
@@ -242,7 +249,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2569
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2693
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
