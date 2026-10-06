@@ -7,6 +7,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/CompositionalCheck.v`: compositional checking by default, roadmap item 8 step 3 (gsm
+  roadmap item 1c: check each footprint component, conclude for the registry). Axiom-free. Roadmap
+  work, not a regime gap: no gap status changes.
+  - **Model:** footprints as read and write sets (`Local`, `PLocal`), components (`Inside`, with
+    shared read-only variables allowed), first-violated repair as in gsm, eager compensation to a
+    repair bound; gsm's guarantee `Conv` (every order of the same events from a valid state, one
+    state) is exactly CC1 on valid states (`conv_iff_cc1`, through `perm_good_iff`).
+  - **Decomposition, each exact:** one repair step is a step of one component (`rho_step`,
+    `iter_proj`); termination and WFC per component (`term_iff`, `wfc_iff`, `wfcb_iff`), the
+    repair bound the sum of the component bounds (`bound_sum`); cross-component raw effects
+    commute (`raw_cross_commute`) and cross-component pairs satisfy CC1 at valid states with no
+    check (`cc1_cross`); same-component CC1 iff on the component (`cc1_same_iff`,
+    `cc1_component`); the registry's guarantee iff every component's (`compositional_exact`,
+    `compositional_gsm`); bound independence (`N_indep`, `conv_indep`).
+  - **The check and its cost:** `comp_check` enumerates each component's subspace and decides WFC
+    within the bounds and the guarantee (`comp_check_exact`, `wfc_check_exact`,
+    `cc1_check_exact`); cost `|D|^(n_k)` per component (`enum_length`). gsm's zero-background
+    component check computes the same conditions (`gsm_literal`, `gsm_literal_iter`,
+    `gsm_literal_step`).
+  - **Combinator footprints:** extraction over `AstChecker.v`'s grammar (`readsE`, `readsP`,
+    `readsT`, `writesT`) proved to over-approximate reads and writes (`evalE_reads`,
+    `evalP_reads`, `applyT_writes`, `applyT_reads`, `ast_event_local`, `ast_check_local`,
+    `ast_repair_local`); `blocks_ok` certifies a component assignment (`ast_hyps`); the registry's
+    normalization is `AstChecker.normalize` (`ast_N_normalize`). Closure footprints stay a tested
+    trust boundary.
+  - **Counterexamples and non-vacuity:** footprints without reads, the pay/ship pattern
+    (`ws_ship_not_local`, `ws_check_passes`, `ws_diverges`, `ws_true_footprint`,
+    `inside_merge`); a repair writing another component (`rc_repair_not_local`,
+    `rc_check_passes`, `rc_diverges`); a written shared variable (`sw_pay_writes_shared`,
+    `sw_check_passes`, `sw_diverges`); orders and inventory, with and without a shared store
+    flag (`shop_hyps`, `shop_check`, `shop_converges`, `shop_repair_fires`, `shop_cost`,
+    `shop_gsm_literal`, `shop_shared_read`); a combinator machine (`ast_demo`).
+  - **Docs:** new `coq/docs/compositional.md` (with the gsm design input), `coq/README.md` row,
+    `docs/ROADMAP.md` item 8 step 3, `docs/THEORY.md` (compositional checking as locality used
+    for checking), and the count lines.
+  - **Gate:** raised from 3029 to 3179.
+
 - `coq/AbstractionGsm.v`: the gsm instantiation of `AbstractionCutoff.v` (roadmap item 8 step 2,
   gsm roadmap item 1b). gsm's Build checks CC1 at the valid representative states only and its
   runtime normalizes before applying; these theorems cover exactly that, for general m (gsm's

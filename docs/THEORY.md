@@ -252,6 +252,25 @@ additive rules, where states of one order type can differ on `x + y < z` (`trian
 There the reduction is to the validity of one formula per condition (`lin_exact`), not to a finite
 quotient.
 
+Compositional checking (`CompositionalCheck.v`) uses locality, or independence, for checking. If
+every rule reads and writes only variables of one footprint component, then a repair step of the
+registry is a repair step of exactly one component (`rho_step`). The registry's canonicalizer is
+then the product of the components' canonicalizers, and an event moves only its own factor. Two
+consequences follow:
+
+- A peak between events of different components closes at every valid state with no check
+  (`cc1_cross`).
+- A peak inside a component is a peak of the component's registry on its own subspace
+  (`cc1_same_iff`).
+
+So WFC and the eager-compensation guarantee hold for the registry iff they hold for every
+component (`wfc_iff`, `compositional_exact`). The check's cost is the sum of the components'
+subspaces, not their product (`enum_length`). Reads belong in the footprint: a guard that reads
+another component's variable is an interaction that a write-set footprint misses
+(`ws_diverges`). Repair must stay inside its component (`rc_diverges`). This is the locality that
+P names for composition (an event changes nothing outside its own part), in the case where the
+parts do not depend on each other, used inside one registry.
+
 ### Scope
 
 - **Exact for single systems:** E, S and H.

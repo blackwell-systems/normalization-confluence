@@ -434,3 +434,12 @@ all: AbstractionGsm.vo
 
 AbstractionGsm.vo: AbstractionGsm.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo
 	coqc -Q . NC AbstractionGsm.v
+
+# Compositional checking by default: each footprint component is checked on its own subspace; WFC
+# and gsm's guarantee (CC1 on valid states) hold for the registry iff for every component, with
+# reads in the footprint and repair inside its component (roadmap item 8, step 3,
+# CompositionalCheck.v).
+all: CompositionalCheck.vo
+
+CompositionalCheck.vo: CompositionalCheck.v AstChecker.vo Checker.vo Trace.vo TableCheck.vo
+	coqc -Q . NC CompositionalCheck.v

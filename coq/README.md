@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 3030 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 3030 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 3180 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 3179 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -210,13 +210,14 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 |---|---|---|
 | `Reconfiguration.v` | A switch from configuration A to configuration B with events in flight (gap 20, narrowed). Single registry: barrier `barrier_exact`, `barrier_exact_faithful`; live `live_exact` (B's CC from every migrated reachable state, plus the cross pairs S1 and S2), `live_exact_faithful`, `live_implies_barrier`, `live_no_change` (recovers `cc_exact_from`); counterexamples `cap_raise`, `doubling_migration`, `migrated_transient`, `forgetful_migration`; non-vacuity `rescaled_cap`. Classification: `classified_unique`, `classify`, `classify_finite`, `live_dec`, `barrier_dec_faithful`, `reach_dec`. Federations (FedMachine): `det_live_exact`, `det_barrier_exact`, `fed_live_exact`, `fed_barrier_exact`; `late_edge`, `late_edge_fresh` | [Reconfiguration](docs/reconfiguration.md) |
 
-### Reductions for checking ([docs/symmetry.md](docs/symmetry.md), [docs/abstraction.md](docs/abstraction.md))
+### Reductions for checking ([docs/symmetry.md](docs/symmetry.md), [docs/abstraction.md](docs/abstraction.md), [docs/compositional.md](docs/compositional.md))
 
 | Module | Headline theorems | Details |
 |---|---|---|
 | `SymmetryCutoff.v` | Symmetry over keyed collections (roadmap item 8, step 1): independent, identically governed items, cutoff 1 for unique normal forms `un_cutoff`, `un_cutoff_uniform`, `un_cutoff_global`, for WFC `wfc_cutoff`, CC2 `cc2_cutoff`, at-least-once `alo_cutoff_exact`, federation `c1_cutoff`, `c2_cutoff`; CC1 alone cutoff 2, tight: `cc1_cutoff`, `cc1_cutoff_tight`; cross-item pairs `cross_item_reduces`, `cross_valid_commute`; the hypotheses decided `idgov_lift`, `symcheck_decides`, `symmetry_sound`; boundaries `aggregate_diverges`, `agg_not_idgov`, `nonidentical_misleads`; non-vacuity `inventory_any_n` | [Symmetry](docs/symmetry.md#independent-identically-governed-items-symmetrycutoffv) |
 | `AbstractionCutoff.v` | Abstraction over integer-valued state (roadmap item 8, step 2): for rules that compare and copy values and declared constants, each condition over all integers iff over `\|C\|(N+1) + N` representatives, N = n + 2m for CC1 `cc1_abs`, n + m for CC2 `cc2_abs`, n for WFC and the repair bound `wfc_abs`, `term_abs`; unique normal forms `un_abs`, `abs_check_exact`; one check per order type `cc1_order_type`; the fragment decided `ord_frag_sound`, `build_sound`; linear rules through generated formulas, each condition iff its formula is valid `phi_cc1_exact`, `phi_cc2_exact`, `lin_exact`, linear `lin_frag_linear` (solver external); boundaries `exact13_diverges`, `triangle_diverges`, `copy_tight`; non-vacuity `capped_un`, `wallet_un`; with symmetry `sym_abs`, `capped_catalog` | [Abstraction](docs/abstraction.md#integer-valued-registries-abstractioncutoffv) |
 | `AbstractionGsm.v` | The gsm instantiation of abstraction (m = 0 gives cutoff N = n): CC1 for checked pairs at the valid states over all integers iff over the representatives `cc1_valid_abs`; idempotence transfers, at every state `idem_abs`, at the valid states `idem_valid_abs`, for the runtime step `idem_runtime_abs`; order-invariant maps compose `oimap_comp`, `oimap_itr`, and the repair-first registry stays in the fragment `derived_ordinv`; the prose route mechanized `cc1_derived_valid`, `cc1_valid_derived_abs`; gsm's guarantee through `run_tequiv`: exact for runs from valid states `gsm_abs_exact`, the runtime converges from every integer state `gsm_abs_sound`, `gsm_abs_sound_all`; boundary `idem13_diverges`; non-vacuity `capped_runtime`, `inventory_runtime`, `inventory_idem`, `swapxy_not_idem` | [gsm instantiation](docs/abstraction.md#gsm-instantiation-abstractiongsmv) |
+| `CompositionalCheck.v` | Compositional checking by default (roadmap item 8, step 3): footprint components (reads plus writes) checked on their own subspaces; WFC iff per component `wfc_iff`, `term_iff`, repair bound the sum `bound_sum`; CC1 for cross-component pairs at valid states with no check `cc1_cross`, same-component pairs iff on the component `cc1_same_iff`, `cc1_component`; gsm's guarantee is CC1 on valid states `conv_iff_cc1`, registry iff components `compositional_exact`, `compositional_gsm`; the enumerating check exact `comp_check_exact`, cost per component `enum_length`; gsm's zero-background check `gsm_literal`; shared read-only variables allowed; combinator footprints extracted and sound `ast_event_local`, `ast_hyps`; boundaries `ws_diverges` (reads missing), `rc_diverges` (repair crosses), `sw_diverges` (shared variable written), `inside_merge`; non-vacuity `shop_converges`, `shop_cost` | [Compositional](docs/compositional.md#footprint-components-compositionalcheckv) |
 
 ### Infrastructure ([docs/infrastructure.md](docs/infrastructure.md))
 
@@ -257,7 +258,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3030
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3179
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

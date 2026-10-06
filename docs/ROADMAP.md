@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 3030 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 3179 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -305,8 +305,9 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 **Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); step 2 (abstraction) landed for
 comparison-only rules with a finite representative domain and for linear rules as an exact
-reduction to formula validity (`AbstractionCutoff.v`); compositional checking and the history-side
-reduction planned.**
+reduction to formula validity (`AbstractionCutoff.v`); step 3 (compositional checking) landed for
+WFC and gsm's guarantee, CC1 on valid states (`CompositionalCheck.v`); the history-side reduction
+planned.**
 
 - **Step 1, symmetry: check one item, conclude for all.** For a keyed collection of independent,
   identically governed items, WFC, CC2, CC1 with CC2 (so unique normal forms), at-least-once
@@ -345,6 +346,33 @@ reduction planned.**
   `capped_catalog`). Details: [coq/docs/abstraction.md](../coq/docs/abstraction.md). Not yet done:
   a finite representative set for the linear fragment (a small-model bound), repair whose step
   count depends on the values, dense orders (strings, decimals), and the gsm side.
+
+- **Step 3, compositional checking: check each footprint component, conclude for the registry.**
+  When every rule's footprint lies in one component, a repair step of the registry is a repair
+  step of one component (`rho_step`).
+  - WFC holds iff every component terminates on its own subspace (`wfc_iff`, `term_iff`). The
+    repair bound is the sum of the component bounds (`bound_sum`).
+  - CC1 holds at every valid state for events in different components, with no check
+    (`cc1_cross`). For events in the same component it holds iff it holds on the component
+    (`cc1_same_iff`, `cc1_component`).
+  - gsm's guarantee (every order of the same events from a valid state reaches one state) is
+    exactly CC1 on valid states (`conv_iff_cc1`). It holds iff it holds in every component
+    (`compositional_exact`, `compositional_gsm`).
+  - A boolean check that enumerates each component's subspace decides both conditions
+    (`comp_check_exact`), at the cost of the sum of the subspaces (`enum_length`). gsm's
+    zero-background component check computes the same conditions (`gsm_literal`).
+  - Shared variables are allowed when no rule writes them.
+  - For combinator rules the footprints are extracted and proved sound (`ast_event_local`,
+    `ast_hyps`). Closure footprints remain a tested trust boundary (`TrustClosureFootprints`).
+  - Each hypothesis has a counterexample: footprints without reads (the pay/ship pattern,
+    `ws_diverges`), a repair that writes another component (`rc_diverges`), and a written shared
+    variable (`sw_diverges`).
+  - Non-vacuity: orders and inventory with an optional shared store flag (`shop_converges`,
+    `shop_cost`).
+
+  Details: [coq/docs/compositional.md](../coq/docs/compositional.md). Not yet done: CC2 and the
+  unique normal forms of the rewrite system per component, a combined theorem with steps 1 and 2,
+  and the gsm side.
 
 - **Today.** gsm decides the exact and sufficient conditions by enumerating states, so a model must
   use small finite domains. Realistic types (64-bit amounts, string identifiers, thousands of
