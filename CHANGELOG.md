@@ -7,6 +7,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `research/gap3-fair-settlement/K3.md`: the three-token SAT decision extended to n = 7 (UNSAT
+  with both encodings of (A) under CaDiCaL, about 2.5 h each). Gap 3 stays open.
 - `coq/ProjectionChannels.v`: propagation over channels that deliver projections late, reordered
   or duplicated, for gsm's `MergeProjection` (plain) and `MergeProjectionAfter` (versioned);
   narrows audit gap 21 (a new axis). Axiom-free.
