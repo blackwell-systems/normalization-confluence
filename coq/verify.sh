@@ -2526,6 +2526,109 @@ Print Assumptions NC.DistributedDelivery.set_comm_needed.
 Print Assumptions NC.DistributedDelivery.in_repeat.
 Print Assumptions NC.DistributedDelivery.inc_idem_needed.
 Print Assumptions NC.DistributedDelivery.mk_alo_holds.
+Require Import NC.RobertFair.
+Print Assumptions NC.RobertFair.rb_idx_lt.
+Print Assumptions NC.RobertFair.rb_fstep_at.
+Print Assumptions NC.RobertFair.rb_frun_cons.
+Print Assumptions NC.RobertFair.rb_frun_app.
+Print Assumptions NC.RobertFair.rb_topo_tail.
+Print Assumptions NC.RobertFair.rb_topo_src.
+Print Assumptions NC.RobertFair.rb_idx_topo.
+Print Assumptions NC.RobertFair.rb_topo_snoc.
+Print Assumptions NC.RobertFair.rb_common.
+Print Assumptions NC.RobertFair.rb_feq_refl.
+Print Assumptions NC.RobertFair.rb_feq_sym.
+Print Assumptions NC.RobertFair.rb_feq_trans.
+Print Assumptions NC.RobertFair.rb_run_S.
+Print Assumptions NC.RobertFair.rb_step_at.
+Print Assumptions NC.RobertFair.rb_step_inv.
+Print Assumptions NC.RobertFair.rb_run_inv.
+Print Assumptions NC.RobertFair.rb_step_ext.
+Print Assumptions NC.RobertFair.rb_run_out.
+Print Assumptions NC.RobertFair.rb_settles_feq.
+Print Assumptions NC.RobertFair.rb_settles_unique.
+Print Assumptions NC.RobertFair.rb_image.
+Print Assumptions NC.RobertFair.rb_q_inv.
+Print Assumptions NC.RobertFair.rb_q_solves.
+Print Assumptions NC.RobertFair.rb_q_out.
+Print Assumptions NC.RobertFair.rb_final.
+Print Assumptions NC.RobertFair.rb_final_after.
+Print Assumptions NC.RobertFair.rb_max_list.
+Print Assumptions NC.RobertFair.rb_fair_vertex.
+Print Assumptions NC.RobertFair.rb_robert_fair.
+Print Assumptions NC.RobertFair.rb_limit_quiet.
+Print Assumptions NC.RobertFair.rb_settles_quiet.
+Print Assumptions NC.RobertFair.rb_quiet_ext.
+Print Assumptions NC.RobertFair.rb_frun_quiet.
+Print Assumptions NC.RobertFair.rb_word_flush.
+Print Assumptions NC.RobertFair.rb_unique.
+Print Assumptions NC.RobertFair.rb_topo_runs.
+Print Assumptions NC.RobertFair.rb_order_independent.
+Print Assumptions NC.RobertFair.rb_rounds.
+Print Assumptions NC.RobertFair.rb_rounds_all.
+Print Assumptions NC.RobertFair.rb_rounds_pos.
+Print Assumptions NC.RobertFair.rb_pot_lt.
+Print Assumptions NC.RobertFair.rb_unst_ext.
+Print Assumptions NC.RobertFair.rb_pot_ext.
+Print Assumptions NC.RobertFair.rb_noop.
+Print Assumptions NC.RobertFair.rb_pot_step.
+Print Assumptions NC.RobertFair.rb_eff_bound.
+Print Assumptions NC.RobertFair.rb_effective.
+Print Assumptions NC.RobertFair.rb_eff_app.
+Print Assumptions NC.RobertFair.rb_eff_zero.
+Print Assumptions NC.RobertFair.rb_closed.
+Print Assumptions NC.RobertFair.rb_drun_inv.
+Print Assumptions NC.RobertFair.rb_ev_fair.
+Print Assumptions NC.RobertFair.rb_events.
+Print Assumptions NC.RobertFair.rb_arun_drun.
+Print Assumptions NC.RobertFair.rb_event_schedule.
+Print Assumptions NC.RobertFair.rb_fair_conv_iff.
+Print Assumptions NC.RobertFair.rb_fair_dist_exact.
+Print Assumptions NC.RobertFair.rb_setl_get.
+Print Assumptions NC.RobertFair.rb_setl_obs.
+Print Assumptions NC.RobertFair.rb_lf_obs.
+Print Assumptions NC.RobertFair.rb_lf_in.
+Print Assumptions NC.RobertFair.rb_lf_loc.
+Print Assumptions NC.RobertFair.rb_lf_m1.
+Print Assumptions NC.RobertFair.rb_lf_abs.
+Print Assumptions NC.RobertFair.rb_linv.
+Print Assumptions NC.RobertFair.rb_lcommon.
+Print Assumptions NC.RobertFair.rb_obs_step.
+Print Assumptions NC.RobertFair.rb_obs_run.
+Print Assumptions NC.RobertFair.rb_obs_xr.
+Print Assumptions NC.RobertFair.rb_fv_setl.
+Print Assumptions NC.RobertFair.rb_lq_fixed.
+Print Assumptions NC.RobertFair.rb_fixed_get.
+Print Assumptions NC.RobertFair.rb_lens_unique.
+Print Assumptions NC.RobertFair.rb_lens_robert.
+Print Assumptions NC.RobertFair.rb_xr_filter.
+Print Assumptions NC.RobertFair.rb_filter_app.
+Print Assumptions NC.RobertFair.rb_lens_closed.
+Print Assumptions NC.RobertFair.rb_garc_local.
+Print Assumptions NC.RobertFair.rb_garc_false.
+Print Assumptions NC.RobertFair.rb_cyc_ok_mono.
+Print Assumptions NC.RobertFair.rb_global_local.
+Print Assumptions NC.RobertFair.rb_reads_walk.
+Print Assumptions NC.RobertFair.rb_reads_bool.
+Print Assumptions NC.RobertFair.rb_topo_of_acyclic.
+Print Assumptions NC.RobertFair.rb_robert_boolean.
+Print Assumptions NC.RobertFair.rb_gacyclic_sound.
+Print Assumptions NC.RobertFair.rb_nodup01.
+Print Assumptions NC.RobertFair.rb_neg2_cycle.
+Print Assumptions NC.RobertFair.rb_cF_fixed.
+Print Assumptions NC.RobertFair.rb_cF_settles.
+Print Assumptions NC.RobertFair.rb_copyback_cycle.
+Print Assumptions NC.RobertFair.rb_converse_fails.
+Print Assumptions NC.RobertFair.rb_dist_cycle_needed.
+Print Assumptions NC.RobertFair.rb_absorb_needed.
+Print Assumptions NC.RobertFair.rb_ex_abs.
+Print Assumptions NC.RobertFair.rb_ex_topo012.
+Print Assumptions NC.RobertFair.rb_ex_topo102.
+Print Assumptions NC.RobertFair.rb_example.
+Print Assumptions NC.RobertFair.rb_supply_events.
+Print Assumptions NC.RobertFair.rb_supply_fair_conv.
+Print Assumptions NC.RobertFair.rb_gg_not_fair_conv.
+Print Assumptions NC.RobertFair.rb_bool3.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2536,8 +2639,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2467 ]; then
-  echo "FAIL: expected 2467 axiom-free results, got $N"
+if [ "$N" -lt 2569 ]; then
+  echo "FAIL: expected 2569 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

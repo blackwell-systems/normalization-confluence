@@ -394,3 +394,11 @@ all: DistributedDelivery.vo
 
 DistributedDelivery.vo: DistributedDelivery.v Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo FederationEvents.vo FederationEventsConverse.vo DistributedExact.vo GovernanceConverse.vo
 	coqc -Q . NC DistributedDelivery.v
+
+# Robert's theorem for fair asynchronous schedules on acyclic networks: the distributed
+# propagation model, events, the resolver model and the Boolean global-graph form (gap 16 (d),
+# RobertFair.v).
+all: RobertFair.vo
+
+RobertFair.vo: RobertFair.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo FederationOrder.vo DistributedExact.vo DistributedCycles.vo DistributedCyclesExact.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo
+	coqc -Q . NC RobertFair.v
