@@ -15,7 +15,7 @@ proved in Coq:
 - **Boundary instances:** `outdeg_needed`, `no_neg_not_enough`, `no_pos_not_enough`, and
   `shih_ho_instance`.
 
-**Mechanized since (#NN, `coq/LocalTwoToken.v`, every n): two tokens.** Under (A) and (B), no
+**Mechanized since (#93, `coq/LocalTwoToken.v`, every n): two tokens.** Under (A) and (B), no
 closed asynchronous run from a state with at most two unstable vertices changes the state
 (`two_token_closed`), so every fair schedule from such a start settles
 (`two_token_fair_settlement`). The proof is not F2: with one token on each side of the fixed point

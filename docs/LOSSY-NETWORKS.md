@@ -664,7 +664,7 @@ research directions, not missing exact conditions for a listed regime).
   at different states (so the global graph has a cycle and Robert's theorem does not apply), and
   an asynchronous state graph that is acyclic (a rank certificate), so every fair schedule from
   every start settles at `1111`.
-- **Progress: two unstable vertices** (#NN, `LocalTwoToken.v`; details in
+- **Progress: two unstable vertices** (#93, `LocalTwoToken.v`; details in
   [coq/docs/non-invertible.md](../coq/docs/non-invertible.md#two-unstable-vertices-localtwotokenv)).
   Under (A) and (B), no closed asynchronous run from a state with at most two unstable vertices
   changes the state (`two_token_closed`), so every fair schedule from such a start, and every fair

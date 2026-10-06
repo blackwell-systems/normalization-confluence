@@ -7,7 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
-- `coq/LocalTwoToken.v` (#NN): no closed asynchronous run with two unstable vertices under no
+- `coq/LocalTwoToken.v` (#93): no closed asynchronous run with two unstable vertices under no
   local cycle (A) plus out-degree at most one (B); progress on audit gap 3, which stays open.
   Axiom-free, every `n`.
   - **Main results:** `two_token_closed` (no closed asynchronous run from a state with at most two

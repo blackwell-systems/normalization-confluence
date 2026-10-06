@@ -458,7 +458,7 @@ reading B) through Thomas-type conditions. The research note
     needs the local acyclicity only on the orbit), and its 4-vertex example is `shih_ho_instance`.
     The asynchronous counterpart, fair settlement under the same two conditions, is mechanized for
     starts with at most one unstable vertex (`one_token_fair_settlement`, #92) and at most two
-    (`two_token_fair_settlement`, `LocalTwoToken.v`, #NN: a closed two-token run rearranges into a
+    (`two_token_fair_settlement`, `LocalTwoToken.v`, #93: a closed two-token run rearranges into a
     synchronous orbit) and open in general (for n <= 6 there is computational evidence, not
     mechanized); it was not found in the literature searched (Shih and Ho 1999 treat synchronous
     iteration only).
