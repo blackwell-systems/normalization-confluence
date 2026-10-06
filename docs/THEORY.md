@@ -227,6 +227,21 @@ of a composite can be checked on its parts.
     along a cover) and interaction locality as descent of morphisms (commutation of steps along a
     composition boundary). No combined descent statement is formalized.
 
+### Symmetry and state descent
+
+The symmetry reduction (`SymmetryCutoff.v`, [ROADMAP.md](ROADMAP.md) item 8) is a small instance
+of the decomposition. In a collection of independent, identically governed items, a peak between
+two events on the same item is a peak of the one-item registry (`same_item_reduces`). A peak
+between events on different items is two S obligations, one per item, `N (e (N s)) = N (e s)` with
+`N = rho*` (`cross_item_reduces`): no condition relates the two items. State descent of the item
+(its CC2) discharges them (`cc2_star`), and at valid states they hold with no hypothesis
+(`cross_valid_commute`). Invariance under permutations of the keys makes every item the same check,
+so unique normal forms have a cutoff of one item (`un_cutoff`), while CC1 taken without CC2 needs
+two (`cc1_cutoff`, `cc1_cutoff_tight`): its cross-item peaks are exactly the S obligation it leaves
+out. An aggregate invariant breaks the decomposition at S: its repair must change items that are
+valid on their own, so the canonicalizer is not a product of item canonicalizers, and the
+collection diverges while the single item converges (`aggregate_diverges`).
+
 ### Scope
 
 - **Exact for single systems:** E, S and H.

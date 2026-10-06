@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2693 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2693 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2827 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2827 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -210,6 +210,12 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 |---|---|---|
 | `Reconfiguration.v` | A switch from configuration A to configuration B with events in flight (gap 20, narrowed). Single registry: barrier `barrier_exact`, `barrier_exact_faithful`; live `live_exact` (B's CC from every migrated reachable state, plus the cross pairs S1 and S2), `live_exact_faithful`, `live_implies_barrier`, `live_no_change` (recovers `cc_exact_from`); counterexamples `cap_raise`, `doubling_migration`, `migrated_transient`, `forgetful_migration`; non-vacuity `rescaled_cap`. Classification: `classified_unique`, `classify`, `classify_finite`, `live_dec`, `barrier_dec_faithful`, `reach_dec`. Federations (FedMachine): `det_live_exact`, `det_barrier_exact`, `fed_live_exact`, `fed_barrier_exact`; `late_edge`, `late_edge_fresh` | [Reconfiguration](docs/reconfiguration.md) |
 
+### Reductions for checking ([docs/symmetry.md](docs/symmetry.md))
+
+| Module | Headline theorems | Details |
+|---|---|---|
+| `SymmetryCutoff.v` | Symmetry over keyed collections (roadmap item 8, step 1): independent, identically governed items, cutoff 1 for unique normal forms `un_cutoff`, `un_cutoff_uniform`, `un_cutoff_global`, for WFC `wfc_cutoff`, CC2 `cc2_cutoff`, at-least-once `alo_cutoff_exact`, federation `c1_cutoff`, `c2_cutoff`; CC1 alone cutoff 2, tight: `cc1_cutoff`, `cc1_cutoff_tight`; cross-item pairs `cross_item_reduces`, `cross_valid_commute`; the hypotheses decided `idgov_lift`, `symcheck_decides`, `symmetry_sound`; boundaries `aggregate_diverges`, `agg_not_idgov`, `nonidentical_misleads`; non-vacuity `inventory_any_n` | [Symmetry](docs/symmetry.md#independent-identically-governed-items-symmetrycutoffv) |
+
 ### Infrastructure ([docs/infrastructure.md](docs/infrastructure.md))
 
 | Module | Headline theorems | Details |
@@ -249,7 +255,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2693
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2827
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

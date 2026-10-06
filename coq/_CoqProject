@@ -77,3 +77,4 @@ FederatedGuards.v
 DistributedDelivery.v
 RobertFair.v
 Reconfiguration.v
+SymmetryCutoff.v
