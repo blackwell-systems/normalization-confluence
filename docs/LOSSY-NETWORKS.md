@@ -193,7 +193,9 @@ For invertible maps (reading A with group labels): `section_iff_coboundary`,
 
 In reading B: on acyclic networks the consistent state exists and is unique given the free
 vertices, and every topological order reaches it [mechanized: `frun_solves`, `solve_unique`,
-`order_independent`]; this is Robert's theorem in the federation model (section 4.1). On cycles
+`order_independent`]; this is the fixed-point half of Robert's theorem in the federation model
+(section 4.1), with runs in topological order. That every fair asynchronous schedule reaches it,
+Robert's asynchronous half, is cited and not mechanized (REGIME-AUDIT.md gap 16 (d)). On cycles
 with monotone maps on a lattice, the least fixed point exists and chaotic iteration reaches it
 [mechanized: `kleene_lfp`, `lfp_unique`, `chaotic_reaches_lfp`, `chaotic_acc_reaches_lfp`]; it is
 not the only fixed point [mechanized: `bottom_matters`]. Without an authority, two orders can reach
@@ -362,7 +364,7 @@ A local statement is stronger than the global one, since `G(F)(x)` is a subgraph
 | Result | Statement | Setting | Source |
 |---|---|---|---|
 | Thomas's rules (conjecture) | a positive cycle is necessary for several stable states; a negative cycle is necessary for sustained oscillation | informal | [verified: Thomas 1981] |
-| Robert | `G(F)` acyclic implies a unique fixed point, reached by iteration | Boolean in the restatement; any finite fibers | [verified: Robert 1986, as restated by Bridoux et al. 2022, section 2.6]; in the federation model [mechanized: `frun_solves`, `solve_unique`, `order_independent`] |
+| Robert | `G(F)` acyclic implies a unique fixed point, reached by iteration | Boolean in the restatement; any finite fibers | [verified: Robert 1986, as restated by Bridoux et al. 2022, section 2.6]; in the federation model [mechanized: the unique fixed point and its runs in topological order, `frun_solves`, `solve_unique`, `order_independent`; every fair asynchronous schedule is not mechanized, REGIME-AUDIT.md gap 16 (d)] |
 | Shih and Dong | if no local graph `G(F)(x)` has a cycle, `F` has a unique fixed point | Boolean, local | [verified: Shih and Dong 2005, abstract (full text not accessible to us), as restated in Richard 2011, Theorem 1, and Richard 2019, Theorem 2] |
 | First rule, local | two fixed points imply a positive circuit in some `G(F)(x)` | Boolean, local | [verified: Remy, Ruet, Thieffry 2008, Theorem 3.2, primary text (HAL hal-00692086)] |
 | First rule, multivalued | two fixed points (or several attractors of the asynchronous dynamics) imply a positive circuit in some local interaction graph `G_F(x)`; hence no positive circuit in any local graph, and a fortiori none in the global interaction graph, implies at most one fixed point | multivalued, local | [verified: Richard and Comet 2007, as restated in Richard 2009, Theorem 1, and Richard 2010, Theorem 3 ("local version of first Thomas' conjecture")] |
@@ -389,7 +391,7 @@ such as non-expansiveness (Richard 2011).
 | `copyback_without_authority`: A copies B, B copies A; from `(0, 1)` the orders `[0; 1]` and `[1; 0]` reach `(1, 1)` and `(0, 0)` | the positive 2-cycle: strongly connected with only positive cycles, so at least two fixed points (Aracena); `tau+ = 1`, so at most `2^1 = 2`: the bound is attained. `Gamma(F)` from `(0, 1)` branches to both fixed points (check 6: 2 fixed-point attractors, no cyclic one) | **exact**; now an instance of the rootless single-cycle theorem [mechanized: `rootless_copyback_not_unique`, `copyback_without_authority_recovered`] |
 | `prop_cycle_necessary`, `negation_one_coordinated`, `flip_no_section`: `phi_AB = 1 - x`, `phi_BA = id` | the negative 2-cycle: strongly connected with only negative cycles, so no fixed point (Aracena); `Gamma(F)` is one cyclic attractor of length 4, and `cycle_paper_trace` is that attractor, step for step | **exact** (with identity local compensation, `cyc_rep` is `Gamma(F)`); rootless form [mechanized: `rootless_negation_no_nf`] |
 | Z/2 holonomy (`sat_iff_trivial_holonomy`, `xorb` labels) | sign of a cycle with copy and negation arcs | **exact for directed cycles only**: cohomology quantifies over undirected cycles (an edge traversed backward contributes its inverse), Thomas over directed cycles. The diamond of section 1 has an unbalanced undirected cycle (no A-section) and no directed cycle (a unique B-fixed point per source value) |
-| acyclic federations converge (`frun_solves`, `solve_unique`, `order_independent`) | Robert's theorem | **exact** in reading B; reading A can still fail on an acyclic graph (`c22_cycle_basis_fails`, the diamond) |
+| acyclic federations converge (`frun_solves`, `solve_unique`, `order_independent`) | Robert's theorem | **exact** in reading B for the fixed point and runs in topological order (every fair asynchronous schedule: cited, REGIME-AUDIT.md gap 16 (d)); reading A can still fail on an acyclic graph (`c22_cycle_basis_fails`, the diamond) |
 | monotone regime (`kleene_lfp`, `chaotic_reaches_lfp`) | "no negative cycle" | **needs qualifiers**, see below |
 | non-invertible maps, no root (audit section 12) | signed graph after choosing an order on each fiber | **new use**, see 4.3 |
 
@@ -795,7 +797,8 @@ research directions, not missing exact conditions for a listed regime).
 - **Difficulty.** Medium for the Boolean case (much is in the literature), large for multivalued
   lossy maps with resolvers.
 - **Mechanization needs.** `Gamma(F)` as a relation (it is `FederationOrder.step` restricted to
-  changing updates), attractors as terminal SCCs, Robert (already present as `frun_solves`), and the
+  changing updates), attractors as terminal SCCs, Robert (its fixed-point half already present as `frun_solves` and `solve_unique`, its asynchronous
+  half not yet: REGIME-AUDIT.md gap 16 (d)), and the
   proofs of Aracena's duality and Richard's corollary; all finite and constructive, so in reach of
   the axiom-free gate.
 

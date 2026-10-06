@@ -50,9 +50,20 @@ graphs, which give settlement by some update order but not under every fair sche
 local cycle plus out-degree at most one, fair settlement is mechanized for synchronous updates and
 for starts with at most two unstable vertices), and cyclic
 monotone collapse (paper only). Both are cyclic; the audit states them as one question, what
-makes composition exact on cycles. Sheaf gluing on the companion paper's variable-level and
+makes composition exact on cycles. A systematic coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md))
+derived the regime space from the model's axes, mapped every combination to the audit, and found
+seven more open gaps, 15 to 21, so nine convergence gaps are open in all: delivery and
+enabledness off the replay model (at-least-once delivery under declared independence, for stream
+processors and in the distributed model); the distributed model off its current hypotheses
+(rootless invertible cycles with events, ACC without finite height, compensation as separate
+steps on cycles, every fair schedule on an acyclic network); rootless edge-writer dynamics
+beyond the regular action; existence in the resolver reading; composition of cyclic blocks of
+different engines; and two dimensions the model does not represent at all, reconfiguration inside
+a run and propagation over channels that can deliver late, reorder or duplicate. Sheaf gluing on the companion paper's variable-level and
 monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
-sources, are paper only, and least fixed points without ACC are a design exclusion.
+sources, are paper only. Least fixed points without ACC are a design exclusion, and so are
+Byzantine participants, nondeterministic repair, probabilistic schedules, infinite networks and
+real-time semantics.
 [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's status with its Coq theorem.
 
 **Dayna Blackwell** | dayna@blackwell-systems.com

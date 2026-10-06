@@ -5,7 +5,8 @@ fundamental limit, and nothing is merely unproven. This page lists each caveat t
 still carries, what removing it would prove, how, what it depends on, and when it counts as done.
 
 Role of this page: what is next. What is proved today, regime by regime, is
-[REGIME-AUDIT.md](../REGIME-AUDIT.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
+[REGIME-AUDIT.md](../REGIME-AUDIT.md); which combinations of the model's axes the audit covers, and
+which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
 Status of the gate: 2241 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
@@ -311,11 +312,13 @@ networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 canonical-execution framework ([THEORY.md](THEORY.md#canonical-execution)), E, S and H are exact
 for single systems and P (`factor_exact`) for acyclic composition, while on cycles P has the
 soundness direction only (`cyc_factor_sound`, `cyc_factor_sound_gc`) and locality fails without
-acyclicity (`cyclic_lc_sound_fails`). The remaining open convergence problems are instances of one
-question, what additional structure makes P exact on cycles: gap 3 (rootless propagation on lossy networks, [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)
+acyclicity (`cyclic_lc_sound_fails`). The open convergence problems that are cyclic are instances
+of one question, what additional structure makes P exact on cycles: gap 3 (rootless propagation on lossy networks, [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#p2-rootless-convergence-in-reading-b-the-runtime-model)
 P2), gap 5 (cyclic monotone collapse), and the monotone-overlap part of gap 13. Gap 13's other
 residues (relative certificates on covers not closed under sources, and the variable-level site)
-are not cyclic and stay separate. Gap 14 (convergence alone in the no-reset cyclic distributed
+are not cyclic and stay separate. Of the gaps the coverage pass added, 16 (a to c), 17, 18 and 19
+are cyclic, 19 (a) being this question for cyclic blocks of different engines; 15, 16 (d), 20 and
+21 are not (classified in the audit's frontier table). Gap 14 (convergence alone in the no-reset cyclic distributed
 model) was on this list and is closed (#90) without P: its exact condition (`conv_quiet_exact`)
 is a whole-system E, S and H statement whose canonical state is the quiescent state propagation
 settles in, ghost allowed, instead of the least fixed point. The obstacle there was the choice of
@@ -348,6 +351,13 @@ something outside P.
 | State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`; the iff as exported: `cvrdt_on_iff`) | n/a |
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence ([LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#32-the-reduction-from-3-sat) 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
+| Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); at-least-once delivery for stream processors; causal or at-least-once delivery in the distributed model; buffered guards in federations | open | small to medium |
+| Distributed propagation off its current hypotheses (gap 16): events with rootless propagation on cyclic invertible networks; ACC without finite height; local compensation as separate steps on cycles; every fair update schedule on an acyclic network (Robert's asynchronous half; gated are topological orders and a final flush) | open | medium |
+| Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
+| Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
+| Composition beyond acyclic collapse (gap 19): cyclic blocks of different engines, coordination-free; collapse in the distributed model | open | medium to large |
+| Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | open | medium |
+| Propagation over channels (gap 21, **new axis**): late, reordered or duplicated projections; gsm's `MergeProjection` and `MergeProjectionAfter` are outside the mechanized propagation model | open | small to medium |
 
 Optimization and counting, which do not bear on when state converges (audit gaps 10 to 13):
 
@@ -358,7 +368,8 @@ Optimization and counting, which do not bear on when state converges (audit gaps
 | `H^1` on the 2-complex (gap 12) | done, #71: `nerve_H1_classification` (any group), `nerve_H1_Z2_count` (over Z/2). Scope: the dimension formula for other coefficients, and the identification of the presented group with the fundamental group, are not mechanized | n/a |
 | Sheaf gluing, positive assembly (gap 13) | narrowed, #73: exact on the registry-level site (`sheaf_iff_refines`, `cert_sheaf`). Open (paper only): the variable-level and monotone-overlap site; a sheaf condition for relative certificates on covers not closed under sources | medium |
 
-Open convergence items after #91: gaps 3 and 5, plus the design exclusion of gap 8. Gaps 1, 2
+Open convergence items after the coverage pass: gaps 3, 5 and 15 to 21, plus the design exclusion
+of gap 8 and the design exclusions X1 to X5 below. Gaps 1, 2
 and 14 are closed. Of the optimization and counting gaps, only gap 13's residual remains.
 
 ## Removable caveats, lower value
@@ -435,6 +446,23 @@ Status: planned, not started. Not a caveat removal; it does not change what is p
 - **Trust base.** The extracted checkers rely on Rocq's extraction, the Go code generator and the Go
   toolchain.
 
+## Design exclusions (stated by the coverage pass)
+
+Not removable by proof within the stated scope; justifications in
+[COVERAGE.md](COVERAGE.md#new-design-exclusions).
+
+- **X1. Byzantine participants.** A participant that runs other rules is not governed state;
+  crash faults and lost messages are the eventual-delivery limit above.
+- **X2. Nondeterministic repair.** Compensation is a function in every module; the scope is
+  deterministic governed state.
+- **X3. Probabilistic schedules.** The axiom-free gate rules out the standard library's real
+  numbers; on a finite state space, settlement with probability 1 is classically the existential
+  settlement already mechanized.
+- **X4. Infinite networks.** Every network, here and in gsm, is a finite list of registries and
+  edges.
+- **X5. Real-time semantics.** The model is untimed: a timer firing is an event, and convergence
+  time is the asymptotic cost item 7 lists out of scope.
+
 ## Sequencing
 
 Items 1 to 4 and 6, the monotone-cycle event result, the C1/C2 converse and item 7's work packages
@@ -442,5 +470,5 @@ have landed, so their theorem statements are fixed and item 5 can start. The ope
 independent of item 5, and each can be attacked on its own, although the convergence gaps share one
 question (the lead item, P on cycles); the smallest two (event order under root-set coordination
 and the state-based CRDT instance) landed in #59 and #58, with #56 and #57. When item 5 and the open items land, every remaining caveat on
-this page is either a design exclusion (least fixed points without ACC) or a fundamental limit; the
+this page is either a design exclusion (least fixed points without ACC; X1 to X5) or a fundamental limit; the
 lower-value items above remain open.

@@ -7,6 +7,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `docs/COVERAGE.md`, the regime coverage matrix: a systematic coverage pass that checks
+  `REGIME-AUDIT.md` from the model's axes. Thirteen axes are derived from the Coq premises and the
+  audit's vocabulary (composition, transport class, writer semantics, authority, execution model,
+  schedule and reset, delivery, enabledness, state and order, start quantification, reference
+  state, property, network size), compared in both directions with the axes proposed for the pass,
+  and pruned by ten axis dependences. Of 179 cells: 58 covered (54 exact, 4 exact with a mechanized
+  hardness reduction), 12 excluded, 19 open under existing gaps, 55 degenerate, 14 ill-formed, and
+  21 with no row (12 distinct questions). No theorem added, removed or renamed; no existing gap's
+  status changes.
+  - **New open gaps 15 to 21** (`REGIME-AUDIT.md` gap table, frontier table and summaries;
+    `README.md` open-gap sentence, now nine open convergence gaps; `docs/ROADMAP.md` open items;
+    `docs/README.md`): 15, delivery and enabledness off the replay model; 16, the distributed
+    model off its current hypotheses; 17, rootless edge-writer dynamics beyond the regular action;
+    18, existence and counting in reading B; 19, composition beyond acyclic collapse; 20,
+    reconfiguration inside a run (new axis); 21, propagation over channels (new axis: gsm's
+    `MergeProjection` and `MergeProjectionAfter` behavior is outside the mechanized model).
+  - **New design exclusions X1 to X5**: Byzantine participants, nondeterministic repair,
+    probabilistic schedules, infinite networks, real-time semantics (`REGIME-AUDIT.md`,
+    `docs/ROADMAP.md`, `README.md`).
 - `coq/LocalTwoToken.v` (#93): no closed asynchronous run with two unstable vertices under no
   local cycle (A) plus out-degree at most one (B); progress on audit gap 3, which stays open.
   Axiom-free, every `n`.
@@ -535,6 +554,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md`: gated theorem count updated from 112 to 125 (#19).
 
 ### Fixed
+- Robert's theorem was described as mechanized in the federation model. What is gated is the
+  unique fixed point and runs in topological order or followed by a final flush (`frun_solves`,
+  `solve_unique`, `order_independent`, `propagation_flush`); settlement under every fair
+  asynchronous schedule on an acyclic network is cited, now gap 16 (d). Corrected in
+  `docs/LOSSY-NETWORKS.md` (section 2, the section 4.1 and 4.2 tables, P2's mechanization needs),
+  `docs/LANDSCAPE.md` (the Robert entry) and `REGIME-AUDIT.md` (the frontier row for gap 3, which
+  said the federation model "already has" the acyclic case).
+- gsm's `Report.NotIdempotent` placement (sound at reachable witnesses, complete when exactly-once
+  delivery converges) is stated for free and causal delivery; `REGIME-AUDIT.md` (section 3 row and
+  the conclusion), `docs/REGIMES.md` and `coq/docs/at-least-once.md` now say that with declared
+  `Independent` pairs neither placement is stated (gap 15 (a)).
 - `LANDSCAPE.md`: corrected the placement of I-confluence. Its replay-convergent part is exactly the op-based CRDTs; non-commuting I-confluent systems converge by merge, outside the replay model (#19).
 
 ## 2026-10-04

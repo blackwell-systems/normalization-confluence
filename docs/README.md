@@ -10,6 +10,7 @@ Every page in this repository, with its role in one line. The front page is
 | [THEORY.md](THEORY.md) | Theory overview: the third regime, what is new (each item marked mechanized, paper or implemented) and what is not, the key concepts, and how the three convergence regimes nest. Its [Canonical execution](THEORY.md#canonical-execution) section gives the decomposition through which six exact results are rederived as corollaries (E, S, H exact for single systems, P for acyclic composition, soundness only on cycles), and why some laws are absent. Its [Mathematical structure](THEORY.md#mathematical-structure) section places the theory in pure mathematics (rewriting, fixed points, category theory, sheaves, cohomology, traces), marking what is mechanized and what is classical. |
 | [REGIMES.md](REGIMES.md) | A decision table and flowchart for when a given (possibly federated, possibly cyclic) governed network converges. Role: the field guide, how to pick a regime as a user. |
 | [../REGIME-AUDIT.md](../REGIME-AUDIT.md) | What is proved, regime by regime: for each question, the exact condition with its Coq theorem, the hardness result, or the gap stated in the open, the cheap sufficient condition, and what gsm checks. The certification of the headline; it stays at the root. |
+| [COVERAGE.md](COVERAGE.md) | The regime coverage matrix: the model's axes derived from the Coq premises, every meaningful combination mapped to the audit (exact, hardness, open, excluded, degenerate or ill-formed), and the combinations and dimensions no row covered, which became audit gaps 15 to 21 and design exclusions X1 to X5. Role: checks the audit's completeness from the axes. |
 | [ROADMAP.md](ROADMAP.md) | The caveats removed so far (finite state, exactly-once delivery, sufficiency-only conditions, non-monotone cycles), the qualifiers found, what remains open, and which caveats are fundamental limits. Role: what is next. |
 | [LANDSCAPE.md](LANDSCAPE.md) | Where this sits relative to CRDTs, consensus, invariant confluence, and the saga pattern, and what it changes. Role: prior work. |
 | [SUBSUMPTION.md](SUBSUMPTION.md) | The CRDT boundary theorem (`crdt_boundary`): without compensation, normalization confluence is exactly the CmRDT commutativity regime under causal delivery and exactly commutative-idempotent (with a finite range and decidable equality, CvRDT semilattice) state evolution on reachable states under at-least-once delivery; with compensation the class is strictly larger on the same transition representation. |
@@ -28,7 +29,7 @@ because gsm, Bide, the blog and the papers link to the old paths.
 
 ## Which page answers which question
 
-Four pages talk about regimes; each answers one question:
+Five pages talk about regimes; each answers one question:
 
 - **Which regime am I in, and what must my system satisfy?** [REGIMES.md](REGIMES.md). It is
   written for a user choosing a design, and it cites theorems without auditing them.
@@ -36,6 +37,9 @@ Four pages talk about regimes; each answers one question:
   [../REGIME-AUDIT.md](../REGIME-AUDIT.md). It is the source of truth for status: exact (with the
   `<->` theorem), hardness, or a numbered open gap. Where another page summarizes status, this one
   wins.
+- **Does the audit cover every regime the model can express?** [COVERAGE.md](COVERAGE.md). It
+  derives the regime space from the axes and maps each cell to the audit; status still comes from
+  REGIME-AUDIT.md.
 - **What is next, and which caveats are fundamental?** [ROADMAP.md](ROADMAP.md). Its Done table is
   history; its open items carry REGIME-AUDIT.md's gap numbers.
 - **What is new against prior work?** [LANDSCAPE.md](LANDSCAPE.md) (and [THEORY.md](THEORY.md)
