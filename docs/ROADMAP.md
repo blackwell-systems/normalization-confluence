@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2380 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2467 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -392,7 +392,7 @@ something outside P.
 | State-based CRDT merges as an instance of the exact theorems (gap 7) | done, #58 (`merge_action_exact`, `cvrdt_on_exact`; the iff as exported: `cvrdt_on_iff`) | n/a |
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence ([LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#32-the-reduction-from-3-sat) 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
-| Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): (a) at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); (b) at-least-once delivery for stream processors; (c) causal or at-least-once delivery in the distributed model; (d) buffered guards in federations | narrowed: (a) done (`AtLeastOnceDeclared.v`: `dalo_exact`, `safe_i_exact`, unordered retries `dalo_r_exact`; `NotIdempotent` sound at reachable witnesses, complete when declared pairs commute at reachable states and retries respect the declared order); (b), (c), (d) open | small to medium |
+| Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): (a) at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); (b) at-least-once delivery for stream processors; (c) causal or at-least-once delivery in the distributed model; (d) buffered guards in federations | done: (a) done (`AtLeastOnceDeclared.v`: `dalo_exact`, `safe_i_exact`, unordered retries `dalo_r_exact`; `NotIdempotent` sound at reachable witnesses, complete when declared pairs commute at reachable states and retries respect the declared order); (b) done (`StreamAtLeastOnce.v`: `stream_alo_exact_free`, any enabledness `stream_alo_exact`); (c) done (`DistributedDelivery.v`: `dist_delivery_exact` for any prefix-closed delivery class, `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`); (d) done (`FederatedGuards.v`: `fed_buffered_exact`, `fed_buffered_edge`, any enabledness `fed_jcg_exact`). Closed | n/a |
 | Distributed propagation off its current hypotheses (gap 16): events with rootless propagation on cyclic invertible networks; ACC without finite height; local compensation as separate steps on cycles; every fair update schedule on an acyclic network (Robert's asynchronous half; gated are topological orders and a final flush) | open | medium |
 | Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
@@ -409,9 +409,9 @@ Optimization and counting, which do not bear on when state converges (audit gaps
 | `H^1` on the 2-complex (gap 12) | done, #71: `nerve_H1_classification` (any group), `nerve_H1_Z2_count` (over Z/2). Scope: the dimension formula for other coefficients, and the identification of the presented group with the fundamental group, are not mechanized | n/a |
 | Sheaf gluing, positive assembly (gap 13) | narrowed, #73: exact on the registry-level site (`sheaf_iff_refines`, `cert_sheaf`). Open (paper only): the variable-level and monotone-overlap site; a sheaf condition for relative certificates on covers not closed under sources | medium |
 
-Open convergence items after the coverage pass: gaps 3, 5 and 15 to 21, plus the design exclusion
-of gap 8 and the design exclusions X1 to X5 below. Gaps 1, 2
-and 14 are closed. Of the optimization and counting gaps, only gap 13's residual remains.
+Open convergence items after the coverage pass: gaps 3, 5 and 16 to 21, plus the design exclusion
+of gap 8 and the design exclusions X1 to X5 below. Gaps 1, 2,
+14 and 15 are closed. Of the optimization and counting gaps, only gap 13's residual remains.
 
 ## Removable caveats, lower value
 

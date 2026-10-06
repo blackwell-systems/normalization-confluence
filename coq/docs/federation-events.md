@@ -127,3 +127,40 @@ it exactly means enumerating reachable normal forms (or the image of `N`) and te
 independent pair. The per-edge C1/C2 enumeration gsm runs for acyclic networks is nevertheless
 sufficient on a monotone cycle (`FederationEventsCyclesCheck.v`, in [monotone-cycles.md](monotone-cycles.md)). Static C1 and C2 remain over-approximations
 (sufficient, and necessary only at reachable witnesses).
+
+## Buffered guards (`FederatedGuards.v`)
+
+`FederationGRS.v` presents the federated rewrite system as a `Governance.step` instance with an
+enabledness parameter, but its exact theorems fix it: free delivery (`fed_grs_exact`) and the
+federal guard (`fed_guarded_exact`). `FederatedGuards.v` lets events wait: a buffered event fires
+only when its guard holds, and a normal form may hold stuck events. It closes audit gap 15 (d).
+
+- Any enabledness: `fed_jcg_exact`, confluence from `c0` iff JC' (`EnabledAfterComp.JCg`), for
+  guards on the federated state and the buffer, evaluated at any state, possibly disabled or
+  enabled by compensation. This is `jcg_exact` on the federated system; termination is discharged
+  (`fed_terminating`), so there is no termination premise.
+- Under the federal guard. A guard `g e l` is a decidable predicate on the federated state;
+  `benab e l B := In e B /\ gvalid l /\ g e l`. A word is guard-feasible (`feas`) when each
+  event's guard holds where it is applied. `GCR s0`: at every state `lrun p s0` with `p`
+  guard-feasible, two distinct events whose guards both hold stay enabled after each other and
+  commute. `fed_buffered_exact`: from a federally valid `s0`,
+  `(forall B, UN Gb (s0, B)) <-> GCR s0`; `fed_buffered_cr`, the same with confluence. Necessity
+  runs the feasible word with the pair appended to the buffer (`bg_run_feas`) and compares the
+  normal forms of the two branches (`bg_branch`, `bg_branch'`): a stranded event leaves a
+  different residual buffer. Sufficiency is JC on the reachable configurations (`bg_form`,
+  `bg_jc`) through `jc_unique_normal_forms` and `jc_exact`.
+- Per edge: `fed_buffered_edge` (with `gcr_edge_iff`), the commutation clause read through
+  `reach_commute_iff`: C1 in both directions for co-enabled events on different registries, C2 for
+  co-enabled events of one registry, at the federated states guard-feasible runs reach.
+- Recovered: with the trivial guard every word is feasible, `GCR` is commutation at every run
+  state (`gcr_true_iff`), and `fed_buffered_recovers` gives `GCR s0 <-> C1R1 /\ C2R`, the condition
+  of `fed_guarded_exact`.
+- Counterexamples and non-vacuity (registry 0 holds a value, registry 1 copies it).
+  `bg_persistence_needed`: `Raise` and `Lift` both set the value to 1, so every pair commutes and
+  `C1R1 /\ C2R` holds; `Lift` waits for 0. From `([0; 0], [Raise; Lift])` one run strands `Lift`
+  and another ends with an empty buffer: two normal forms, `GCR` fails. `bg_commute_needed`: two
+  overwrites with no guard, `GCR` and unique normal forms fail. `bg_wait_exact`: `WRaise` waits for
+  0 and `WBump` for 1, so no two distinct events are ever co-enabled: `GCR`, unique normal forms,
+  confluence and JC' hold from every valid start, `WBump` waits for `WRaise`, and `C1R1 /\ C2R`
+  fails (the two events do not commute): the unguarded condition is neither sufficient nor
+  necessary once events wait.

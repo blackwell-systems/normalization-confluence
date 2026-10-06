@@ -155,3 +155,14 @@ Axiom-free:
   `mx_declared_r` (the clamped max-register satisfies `CommI` and `AbsorbR`, so `DALOConvR` holds).
 - Scope. The FedMachine with declared `I` is an instance by the generic-step principle (P1 in
   [COVERAGE.md](../../docs/COVERAGE.md)), with states compared by equality as in `alo_exact`.
+
+## Off the replay model
+
+At-least-once delivery for stream processors is in [streams.md](streams.md#at-least-once-delivery-for-stream-processors-streamatleastoncev)
+(`StreamAtLeastOnce.v`: `stream_alo_exact_free`, `stream_alo_exact`; gap 15 (b)), and causal and
+at-least-once event delivery in the distributed model in
+[distributed.md](distributed.md#causal-and-at-least-once-event-delivery-distributeddeliveryv)
+(`DistributedDelivery.v`: `dist_alo_exact`, `dist_causal_alo_exact`; gap 15 (c)). Both reduce to
+the conditions on this page applied to the governed step the model reaches: from `rho* s0` for
+stream processors, the FedMachine from the flushed start (up to pointwise equality) for the
+distributed model.

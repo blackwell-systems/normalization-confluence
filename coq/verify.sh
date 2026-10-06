@@ -2436,6 +2436,96 @@ Print Assumptions NC.ProjectionChannels.version_order_counterexample.
 Print Assumptions NC.ProjectionChannels.no_final_send_counterexample.
 Print Assumptions NC.ProjectionChannels.late_delivery_instance.
 Print Assumptions NC.ProjectionChannels.vchan_cyc_ghost.
+Require NC.StreamAtLeastOnce.
+Print Assumptions NC.StreamAtLeastOnce.sa_nodup_or_dup.
+Print Assumptions NC.StreamAtLeastOnce.procd_nodup_iff.
+Print Assumptions NC.StreamAtLeastOnce.stream_agree_nodup_iff.
+Print Assumptions NC.StreamAtLeastOnce.stream_alo_nodup.
+Print Assumptions NC.StreamAtLeastOnce.sa_const_procd.
+Print Assumptions NC.StreamAtLeastOnce.stream_agree_d_set_function.
+Print Assumptions NC.StreamAtLeastOnce.sa_fin_perm.
+Print Assumptions NC.StreamAtLeastOnce.sa_reduce.
+Print Assumptions NC.StreamAtLeastOnce.stream_alo_exact.
+Print Assumptions NC.StreamAtLeastOnce.stream_exact_recovered.
+Print Assumptions NC.StreamAtLeastOnce.sf_final.
+Print Assumptions NC.StreamAtLeastOnce.sf_run.
+Print Assumptions NC.StreamAtLeastOnce.stream_alo_aloconv.
+Print Assumptions NC.StreamAtLeastOnce.sf_pcc_iff.
+Print Assumptions NC.StreamAtLeastOnce.sf_idem_iff.
+Print Assumptions NC.StreamAtLeastOnce.stream_alo_exact_free.
+Print Assumptions NC.StreamAtLeastOnce.stream_alo_free_split.
+Print Assumptions NC.StreamAtLeastOnce.in_alo_exact.
+Print Assumptions NC.StreamAtLeastOnce.in_alo_general.
+Print Assumptions NC.StreamAtLeastOnce.ct_grun.
+Print Assumptions NC.StreamAtLeastOnce.ct_alo_fails.
+Print Assumptions NC.StreamAtLeastOnce.ow_grun_snoc.
+Print Assumptions NC.StreamAtLeastOnce.ow_alo_fails.
+Print Assumptions NC.StreamAtLeastOnce.ow_general.
+Print Assumptions NC.StreamAtLeastOnce.ct_general.
+Print Assumptions NC.StreamAtLeastOnce.mx_alo_holds.
+Require NC.FederatedGuards.
+Print Assumptions NC.FederatedGuards.fed_terminating.
+Print Assumptions NC.FederatedGuards.fed_jcg_exact.
+Print Assumptions NC.FederatedGuards.feas_snoc.
+Print Assumptions NC.FederatedGuards.bg_form.
+Print Assumptions NC.FederatedGuards.bg_valid_form.
+Print Assumptions NC.FederatedGuards.bg_jc.
+Print Assumptions NC.FederatedGuards.bg_run_feas.
+Print Assumptions NC.FederatedGuards.bg_nf_stuck.
+Print Assumptions NC.FederatedGuards.bg_branch.
+Print Assumptions NC.FederatedGuards.bg_branch'.
+Print Assumptions NC.FederatedGuards.bg_necessary.
+Print Assumptions NC.FederatedGuards.fed_buffered_exact.
+Print Assumptions NC.FederatedGuards.fed_buffered_cr.
+Print Assumptions NC.FederatedGuards.bg_commute_feq.
+Print Assumptions NC.FederatedGuards.gcr_edge_iff.
+Print Assumptions NC.FederatedGuards.fed_buffered_edge.
+Print Assumptions NC.FederatedGuards.rc_step_iff.
+Print Assumptions NC.FederatedGuards.rc_un.
+Print Assumptions NC.FederatedGuards.fed_buffered_recovers.
+Print Assumptions NC.FederatedGuards.gcr_true_iff.
+Print Assumptions NC.FederatedGuards.bg_common.
+Print Assumptions NC.FederatedGuards.bg_valid_iff.
+Print Assumptions NC.FederatedGuards.bg_persistence_needed.
+Print Assumptions NC.FederatedGuards.bg_commute_needed.
+Print Assumptions NC.FederatedGuards.w_gcr.
+Print Assumptions NC.FederatedGuards.bg_wait_exact.
+Require NC.DistributedDelivery.
+Print Assumptions NC.DistributedDelivery.causal_alo_app_prefix.
+Print Assumptions NC.DistributedDelivery.run_ext.
+Print Assumptions NC.DistributedDelivery.ccr_tequiv_s.
+Print Assumptions NC.DistributedDelivery.causal_conv_s_exact.
+Print Assumptions NC.DistributedDelivery.absorb_dedup_s.
+Print Assumptions NC.DistributedDelivery.absorb_idem_s.
+Print Assumptions NC.DistributedDelivery.idem_absorb_s.
+Print Assumptions NC.DistributedDelivery.causal_alo_s_exact.
+Print Assumptions NC.DistributedDelivery.causal_alo_exact_recovered.
+Print Assumptions NC.DistributedDelivery.causal_exact_recovered.
+Print Assumptions NC.DistributedDelivery.dd_flush_reach.
+Print Assumptions NC.DistributedDelivery.dist_flush_d.
+Print Assumptions NC.DistributedDelivery.dist_delivery_exact.
+Print Assumptions NC.DistributedDelivery.dist_exact_tc_recovered.
+Print Assumptions NC.DistributedDelivery.dist_causal_exact.
+Print Assumptions NC.DistributedDelivery.dd_fedconv_alo.
+Print Assumptions NC.DistributedDelivery.dist_causal_alo_exact.
+Print Assumptions NC.DistributedDelivery.dd_ccr_nohb.
+Print Assumptions NC.DistributedDelivery.dd_idem_nohb.
+Print Assumptions NC.DistributedDelivery.dist_alo_exact.
+Print Assumptions NC.DistributedDelivery.xur_xurd.
+Print Assumptions NC.DistributedDelivery.xu_xurd.
+Print Assumptions NC.DistributedDelivery.dc_common.
+Print Assumptions NC.DistributedDelivery.tr_inv.
+Print Assumptions NC.DistributedDelivery.tr_xurca.
+Print Assumptions NC.DistributedDelivery.tr_xurc.
+Print Assumptions NC.DistributedDelivery.tr_ccrf.
+Print Assumptions NC.DistributedDelivery.tr_idemf.
+Print Assumptions NC.DistributedDelivery.tr_causal_instance.
+Print Assumptions NC.DistributedDelivery.sn_idem.
+Print Assumptions NC.DistributedDelivery.snap_xu_needed.
+Print Assumptions NC.DistributedDelivery.set_comm_needed.
+Print Assumptions NC.DistributedDelivery.in_repeat.
+Print Assumptions NC.DistributedDelivery.inc_idem_needed.
+Print Assumptions NC.DistributedDelivery.mk_alo_holds.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2446,8 +2536,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2380 ]; then
-  echo "FAIL: expected 2380 axiom-free results, got $N"
+if [ "$N" -lt 2467 ]; then
+  echo "FAIL: expected 2467 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

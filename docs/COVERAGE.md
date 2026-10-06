@@ -6,7 +6,7 @@ This page tests it from the other side. It derives the regime space from the mod
 hypotheses that vary across the Coq theorems and the audit's vocabulary), maps every meaningful
 combination to the audit, and lists what no row covered. It adds no proofs and changes no
 existing gap's status. The pass ran at `main` `d24d26d` (gate: 2241 axiom-free results) and gsm
-`main` `0f094f1`; the page has been kept current since, through #98 (gate: 2380).
+`main` `0f094f1`; the page has been kept current since, through #98 and the closing of gap 15 (gate: 2467).
 
 Results, in one paragraph. Thirteen axes vary in the source. Of the 179 cells of the matrix below
 (section 3), 58 are covered (54 by an exact theorem, 4 more by an exact theorem together with a
@@ -17,8 +17,11 @@ into a named representative cell), 14 are ill-formed, and 21 had no row at all. 
 cells are 12 distinct questions, proposed as gaps 15 to 19. Outside the axes, seven candidate
 dimensions are not represented in the model at all (section 4): two become gaps 20 and 21 (new
 axes), five become explicit design exclusions X1 to X5, and the rest map onto existing cells or
-stated limits. Since the pass, cell C10 (gap 15 (a)) is exact (`AtLeastOnceDeclared.v`,
-`dalo_exact`); the counts in section 3 include that change. The new axis of gap 21 (propagation
+stated limits. Since the pass, gap 15 has closed: cell C10 (15 (a)) is exact
+(`AtLeastOnceDeclared.v`, `dalo_exact`), and so are C8 streams (15 (b), `StreamAtLeastOnce.v`,
+`stream_alo_exact_free`), C3 and C8 distributed (15 (c), `DistributedDelivery.v`,
+`dist_causal_exact`, `dist_alo_exact`) and C6 rewrite (15 (d), `FederatedGuards.v`,
+`fed_buffered_exact`); the counts in section 3 include these changes. The new axis of gap 21 (propagation
 over channels) is now modeled (`ProjectionChannels.v`) and partly covered: acyclic networks are
 exact in reachable form, two-level networks in the current-value form, and the residue is listed
 under gap 21 (section 4; the counts in section 3, which are cells of the axes, do not change).
@@ -184,12 +187,12 @@ step by P1); stream processors; distributed propagation.
 |---|---|---|---|---|---|
 | C1 | Exactly-once, any order | **exact**: `cc_exact_from`, `canonical_cc_exact_from` | **exact**: `causal_exact` (empty `hb`), `causal_convergence_exact`; `gc_iff` with total `I` | **exact**: `stream_exact_free` | **exact**: `dist_exact` |
 | C2 | Exactly-once, declared independence `I` | **degenerate**: C4 rewrite (an ordering constraint on a buffer is an enabledness predicate) | **exact**: `gc_iff` (any `I`); per edge on acyclic networks `fed_exact` | **degenerate**: C4 streams (`stream_exact`, any enabledness) | **exact**: `dist_exact` (federated trace equivalence) |
-| C3 | Causal | **degenerate**: C4 rewrite (dependency-based enabledness, `paper_causal_governance_unique_normal_forms`) | **exact**: `causal_exact` (any step, P1) | **degenerate**: C4 streams | **uncovered**: sufficient only, by restricting `dist_exact` to causal words; gap 15 (c) |
+| C3 | Causal | **degenerate**: C4 rewrite (dependency-based enabledness, `paper_causal_governance_unique_normal_forms`) | **exact**: `causal_exact` (any step, P1) | **degenerate**: C4 streams | **exact**: `dist_causal_exact` (XU at causally reachable states plus CCR on the FedMachine), an instance of `dist_delivery_exact`; restricting `dist_exact` is not exact (`tr_causal_instance`); gap 15 (c), closed |
 | C4 | Guarded enabledness, persisting under compensation | **exact**: `jc_exact`, `sn_jc_exact` | **degenerate**: C2 replay (a no-op guard folds into the step; gsm's `DeclEventGuarded` is a no-op when false) | **exact**: `stream_exact` | **degenerate**: C2 distributed (no-op guards fold into the local step) |
 | C5 | Enabledness that compensation can disable | **exact**: `jcg_exact`, `jcsplit_exact` | **degenerate**: C2 replay (no-op guards) | **degenerate**: C4 streams (P10) | **degenerate**: C4 distributed |
-| C6 | Buffered (waiting) guards in a federation | **uncovered**: `FederationGRS.v` has an enabledness parameter, but its exact theorems use free enabledness or the federal guard; gap 15 (d) | **degenerate**: C6 rewrite | **degenerate**: C6 rewrite | **degenerate**: C6 rewrite |
+| C6 | Buffered (waiting) guards in a federation | **exact**: under the federal guard with a guard on the federated state, `fed_buffered_exact` (co-enabled events stay enabled after each other and commute at guard-feasible states), per edge `fed_buffered_edge`; any enabledness, `fed_jcg_exact` (JC' on the federated GRS); gap 15 (d), closed | **degenerate**: C6 rewrite | **degenerate**: C6 rewrite | **degenerate**: C6 rewrite |
 | C7 | The federal guard (FedMachine) versus none | **exact**: none: `fed_grs_exact`; guard: `fed_guarded_exact` | **exact**: `fed_exact` | **degenerate**: C2 replay (with every event enabled at every federally valid state, a settled processor is the FedMachine run of its received set) | **exact**: `dist_exact` (no guard) |
-| C8 | At-least-once, free | **degenerate**: C8 replay (the property compares duplicated deliveries with the exactly-once result, which the replay model states) | **exact**: `alo_exact`, `safe_free_exact` (any step, P1) | **uncovered**: `stream_exact` is stated at duplicate-free event sets; gap 15 (b) | **uncovered**: gap 15 (c) |
+| C8 | At-least-once, free | **degenerate**: C8 replay (the property compares duplicated deliveries with the exactly-once result, which the replay model states) | **exact**: `alo_exact`, `safe_free_exact` (any step, P1) | **exact**: `stream_alo_exact_free`, `stream_alo_free_split` (free delivery); any enabledness `stream_alo_exact`; gap 15 (b), closed | **exact**: `dist_alo_exact` (`XUR` plus FedMachine commutation and idempotence at first deliveries), causal redelivery `dist_causal_alo_exact`; gap 15 (c), closed |
 | C9 | At-least-once, causal | **degenerate**: C9 replay | **exact**: `causal_alo_exact`, `causal_alo_exact_idem`, `safe_at_exact` | **degenerate**: C8 streams | **degenerate**: C8 distributed |
 | C10 | At-least-once, declared independence `I` | **degenerate**: C10 replay | **exact**: `dalo_exact`, `dalo_exact_absorb`, `safe_i_exact`; unordered retries `dalo_r_exact`, `safe_r_exact` (any step, P1, so the FedMachine with declared `I`); gsm's `NotIdempotent` placed by `dalo_notidem_needs_dedup`, `dalo_gsm_unlisted_safe`; gap 15 (a), closed | **degenerate**: C8 streams | **degenerate**: C8 distributed |
 | C11 | Unordered merges with duplication | **degenerate**: C11 replay (compensation-free, identity repair: `cf_cc_exact_from`) | **exact**: `merge_action_exact`, `cvrdt_on_iff` | **degenerate**: C11 replay | **ill-formed**: in the merge model the merges are the propagation |
@@ -232,7 +235,7 @@ step by P1); stream processors; distributed propagation.
 
 | Status | Cells |
 |---|---|
-| exact | 55 |
+| exact | 59 |
 | exact + hardness | 4 |
 | sufficient (no owning gap) | 0 |
 | excluded (design: gaps 8 and 9, and B8's counterexamples) | 9 |
@@ -240,20 +243,17 @@ step by P1); stream processors; distributed propagation.
 | open, existing gaps 3, 5, 13 and one ROADMAP item | 19 |
 | degenerate | 55 |
 | ill-formed | 14 |
-| **uncovered (now gaps 15 to 19)** | **20** |
+| **uncovered (now gaps 16 to 19)** | **16** |
 | total | 179 |
 
 Cells are counted per table row and column (sections 3.1 to 3.3), and per row in sections 3.4
 and 3.5, by the status that leads the cell; A14's normalizer cell, open for monotone blocks and
-uncovered otherwise, counts as open. One question can span several cells, so the 20 uncovered
-cells are 11 distinct questions (C10, at-least-once under declared independence, gap 15 (a), was
-the twelfth and is now exact): A2's fair schedules (16 d); the edge-writer dynamics of A3, A8
+uncovered otherwise, counts as open. One question can span several cells, so the 16 uncovered
+cells are 8 distinct questions (the four questions of gap 15, cells C10, C8 streams, C3 and C8
+distributed, and C6, are now exact): A2's fair schedules (16 d); the edge-writer dynamics of A3, A8
 and A10 (17); reading-B existence and counting, A11 and F7 (18); composition across engines, A14
 and B13 (19 a), and collapse in the distributed model, B11 (19 b); local compensation as steps on
-cycles, B3 (16 c); distributed ACC, B4 (16 b); rootless propagation with events, B7 (16 a); and,
-off the replay model, at-least-once
-streams, C8 (15 b), causal or at-least-once distributed delivery, C3 and C8 (15 c), and buffered
-federation guards, C6 (15 d).
+cycles, B3 (16 c); distributed ACC, B4 (16 b); and rootless propagation with events, B7 (16 a).
 
 What surprised: A2's fair cell. LOSSY-NETWORKS.md called Robert's theorem mechanized in the
 federation model (`frun_solves`, `solve_unique`, `order_independent`), and the audit's frontier
@@ -296,7 +296,7 @@ Numbered after the audit's last gap (14). Sizes follow the audit's scale.
 
 | # | Regime and question | Kind | Size | Audit section |
 |---|---|---|---|---|
-| 15 | Delivery and enabledness off the replay model: (a) at-least-once delivery under declared independence `I` (a registry with `Independent` pairs, the FedMachine); (b) at-least-once delivery for stream processors; (c) causal or at-least-once event delivery in the distributed model (sufficient only, by restricting `dist_exact`); (d) buffered guards in federations (events that wait until enabled) | cells | small to medium | 3, 5, 7, 8 |
+| 15 | Delivery and enabledness off the replay model: (a) at-least-once delivery under declared independence `I` (a registry with `Independent` pairs, the FedMachine); (b) at-least-once delivery for stream processors; (c) causal or at-least-once event delivery in the distributed model (sufficient only, by restricting `dist_exact`); (d) buffered guards in federations (events that wait until enabled). Since closed: (a) `dalo_exact`, (b) `stream_alo_exact_free`, (c) `dist_delivery_exact`, (d) `fed_buffered_exact` | cells | small to medium | 3, 5, 7, 8 |
 | 16 | Distributed propagation off its current hypotheses: (a) events interleaved with rootless propagation on cyclic invertible networks with authority roots (no distributed model off monotone cycles); (b) monotone cycles with ACC and no finite height (every distributed module assumes `rank_bound`); (c) local compensation as separate steps on cycles (`G_Fed` is acyclic only); (d) settlement of every fair update schedule on an acyclic network, Robert's asynchronous half (the gated forms are topological orders, `order_independent`, and a final flush, `propagation_flush`; for Boolean resolver networks `fair_settlement_of_acyclic` reduces it to acyclicity of the asynchronous state graph, which Robert 1995 proves and nothing here mechanizes) | cells | medium | 8, 11 |
 | 17 | Rootless edge-writer dynamics beyond the regular action: lossy maps at in-degree two or more (where the edge-writer and resolver readings differ), and invertible maps under a non-free action. Quiescent states are reading-A sections, so existence is already exact and NP-complete (`root_set_criterion_graph`, `net_section_iff_sat`); open is when every fair order reaches one, and uniqueness. Gap 3 is the resolver reading only | cells | medium | 11, 12 |
 | 18 | Existence and counting in reading B without a spanning root (fixed points of the resolver map, in-degree two or more): no row. The polynomial reductions between the readings (LOSSY-NETWORKS.md section 1) are conjectures validated by checks 8 and 9; mechanizing one transfers `net_section_iff_sat` and `net_count` | cells | small | 12 |
