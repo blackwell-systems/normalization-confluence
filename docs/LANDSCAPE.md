@@ -407,8 +407,16 @@ reading B) through Thomas-type conditions. The research note
   Applications 19, Springer, 1995) that the asynchronous state graph is then acyclic, so every
   asynchronous path, and hence every fair schedule, ends at the fixed point (as restated in
   Richard 2019, Theorem 1, below). In the federation model the unique fixed point and its runs in
-  topological order are mechanized (`frun_solves`, `solve_unique`, `order_independent`); the
-  asynchronous half, every fair schedule, is cited and not mechanized (REGIME-AUDIT.md gap 16 (d)).
+  topological order are mechanized (`frun_solves`, `solve_unique`, `order_independent`), and so is
+  the asynchronous half (`coq/RobertFair.v`, closing REGIME-AUDIT.md gap 16 (d)): in the distributed
+  propagation model every fair schedule from every valid start settles at the run of one
+  topological order (`rb_robert_fair`), within depth plus one rounds (`rb_rounds`), and every
+  propagation word makes fewer than `2^n` effective steps (`rb_effective`, `rb_closed`); in the
+  resolver model a unique fixed point is reached by every fair schedule (`rb_lens_robert`); for a
+  Boolean network with an acyclic global graph the asynchronous state graph is acyclic and the
+  fixed point unique (`rb_robert_boolean`, through `fair_settlement_of_acyclic`). The theorem is
+  Robert's; the mechanization is what is added. Acyclicity cannot be dropped (`rb_neg2_cycle`,
+  `rb_copyback_cycle`) and is not necessary (`rb_converse_fails`, Shih and Ho's network).
 - **Local interaction graphs** (`LocalSigned.v`: Boolean, every `n`; the local graph is the
   discrete Jacobian at a state). Placements, each checked against the paper or the authors' own
   restatement:

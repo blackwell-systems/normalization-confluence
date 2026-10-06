@@ -7,6 +7,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/RobertFair.v`: Robert's theorem for fair asynchronous schedules on acyclic networks,
+  mechanized in the repository's propagation model; closes audit gap 16 (d). Gap 16 stays open for
+  (a) to (c). The theorem is Robert's (1986, 1995; Richard 2019, Theorem 1). Axiom-free.
+  - **Main results:** `rb_robert_fair` (distributed model: every fair schedule from every valid
+    start settles at the run of one topological order), `rb_unique`, `rb_topo_runs`; rounds
+    `rb_rounds`, `rb_rounds_all`, `rb_rounds_pos` (final after depth plus one rounds); effective
+    steps `rb_effective` (fewer than `2^|o|` along any propagation word), `rb_closed` (the
+    asynchronous state graph is acyclic); resolver model `rb_lens_robert`, `rb_lens_closed`; Boolean
+    networks with an acyclic global interaction graph `rb_robert_boolean` (through
+    `fair_settlement_of_acyclic`).
+  - **Events:** `rb_events`, `rb_event_schedule` (finitely many events, then or interleaved with
+    fair propagation: the FedMachine run of the events, under XU); `rb_fair_dist_exact` (the limits
+    agree iff `XUR` and `C2R`, `dist_exact`'s condition).
+  - **Recovered:** `rb_order_independent` (`order_independent` in the distributed model);
+    `propagation_flush` with the final flush replaced by any fair schedule (`rb_events`).
+  - **Counterexamples:** `rb_neg2_cycle` (no fixed point, no fair schedule settles),
+    `rb_copyback_cycle` (two fair schedules settle at different fixed points),
+    `rb_dist_cycle_needed`, `rb_absorb_needed`; the converse fails, `rb_converse_fails` (Shih and
+    Ho's network). Non-vacuity: `rb_example`, `rb_bool3`, `rb_supply_events`,
+    `rb_supply_fair_conv`, `rb_gg_not_fair_conv`.
+  - **Docs:** `coq/README.md` row, `coq/docs/distributed.md` section, `REGIME-AUDIT.md` sections 6
+    and 8 rows, gap 16 row, frontier and summary rows, and the Robert citations;
+    `docs/LOSSY-NETWORKS.md` sections 2, 4.1, 4.2 and P2; `docs/LANDSCAPE.md`; `docs/COVERAGE.md`
+    cell A2 and counts; `docs/REGIMES.md`; `docs/ROADMAP.md`; `docs/THEORY.md`;
+    `coq/docs/non-invertible.md`; `README.md` open-gap sentence (eight open gaps, unchanged), and the
+    count lines.
+  - **Gate:** raised from 2467 to 2569.
+
 - Gap 15 closed in full: `coq/StreamAtLeastOnce.v`, `coq/DistributedDelivery.v` and
   `coq/FederatedGuards.v` close audit gap 15 (b), (c) and (d); (a) closed earlier
   (`AtLeastOnceDeclared.v`). Axiom-free.

@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2467 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2569 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -357,8 +357,8 @@ of one question, what additional structure makes P exact on cycles: gap 3 (rootl
 P2), gap 5 (cyclic monotone collapse), and the monotone-overlap part of gap 13. Gap 13's other
 residues (relative certificates on covers not closed under sources, and the variable-level site)
 are not cyclic and stay separate. Of the gaps the coverage pass added, 16 (a to c), 17, 18 and 19
-are cyclic, 19 (a) being this question for cyclic blocks of different engines; 15, 16 (d) and 20
-are not, and 21 is in part (its residue (b), channels on cycles; classified in the audit's frontier
+are cyclic, 19 (a) being this question for cyclic blocks of different engines; 15 and 20 are not
+(16 (d), the acyclic part of 16, is closed: `RobertFair.v`), and 21 is in part (its residue (b), channels on cycles; classified in the audit's frontier
 table). Gap 14 (convergence alone in the no-reset cyclic distributed
 model) was on this list and is closed (#90) without P: its exact condition (`conv_quiet_exact`)
 is a whole-system E, S and H statement whose canonical state is the quiescent state propagation
@@ -393,7 +393,7 @@ something outside P.
 | Mechanize the 3-SAT reduction behind NP-completeness of lossy-network existence ([LOSSY-NETWORKS.md](LOSSY-NETWORKS.md#32-the-reduction-from-3-sat) 3.2) | done, #57 (`net_section_iff_sat`, `net_size`, `np_certificate`; NP-completeness by the standard argument) | n/a |
 | Least fixed points on complete lattices without ACC (gap 8) | design exclusion (classical Knaster-Tarski; gsm's finite domains satisfy ACC) | n/a |
 | Delivery and enabledness off the replay model (gap 15; from the coverage pass, [COVERAGE.md](COVERAGE.md)): (a) at-least-once delivery under declared independence `I` (gsm's `NotIdempotent` with `Independent` pairs); (b) at-least-once delivery for stream processors; (c) causal or at-least-once delivery in the distributed model; (d) buffered guards in federations | done: (a) done (`AtLeastOnceDeclared.v`: `dalo_exact`, `safe_i_exact`, unordered retries `dalo_r_exact`; `NotIdempotent` sound at reachable witnesses, complete when declared pairs commute at reachable states and retries respect the declared order); (b) done (`StreamAtLeastOnce.v`: `stream_alo_exact_free`, any enabledness `stream_alo_exact`); (c) done (`DistributedDelivery.v`: `dist_delivery_exact` for any prefix-closed delivery class, `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`); (d) done (`FederatedGuards.v`: `fed_buffered_exact`, `fed_buffered_edge`, any enabledness `fed_jcg_exact`). Closed | n/a |
-| Distributed propagation off its current hypotheses (gap 16): events with rootless propagation on cyclic invertible networks; ACC without finite height; local compensation as separate steps on cycles; every fair update schedule on an acyclic network (Robert's asynchronous half; gated are topological orders and a final flush) | open | medium |
+| Distributed propagation off its current hypotheses (gap 16): (a) events with rootless propagation on cyclic invertible networks; (b) ACC without finite height; (c) local compensation as separate steps on cycles; (d) every fair update schedule on an acyclic network (Robert's asynchronous half) | narrowed: (d) done (`RobertFair.v`: `rb_robert_fair` with the round bound `rb_rounds` and the effective-step bound `rb_effective`; with finitely many events `rb_events`, exactly `rb_fair_dist_exact`; resolver model `rb_lens_robert`; Boolean networks with an acyclic global graph `rb_robert_boolean`); (a), (b), (c) open | medium |
 | Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
 | Composition beyond acyclic collapse (gap 19): cyclic blocks of different engines, coordination-free; collapse in the distributed model | open | medium to large |

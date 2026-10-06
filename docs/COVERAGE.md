@@ -6,7 +6,7 @@ This page tests it from the other side. It derives the regime space from the mod
 hypotheses that vary across the Coq theorems and the audit's vocabulary), maps every meaningful
 combination to the audit, and lists what no row covered. It adds no proofs and changes no
 existing gap's status. The pass ran at `main` `d24d26d` (gate: 2241 axiom-free results) and gsm
-`main` `0f094f1`; the page has been kept current since, through #98 and the closing of gap 15 (gate: 2467).
+`main` `0f094f1`; the page has been kept current since, through #98, the closing of gap 15 and of gap 16 (d) (gate: 2569).
 
 Results, in one paragraph. Thirteen axes vary in the source. Of the 179 cells of the matrix below
 (section 3), 58 are covered (54 by an exact theorem, 4 more by an exact theorem together with a
@@ -21,7 +21,8 @@ stated limits. Since the pass, gap 15 has closed: cell C10 (15 (a)) is exact
 (`AtLeastOnceDeclared.v`, `dalo_exact`), and so are C8 streams (15 (b), `StreamAtLeastOnce.v`,
 `stream_alo_exact_free`), C3 and C8 distributed (15 (c), `DistributedDelivery.v`,
 `dist_causal_exact`, `dist_alo_exact`) and C6 rewrite (15 (d), `FederatedGuards.v`,
-`fed_buffered_exact`); the counts in section 3 include these changes. The new axis of gap 21 (propagation
+`fed_buffered_exact`); A2's fair-schedule cell (16 (d), `RobertFair.v`, `rb_robert_fair`) is exact
+too; the counts in section 3 include these changes. The new axis of gap 21 (propagation
 over channels) is now modeled (`ProjectionChannels.v`) and partly covered: acyclic networks are
 exact in reachable form, two-level networks in the current-value form, and the residue is listed
 under gap 21 (section 4; the counts in section 3, which are cells of the axes, do not change).
@@ -137,7 +138,7 @@ some word; asynchronous repair, every fair schedule.
 | Row | Composition, transport, authority, writers | Existence | Normalizer | Async, some word | Async, every fair schedule |
 |---|---|---|---|---|---|
 | A1 | Single registry | **exact**: termination iff compensation is well-founded (`terminating_iff_comp_wf`, `comp_wf_iff_wfc`) | **degenerate**: A1 existence (one deterministic compensation chain) | **ill-formed**: one registry has one compensation chain, no schedule | **ill-formed**: as before |
-| A2 | Acyclic, reading B (M1 trees, R1 and R2 resolvers) | **exact**: unconditional (`frun_solves`; each hypothesis needed, `prop_cycle_necessary`, `prop_m1_necessary`, `r1_necessary`, `r2_necessary`) | **exact**: unconditional (`solve_unique`, `fed_lem_fed_termination`, `fed_lem_resolved_termination`) | **exact**: every topological order (`order_independent`) | **uncovered**: no gated statement for arbitrary fair update schedules (Robert's theorem in the propagation model); gap 16 (d) |
+| A2 | Acyclic, reading B (M1 trees, R1 and R2 resolvers) | **exact**: unconditional (`frun_solves`; each hypothesis needed, `prop_cycle_necessary`, `prop_m1_necessary`, `r1_necessary`, `r2_necessary`) | **exact**: unconditional (`solve_unique`, `fed_lem_fed_termination`, `fed_lem_resolved_termination`) | **exact**: every topological order (`order_independent`) | **exact**: unconditional, every fair schedule from every valid start settles at the run of one topological order (`rb_robert_fair`, bound `rb_rounds`, `rb_effective`; resolver model `rb_lens_robert`, Boolean `rb_robert_boolean`); acyclicity needed (`rb_dist_cycle_needed`, `rb_neg2_cycle`); gap 16 (d), closed |
 | A3 | Acyclic, reading A (edges as equations), in-degree two or more | **exact**: root-set criterion with the sources as root set (`root_set_criterion_graph`); a tree can fail (`c22_cycle_basis_fails`) | **degenerate**: A10 normalizer (the sources are a root set, P2) | **uncovered**: edge-writer dynamics on lossy merges; gap 17 | **uncovered**: as before; gap 17 |
 | A4 | Monotone cycles, finite height or ACC, any authority (P2) | **exact**: `kleene_lfp`, `lfp_unique`, `kleene_acc_lfp`; validity `lfp_valid_iff_reached` | **exact**: `kleene_reach_exact`, `cyc_N_lfp` | **exact**: `chaotic_reach_exact`, `chaotic_reaches_lfp` | **exact**: from any stale start `q1_sound_iff`, `q1_unique_iff` |
 | A5 | Monotone, complete lattice without ACC | **excluded (design)**: gap 8 | **excluded (design)**: gap 8 | **excluded (design)**: gap 8 | **degenerate**: A5 async (gap 8) |
@@ -165,7 +166,7 @@ epochs.
 | Row | Composition, transport, authority | Rewrite system | Governed replay | Distributed, no reset | Distributed, epochs |
 |---|---|---|---|---|---|
 | B1 | Single registry | **exact**: `cc_exact_from`, `jc_exact`, `jcg_exact` | **exact**: `causal_exact` (empty `hb`), `gc_iff` (one registry) | **ill-formed**: one registry has no propagation step | **ill-formed**: as before |
-| B2 | Acyclic | **exact**: `fed_grs_exact`, `fed_guarded_exact` | **exact**: `fed_exact`, `fed_exact_full` | **exact**: `dist_exact`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots` | **degenerate**: B2 distributed (P7) |
+| B2 | Acyclic | **exact**: `fed_grs_exact`, `fed_guarded_exact` | **exact**: `fed_exact`, `fed_exact_full` | **exact**: `dist_exact`, `dist_exact_global`, `dist_exact_consistent`, `dist_global_exact_roots`; limits of fair schedules with finitely many events `rb_fair_dist_exact` | **degenerate**: B2 distributed (P7) |
 | B3 | Monotone cycles, finite height | **uncovered**: `G_Fed` with local compensation as separate steps is acyclic only (`FederationGRS.v` uses a topological order); gap 16 (c) | **exact**: `gc_iff`, `net_events_converge_iff` | **exact**: `flush_fed_iff`, `fair_fed_iff`; convergence alone `conv_quiet_exact` | **exact**: `epoch_agree_iff`, `epoch_conv_iff` |
 | B4 | Monotone cycles, ACC without a rank | **degenerate**: B3 rewrite (gap 16 (c)) | **exact**: `gc_iff` (any normalizer) with `kleene_acc_lfp` | **uncovered**: every distributed module assumes finite height (`rank_bound`); gap 16 (b) | **uncovered**: gap 16 (b) |
 | B5 | Monotone, complete lattice without ACC | **excluded (design)**: gap 8 | **excluded (design)**: gap 8 | **excluded (design)**: gap 8 | **degenerate**: B5 distributed (gap 8) |
@@ -235,7 +236,7 @@ step by P1); stream processors; distributed propagation.
 
 | Status | Cells |
 |---|---|
-| exact | 59 |
+| exact | 60 |
 | exact + hardness | 4 |
 | sufficient (no owning gap) | 0 |
 | excluded (design: gaps 8 and 9, and B8's counterexamples) | 9 |
@@ -243,14 +244,14 @@ step by P1); stream processors; distributed propagation.
 | open, existing gaps 3, 5, 13 and one ROADMAP item | 19 |
 | degenerate | 55 |
 | ill-formed | 14 |
-| **uncovered (now gaps 16 to 19)** | **16** |
+| **uncovered (now gaps 16 to 19)** | **15** |
 | total | 179 |
 
 Cells are counted per table row and column (sections 3.1 to 3.3), and per row in sections 3.4
 and 3.5, by the status that leads the cell; A14's normalizer cell, open for monotone blocks and
-uncovered otherwise, counts as open. One question can span several cells, so the 16 uncovered
-cells are 8 distinct questions (the four questions of gap 15, cells C10, C8 streams, C3 and C8
-distributed, and C6, are now exact): A2's fair schedules (16 d); the edge-writer dynamics of A3, A8
+uncovered otherwise, counts as open. One question can span several cells, so the 15 uncovered
+cells are 7 distinct questions (the four questions of gap 15, cells C10, C8 streams, C3 and C8
+distributed, and C6, and A2's fair schedules, 16 (d), are now exact): the edge-writer dynamics of A3, A8
 and A10 (17); reading-B existence and counting, A11 and F7 (18); composition across engines, A14
 and B13 (19 a), and collapse in the distributed model, B11 (19 b); local compensation as steps on
 cycles, B3 (16 c); distributed ACC, B4 (16 b); and rootless propagation with events, B7 (16 a).
@@ -259,7 +260,8 @@ What surprised: A2's fair cell. LOSSY-NETWORKS.md called Robert's theorem mechan
 federation model (`frun_solves`, `solve_unique`, `order_independent`), and the audit's frontier
 table said the federation model "already has" the acyclic case; but those theorems give the unique
 fixed point and runs in topological order (and `propagation_flush` a final flush), and arbitrary
-fair update schedules on an acyclic network have no gated statement. The pages are corrected in
+fair update schedules on an acyclic network had no gated statement (since closed: `rb_robert_fair`,
+`rb_robert_boolean`, `RobertFair.v`). The pages are corrected in
 the same change (LOSSY-NETWORKS.md sections 2, 4.1, 4.2 and P2, LANDSCAPE.md, the audit's frontier
 row for gap 3). Also C10: at-least-once delivery with declared independence is the case
 gsm's `Report.NotIdempotent` meets whenever a registry declares `Independent` pairs, and the exact
@@ -297,7 +299,7 @@ Numbered after the audit's last gap (14). Sizes follow the audit's scale.
 | # | Regime and question | Kind | Size | Audit section |
 |---|---|---|---|---|
 | 15 | Delivery and enabledness off the replay model: (a) at-least-once delivery under declared independence `I` (a registry with `Independent` pairs, the FedMachine); (b) at-least-once delivery for stream processors; (c) causal or at-least-once event delivery in the distributed model (sufficient only, by restricting `dist_exact`); (d) buffered guards in federations (events that wait until enabled). Since closed: (a) `dalo_exact`, (b) `stream_alo_exact_free`, (c) `dist_delivery_exact`, (d) `fed_buffered_exact` | cells | small to medium | 3, 5, 7, 8 |
-| 16 | Distributed propagation off its current hypotheses: (a) events interleaved with rootless propagation on cyclic invertible networks with authority roots (no distributed model off monotone cycles); (b) monotone cycles with ACC and no finite height (every distributed module assumes `rank_bound`); (c) local compensation as separate steps on cycles (`G_Fed` is acyclic only); (d) settlement of every fair update schedule on an acyclic network, Robert's asynchronous half (the gated forms are topological orders, `order_independent`, and a final flush, `propagation_flush`; for Boolean resolver networks `fair_settlement_of_acyclic` reduces it to acyclicity of the asynchronous state graph, which Robert 1995 proves and nothing here mechanizes) | cells | medium | 8, 11 |
+| 16 | Distributed propagation off its current hypotheses: (a) events interleaved with rootless propagation on cyclic invertible networks with authority roots (no distributed model off monotone cycles); (b) monotone cycles with ACC and no finite height (every distributed module assumes `rank_bound`); (c) local compensation as separate steps on cycles (`G_Fed` is acyclic only); (d) settlement of every fair update schedule on an acyclic network, Robert's asynchronous half: since closed (`RobertFair.v`: `rb_robert_fair`, `rb_fair_dist_exact`, `rb_lens_robert`, and for Boolean networks with an acyclic global graph `rb_robert_boolean`, through `fair_settlement_of_acyclic`) | cells | medium | 8, 11 |
 | 17 | Rootless edge-writer dynamics beyond the regular action: lossy maps at in-degree two or more (where the edge-writer and resolver readings differ), and invertible maps under a non-free action. Quiescent states are reading-A sections, so existence is already exact and NP-complete (`root_set_criterion_graph`, `net_section_iff_sat`); open is when every fair order reaches one, and uniqueness. Gap 3 is the resolver reading only | cells | medium | 11, 12 |
 | 18 | Existence and counting in reading B without a spanning root (fixed points of the resolver map, in-degree two or more): no row. The polynomial reductions between the readings (LOSSY-NETWORKS.md section 1) are conjectures validated by checks 8 and 9; mechanizing one transfers `net_section_iff_sat` and `net_count` | cells | small | 12 |
 | 19 | Composition beyond acyclic collapse: (a) coordination-free networks whose cyclic blocks use different engines (a non-monotone cyclic block, invertible or lossy, feeding or fed by other blocks); (b) collapse preservation in the distributed model (a block whose internal propagation interleaves with outer events). An instance of the cyclic frontier for (a) | cells | medium to large | 14 |

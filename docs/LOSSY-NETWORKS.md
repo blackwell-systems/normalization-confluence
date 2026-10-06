@@ -151,9 +151,9 @@ one of them, except `CoordinatedCycles.v`, which drives in B and checks in A.
 The refinement: the categorical paper's Proposition 1 ("a federation is a finite limit") is about
 reading B, while its cohomology sections are about reading A. Where the papers apply cohomology
 (cycles of single-source morphisms) the two agree. Resolvers appear only on acyclic targets, where
-reading B always has a consistent state (Robert's theorem, section 4.1) and cohomology is not
-invoked. That is why the distinction has not surfaced; it matters as soon as a network has both
-cycles and multi-source targets.
+reading B always has a consistent state (Robert's theorem, section 4.1; mechanized in
+`RobertFair.v`, `rb_lens_robert`) and cohomology is not invoked. That is why the distinction
+has not surfaced; it matters as soon as a network has both cycles and multi-source targets.
 
 ## 2. What is already mechanized
 
@@ -195,7 +195,14 @@ In reading B: on acyclic networks the consistent state exists and is unique give
 vertices, and every topological order reaches it [mechanized: `frun_solves`, `solve_unique`,
 `order_independent`]; this is the fixed-point half of Robert's theorem in the federation model
 (section 4.1), with runs in topological order. That every fair asynchronous schedule reaches it,
-Robert's asynchronous half, is cited and not mechanized (REGIME-AUDIT.md gap 16 (d)). On cycles
+Robert's asynchronous half, is mechanized too (added since this note, `RobertFair.v`): in the
+distributed propagation model every fair schedule from every valid start settles at the run of
+one topological order, within depth plus one rounds, and every propagation word makes fewer than
+`2^n` effective steps [mechanized: `rb_robert_fair`, `rb_rounds`, `rb_effective`, `rb_closed`];
+in the resolver model with resolvers that read only their sources along an acyclic graph, there
+is a unique fixed point and every fair schedule settles at it [mechanized: `rb_lens_robert`]; and
+for a Boolean network whose global interaction graph has no cycle, the asynchronous state graph is
+acyclic [mechanized: `rb_robert_boolean`] (REGIME-AUDIT.md gap 16 (d), closed). On cycles
 with monotone maps on a lattice, the least fixed point exists and chaotic iteration reaches it
 [mechanized: `kleene_lfp`, `lfp_unique`, `chaotic_reaches_lfp`, `chaotic_acc_reaches_lfp`]; it is
 not the only fixed point [mechanized: `bottom_matters`]. Without an authority, two orders can reach
@@ -364,7 +371,7 @@ A local statement is stronger than the global one, since `G(F)(x)` is a subgraph
 | Result | Statement | Setting | Source |
 |---|---|---|---|
 | Thomas's rules (conjecture) | a positive cycle is necessary for several stable states; a negative cycle is necessary for sustained oscillation | informal | [verified: Thomas 1981] |
-| Robert | `G(F)` acyclic implies a unique fixed point, reached by iteration | Boolean in the restatement; any finite fibers | [verified: Robert 1986, as restated by Bridoux et al. 2022, section 2.6]; in the federation model [mechanized: the unique fixed point and its runs in topological order, `frun_solves`, `solve_unique`, `order_independent`; every fair asynchronous schedule is not mechanized, REGIME-AUDIT.md gap 16 (d)] |
+| Robert | `G(F)` acyclic implies a unique fixed point, reached by iteration | Boolean in the restatement; any finite fibers | [verified: Robert 1986, as restated by Bridoux et al. 2022, section 2.6]; in the federation model [mechanized: the unique fixed point and its runs in topological order, `frun_solves`, `solve_unique`, `order_independent`; every fair asynchronous schedule, `rb_robert_fair` (distributed model), `rb_lens_robert` (resolver model), and for Boolean networks the acyclic asynchronous state graph, `rb_robert_boolean`, as restated in Richard 2019, Theorem 1] |
 | Shih and Dong | if no local graph `G(F)(x)` has a cycle, `F` has a unique fixed point | Boolean, local | [verified: Shih and Dong 2005, abstract (full text not accessible to us), as restated in Richard 2011, Theorem 1, and Richard 2019, Theorem 2] |
 | First rule, local | two fixed points imply a positive circuit in some `G(F)(x)` | Boolean, local | [verified: Remy, Ruet, Thieffry 2008, Theorem 3.2, primary text (HAL hal-00692086)] |
 | First rule, multivalued | two fixed points (or several attractors of the asynchronous dynamics) imply a positive circuit in some local interaction graph `G_F(x)`; hence no positive circuit in any local graph, and a fortiori none in the global interaction graph, implies at most one fixed point | multivalued, local | [verified: Richard and Comet 2007, as restated in Richard 2009, Theorem 1, and Richard 2010, Theorem 3 ("local version of first Thomas' conjecture")] |
@@ -391,7 +398,7 @@ such as non-expansiveness (Richard 2011).
 | `copyback_without_authority`: A copies B, B copies A; from `(0, 1)` the orders `[0; 1]` and `[1; 0]` reach `(1, 1)` and `(0, 0)` | the positive 2-cycle: strongly connected with only positive cycles, so at least two fixed points (Aracena); `tau+ = 1`, so at most `2^1 = 2`: the bound is attained. `Gamma(F)` from `(0, 1)` branches to both fixed points (check 6: 2 fixed-point attractors, no cyclic one) | **exact**; now an instance of the rootless single-cycle theorem [mechanized: `rootless_copyback_not_unique`, `copyback_without_authority_recovered`] |
 | `prop_cycle_necessary`, `negation_one_coordinated`, `flip_no_section`: `phi_AB = 1 - x`, `phi_BA = id` | the negative 2-cycle: strongly connected with only negative cycles, so no fixed point (Aracena); `Gamma(F)` is one cyclic attractor of length 4, and `cycle_paper_trace` is that attractor, step for step | **exact** (with identity local compensation, `cyc_rep` is `Gamma(F)`); rootless form [mechanized: `rootless_negation_no_nf`] |
 | Z/2 holonomy (`sat_iff_trivial_holonomy`, `xorb` labels) | sign of a cycle with copy and negation arcs | **exact for directed cycles only**: cohomology quantifies over undirected cycles (an edge traversed backward contributes its inverse), Thomas over directed cycles. The diamond of section 1 has an unbalanced undirected cycle (no A-section) and no directed cycle (a unique B-fixed point per source value) |
-| acyclic federations converge (`frun_solves`, `solve_unique`, `order_independent`) | Robert's theorem | **exact** in reading B for the fixed point and runs in topological order (every fair asynchronous schedule: cited, REGIME-AUDIT.md gap 16 (d)); reading A can still fail on an acyclic graph (`c22_cycle_basis_fails`, the diamond) |
+| acyclic federations converge (`frun_solves`, `solve_unique`, `order_independent`; every fair schedule `rb_robert_fair`, `rb_lens_robert`, `rb_robert_boolean`) | Robert's theorem | **exact** in reading B for the fixed point, runs in topological order and every fair asynchronous schedule (`RobertFair.v`; acyclicity cannot be dropped, `rb_neg2_cycle`, `rb_copyback_cycle`, and is not necessary, `rb_converse_fails`); reading A can still fail on an acyclic graph (`c22_cycle_basis_fails`, the diamond) |
 | monotone regime (`kleene_lfp`, `chaotic_reaches_lfp`) | "no negative cycle" | **needs qualifiers**, see below |
 | non-invertible maps, no root (audit section 12) | signed graph after choosing an order on each fiber | **new use**, see 4.3 |
 
@@ -624,7 +631,7 @@ research directions, not missing exact conditions for a listed regime).
      follow: not under either corrected condition (`ring_local_conditions`: the positive 3-ring,
      two fixed points, a fair schedule that never settles), and not even with no local cycle at
      all (`shih_dong_not_fair`, 4 vertices, a fair periodic schedule of period 8 that never
-     settles), in contrast with Robert's global acyclic case.
+     settles), in contrast with Robert's global acyclic case (`rb_robert_boolean`).
   Consequence for gap 3: on fidelity the local route strictly extends the global certificates; on
   settlement, local conditions certify E's Settlement half (and, without any local cycle, all of
   E), while fair-schedule settlement still needs the global switching or global acyclicity. The
@@ -663,7 +670,8 @@ research directions, not missing exact conditions for a listed regime).
   local negative cycle (`no_pos_not_enough`: the negative 3-ring has (B), no local positive cycle,
   a closed asynchronous run, and no fixed point). Non-vacuity: `shih_ho_instance`, Shih and Ho's
   own 4-vertex example (their Section 3, item (5)), with (A), (B), local arcs `0 -> 3` and `3 -> 0`
-  at different states (so the global graph has a cycle and Robert's theorem does not apply), and
+  at different states (so the global graph has a cycle and Robert's theorem does not apply;
+  `rb_converse_fails` reads it as the failure of Robert's converse), and
   an asynchronous state graph that is acyclic (a rank certificate), so every fair schedule from
   every start settles at `1111`.
 - **Progress: two unstable vertices** (#93, `LocalTwoToken.v`; details in
@@ -785,7 +793,7 @@ research directions, not missing exact conditions for a listed regime).
     orbit); their 4-vertex example of Section 3, item (5), is `shih_ho_instance`.
 
   P2 is part of the cyclic frontier: the acyclic case is
-  Robert's theorem, and what is open is the cyclic one, an instance of the question of what
+  Robert's theorem (mechanized: `RobertFair.v`), and what is open is the cyclic one, an instance of the question of what
   additional structure makes the composition layer P exact on cycles
   ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier);
   [THEORY.md](THEORY.md#canonical-execution)).
@@ -793,8 +801,8 @@ research directions, not missing exact conditions for a listed regime).
   from a given initial state reaches the same consistent state, without an authority root. Known:
   necessary conditions from Thomas's rules (a positive cycle for multiplicity, a negative cycle for
   oscillation), the exact abstract condition of Üresin and Dubois (asynchronously contracting
-  operators on finite domains), and Robert for the acyclic case. Wanted: a sufficient condition
-  stated on the signed graph for lossy maps, and the generalization of `copyback_without_authority`:
+  operators on finite domains), and Robert for the acyclic case (mechanized: `rb_robert_boolean`,
+  `rb_lens_robert`). Wanted: a sufficient condition stated on the signed graph for lossy maps, and the generalization of `copyback_without_authority`:
   does having two fixed points always give one initial state from which two orders reach different
   ones?
 - **Why it matters.** gsm's cyclic runtime is reading B. Today a non-monotone cycle is rejected or
@@ -803,8 +811,8 @@ research directions, not missing exact conditions for a listed regime).
 - **Difficulty.** Medium for the Boolean case (much is in the literature), large for multivalued
   lossy maps with resolvers.
 - **Mechanization needs.** `Gamma(F)` as a relation (it is `FederationOrder.step` restricted to
-  changing updates), attractors as terminal SCCs, Robert (its fixed-point half already present as `frun_solves` and `solve_unique`, its asynchronous
-  half not yet: REGIME-AUDIT.md gap 16 (d)), and the
+  changing updates), attractors as terminal SCCs, Robert (mechanized: its fixed-point half as `frun_solves` and `solve_unique`, its asynchronous
+  half as `rb_robert_fair`, `rb_lens_robert` and `rb_robert_boolean`, `RobertFair.v`), and the
   proofs of Aracena's duality and Richard's corollary; all finite and constructive, so in reach of
   the axiom-free gate.
 

@@ -462,7 +462,8 @@ every signed edge are vertices) and both attempts assume the greatest element. L
   switching from balance. Uniqueness is a hypothesis. The global sign route to uniqueness (no
   positive directed cycle in the global graph: Aracena 2008, and the global corollary of Richard
   and Comet 2007, cited) collapses on balanced graphs to acyclicity
-  (`balanced_no_positive_acyclic`), that is, to Robert. Richard and Comet's theorem is itself
+  (`balanced_no_positive_acyclic`), that is, to Robert (mechanized: `rb_robert_boolean`,
+  [`RobertFair.v`](distributed.md#fair-schedules-on-acyclic-networks-robertfairv)). Richard and Comet's theorem is itself
   local (multivalued: no positive circuit in any local interaction graph gives at most one fixed
   point; restated as a local theorem in Richard 2010, Theorem 3); its Boolean case is
   `local_fidelity` below, which strictly extends the global route (`local_weaker_than_global`).
@@ -552,8 +553,8 @@ signs fixed across all states; `SgCycle sg c b` is an elementary cycle of `sg` w
   `x2 := x0 && x1 && x3`, `x3 := not x0` no local graph has a cycle and E holds from every start,
   but the fair periodic schedule `2, 3, 0, 1, 3, 2, 0, 1, ...` from `(1, 1, 0, 1)` returns there
   every 8 steps and never settles. Robert's theorem (an acyclic **global** graph) does give fair
-  convergence; the local hypothesis does not. An exhaustive search (not mechanized) over all
-  3-vertex networks finds no such example, so 4 vertices is the least. Relation to the
+  convergence (`rb_robert_boolean`); the local hypothesis does not. An exhaustive search (not
+  mechanized) over all 3-vertex networks finds no such example, so 4 vertices is the least. Relation to the
   literature: that local acyclicity does not make the asynchronous state graph acyclic is known
   (Richard 2019, attributing it to a 4-component example of Shih and Dong 2005); the fair-schedule
   form was not found in the literature searched
@@ -648,7 +649,8 @@ graph. `Fair` and `Settles` are those of `DistributedCycles.v`, as in `LocalSign
 - `shih_ho_instance` (non-vacuity): Shih and Ho's 4-vertex example (their Section 3, item (5)),
   `x0 := not x1 || not x2 || x3`, `x1 := 1`, `x2 := 1`, `x3 := not x0 || x1 || x2`. It has (A)
   and (B), local arcs `0 -> 3` at `0000` and `3 -> 0` at `0110` (so the global interaction graph
-  has a cycle and Robert's theorem does not apply), an acyclic asynchronous state graph (the
+  has a cycle and Robert's theorem does not apply; `rb_converse_fails` reads this as the failure
+  of Robert's converse), an acyclic asynchronous state graph (the
   longest-path rank, checked by `rank_ok_b`), so every fair schedule from every start settles at
   `1111`; the state `0110` has exactly one unstable vertex.
 - `outdeg_needed`: (B) is needed. Shih and Dong's network `sd_F` has (A) and out-degree 2 at
