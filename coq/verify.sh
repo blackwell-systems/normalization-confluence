@@ -2629,6 +2629,131 @@ Print Assumptions NC.RobertFair.rb_supply_events.
 Print Assumptions NC.RobertFair.rb_supply_fair_conv.
 Print Assumptions NC.RobertFair.rb_gg_not_fair_conv.
 Print Assumptions NC.RobertFair.rb_bool3.
+Require NC.Reconfiguration.
+Print Assumptions NC.Reconfiguration.perm_remove1.
+Print Assumptions NC.Reconfiguration.remove1_head.
+Print Assumptions NC.Reconfiguration.reach_trans.
+Print Assumptions NC.Reconfiguration.star_reach.
+Print Assumptions NC.Reconfiguration.nf_free_nil.
+Print Assumptions NC.Reconfiguration.runB_FB.
+Print Assumptions NC.Reconfiguration.FB_valid.
+Print Assumptions NC.Reconfiguration.GB_run.
+Print Assumptions NC.Reconfiguration.CCB_UN.
+Print Assumptions NC.Reconfiguration.UN_CCB.
+Print Assumptions NC.Reconfiguration.nfB_GB.
+Print Assumptions NC.Reconfiguration.CCB_reach.
+Print Assumptions NC.Reconfiguration.reachB_gov.
+Print Assumptions NC.Reconfiguration.reachB_rho_star.
+Print Assumptions NC.Reconfiguration.govB_rho.
+Print Assumptions NC.Reconfiguration.FB_perm.
+Print Assumptions NC.Reconfiguration.GB_perm.
+Print Assumptions NC.Reconfiguration.lift_A.
+Print Assumptions NC.Reconfiguration.lift_B.
+Print Assumptions NC.Reconfiguration.nf_InB.
+Print Assumptions NC.Reconfiguration.lstep_B_inv.
+Print Assumptions NC.Reconfiguration.lstep_decomp.
+Print Assumptions NC.Reconfiguration.live_not_nf.
+Print Assumptions NC.Reconfiguration.barrier_not_nf.
+Print Assumptions NC.Reconfiguration.switch_runs.
+Print Assumptions NC.Reconfiguration.s1_runs.
+Print Assumptions NC.Reconfiguration.s2_runs.
+Print Assumptions NC.Reconfiguration.barB_nec.
+Print Assumptions NC.Reconfiguration.amodf_nec.
+Print Assumptions NC.Reconfiguration.barrier_exact.
+Print Assumptions NC.Reconfiguration.CCA_UN_iff.
+Print Assumptions NC.Reconfiguration.amodf_faithful.
+Print Assumptions NC.Reconfiguration.barrier_exact_faithful.
+Print Assumptions NC.Reconfiguration.barrier_sufficient.
+Print Assumptions NC.Reconfiguration.live_step_inv.
+Print Assumptions NC.Reconfiguration.live_star_inv.
+Print Assumptions NC.Reconfiguration.live_b_nec.
+Print Assumptions NC.Reconfiguration.live_exact.
+Print Assumptions NC.Reconfiguration.live_implies_barrier.
+Print Assumptions NC.Reconfiguration.live_exact_faithful.
+Print Assumptions NC.Reconfiguration.live_b_runs.
+Print Assumptions NC.Reconfiguration.live_b2_runs.
+Print Assumptions NC.Reconfiguration.amodf_runs.
+Print Assumptions NC.Reconfiguration.barrier_b_runs.
+Print Assumptions NC.Reconfiguration.live_no_change.
+Print Assumptions NC.Reconfiguration.rlive_exact.
+Print Assumptions NC.Reconfiguration.rbarrier_exact.
+Print Assumptions NC.Reconfiguration.rbarrier_exact_faithful.
+Print Assumptions NC.Reconfiguration.rlive_exact_faithful.
+Print Assumptions NC.Reconfiguration.rlive_implies_barrier.
+Print Assumptions NC.Reconfiguration.rbarrier_sufficient.
+Print Assumptions NC.Reconfiguration.classified_unique.
+Print Assumptions NC.Reconfiguration.classify.
+Print Assumptions NC.Reconfiguration.list_forall_or_witness.
+Print Assumptions NC.Reconfiguration.dec_forall_fin.
+Print Assumptions NC.Reconfiguration.dec_imp.
+Print Assumptions NC.Reconfiguration.dec_and.
+Print Assumptions NC.Reconfiguration.dec_not.
+Print Assumptions NC.Reconfiguration.dec_iff.
+Print Assumptions NC.Reconfiguration.inb_iff.
+Print Assumptions NC.Reconfiguration.cnt_le.
+Print Assumptions NC.Reconfiguration.cnt_lt.
+Print Assumptions NC.Reconfiguration.cnt_bound.
+Print Assumptions NC.Reconfiguration.layer_sound.
+Print Assumptions NC.Reconfiguration.layer_sub.
+Print Assumptions NC.Reconfiguration.layer_sub_le.
+Print Assumptions NC.Reconfiguration.layer_x0.
+Print Assumptions NC.Reconfiguration.layer_succ.
+Print Assumptions NC.Reconfiguration.closed_or_grow.
+Print Assumptions NC.Reconfiguration.closed_layer.
+Print Assumptions NC.Reconfiguration.star_fin_iff.
+Print Assumptions NC.Reconfiguration.star_fin_dec.
+Print Assumptions NC.Reconfiguration.reach_star_iff.
+Print Assumptions NC.Reconfiguration.reach_dec.
+Print Assumptions NC.Reconfiguration.nfA_nil_iff.
+Print Assumptions NC.Reconfiguration.CCB_dec.
+Print Assumptions NC.Reconfiguration.CCA_dec.
+Print Assumptions NC.Reconfiguration.LiveCond_dec.
+Print Assumptions NC.Reconfiguration.BarB_dec.
+Print Assumptions NC.Reconfiguration.live_dec.
+Print Assumptions NC.Reconfiguration.faithful_dec.
+Print Assumptions NC.Reconfiguration.barrier_dec_faithful.
+Print Assumptions NC.Reconfiguration.classify_finite.
+Print Assumptions NC.Reconfiguration.cap_wfc.
+Print Assumptions NC.Reconfiguration.cap_reach.
+Print Assumptions NC.Reconfiguration.min_add.
+Print Assumptions NC.Reconfiguration.cap_cc.
+Print Assumptions NC.Reconfiguration.cap_nf_le.
+Print Assumptions NC.Reconfiguration.cap_reach_all.
+Print Assumptions NC.Reconfiguration.cap_raise.
+Print Assumptions NC.Reconfiguration.doubling_migration.
+Print Assumptions NC.Reconfiguration.trA_wfc.
+Print Assumptions NC.Reconfiguration.trA_reach.
+Print Assumptions NC.Reconfiguration.trB_wfc.
+Print Assumptions NC.Reconfiguration.trB_reach.
+Print Assumptions NC.Reconfiguration.trB_vstar.
+Print Assumptions NC.Reconfiguration.trA_reach01.
+Print Assumptions NC.Reconfiguration.trB_reach0.
+Print Assumptions NC.Reconfiguration.migrated_transient.
+Print Assumptions NC.Reconfiguration.forgetful_migration.
+Print Assumptions NC.Reconfiguration.rescaled_cap.
+Print Assumptions NC.Reconfiguration.lww_target.
+Print Assumptions NC.Reconfiguration.instances_classified.
+Print Assumptions NC.Reconfiguration.bool_full.
+Print Assumptions NC.Reconfiguration.unit_full.
+Print Assumptions NC.Reconfiguration.finite_instance.
+Print Assumptions NC.Reconfiguration.runB_ext.
+Print Assumptions NC.Reconfiguration.M_run.
+Print Assumptions NC.Reconfiguration.det_live_exact.
+Print Assumptions NC.Reconfiguration.det_barrier_exact.
+Print Assumptions NC.Reconfiguration.det_barrier_faithful.
+Print Assumptions NC.Reconfiguration.det_live_implies_barrier.
+Print Assumptions NC.Reconfiguration.permB_traceconv.
+Print Assumptions NC.Reconfiguration.fed_live_exact.
+Print Assumptions NC.Reconfiguration.fed_barrier_exact.
+Print Assumptions NC.Reconfiguration.fed_live_implies_barrier.
+Print Assumptions NC.Reconfiguration.le_common_A.
+Print Assumptions NC.Reconfiguration.le_common_B.
+Print Assumptions NC.Reconfiguration.le_M_at.
+Print Assumptions NC.Reconfiguration.le_A_at.
+Print Assumptions NC.Reconfiguration.le_B_at.
+Print Assumptions NC.Reconfiguration.le_perm_unit.
+Print Assumptions NC.Reconfiguration.late_edge.
+Print Assumptions NC.Reconfiguration.late_edge_fresh.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2639,8 +2764,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2569 ]; then
-  echo "FAIL: expected 2569 axiom-free results, got $N"
+if [ "$N" -lt 2693 ]; then
+  echo "FAIL: expected 2693 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

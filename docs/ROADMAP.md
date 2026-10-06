@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 2569 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 2693 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -334,13 +334,32 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 ### 9. Reconfiguration inside a run (gap 20)
 
-**Status: planned.** The coverage pass recorded this as a new axis ([COVERAGE.md](COVERAGE.md),
-gap 20 in [REGIME-AUDIT.md](../REGIME-AUDIT.md)).
+**Status: in progress (gap 20 narrowed, `coq/Reconfiguration.v`).** The coverage pass recorded this
+as a new axis ([COVERAGE.md](COVERAGE.md), gap 20 in [REGIME-AUDIT.md](../REGIME-AUDIT.md)).
 
-- **Today.** Every module fixes the topology and the rules for a whole run. Real deployments add
+- **Done.** A run is a sequence of steps under configuration A, one switch (a migration `m` of the state, a
+  translation `tau` of the A-events still in flight), then a run under B. For a single registry
+  under free delivery: at a quiescent barrier, `barrier_exact` (each side's own condition when
+  `rhoB_star o m` is injective on the quiescent reachable states, `barrier_exact_faithful`; the
+  qualifier is needed, `forgetful_migration`); live, `live_exact` (B's condition from `m s` for every
+  reachable `s`, quiescent or not, plus the cross pairs S1, an in-flight event commutes with the
+  switch, and S2, the switch absorbs A's compensation; A's own condition is not a conjunct), each
+  conjunct needed with A and the barrier switch converging (`cap_raise`, `doubling_migration`,
+  `migrated_transient`). The classification safe online, safe behind a barrier only, unsafe is
+  unique (`classified_unique`) and decidable on finite instances (`classify_finite`, under a
+  faithful migration; `live_dec` always). Federations under FedMachine semantics, topology and rules
+  changing: `fed_live_exact` (B's C1R1 and C2R at the migrated start, plus the switch commuting with
+  every in-flight event), `fed_barrier_exact`; `late_edge` (adding an edge read by an in-flight event
+  diverges live, not at a barrier).
+- **Remaining.** A live switch in the distributed model, where propagation is in flight
+  (projections sent under A merged under B); declared independence, causal or at-least-once
+  delivery across the switch; a local form of the barrier's A part for an unfaithful migration; and
+  the gsm `CheckMigration` itself (gsm ROADMAP item 2).
+
+- **Before.** Every module fixed the topology and the rules for a whole run. Real deployments add
   services, migrate schemas and change rules while events and projections are in flight. A change
-  at a barrier (drain, then switch) reduces to the existing results applied per run; a live change
-  has no theorem.
+  at a barrier (drain, then switch) was taken to reduce to the existing results applied per run; a
+  live change had no theorem.
 - **Target.** Exact conditions for a live change from configuration A to configuration B: when every
   run that mixes A-events and B-events (and projections sent under A, merged under B) converges, and
   when a barrier is necessary, with a counterexample at each boundary.
@@ -406,7 +425,7 @@ something outside P.
 | Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
 | Composition beyond acyclic collapse (gap 19): cyclic blocks of different engines, coordination-free; collapse in the distributed model | open | medium to large |
-| Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | open | medium |
+| Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | narrowed: modeled in `Reconfiguration.v`; single registry under free delivery, exact at a barrier (`barrier_exact`, `barrier_exact_faithful`) and live (`live_exact`: B's condition from every migrated reachable state plus the cross pairs S1 and S2; A's own condition not necessary, `forgetful_migration`); the classification online, barrier only, unsafe decidable on finite instances (`classify_finite`); federations under FedMachine semantics, exact at a barrier and live (`fed_barrier_exact`, `fed_live_exact`; `late_edge`). Open: (a) a live switch with propagation in flight (the distributed model); (b) other delivery classes across the switch; (c) an unfaithful migration's barrier A part in local form | small to medium |
 | Propagation over channels (gap 21, **new axis**): late, reordered or duplicated projections; gsm's `MergeProjection` and `MergeProjectionAfter` | narrowed: modeled in `ProjectionChannels.v`; acyclic, exact over channel-reachable states in either mode (`chan_exact`, `chan_exact_global`); versioned merging converges at drain exactly when it does after a flush, and under gsm's XU and C2 (`vsettle_exact_cond`, `vsettle_xu_c2`); plain merging settles iff nothing stale is in flight (`plain_settle_iff`; fails under XU, `plain_stale_counterexample`); two-level networks, `dist_exact`'s condition (`vchan_twolevel_exact`). Open: (a) the current-value form beyond two-level networks (does `CXUR true` equal `XUR`); (b) flush and reset epochs over channels on cycles (the ghost survives, `vchan_cyc_ghost`) | small to medium |
 
 Optimization and counting, which do not bear on when state converges (audit gaps 10 to 13):

@@ -402,3 +402,11 @@ all: RobertFair.vo
 
 RobertFair.vo: RobertFair.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo FederationOrder.vo DistributedExact.vo DistributedCycles.vo DistributedCyclesExact.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo
 	coqc -Q . NC RobertFair.v
+
+# Reconfiguration inside a run: a switch from configuration A to configuration B with events in
+# flight; the barrier and live exact conditions, the classification behind gsm's CheckMigration,
+# and federation topology changes under FedMachine semantics (gap 20, Reconfiguration.v).
+all: Reconfiguration.vo
+
+Reconfiguration.vo: Reconfiguration.v Newman.vo Governance.vo GovernanceConverse.vo Trace.vo FederationEvents.vo FederationEventsConverse.vo
+	coqc -Q . NC Reconfiguration.v
