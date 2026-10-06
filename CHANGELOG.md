@@ -7,6 +7,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/AbstractionCutoff.v`: the abstraction reduction over integer-valued state, roadmap item 8
+  step 2 (gsm roadmap item 1b: check relationships, not values). Axiom-free. Roadmap work, not a
+  regime gap: no gap status changes.
+  - **Bounded repair:** `un_bounded` (with repair within K steps, unique normal forms from every
+    state iff CC1 and CC2 everywhere, through `cc_exact_from`), `un_at`.
+  - **Order-invariant fragment:** `OIso`, `OrdInv`; the representatives `reps N C`, of size
+    `|C|(N+1) + N` (`reps_length`); `compress` (any finite set of integers moved next to the
+    constants, order and constants kept). Cutoffs, each an iff over all integers: repair within K
+    steps and WFC with N = n (`term_abs`, `wfc_abs`), CC2 with N = n + m (`cc2_abs`), CC1 and
+    unique normal forms with N = n + 2m (`cc1_abs`, `un_abs`); the finite check `abs_check`
+    (`abs_check_spec`, `abs_check_exact`, `abs_check_sound`); one check per order type
+    (`cc1_order_type`, `cc2_order_type`); no fresh values (`closure_ap`, `closure_rp`).
+  - **The fragment decided:** a rule language (variables, literals, +, -, *, if-then-else,
+    comparisons); `ord_frag_sound`, `prog_shaped`, `build_sound`.
+  - **Linear fragment, exact reduction to formula validity:** generated formulas `phi_term`,
+    `phi_cc1`, `phi_cc2`; `phi_term_exact`, `phi_cc1_exact`, `phi_cc2_exact`, `lin_exact`,
+    `lin_sound`; `lin_frag_linear` (multiplication by literals only, so the formulas are QF_LIA).
+    Deciding validity is left to an external solver; no finite representative set is claimed.
+  - **Counterexamples and non-vacuity:** `exact13_passes`, `exact13_diverges`, `exact13_refused`,
+    `exact13_declared` (an undeclared exact test); `triangle_passes`, `triangle_diverges`,
+    `triangle_refused`, `triangle_formula_refuted` (an additive guard fools the order-pattern
+    check); `copy_tight` (the bound cannot drop below n); capped inventory over 7 representatives
+    (`capped_un`, `capped_repair_fires`); a wallet with integer balances through its 13 formulas
+    (`wallet_formulas`, `wallet_un`); with symmetry, `sym_abs` and `capped_catalog`.
+  - **Docs:** new `coq/docs/abstraction.md` (with the gsm design input), `coq/README.md` row,
+    `docs/ROADMAP.md` item 8, `docs/THEORY.md` (abstraction as state descent on value relations),
+    and the count lines.
+  - **Gate:** raised from 2827 to 2974.
+
 - `coq/SymmetryCutoff.v`: the symmetry reduction for keyed collections, roadmap item 8 step 1 (gsm
   roadmap item 1a: check one item, conclude for all). Axiom-free. Roadmap work, not a regime gap:
   no gap status changes.

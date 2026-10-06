@@ -418,3 +418,11 @@ all: SymmetryCutoff.vo
 
 SymmetryCutoff.vo: SymmetryCutoff.v Newman.vo Governance.vo GovernanceConverse.vo Trace.vo AtLeastOnce.vo AtLeastOnceExact.vo
 	coqc -Q . NC SymmetryCutoff.v
+
+# Abstraction for checking: rules that compare values and declared constants are decided over a
+# finite set of representatives (one per order type), and linear rules through generated
+# formulas whose validity is exact for each condition (roadmap item 8, step 2, AbstractionCutoff.v).
+all: AbstractionCutoff.vo
+
+AbstractionCutoff.vo: AbstractionCutoff.v Newman.vo Governance.vo GovernanceConverse.vo SymmetryCutoff.vo
+	coqc -Q . NC AbstractionCutoff.v
