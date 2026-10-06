@@ -1,0 +1,29 @@
+moves 31490
+d                          down  25078  same      0  up   6412   rises in: bad>bad 5037, bad>good 1375
+g                          down   4444  same  25671  up   1375   rises in: bad>good 1375
+-g                         down   1375  same  25671  up   4444   rises in: good>bad 4444
+(g,d)                      down  25078  same      0  up   6412   rises in: bad>bad 5037, bad>good 1375
+(-g,d)                     down  22009  same      0  up   9481   rises in: bad>bad 5037, good>bad 4444
+(d,-g)                     down  25078  same      0  up   6412   rises in: bad>bad 5037, bad>good 1375
+T sync time                down  12202  same  15069  up   4219   rises in: good>good 387, bad>bad 66, good>bad 3698, bad>good 68
+sum sync dist              down  20783  same   1568  up   9139   rises in: good>good 41, bad>bad 5024, good>bad 3959, bad>good 115
+dist vector                down  25078  same      0  up   6412   rises in: bad>bad 5037, bad>good 1375
+kappa lex                  down  24255  same      0  up   7235   rises in: good>good 2415, bad>bad 290, good>bad 3784, bad>good 746
+sum kappa                  down  24255  same      0  up   7235   rises in: good>good 2415, bad>bad 290, good>bad 3784, bad>good 746
+d(Fx,p)                    down  22009  same      0  up   9481   rises in: bad>bad 5037, good>bad 4444
+d+d(Fx,p)                  down  20634  same   5819  up   5037   rises in: bad>bad 5037
+token depths multiset      down  25620  same   2052  up   3818   rises in: good>good 1883, bad>bad 93, good>bad 1671, bad>good 171
+-token depths              down   3818  same   2052  up  25620   rises in: good>good 18083, bad>bad 4846, good>bad 1487, bad>good 1204
+sum token depth            down  25652  same   3180  up   2658   rises in: good>good 1196, bad>bad 91, good>bad 1303, bad>good 68
+token heights multiset     down   1466  same   1334  up  28690   rises in: good>good 18802, bad>bad 5025, good>bad 3497, bad>good 1366
+sum token height           down    549  same   2636  up  28305   rises in: good>good 18550, bad>bad 5014, good>bad 3500, bad>good 1241
+reach size                 down  17159  same  13877  up    454   rises in: good>good 293, good>bad 22, bad>good 139
+bad depth                  down   6804  same  19493  up   5193   rises in: good>good 749, good>bad 4444
+(g,bad depth)              down   9873  same  19493  up   2124   rises in: good>good 749, bad>good 1375
+(-g,bad depth,d)           down  26297  same      0  up   5193   rises in: good>good 749, good>bad 4444
+(-g,-bad depth,d)          down  21617  same      0  up   9873   rises in: good>good 392, bad>bad 5037, good>bad 4444
+good depths                down  22192  same   5514  up   3784   rises in: good>good 1917, bad>bad 191, good>bad 697, bad>good 979
+(-g, sum depth)            down  24338  same   1421  up   5731   rises in: good>good 1196, bad>bad 91, good>bad 4444
+t2t arcs                   down   6773  same  10464  up  14253   rises in: good>good 9250, bad>bad 857, good>bad 3809, bad>good 337
+(d,t2t)                    down  25078  same      0  up   6412   rises in: bad>bad 5037, bad>good 1375
+(-g,t2t,d)                 down  14037  same      0  up  17453   rises in: good>good 9250, bad>bad 3759, good>bad 4444

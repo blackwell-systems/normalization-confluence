@@ -1,0 +1,24 @@
+{"n": 3, "opts": ["sym", "tok", "alldir"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 140, "clauses": 486}
+{"n": 3, "opts": ["sym", "tok", "alldir"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 140, "clauses": 486}
+{"n": 3, "opts": ["sym", "tok", "alldir", "rank"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 212, "clauses": 662}
+{"n": 3, "opts": ["sym", "tok", "alldir", "rank"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 212, "clauses": 662}
+{"n": 3, "opts": ["sym", "tok", "alldir", "noA"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 140, "clauses": 446}
+{"n": 3, "opts": ["sym", "tok", "alldir", "noA"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 140, "clauses": 446}
+{"n": 4, "opts": ["sym", "tok", "alldir"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 464, "clauses": 1991}
+{"n": 4, "opts": ["sym", "tok", "alldir"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 464, "clauses": 1991}
+{"n": 4, "opts": ["sym", "tok", "alldir", "rank"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 720, "clauses": 2695}
+{"n": 4, "opts": ["sym", "tok", "alldir", "rank"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.0, "build": 0.0, "vars": 720, "clauses": 2695}
+{"n": 4, "opts": ["sym", "tok", "alldir", "noA"], "solver": "cadical195", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 464, "clauses": 1671, "chkA": false, "chkB": true, "cyc": true, "fair": true, "ucnt": [3]}
+{"n": 4, "opts": ["sym", "tok", "alldir", "noA"], "solver": "glucose4", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 464, "clauses": 1671, "chkA": false, "chkB": true, "cyc": true, "fair": true, "ucnt": [3]}
+{"n": 5, "opts": ["sym", "tok", "alldir"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.1, "build": 0.0, "vars": 1392, "clauses": 8328}
+{"n": 5, "opts": ["sym", "tok", "alldir"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.1, "build": 0.0, "vars": 1392, "clauses": 8328}
+{"n": 5, "opts": ["sym", "tok", "alldir", "rank"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 0.1, "build": 0.0, "vars": 2192, "clauses": 9640}
+{"n": 5, "opts": ["sym", "tok", "alldir", "rank"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 0.1, "build": 0.0, "vars": 2192, "clauses": 9640}
+{"n": 5, "opts": ["sym", "tok", "alldir", "noA"], "solver": "cadical195", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 1392, "clauses": 5640, "chkA": false, "chkB": true, "cyc": true, "fair": true, "ucnt": [3]}
+{"n": 5, "opts": ["sym", "tok", "alldir", "noA"], "solver": "glucose4", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 1392, "clauses": 5640, "chkA": false, "chkB": true, "cyc": true, "fair": false, "ucnt": [3]}
+{"n": 6, "opts": ["sym", "tok", "alldir"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 19.8, "build": 0.0, "vars": 3904, "clauses": 43913}
+{"n": 6, "opts": ["sym", "tok", "alldir"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 29.0, "build": 0.0, "vars": 3904, "clauses": 43913}
+{"n": 6, "opts": ["sym", "tok", "alldir", "rank"], "solver": "cadical195", "k": "exactly 3", "sat": false, "t": 23.7, "build": 0.0, "vars": 6208, "clauses": 31561}
+{"n": 6, "opts": ["sym", "tok", "alldir", "rank"], "solver": "glucose4", "k": "exactly 3", "sat": false, "t": 33.8, "build": 0.0, "vars": 6208, "clauses": 31561}
+{"n": 6, "opts": ["sym", "tok", "alldir", "noA"], "solver": "cadical195", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 3904, "clauses": 17737, "chkA": false, "chkB": true, "cyc": true, "fair": true, "ucnt": [3]}
+{"n": 6, "opts": ["sym", "tok", "alldir", "noA"], "solver": "glucose4", "k": "exactly 3", "sat": true, "t": 0.0, "build": 0.0, "vars": 3904, "clauses": 17737, "chkA": false, "chkB": true, "cyc": true, "fair": false, "ucnt": [3]}
