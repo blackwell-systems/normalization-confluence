@@ -2294,6 +2294,17 @@ Print Assumptions NC.LocalTwoToken.two_token_no_closed_change.
 Print Assumptions NC.LocalTwoToken.two_token_fair_settlement.
 Print Assumptions NC.LocalTwoToken.fair_settles_once_two_tokens.
 Print Assumptions NC.LocalTwoToken.two_token_instance.
+Require Import NC.LocalTokenBalance.
+Print Assumptions NC.LocalTokenBalance.ltb_len_balance.
+Print Assumptions NC.LocalTokenBalance.ltb_len_pos.
+Print Assumptions NC.LocalTokenBalance.ucnt_split.
+Print Assumptions NC.LocalTokenBalance.image_distance.
+Print Assumptions NC.LocalTokenBalance.bad_le_good.
+Print Assumptions NC.LocalTokenBalance.bad_half.
+Print Assumptions NC.LocalTokenBalance.bad_le_half.
+Print Assumptions NC.LocalTokenBalance.not_both_bad_k2.
+Print Assumptions NC.LocalTokenBalance.three_token_shape.
+Print Assumptions NC.LocalTokenBalance.token_balance_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -2304,8 +2315,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 2241 ]; then
-  echo "FAIL: expected 2241 axiom-free results, got $N"
+if [ "$N" -lt 2251 ]; then
+  echo "FAIL: expected 2251 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

@@ -349,3 +349,10 @@ all: LocalTwoToken.vo
 
 LocalTwoToken.vo: LocalTwoToken.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo
 	coqc -Q . NC LocalTwoToken.v
+
+# The imbalance law: under out-degree at most one, at most half of the tokens are bad relative to
+# a fixed point (b <= g, for every number of tokens; gap 3 progress, LocalTokenBalance.v).
+all: LocalTokenBalance.vo
+
+LocalTokenBalance.vo: LocalTokenBalance.v DistributedCycles.vo CanonicalExecution.vo SignedResolver.vo LocalSigned.vo LocalFairSettlement.vo LocalTwoToken.vo
+	coqc -Q . NC LocalTokenBalance.v

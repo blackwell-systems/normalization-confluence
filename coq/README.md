@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 2241 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 2241 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 2251 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 2251 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -177,6 +177,7 @@ is on the same page.
 | `LocalSigned.v` | Local interaction graphs (Boolean, every `n`): local fidelity `rrt_sub`, `local_fidelity`, `local_fidelity_canon`, `local_signed_fidelity`, `global_to_local`; local settlement `richard_t3` (non-expansive), `outdeg_nonexpansive`, `richard_t4`, `shih_dong_E`; counterexamples `local_weaker_than_global`, `local_neg_free_no_fixed_point`, `shih_dong_not_fair`, `ring_local_conditions` | [Local interaction graphs](docs/non-invertible.md#local-interaction-graphs-local-fidelity-and-local-settlement-localsignedv) |
 | `LocalFairSettlement.v` | Fair settlement under no local cycle plus out-degree at most one (gap 3 progress): synchronous form `sync_orbit_fixed` (no local cycle needed only on the orbit), `sync_simple` (Shih and Ho 1999, Theorem 3.1, by a different proof); token monotonicity `ucnt_mono`; single-token case `one_token_closed`, `one_token_fair_settlement`, `fair_settles_once_one_token`; from acyclicity `fair_settles_closed`, `fair_settlement_of_acyclic`, `rank_closed`; instances `shih_ho_instance`, `outdeg_needed`, `no_neg_not_enough`, `no_pos_not_enough`. Two tokens: `LocalTwoToken.v`; three or more are open | [Fair settlement under local conditions](docs/non-invertible.md#fair-settlement-under-local-conditions-localfairsettlementv) |
 | `LocalTwoToken.v` | No closed asynchronous run with two unstable vertices under no local cycle plus out-degree at most one (gap 3 progress): `two_token_closed`, `two_token_no_closed_change`, `two_token_fair_settlement`, `fair_settles_once_two_tokens`; good and bad tokens relative to the fixed point `not_both_bad`, `tight`, `tight_arc`, the rigidity lemma `head_arc`, `G1_T`, `G1_H`; the rearrangement into a synchronous orbit `swap_TH`, `W_sort`, `W_main`, `run_bad_or_dec`; instance `two_token_instance`. Three or more tokens are open | [Two unstable vertices](docs/non-invertible.md#two-unstable-vertices-localtwotokenv) |
+| `LocalTokenBalance.v` | The imbalance law under out-degree at most one (gap 3 progress, general k): `image_distance` (d(F x, p) + g = d(x, p) + b), `ucnt_split`, `bad_le_good` (at most half the tokens are bad relative to a fixed point), `bad_half`, `bad_le_half`, `not_both_bad_k2` (the case k = 2), `three_token_shape`; non-vacuity `token_balance_instance`; gap 3 stays open | [The imbalance law](docs/non-invertible.md#the-imbalance-law-localtokenbalancev) |
 
 ### 13. The full nerve as a 2-complex ([docs/non-monotone-invertible.md](docs/non-monotone-invertible.md))
 
@@ -235,7 +236,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2241
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 2251
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
