@@ -3093,6 +3093,7 @@ Print Assumptions NC.AbstractionGsm.swapxy_not_idem.
 Print Assumptions NC.AbstractionGsm.idem13_passes.
 Print Assumptions NC.AbstractionGsm.idem13_diverges.
 Print Assumptions NC.AbstractionGsm.idem13_refused.
+Print Assumptions NC.Checker.run_perm_invariant.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3103,8 +3104,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3029 ]; then
-  echo "FAIL: expected 3029 axiom-free results, got $N"
+if [ "$N" -lt 3030 ]; then
+  echo "FAIL: expected 3030 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
