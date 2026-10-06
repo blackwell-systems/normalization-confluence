@@ -78,7 +78,9 @@ form is its instance with `hb` empty. Axiom-free:
   exactly-once delivery converges from `s0` and every reachable state is valid, an unlisted event
   needs no deduplication). Exactly: under `CommReach`, needing deduplication is non-idempotence at a
   reachable state where the event is first delivered; `NotIdempotent` quantifies over valid states
-  instead of reachable ones.
+  instead of reachable ones. These placements are for free and causal delivery. For a registry that
+  declares `Independent` pairs, exactly-once delivery covers only trace-equivalent orders, and no
+  theorem places `NotIdempotent` there (REGIME-AUDIT.md gap 15 (a)).
 - Recovered: `old_free_implies` / `alo_commuting_recovered` and `old_causal_implies` /
   `causal_alo_recovered` derive the exact conditions from the hypotheses of
   `alo_commuting_exactly_once` and `causal_alo_exactly_once`.

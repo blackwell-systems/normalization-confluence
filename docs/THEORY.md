@@ -238,7 +238,7 @@ of a composite can be checked on its parts.
   Locality itself fails without acyclicity: on a two-registry copy cycle every exposed local and
   interface ambiguity is resolved, yet two declared-independent events diverge, so `LCSound`, and
   hence `LC`, fails (`cyclic_lc_sound_fails`; the divergence alone is `cyclic_lc_fails`). The
-  open convergence problems are the question this leaves: what additional structure makes P exact
+  cyclic open convergence problems are the question this leaves: what additional structure makes P exact
   on cycles ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier)).
 - **A canonicalizer chosen by the dynamics.** E does not have to use the least fixed point. In the
   no-reset distributed model on monotone cycles, convergence among quiescent interleavings alone is

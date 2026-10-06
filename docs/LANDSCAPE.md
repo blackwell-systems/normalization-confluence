@@ -406,8 +406,9 @@ reading B) through Thomas-type conditions. The research note
   reached by iteration; Robert also shows (*Les systèmes dynamiques discrets*, Mathématiques et
   Applications 19, Springer, 1995) that the asynchronous state graph is then acyclic, so every
   asynchronous path, and hence every fair schedule, ends at the fixed point (as restated in
-  Richard 2019, Theorem 1, below). In the federation model this is acyclic convergence
-  (`frun_solves`, `solve_unique`, `order_independent`).
+  Richard 2019, Theorem 1, below). In the federation model the unique fixed point and its runs in
+  topological order are mechanized (`frun_solves`, `solve_unique`, `order_independent`); the
+  asynchronous half, every fair schedule, is cited and not mechanized (REGIME-AUDIT.md gap 16 (d)).
 - **Local interaction graphs** (`LocalSigned.v`: Boolean, every `n`; the local graph is the
   discrete Jacobian at a state). Placements, each checked against the paper or the authors' own
   restatement:
