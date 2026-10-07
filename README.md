@@ -24,7 +24,7 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (3384 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (3513 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
 "Machine-checked" in the headline applies to the exact conditions. Each hardness result is a
@@ -36,14 +36,14 @@ Where the map stands:
   acyclic federations; the distributed propagation model (acyclic, and monotone cycles with or
   without reset epochs); rootless propagation on every finite invertible network; reconfiguration
   of a single registry or a federation, at a barrier and live; propagation over channels on acyclic
-  networks.
+  networks; composition of blocks of any engines, including cyclic monotone collapse.
 - **Hardness:** consistency of a lossy network without a spanning root is NP-complete. Minimum
   coordination is exact and NP-hard (from Max-Cut on invertible networks, from 3-SAT on lossy ones).
 - **Counting and gluing:** `H^1` on the nerve is classified (counted over Z/2); sheaf gluing is
   exact on sub-federation covers.
-- **Open, eight convergence gaps:** rootless lossy networks (3), cyclic monotone collapse (5), the
-  distributed model off its hypotheses (16), rootless edge-writer dynamics (17), existence in the
-  resolver reading (18), composition of cyclic blocks (19), reconfiguration with propagation in
+- **Open, seven convergence gaps:** rootless lossy networks (3), the distributed model off its
+  hypotheses (16), rootless edge-writer dynamics (17), existence in the
+  resolver reading (18), distributed collapse of a cyclic block (19), reconfiguration with propagation in
   flight or other delivery classes (20) and channels beyond two-level networks (21). Most are cyclic, and the audit states
   them as one question: what makes composition exact on cycles.
 - **Excluded by design:** least fixed points without ACC, Byzantine participants, nondeterministic
