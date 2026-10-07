@@ -426,7 +426,7 @@ window.ATLAS = {
     "name": "Versioned merge at drain",
     "thm": "vsettle_exact_cond",
     "setting": "Versioned merging (MergeProjectionAfter), compared after a final round and any drain, with no outside flush.",
-    "condition": "Converging at drain is converging after a flush: CXUR plus C2. On two-level networks this is dist_exact's own condition.",
+    "condition": "Converging at drain is converging after a flush: CXUR plus C2. On two-level and, more generally, nested networks this is dist_exact's own condition.",
     "needed": [
       ["version_order_counterexample", "versions must increase in send order"],
       ["no_final_send_counterexample", "a send after the last source change is needed"]],
@@ -436,14 +436,28 @@ window.ATLAS = {
     "section": "8-distributed-model-with-propagation-steps"
   },
   {
+    "kind": "exact",
+    "mark": "iff",
+    "name": "Versioned channels, nested networks",
+    "thm": "vchan_nested_exact",
+    "setting": "Versioned merging on nested acyclic networks: whenever a registry that is not a pure root lies above a target, every source of the target lies below it too (every two-level network, every single-source network: chains and trees of any depth).",
+    "condition": "Every versioned channel state is a current-value state, so CXUR equals XUR, and convergence after a flush or at drain holds iff XUR plus C2: dist_exact's condition.",
+    "needed": [
+      ["vchan_skip_counterexample", "beyond nested networks CXUR is strictly stronger than XUR"]],
+    "gsm": "On single-source targets, the only ones gsm certifies for projection deployments, the reachable condition over versioned channels is dist_exact's.",
+    "theorems": ["vchan_nested_exact", "cxur_nested", "vchan_single_exact", "vchan_nested_emulate"],
+    "modules": ["ProjectionChains.v"],
+    "section": "8-distributed-model-with-propagation-steps"
+  },
+  {
     "kind": "open",
     "mark": "21",
-    "name": "Channels beyond two levels; on cycles",
+    "name": "Channels beyond nested networks; on cycles",
     "note": "open",
-    "setting": "Propagation over channels beyond two-level networks, and over channels on cycles.",
-    "condition": "Open: gap 21 (a), whether versioned channels reach other stale combinations on chains and multi-source targets; (b), cycles, where the ghost survives versioned channels and epochs over channels have no theorem.",
-    "theorems": ["chan_exact", "vchan_twolevel_exact", "vchan_cyc_ghost"],
-    "modules": ["ProjectionChannels.v"],
+    "setting": "Propagation over versioned channels on acyclic networks that are not nested, and over channels on cycles.",
+    "condition": "Open: gap 21 (a), the exact network class between nested networks (settled) and the pattern of vchan_skip_counterexample, where versioned channels reach a stale combination no current-value run does; (b), cycles, where the ghost survives versioned channels and epochs over channels have no theorem.",
+    "theorems": ["chan_exact", "vchan_nested_exact", "vchan_skip_counterexample", "vchan_cyc_ghost"],
+    "modules": ["ProjectionChannels.v", "ProjectionChains.v"],
     "section": "8-distributed-model-with-propagation-steps",
     "gap": 21
   },

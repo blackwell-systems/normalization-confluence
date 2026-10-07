@@ -7,6 +7,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/ProjectionChains.v`: versioned projection channels beyond two-level networks. Narrows
+  gap 21 residue (a) (REGIME-AUDIT.md section 8). Axiom-free.
+  - **Nested networks:** whenever a registry that is not a pure root lies above a target, every
+    source of the target lies below it too; every two-level network (`twolevel_nested`) and every
+    single-source network, chains and trees of any depth (`single_nested`). Every state a
+    disciplined versioned channel run reaches is a current-value state (`vchan_nested_emulate`),
+    so `CXUR true s0 <-> XUR s0` (`cxur_nested`) and `ChanConv true`, `SettleConv` and `DistConv`
+    are each equivalent to `XUR /\ C2R`, `dist_exact`'s condition (`vchan_nested_exact`,
+    `vchan_single_exact`); `vchan_twolevel_exact` recovered (`vchan_twolevel_exact_recovered`).
+  - **Beyond them:** `vchan_skip_counterexample`, four registries (2 reads 0 and 1, 3 reads 1 and
+    2): `XUR` and `DistConv` hold, a disciplined versioned run shows registry 3 a combination no
+    current-value run reaches, and `CXUR true`, `ChanConv true` and `SettleConv` fail. gsm's static
+    XU rejects the event there.
+  - **Non-vacuity:** `chain_instance`, a chain `0 -> 1 -> 2` that is not two-level.
+  - **Gate:** raised from 3603 to 3693.
+
 - `coq/EventCollapse.v`: events with equal governed steps are checked once, the theorem for gsm's
   single check of a parameterized event outside its declared ranges (gsm theory section 11.12,
   "Ranges"). Axiom-free.
