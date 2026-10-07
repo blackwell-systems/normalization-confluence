@@ -61,7 +61,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     reading B's merges as `(k+1)`-ary graphs (`hsection_iff_csp`, `msection_as_hsection`).
   - **Polymorphisms:** a `k`-ary operation preserves the graph of `f` iff it commutes with `f`
     (`pol_iff_commute`), and a pin `{c}` iff it fixes `c` (`pol_pin_iff`); Pol(Gamma_F) is the
-    centralizer of `F` fixing the pins (`pol_gamma_iff`); polymorphisms map solutions to solutions
+    centralizer of `F` fixing the pins (`pol_gamma_iff`, the classical clone-theory fact,
+    mechanized); polymorphisms map solutions to solutions
     (`pol_solutions`, `section_closure`). Group translations have the Mal'tsev polymorphism
     `x y^-1 z` (`group_maltsev`, `group_pol`, `group_section_as_msection`).
   - **The reduction's family:** `prj c p` depends on `c` only through its signs (`prj_signs`), so
@@ -70,7 +71,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   - **Monotone chains:** monotone maps commute with min, max and median (`chain_pol`); arc
     consistency decides section existence for monotone transports on `{0..N}` with pins, the
     witness being the minimum of each domain (`ac_exact`, `ac_min_section`, `ac_run_some`,
-    `ac_pass_bound`, `ac_family`); monotonicity needed (`ac_needs_mono`).
+    `ac_pass_bound`, `ac_family`; a mechanized instance of Jeavons and Cooper 1995, not a new
+    tractability class); monotonicity needed (`ac_needs_mono`).
   - **Off the chain:** the diamond's lossy monotone map does not commute with join
     (`diamond_join_fails`; it does with meet, `diamond_meet_ok`), and `diamond_g_fails` commutes
     with neither; a non-chain family with a majority polymorphism (`median_family`,
@@ -1009,6 +1011,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/LANDSCAPE.md`: a section "Related work for the constraint layer" (after the cohomological
+  layer) replaces "Related work for static consistency (constraint satisfaction)" and places
+  `TransportCSP.v` against prior work: the identification of global sections with CSP solutions in
+  Abramsky's sheaf-theoretic contextuality line (Abramsky and Brandenburger 2011; Abramsky 2013 and
+  2014; Abramsky, Barbosa, Kishida, Lal and Mansfield 2015; Abramsky, Gottlob and Kolaitis 2013;
+  Abramsky, Barbosa, de Silva and Zapata 2017, Proposition 13, the closest prior statement), CSP as
+  global sections and cohomological k-consistency (Ó Conghaile 2022; Abramsky 2022), lattice-valued
+  cellular sheaves (Ghrist and Riess 2022), constraint networks and arc consistency (Montanari 1974;
+  Mackworth 1977; Freuder 1982; Deville and Van Hentenryck 1991; Van Hentenryck, Deville and Teng
+  1992), max-closed and semilattice tractability (Jeavons and Cooper 1995; Jeavons, Cohen and
+  Gyssens 1997; Cohen and Jeavons 2006), near-unanimity (Jeavons, Cohen and Cooper 1998), groups and
+  permutation constraints (Feder and Vardi 1998; Bulatov and Dalmau 2006; Goldmann and Russell 2002;
+  Khot 2002), the clone-theoretic centralizer (Machida 2010; Machida and Rosenberg 2003), unary
+  function templates (Hell and Nešetřil 1990; Feder, Madelaine and Stewart 2004), networks of models
+  (Stevens 2020), quantum relaxations (Atserias, Kolaitis and Severini 2019; Ciardo 2024) and CSP
+  mechanizations in Lean, with a search scope and a calibrated statement of what the bridge adds.
+  Wording made to match the literature: `ac_exact` is stated as a mechanized instance of Jeavons and
+  Cooper 1995 (semilattice form: Jeavons, Cohen and Gyssens 1997, Theorem 5.13), not a new
+  tractability class, and `pol_gamma_iff` as the classical centralizer fact, mechanized
+  (`docs/THEORY.md` "Static consistency as CSP", `REGIME-AUDIT.md` section 12 and its summary in the
+  opening status text, `coq/docs/non-invertible.md`, and this file's `TransportCSP.v` entry); THEORY.md and
+  `coq/docs/non-invertible.md` say that the global-sections/CSP identification is known in general
+  and that `section_iff_csp` is its form for transport networks. No theorem added, removed or
+  renamed.
 - `README.md`: the status list follows #125 and #126 (reconfiguration exact under declared, causal and at-least-once delivery; versioned channels exact on single-source networks at any depth; gaps 20 and 21 restated). No theorem added, removed or renamed.
 - `docs/atlas/check.py` also checks gap status against `REGIME-AUDIT.md` (no closed gap shown open; every open convergence gap has a tile), and a new CI workflow (`.github/workflows/atlas.yml`) runs it on every PR, so the poster cannot drift from the audit. No theorem added, removed or renamed.
 - Gate count 3603 (after #118) in `README.md`, `coq/README.md` and the atlas poster, which `docs/atlas/check.py` requires to match `verify.sh`. No theorem added, removed or renamed.

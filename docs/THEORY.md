@@ -724,10 +724,13 @@ pinned values; a network labeled by `F` with pinned vertices is an instance of C
 its sections are exactly the instance's solutions (`section_iff_csp`; merges of reading B are the
 graphs of `k`-ary maps, `hsection_iff_csp`). An operation is a polymorphism of the graph of `f`
 iff it commutes with `f` (`pol_iff_commute`), so Pol(Gamma_F) is the centralizer of `F`, cut down
-to the operations fixing the pinned values (`pol_gamma_iff`). By the CSP dichotomy (Bulatov 2017;
-Zhuk 2017, 2020), cited and not mechanized, section existence for each fixed finite family is
-either polynomial or NP-complete, and the polymorphisms decide which. The development's own
-results sit at known points of that classification:
+to the operations fixing the pinned values (`pol_gamma_iff`; a classical fact of clone theory,
+mechanized here). By the CSP dichotomy (Bulatov 2017; Zhuk 2017, 2020), cited and not mechanized,
+section existence for each fixed finite family is either polynomial or NP-complete, and the
+polymorphisms decide which. The identification of global sections with CSP solutions is known in
+general (Abramsky and coauthors' sheaf-theoretic contextuality, 2011 to 2017); what is proved here
+is its form for these transport networks. The development's own results sit at known points of
+that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)):
 
 - **Groups.** For group labels acting by translation, `x y^-1 z` is a Mal'tsev polymorphism
   (`group_maltsev`, `group_pol`), the tractable case of Bulatov and Dalmau 2006; the mechanized
@@ -739,7 +742,10 @@ results sit at known points of that classification:
   (`chain_pol`): semilattice and majority polymorphisms. For pinned networks of monotone maps on a
   finite chain, arc consistency decides section existence, and the minimum of each arc-consistent
   domain is a section (`ac_exact`, mechanized with its exactness proof; the pass bound is
-  `ac_pass_bound`). The chain matters: on the four-element diamond a monotone lossy map need not
+  `ac_pass_bound`). This is the binary, min-closed case of a classical result, not a new
+  tractability class: max-closed constraints (Jeavons and Cooper 1995), and more generally any
+  semilattice polymorphism (Jeavons, Cohen and Gyssens 1997, Theorem 5.13), make arc consistency
+  decide the instance. The chain matters: on the four-element diamond a monotone lossy map need not
   commute with join (`diamond_join_fails`, `diamond_g_fails`), and without monotonicity arc
   consistency accepts an instance with no section (`ac_needs_mono`).
 - **Monotone maps off the chain: the predicted hard cell.** The algebra predicts the other
