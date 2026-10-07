@@ -268,6 +268,16 @@ the equivalence is the order type (`rel0_oiso`), which is how the comparison fra
 it. A sum of two variables leaves the quotient: it moves a value to a place no difference relation
 predicts (`sum_diverges`).
 
+Event parameters (`DifferenceParams.v`) enter the same quotient as extra coordinates of a joint
+state, the variables followed by the arguments of the events a check composes. A parameter that
+only meets difference guards and copies is just another coordinate, so its range can be as wide as
+any variable's. A parameter added to a value is a sum of two coordinates, and leaves the quotient
+at every threshold (`addw_no_threshold`). It returns in another way: the relation pins every
+coordinate whose range is narrower than twice the threshold (`exact_eq`), so a narrow parameter
+is the same in a state and its representative, and can be read as a constant offset, one value
+at a time. Arithmetic on arguments thus splits the parameters into abstract ones, free at any
+width, and exact ones, whose magnitude the threshold pays (`exact_needs_width`).
+
 Compositional checking (`CompositionalCheck.v`) uses locality, or independence, for checking. If
 every rule reads and writes only variables of one footprint component, then a repair step of the
 registry is a repair step of exactly one component (`rho_step`). The registry's canonicalizer is
