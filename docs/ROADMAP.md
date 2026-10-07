@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 3243 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 3384 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -305,7 +305,8 @@ The original item text follows. Known gaps at the time, from the README's [paper
 
 **Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); step 2 (abstraction) landed for
 comparison-only rules with a finite representative domain and for linear rules as an exact
-reduction to formula validity (`AbstractionCutoff.v`); step 3 (compositional checking) landed for
+reduction to formula validity (`AbstractionCutoff.v`), and for difference constraints with gsm's
+saturating writes with a finite representative domain, no solver (`DifferenceAbstraction.v`); step 3 (compositional checking) landed for
 WFC and gsm's guarantee, CC1 on valid states (`CompositionalCheck.v`); the history-side reduction
 planned.**
 
@@ -343,9 +344,26 @@ planned.**
   check (`triangle_diverges`), and the bound cannot drop below n (`copy_tight`). Non-vacuity:
   capped inventory over 7 representatives (`capped_un`), a wallet with integer balances through its
   13 formulas (`wallet_un`), and with symmetry a capped catalog of any size (`sym_abs`,
-  `capped_catalog`). Details: [coq/docs/abstraction.md](../coq/docs/abstraction.md). Not yet done:
-  a finite representative set for the linear fragment (a small-model bound), repair whose step
-  count depends on the values, dense orders (strings, decimals), and the gsm side.
+  `capped_catalog`). Details: [coq/docs/abstraction.md](../coq/docs/abstraction.md).
+- **Step 2, arithmetic status: difference constraints, done (`coq/DifferenceAbstraction.v`).** For
+  the most common business arithmetic, guards `x - y op c` and `x op c`, writes `x := y + c`,
+  `x := x + c` and `x := c`, with every write saturating at the declared bounds as gsm's `Int`
+  writes do, each condition gsm checks holds over the full declared ranges iff it holds over the
+  in-range states with every variable within `n(W + 1)` of an anchor (the bounds and the absolute
+  constants). `W` is the largest difference-guard constant `gam` plus the chained offsets:
+  `gam + K mu` for repair within K steps (`dterm_abs`), `gam + 3(K + 1) mu` for idempotence
+  (`didemv_abs`), `gam + 4(K + 1) mu` for CC1 at the valid states (`dcc1v_abs`) and for gsm's
+  guarantee (`dgsm_exact`, `dgsm_sound`, end to end `dbuild_sound`), with `mu` the largest sum of
+  offsets in one transform. The size does not depend on the widths of the ranges (657
+  representatives for a wallet over `[-1000, 10^9]`). At threshold 0 the relation is the order type
+  (`rel0_oiso`), so the comparison fragment is the special case. Boundaries: a difference guard
+  that the order-pattern check misses is reported (`gap_check_fails`); `triangle_diverges`' guard
+  and a sum of two variables are refused (`tri_refused`, `sum_diverges`); the threshold must cover
+  chained increments (`granularity_needs_chain`). Not yet done: the least threshold (the one proved
+  is sufficient), general linear rules over a finite domain (sums of variables, multiplication by
+  a literal other than 1), repair whose step count depends on the values, dense orders (strings,
+  decimals), and the gsm side (the design input is in
+  [coq/docs/abstraction.md](../coq/docs/abstraction.md#for-gsm-1)).
 
 - **Step 3, compositional checking: check each footprint component, conclude for the registry.**
   When every rule's footprint lies in one component, a repair step of the registry is a repair
