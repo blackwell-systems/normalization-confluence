@@ -541,6 +541,44 @@ conclusion of Shih and Ho 1999 with the local condition needed only on the orbit
 local conditions from every start, or multivalued local graphs; those are open (REGIME-AUDIT gap
 3).
 
+## Related work for static consistency (constraint satisfaction)
+
+Whether a transport network has a consistent state at all is a constraint satisfaction problem:
+each edge `(u, v, f)` is the binary relation `{(x, f x)}`, each pinned vertex a unary relation,
+and a section is a solution. `TransportCSP.v` states this correspondence as theorems
+(`section_iff_csp`, `hsection_iff_csp`) and identifies the polymorphisms of the template Gamma_F
+of a transport family `F` with the operations commuting with every map of `F`
+(`pol_iff_commute`, `pol_gamma_iff`). The classification itself is the literature's, cited and not
+mechanized.
+
+- **Polymorphisms and closure properties.** Jeavons, Cohen and Gyssens ("Closure properties of
+  constraints," *J. ACM* 44(4), 1997, 527-548) show that a constraint language not closed under a
+  suitable operation gives an NP-complete problem, and that closure under a constant, majority,
+  affine or semilattice (ACI) operation gives a tractable one. Jeavons ("On the algebraic structure
+  of combinatorial problems," *Theoret. Comput. Sci.* 200, 1998, 185-204) develops the Galois
+  connection between relations and their polymorphisms. `chain_pol` places monotone families on a
+  chain in the semilattice and majority classes; `ac_exact` mechanizes the arc-consistency
+  algorithm for that case with its exactness proof.
+- **Mal'tsev templates.** Bulatov and Dalmau ("A simple algorithm for Mal'tsev constraints,"
+  *SIAM J. Comput.* 36(1), 2006, 16-27) solve every CSP with a Mal'tsev polymorphism in polynomial
+  time. Group translations have the Mal'tsev polymorphism `x y^-1 z` (`group_maltsev`); for them the
+  development's own criterion is the coboundary test (`section_iff_coboundary`).
+- **Bounded width and Datalog.** Feder and Vardi ("The computational structure of monotone monadic
+  SNP and constraint satisfaction: a study through Datalog and group theory," *SIAM J. Comput.*
+  28(1), 1998, 57-104) formulate the dichotomy conjecture and relate tractability to bounded width
+  (local consistency) and to group structure. Families with a majority polymorphism
+  (`median_family`) have bounded width; only the commutation is mechanized here.
+- **The dichotomy.** Bulatov ("A dichotomy theorem for nonuniform CSPs," FOCS 2017, 319-330) and
+  Zhuk ("A proof of CSP dichotomy conjecture," FOCS 2017, 331-342; journal version "A proof of the
+  CSP dichotomy conjecture," *J. ACM* 67(5), 2020, Article 30) prove that for every finite template
+  CSP(Gamma) is in P or NP-complete, decided by the polymorphisms. So section existence for a fixed
+  finite transport family is classified by the centralizer of the family. The 3-SAT reduction of
+  `LossyHardness.v` uses one fixed family of 26 maps (`hard_family_csp`), an NP-complete template.
+
+What the development adds here is the precise correspondence, stated and proved in Coq, between its
+section notions and CSP instances, and the regime cells it predicts with their mechanized
+instances; the CSP theory itself is cited.
+
 ## The ideas it connects (and makes rigorous)
 
 - **Term rewriting / Newman's Lemma.** Convergence is reframed as *confluence of a rewrite

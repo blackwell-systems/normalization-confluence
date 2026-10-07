@@ -752,3 +752,85 @@ point `1111` has two tokens (1, 1) at `1110`, where the bound b <= g is attained
 **What is open.** Nothing here is about closed runs with three or more tokens. The structural
 lemmas mined for that case, and the obstruction, are in
 [K3.md](../../research/gap3-fair-settlement/K3.md). Gap 3 stays open.
+
+## Static consistency as a CSP (`TransportCSP.v`)
+
+**Setting.** Reading A: a network is a list of edges `(u, v, f)` with `f : D -> D` on one fiber
+`D`, and a section satisfies `f (s u) = s v` on every edge (`msection`). Pinned vertices are a list
+`P` of `(vertex, value)` pairs. A relation is an arity and a predicate on tuples; `rgraph f` is the
+graph `{(x, f x)}` and `rpin c` the unary relation `{c}`. For a transport family `F` and pin values
+`cs`, the template is `gamma F cs` (Gamma_F). `csp_of G P` is the CSP instance of the network: one
+binary constraint per edge and one unary constraint per pin. Operations are `p : list D -> D`
+read at an arity `k`; `preserves k p R` is the usual polymorphism condition (applied to the
+columns of any `k x n` matrix whose rows lie in `R`).
+
+**Main results (the bridge).**
+
+- `section_iff_csp`: when `G` is labeled by `F` and the pin values lie in `cs`, `G` has a section
+  agreeing with `P` iff `csp_of G P` is satisfiable, and `csp_of G P` is an instance of
+  CSP(Gamma_F). `section_solution` is the pointwise form; `section_iff_csp_nopin` the unpinned one.
+- `hsection_iff_csp`, `hsection_over`, `msection_as_hsection`: reading B's merges. A merge edge
+  `(us, v, g)` with `g` of arity `k` is the `(k + 1)`-ary relation `hgraph k g`; reading A is the
+  case `k = 1`.
+- `pol_iff_commute`: `p` preserves `rgraph f` iff `f (p xs) = p (map f xs)` for every `xs` of length
+  `k`. `pol_pin_iff`: `p` preserves `{c}` iff `p (c, ..., c) = c`. `pol_gamma_iff`: Pol(Gamma_F) is
+  exactly the set of operations commuting with every map of `F` (the centralizer of `F`) that fix
+  the pinned values.
+- `pol_solutions`: a polymorphism maps `k` solutions of any instance over Gamma to a solution
+  (the closure property); `section_closure` is the network form.
+- `group_maltsev`, `group_pol`, `group_section_as_msection`: for a group acting on itself by left
+  translation, `m (x, y, z) = x y^-1 z` commutes with every translation and satisfies
+  `m (x, x, y) = y = m (y, x, x)`; the group-labeled networks of `CohomologyGraph.v` are
+  translation networks, whose polynomial criterion is `section_iff_coboundary`.
+- `prj_signs`, `prj_signs_eq`, `net_in_hard_family`, `hard_family_csp`: the maps `prj c p` of
+  `LossyHardness.v` depend on the clause `c` only through its sign pattern, so every network
+  `net f` is labeled by one fixed family of 26 maps (`hard_family`: `filt`, `pin`, and 24
+  projections `sprj n1 n2 n3 p`). Section existence for that fixed family is 3-SAT on every formula
+  by the existing reduction (`net_section_iff_sat`, linear size by `net_size`), so CSP(Gamma) for
+  this one template is NP-complete. `hard_family_min_fails`: the family is not monotone and `min`
+  is not one of its polymorphisms.
+
+**Predicted cells.**
+
+- `mono_min_commute`, `mono_max_commute`, `mono_median_commute`, `med_majority`, `chain_pol`: a
+  monotone map on a chain commutes with `min`, `max` and the median, so for every family of
+  monotone maps and every pin list, `min` and `max` (semilattice operations) and the median (a
+  majority operation) are polymorphisms of Gamma_F. `chain_min_section`: the pointwise min and max
+  of two sections are sections.
+- `ac_exact` (monotone transports on the finite chain `{0..N}`, pinned vertices): `ac_decide N G P`
+  runs arc consistency (a simultaneous revise of every domain, iterated until no domain shrinks)
+  and returns `true` iff a section with values in `{0..N}` agreeing with the pins exists. The
+  witness is the minimum of each arc-consistent domain (`ac_min_section`); pruning never removes a
+  section's value (`run_spec`). Termination: `ac_run_some`, within `measure init + 1` passes, and
+  `ac_pass_bound`: `measure init <= |vs| (N + 1)`, `vs` the vertices of `G` and the pinned
+  vertices. Step bound (stated, not mechanized as a cost model): each pass examines every value of
+  every domain against every edge, `O(|vs| (N + 1) |G| (N + 1))` checks, so the procedure is
+  polynomial in the network and the chain length. `ac_family` states it per family.
+- `ac_needs_mono`: monotonicity is needed. The negation `x |-> 1 - x` around a triangle on `{0, 1}`
+  passes arc consistency with full domains and has no section.
+- `diamond_join_fails`: on the diamond `0 < a, b < 1`, the lossy map `f (0) = f (a) = f (b) = 0`,
+  `f (1) = 1` is monotone and does not commute with join, so join is not a polymorphism of
+  Gamma_{f}; it does commute with meet (`diamond_meet_ok`). `diamond_g_fails`: the monotone map
+  `a, b |-> a` (0 and 1 fixed) commutes with neither join nor meet. The chain hypothesis matters for
+  the min/max argument.
+- `median_family`, `median_family_not_lattice`: a non-chain family with a majority polymorphism.
+  On `bool * bool`, the swap, the lossy projection `(x, y) |-> (x, x)` and the negation of the
+  first coordinate commute with the coordinatewise median, a majority operation that fixes every
+  pin; the lattice meet and join are not polymorphisms of this family. Tractability of section
+  existence for such families is the cited bounded-width result (Jeavons, Cohen and Gyssens 1997;
+  Feder and Vardi 1998); only the commutation is mechanized.
+
+**Instances.** `ac_ex1` (a path, a lossy decrement and a parallel copy, pinned: a section),
+`ac_ex2` (two paths that disagree at a merge: `ac_decide = false`, no section), `ac_ex3` (a lossy
+2-cycle: the arc-consistent domains are `{3}` and the only section is 3 everywhere),
+`bridge_instances` (the C22 tree as an unsatisfiable CSP instance, `two_G` of `RootSet.v` as a
+satisfiable one).
+
+**Cited, not mechanized.** The CSP dichotomy: for a finite template Gamma, CSP(Gamma) is in P or
+NP-complete, decided by the polymorphisms (Bulatov, FOCS 2017; Zhuk, FOCS 2017 and J. ACM 67(5),
+2020). Mal'tsev templates are tractable (Bulatov and Dalmau, SIAM J. Comput. 36(1), 2006). The
+polymorphism connection and the tractable closure classes (constant, majority, semilattice,
+affine): Jeavons, Cohen and Gyssens, J. ACM 44(4), 1997; Jeavons, Theoret. Comput. Sci. 200, 1998.
+Bounded width: Feder and Vardi, SIAM J. Comput. 28(1), 1998. Per fixed family `F`, section
+existence is therefore classified by Pol(Gamma_F); the correspondence above is what makes that
+reading precise.

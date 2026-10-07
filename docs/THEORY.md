@@ -635,6 +635,46 @@ condition. The research note on lossy networks,
 [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver
 readings, root sets, and signed-cycle (Thomas-type) conditions.
 
+### Static consistency as CSP
+
+The theory has three layers. **(A) Execution algebra:** events, traces and merges, and when their
+order matters (repair and event confluence, the canonical-execution decomposition). **(B)
+Constraint algebra:** which states are consistent, a static question about the network's
+equations. **(C) Dynamics:** whether runs reach a consistent state and which one (settlement,
+fidelity, fair schedules). Existence of a section is a layer-B question; settlement is layer C;
+`SignedResolver.v` and the local-graph modules above are layer-C results that presuppose layer-B
+answers.
+
+Layer B is a finite-domain constraint satisfaction problem, and `TransportCSP.v` makes the
+correspondence precise. Fix a finite family `F` of transport maps on a fiber `D`. The template
+Gamma_F is the set of graphs `{(x, f x)}` of the maps in `F`, plus unary relations `{c}` for
+pinned values; a network labeled by `F` with pinned vertices is an instance of CSP(Gamma_F), and
+its sections are exactly the instance's solutions (`section_iff_csp`; merges of reading B are the
+graphs of `k`-ary maps, `hsection_iff_csp`). An operation is a polymorphism of the graph of `f`
+iff it commutes with `f` (`pol_iff_commute`), so Pol(Gamma_F) is the centralizer of `F`, cut down
+to the operations fixing the pinned values (`pol_gamma_iff`). By the CSP dichotomy (Bulatov 2017;
+Zhuk 2017, 2020), cited and not mechanized, section existence for each fixed finite family is
+either polynomial or NP-complete, and the polymorphisms decide which. The development's own
+results sit at known points of that classification:
+
+- **Groups.** For group labels acting by translation, `x y^-1 z` is a Mal'tsev polymorphism
+  (`group_maltsev`, `group_pol`), the tractable case of Bulatov and Dalmau 2006; the mechanized
+  polynomial criterion is the coboundary test `section_iff_coboundary`.
+- **The reduction's family.** The 3-SAT networks of `LossyHardness.v` use one fixed family of 26
+  maps (`prj_signs`, `net_in_hard_family`), so CSP(Gamma) for that one template is NP-complete
+  (`hard_family_csp`, by the existing reduction).
+- **Monotone maps on a chain.** A monotone map commutes with `min`, `max` and the median
+  (`chain_pol`): semilattice and majority polymorphisms. For pinned networks of monotone maps on a
+  finite chain, arc consistency decides section existence, and the minimum of each arc-consistent
+  domain is a section (`ac_exact`, mechanized with its exactness proof; the pass bound is
+  `ac_pass_bound`). The chain matters: on the four-element diamond a monotone lossy map need not
+  commute with join (`diamond_join_fails`, `diamond_g_fails`), and without monotonicity arc
+  consistency accepts an instance with no section (`ac_needs_mono`).
+- **Majority off the chain.** A family on `bool * bool` with a lossy map commutes with the
+  coordinatewise median and not with meet or join (`median_family`,
+  `median_family_not_lattice`); tractability then follows from the bounded-width results cited
+  (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
+
 ### Monoids and traces
 
 Event sequences are words in the free monoid `E*`, and running them is an action of `E*` on states.

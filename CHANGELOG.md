@@ -7,6 +7,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/TransportCSP.v`: static consistency as a finite-domain CSP, and the regime cells this
+  predicts. Refines the lossy consistency cell of REGIME-AUDIT.md section 12 per transport family.
+  Axiom-free.
+  - **Bridge:** a network labeled by a family `F`, with pinned vertices, has a section iff its CSP
+    instance over Gamma_F (graphs of the maps, unary pins) is satisfiable (`section_iff_csp`);
+    reading B's merges as `(k+1)`-ary graphs (`hsection_iff_csp`, `msection_as_hsection`).
+  - **Polymorphisms:** a `k`-ary operation preserves the graph of `f` iff it commutes with `f`
+    (`pol_iff_commute`), and a pin `{c}` iff it fixes `c` (`pol_pin_iff`); Pol(Gamma_F) is the
+    centralizer of `F` fixing the pins (`pol_gamma_iff`); polymorphisms map solutions to solutions
+    (`pol_solutions`, `section_closure`). Group translations have the Mal'tsev polymorphism
+    `x y^-1 z` (`group_maltsev`, `group_pol`, `group_section_as_msection`).
+  - **The reduction's family:** `prj c p` depends on `c` only through its signs (`prj_signs`), so
+    every 3-SAT network uses one fixed family of 26 maps (`net_in_hard_family`); section existence
+    for it is NP-complete by the existing reduction (`hard_family_csp`).
+  - **Monotone chains:** monotone maps commute with min, max and median (`chain_pol`); arc
+    consistency decides section existence for monotone transports on `{0..N}` with pins, the
+    witness being the minimum of each domain (`ac_exact`, `ac_min_section`, `ac_run_some`,
+    `ac_pass_bound`, `ac_family`); monotonicity needed (`ac_needs_mono`).
+  - **Off the chain:** the diamond's lossy monotone map does not commute with join
+    (`diamond_join_fails`; it does with meet, `diamond_meet_ok`), and `diamond_g_fails` commutes
+    with neither; a non-chain family with a majority polymorphism (`median_family`,
+    `median_family_not_lattice`).
+  - **Cited, not mechanized:** Bulatov 2017, Zhuk 2017 and 2020 (dichotomy); Bulatov and Dalmau
+    2006 (Mal'tsev); Jeavons, Cohen and Gyssens 1997 and Jeavons 1998 (closure properties,
+    polymorphisms); Feder and Vardi 1998.
+  - **Docs:** THEORY.md "Static consistency as CSP" (the three layers; existence is layer B,
+    settlement layer C); LANDSCAPE.md related work on CSP; REGIME-AUDIT.md section 12, COVERAGE.md
+    A9 and A11, ROADMAP.md; atlas tile for monotone transports on chains.
+  - **Gate:** raised from 4037 to 4101.
 - `coq/ProjectionChains.v`: versioned projection channels beyond two-level networks. Narrows
   gap 21 residue (a) (REGIME-AUDIT.md section 8). Axiom-free.
   - **Nested networks:** whenever a registry that is not a pure root lies above a target, every
