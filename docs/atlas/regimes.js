@@ -502,9 +502,9 @@ window.ATLAS = {
       ["cross_declared_barrier", "the cross pairs the class reorders are needed"],
       ["count_dup_prefix", "S1 at a duplicate prefix is needed"],
       ["reset_straddle", "absorbing a redelivery that straddles the barrier is needed"]],
-    "gsm": "CheckMigration refuses registries with Independent pairs; classify_declared_complete states the check for them.",
-    "theorems": ["live_delivery_exact", "barrier_delivery_exact", "barrier_alo_exact", "classify_causal_complete", "classify_alo_complete"],
-    "modules": ["ReconfigurationDelivery.v"],
+    "gsm": "CheckMigration checks declared independence and at-least-once delivery; its declared closure search, pruned to one orientation per declared pair, is exact (barrier_declared_pruned_exact), and its at-least-once checks at every reachable state are exact for repeated submissions (gsm_alo_live_exact, gsm_alo_barrier_exact).",
+    "theorems": ["live_delivery_exact", "barrier_delivery_exact", "barrier_alo_exact", "classify_causal_complete", "classify_alo_complete", "barrier_declared_pruned_exact", "gsm_alo_live_exact", "gsm_alo_barrier_exact", "classify_submissions_complete"],
+    "modules": ["ReconfigurationDelivery.v", "ReconfigurationGsm.v"],
     "section": "the-open-gaps",
     "gap": 20
   },

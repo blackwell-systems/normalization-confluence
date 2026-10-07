@@ -333,6 +333,86 @@ search a certificate). Causal and at-least-once delivery need the delivered set 
 the straddle check `AbsorbS`, and `DS1` is already checked at every reachable state, duplicate
 prefixes included.
 
+## gsm's own-argument steps (`ReconfigurationGsm.v`)
+
+gsm's `CheckMigration` under a delivery class (gsm `docs/theory.md` section 11.11) rested two steps
+on its own argument rather than a gated theorem. Both are mechanized here, in the deterministic
+model gsm runs (section `Det`).
+
+**Declared closure pruning.** Under declared independence the barrier's A part is `ClosureI`, the
+pair closure seeded with A's declared pairs only (`barrier_declared_exact`). gsm searches a pruned
+form, `PCIg`: a seed only for a declared pair in one orientation `sel a b` (gsm: the event index
+order `i < j`), only where the two orders differ, and successors only into pairs of different
+states.
+
+- `closureIg_exact`: for a symmetric declared relation `I` and an orientation covering every pair
+  (`a = b \/ sel a b \/ sel b a`), `ClosureIg s0 <-> ClosureI s0`. `closureIg_witness_iff`: the
+  pruned closure has a pair the observation separates iff the unpruned one does (no finiteness);
+  on finite instances `closureIg_witness_exact`: `~ ClosureI s0` iff the pruned search finds a
+  witness, so `closureI_witness_exact` transfers and an exhausted pruned search is a certificate.
+- `closureI_symmetrize`: `ClosureI I <-> ClosureI (symI I)` (a seed's mirror is the mirrored pair),
+  so `closureIg_sym_exact`: the pruned search over `symI I` is exact for every `I`. That is what
+  gsm's `declaredPairs` computes: an unordered pair is kept when either orientation is declared.
+- `barrier_declared_pruned_exact`: `barrier_declared_exact` with the pruned closure in place of
+  `ClosureI`.
+- Symmetry is needed (`pruning_needs_symmetry`): with `I` declaring only (true, false) and the
+  orientation false before true, the pruned closure is empty, so it reports no witness, while
+  `ClosureI` has the pair (Some false, Some true) that `partialM` separates (A last-writer-wins).
+  Symmetrizing restores the witness.
+- Non-vacuity: `declared_pruned_instances` (the pruned search certifies `mergeM` and refutes
+  `partialM`), `declared_barrier_instances` (through `barrier_declared_pruned_exact`: `mergeM` with B
+  ignoring the events is `BarrierOnly`, `partialM` is `Unsafe`).
+
+**At-least-once with repeated submissions.** `ReconfigurationDelivery.v`'s at-least-once class takes
+each event as one message that may be redelivered. In gsm an event may be submitted any number of
+times, each submission a fresh message. The submission model takes messages to be pairs (event,
+submission number), `EA * nat` before the switch and `EB * nat` after it; a message steps as its
+event (`stepS`), an in-flight A-message translates to `(tau a, k)` (`tauS`); every sequence is
+admissible (each message delivered at least once, in any order) and two runs are compared either by
+the same set of messages (the same submissions) or, as gsm's witnesses compare them
+(`migration.go`, `witness`: `sameSet` of the old events and of the new events), by `RelG`, the same
+set of events.
+
+- `commnd_fresh`, `idemnd_fresh` (section `Labels`): under `SubFresh ev` (every sequence of events is
+  the label sequence of a duplicate-free sequence of messages: fresh submissions reach every state
+  without repeating a message), commutation and idempotence after duplicate-free prefixes of
+  messages (`CommND`, `IdemND`) are commutation and idempotence at every reachable state.
+  `subfresh_tg`, `subfresh_tagX`: gsm's model satisfies `SubFresh` (number the submissions).
+- `submissions_live_exact`: the live switch converges iff `PermBStart` (every two B-events commute
+  at every state B reaches from `M s0`), `IdemStart` (every B-event idempotent there) and `DS1`
+  (at every reachable state). `submissions_barrier_exact`: the barrier switch converges iff
+  `PermBEvery` and `IdemEvery` (the same from every migrated reachable state), `AbsorbFree`
+  (`stepB (tau a) z ~ z` at every state `z` B reaches from `M (runA p s0)` with `a` in `p`: gsm's
+  `AbsorbS`) and `AmodFree` (A-runs with the same set of events, each any number of times, migrate
+  to equivalent states: gsm's `AmodA`).
+- `gsm_alo_live_exact`, `gsm_alo_barrier_exact`: the same with gsm's comparison `RelG`.
+- `submissions_one_message_live`, `submissions_one_message_barrier`: the submission model and the
+  one-message model have the same live and barrier outcomes, with either comparison (`compare_live`,
+  `compare_barrier`: any comparison that implies the same set of events and relates the
+  one-submission images of runs with the same set of events). A second delivery read as a
+  redelivery or as a second submission makes no difference to the outcome.
+- `classify_submissions_complete`: on finite instances (finite states and events on both sides,
+  decidable equality, decidable `eqvB`) the outcome in gsm's model is decided with no unknown case,
+  through the bridge from `classify_alo_complete`. `amodfree_search_exact`: `AmodFree` iff every two
+  nodes of the search over pairs (state, set of events applied) from `(s0, none)` that share a set
+  migrate to equivalent states, the search gsm's `AmodA` runs.
+- Instances: `sub_rescaled_online` (every check holds, `Online`), `sub_count_dup` (the new events
+  commute and are idempotent everywhere, `DS1` fails at the state a second submission reaches, so
+  the live switch diverges), `sub_reset_straddle` (`Unsafe` by `AbsorbS` alone, the other barrier
+  checks holding), and `submission_instances_classified`: `classify_submissions_complete` returns
+  `Online`, `BarrierOnly`, `Unsafe` on the last-writer-wins instances of `ReconfigurationClosure.v`
+  (`sub_merged_online`, `sub_merged_barrier`, `sub_partial_unsafe`) and `Unsafe` on the reset
+  instance.
+
+### gsm design input
+
+gsm's two own-argument paragraphs can cite these theorems. The pruned declared search is
+`barrier_declared_pruned_exact` with `closureIg_witness_exact` (the declared relation gsm builds is
+symmetric, as `closureIg_exact` needs; `closureIg_sym_exact` covers any declarations once
+symmetrized, which `declaredPairs` does). The at-least-once checks are `gsm_alo_live_exact` and
+`gsm_alo_barrier_exact` (the hypothesis `SubFresh` holds for gsm's model, `subfresh_tagX`), and
+`classify_submissions_complete` decides the class on finite instances in gsm's reading.
+
 ## Scope and residue
 
 Exact here: the single registry under free delivery (rewriting model, compensation as steps), at a

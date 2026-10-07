@@ -7,6 +7,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/ReconfigurationGsm.v`: the two steps of gsm's migration check under a delivery class that
+  rested on gsm's own argument (gsm `docs/theory.md` section 11.11), mechanized in the
+  deterministic model. Gap 20 status unchanged. Axiom-free.
+  - **Declared closure pruning:** gsm's search seeded with one orientation per declared pair, equal
+    pairs skipped, is exact for a symmetric declared relation (`closureIg_exact`,
+    `closureIg_witness_iff`; finite `closureIg_witness_exact`, so `closureI_witness_exact`
+    transfers; `barrier_declared_pruned_exact`), and for any relation once symmetrized
+    (`closureI_symmetrize`, `closureIg_sym_exact`, what gsm's `declaredPairs` computes).
+    `pruning_needs_symmetry`: an asymmetric relation whose pruned closure is empty while
+    `ClosureI` has a pair the migration separates.
+  - **At-least-once with repeated submissions:** messages are (event, submission) pairs. Under
+    fresh submissions (`SubFresh`, which gsm's model satisfies: `subfresh_tg`, `subfresh_tagX`),
+    duplicate-free commutation and idempotence are the checks at every reachable state
+    (`commnd_fresh`, `idemnd_fresh`); the live and barrier outcomes are exactly gsm's checks,
+    `PermB-start`, `Idem-start`, `DS1` and `PermB-every`, `Idem-every`, `AbsorbS`, `AmodA`
+    (`submissions_live_exact`, `submissions_barrier_exact`; with gsm's comparison, the same set of
+    events, `gsm_alo_live_exact`, `gsm_alo_barrier_exact`). The one-message model has the same
+    outcomes (`submissions_one_message_live`, `submissions_one_message_barrier`), so
+    `classify_submissions_complete` decides gsm's reading on finite instances;
+    `amodfree_search_exact` is gsm's `AmodA` search over (state, set of events applied).
+  - **Instances:** `declared_pruned_instances`, `declared_barrier_instances`,
+    `sub_rescaled_online`, `sub_count_dup`, `sub_reset_straddle`,
+    `submission_instances_classified` (Online, BarrierOnly, Unsafe, Unsafe).
+  - **Gate:** raised from 4037 to 4112.
 - `coq/ProjectionChains.v`: versioned projection channels beyond two-level networks. Narrows
   gap 21 residue (a) (REGIME-AUDIT.md section 8). Axiom-free.
   - **Nested networks:** whenever a registry that is not a pure root lies above a target, every
