@@ -7,6 +7,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/EventCollapse.v`: events with equal governed steps are checked once, the theorem for gsm's
+  single check of a parameterized event outside its declared ranges (gsm theory section 11.12,
+  "Ranges"). Axiom-free.
+  - **General:** a CC1 or idempotence check over lists of parameter assignments that cover each
+    other (every assignment has one with the same governed step) returns the same boolean
+    (`cover_cc1v`, `cover_idemv`, `drop_cc1v`, `drop_idemv`); exact over Z through the transfers
+    (`cc1_valid_cover`, `idem_valid_cover`, `idem_runtime_cover`, `gsm_cover_exact`).
+  - **Ranges:** `ranged` conjoins gsm's range test to each kind's guard, stays in the fragment
+    (`range_wf`, `range_frag`, `range_reads`), is the event in range (`range_in_step`,
+    `range_cc1_in`, `range_idem_in`) and repair alone outside (`range_out_gov`,
+    `range_same_step`). gsm's list (in-range assignments plus one out-of-range, `gsm_params_ok`)
+    gives the full checks' boolean (`range_cc1v`, `range_idemv`) and is exact over Z
+    (`range_cc1_exact`, `range_gsm_exact`, `range_idem_exact`, `range_idem_runtime`). Given repair
+    within K steps the out-of-range assignment can be dropped (`range_inonly_cc1_exact`); without
+    it, it cannot (`slow_diverges`).
+  - **Non-vacuity:** capped `Restock(level)` with range `0..10^9`, 10 of 15 representative levels
+    checked (`crng_counts`, `crng_runtime`); `Set(level)` fails (`setlvl_not_cc1`).
+  - **Gate:** raised from 3384 to 3474.
+
 - `coq/CompositionBlocks.v`: composition beyond acyclic collapse. Closes gap 5 in the FedMachine
   model and narrows gap 19 (REGIME-AUDIT.md section 14; COVERAGE.md cells A14, B11, B12, B13).
   Axiom-free.

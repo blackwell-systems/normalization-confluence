@@ -3451,6 +3451,97 @@ Print Assumptions NC.DifferenceAbstraction.sum_refused.
 Print Assumptions NC.DifferenceAbstraction.sum_check_passes.
 Print Assumptions NC.DifferenceAbstraction.sum_diverges.
 Print Assumptions NC.DifferenceAbstraction.granularity_needs_chain.
+Require NC.EventCollapse.
+Print Assumptions NC.EventCollapse.tup_len'.
+Print Assumptions NC.EventCollapse.cc1v_checkP_full.
+Print Assumptions NC.EventCollapse.idemv_checkP_full.
+Print Assumptions NC.EventCollapse.cc1v_checkP_spec.
+Print Assumptions NC.EventCollapse.idemv_checkP_spec.
+Print Assumptions NC.EventCollapse.covers_incl.
+Print Assumptions NC.EventCollapse.cc1vp_cover.
+Print Assumptions NC.EventCollapse.idemvp_cover.
+Print Assumptions NC.EventCollapse.cover_cc1v.
+Print Assumptions NC.EventCollapse.cover_idemv.
+Print Assumptions NC.EventCollapse.covers_cons.
+Print Assumptions NC.EventCollapse.drop_cc1v.
+Print Assumptions NC.EventCollapse.drop_idemv.
+Print Assumptions NC.EventCollapse.cover_full_cc1v.
+Print Assumptions NC.EventCollapse.cover_full_idemv.
+Print Assumptions NC.EventCollapse.cc1_valid_cover.
+Print Assumptions NC.EventCollapse.idem_valid_cover.
+Print Assumptions NC.EventCollapse.idem_runtime_cover.
+Print Assumptions NC.EventCollapse.gsm_cover_exact.
+Print Assumptions NC.EventCollapse.rngks_len.
+Print Assumptions NC.EventCollapse.rngks_nth.
+Print Assumptions NC.EventCollapse.readsk_spec.
+Print Assumptions NC.EventCollapse.app_nth_n.
+Print Assumptions NC.EventCollapse.rtest_eval.
+Print Assumptions NC.EventCollapse.guardL_true.
+Print Assumptions NC.EventCollapse.guardL_false.
+Print Assumptions NC.EventCollapse.seq_nth_app.
+Print Assumptions NC.EventCollapse.guardL_len.
+Print Assumptions NC.EventCollapse.eval_prefix.
+Print Assumptions NC.EventCollapse.firstn_nth_eq.
+Print Assumptions NC.EventCollapse.inRi_ext.
+Print Assumptions NC.EventCollapse.inR_prefix.
+Print Assumptions NC.EventCollapse.firstn_len_app.
+Print Assumptions NC.EventCollapse.firstn_idem.
+Print Assumptions NC.EventCollapse.keep1_incl.
+Print Assumptions NC.EventCollapse.keep1_in.
+Print Assumptions NC.EventCollapse.keep1_out.
+Print Assumptions NC.EventCollapse.bnd_rtest.
+Print Assumptions NC.EventCollapse.o_rtest.
+Print Assumptions NC.EventCollapse.bnd_guardL.
+Print Assumptions NC.EventCollapse.o_guardL.
+Print Assumptions NC.EventCollapse.range_wf.
+Print Assumptions NC.EventCollapse.range_frag.
+Print Assumptions NC.EventCollapse.range_reads.
+Print Assumptions NC.EventCollapse.kind_len.
+Print Assumptions NC.EventCollapse.range_out_step.
+Print Assumptions NC.EventCollapse.range_in_step.
+Print Assumptions NC.EventCollapse.range_out_gov.
+Print Assumptions NC.EventCollapse.range_same_step.
+Print Assumptions NC.EventCollapse.range_prefix_step.
+Print Assumptions NC.EventCollapse.range_shaped.
+Print Assumptions NC.EventCollapse.range_ordinv.
+Print Assumptions NC.EventCollapse.rangelist_covers.
+Print Assumptions NC.EventCollapse.range_cc1v.
+Print Assumptions NC.EventCollapse.range_idemv.
+Print Assumptions NC.EventCollapse.range_cc1_exact.
+Print Assumptions NC.EventCollapse.range_gsm_exact.
+Print Assumptions NC.EventCollapse.range_idem_exact.
+Print Assumptions NC.EventCollapse.range_idem_runtime.
+Print Assumptions NC.EventCollapse.range_cc1_in.
+Print Assumptions NC.EventCollapse.range_idem_in.
+Print Assumptions NC.EventCollapse.itr_valid_fix.
+Print Assumptions NC.EventCollapse.range_out_valid.
+Print Assumptions NC.EventCollapse.inonly_prefix.
+Print Assumptions NC.EventCollapse.range_inonly_cc1v.
+Print Assumptions NC.EventCollapse.range_inonly_idemv.
+Print Assumptions NC.EventCollapse.range_inonly_cc1_exact.
+Print Assumptions NC.EventCollapse.gsm_params_ok.
+Print Assumptions NC.EventCollapse.crng_frag.
+Print Assumptions NC.EventCollapse.crg_len.
+Print Assumptions NC.EventCollapse.crg_bounds.
+Print Assumptions NC.EventCollapse.crng_counts.
+Print Assumptions NC.EventCollapse.crng_list.
+Print Assumptions NC.EventCollapse.crng_cc1v_check.
+Print Assumptions NC.EventCollapse.crng_idemv_check.
+Print Assumptions NC.EventCollapse.crng_term.
+Print Assumptions NC.EventCollapse.crng_out_same.
+Print Assumptions NC.EventCollapse.crng_cc1_valid.
+Print Assumptions NC.EventCollapse.crng_in_range.
+Print Assumptions NC.EventCollapse.crng_idem.
+Print Assumptions NC.EventCollapse.crng_runtime.
+Print Assumptions NC.EventCollapse.crng_inonly_check.
+Print Assumptions NC.EventCollapse.setlvl_frag.
+Print Assumptions NC.EventCollapse.srg_len.
+Print Assumptions NC.EventCollapse.srg_bounds.
+Print Assumptions NC.EventCollapse.setlvl_check_fails.
+Print Assumptions NC.EventCollapse.setlvl_not_cc1.
+Print Assumptions NC.EventCollapse.slow_frag.
+Print Assumptions NC.EventCollapse.slow_checks.
+Print Assumptions NC.EventCollapse.slow_diverges.
 Require NC.CompositionBlocks.
 Print Assumptions NC.CompositionBlocks.run_app.
 Print Assumptions NC.CompositionBlocks.projA_ok.
@@ -3591,8 +3682,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3513 ]; then
-  echo "FAIL: expected 3513 axiom-free results, got $N"
+if [ "$N" -lt 3603 ]; then
+  echo "FAIL: expected 3603 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
