@@ -342,6 +342,77 @@ representative check fails, as it should.
 | The repair-first registry is in the fragment | `derived_ordinv`, `oimap_comp` |
 | The prose route | `cc1_derived_valid`, `cc1_valid_derived_abs` |
 
+## Event parameters: one check per step (`EventCollapse.v`)
+
+**What gsm does.** A parameterized event under `Abstract` is checked at every assignment of
+representative values to its parameters, with the range test `min <= p <= max` conjoined to its
+guard and the bounds added to the constants (gsm's `rangedInstance`, `absConstants`), so the
+checked registry is in the model of `AbstractionGsm.v`. Every assignment outside the ranges gives
+the same event, one that does nothing before repair, and gsm checks it once per parameterized
+event (`absEventList`). This module is the theorem for that step, stated on the finite checks.
+Axiom-free.
+
+**Collapse, in general.** `cc1v_checkP K N Ib P` and `idemv_checkP K N k L` are
+`cc1v_check` and `idemv_check` with each kind's parameter assignments taken from a list (`P k`, `L`);
+over all representative assignments they are the same functions (`cc1v_checkP_full`,
+`idemv_checkP_full`), and `cc1v_checkP_spec`, `idemv_checkP_spec` give their meaning. `SameStep K k
+p q`: `govK (k, p) s = govK (k, q) s` at every state with `n` variables. `Covers K k L L'`: every
+assignment in `L` has one in `L'` with the same step.
+
+- `cover_cc1v`, `cover_idemv`: when the lists cover each other, the two checks return the same
+  boolean. `drop_cc1v`, `drop_idemv`: an assignment whose step another one in the list has can be
+  removed.
+- `cover_full_cc1v`, `cover_full_idemv`: a sublist of the representative assignments that covers
+  them all returns the full check's boolean. Composed with the transfers, the reduced check is
+  exact over Z: `cc1_valid_cover`, `idem_valid_cover`, `idem_runtime_cover`, `gsm_cover_exact`.
+
+**Ranges, the instance.** `ranged n rg P` replaces each variable's new value under kind `k` by
+"if `rtest n 0 (rg k)` then the event's value else the old value", where `rtest` is the conjunction
+of `lo <= p_i <= hi` over the declared parameters (`inR (rg k) p` evaluates it).
+
+- `range_wf`, `range_frag`, `range_reads`: well formed, in the fragment when `P` is and the bounds
+  are declared constants, and each kind still reads only its declared parameters.
+- `range_in_step`: in range, the event is `P`'s; `range_cc1_in`, `range_idem_in` carry CC1 and
+  idempotence back to `P` on the values in range.
+- `range_out_step`, `range_out_gov`, `range_same_step`: outside the ranges, the governed step is
+  repair alone, `govK (k, q) s = rp^K s`, the same for every out-of-range `q`.
+- `range_prefix_step`: values of parameters a kind does not declare are not read (gsm's events
+  have their own arity; the model pads to `m`).
+- `RangeList N PL`: `PL k` lies in the representative assignments, contains for each in-range one
+  an assignment that agrees on the declared parameters, and contains an out-of-range one if there
+  is any. `gsm_params` is gsm's list (the in-range assignments of the declared parameters and the
+  first out-of-range one, padded), and `gsm_params_ok` shows it is a `RangeList`.
+- `range_cc1v`, `range_idemv`: for every `RangeList`, the reduced checks return the full checks'
+  boolean. `range_cc1_exact`, `range_gsm_exact`, `range_idem_exact`, `range_idem_runtime`: the
+  reduced check passes iff CC1 at every valid integer state for every two parameter values (iff
+  runs from every valid state converge up to reordering, given `TermD`), iff idempotence at every
+  valid integer state, iff idempotence of the runtime step from every integer state.
+- Given repair within `K` steps, which gsm checks first, the out-of-range assignment can be
+  dropped too (`RangeListIn`, `range_inonly_cc1v`, `range_inonly_idemv`,
+  `range_inonly_cc1_exact`): repair fixes valid states, so the out-of-range event commutes with
+  every event and is idempotent there.
+
+**Non-vacuity.** `crng_*`: capped `Restock(level)` with gsm's declared range `0..10^9` (constants
+0, 5, 10^9, cutoff 3, gsm's `TestParamsAbstract_Capped`): 15 representative levels, of which gsm
+checks 10 (`crng_counts`); the reduced checks pass (`crng_cc1v_check`, `crng_idemv_check`), so CC1
+and idempotence hold at every valid integer stock for every integer level (`crng_cc1_valid`,
+`crng_idem`), restocks commute for every two levels in range (`crng_in_range`), and every
+permutation converges at run time from every integer stock (`crng_runtime`). `setlvl_*`:
+`Set(level)` with range `0..5` fails the reduced check, so CC1 fails over Z, with a witness in range.
+
+**Boundary.** `slow_*`: without repair within `K` steps the out-of-range assignment is needed.
+`Reset(p)` writes `(9, 9)`, and repair takes two steps; at `K = 1` the in-range assignments alone
+pass, gsm's list fails, and CC1 fails over Z at the out-of-range `Reset(-1)` (`slow_diverges`); at
+the repair depth `K = 2` gsm's list passes.
+
+| gsm step | Theorem |
+|---|---|
+| The range test conjoined to the guard keeps the registry in the model | `range_wf`, `range_frag`, `range_reads` |
+| Out-of-range assignments checked once | `range_same_step`, `range_cc1v`, `range_idemv` (general: `cover_cc1v`, `cover_idemv`) |
+| The reduced checks are exact over Z | `range_cc1_exact`, `range_gsm_exact`, `range_idem_exact`, `range_idem_runtime` |
+| gsm's list | `gsm_params_ok` |
+| A pass covers every value in range | `range_cc1_in`, `range_idem_in` |
+
 ## Difference constraints (`DifferenceAbstraction.v`)
 
 **When it applies.** The most common business arithmetic: "balance - amount >= 0",
