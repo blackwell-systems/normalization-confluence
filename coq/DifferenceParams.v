@@ -1424,8 +1424,8 @@ Theorem wallet_p_frag : pfrag wallet_p wallet_pA 0 3 = true /\ wcc1 0 3 1 = 24%Z
   mask wallet_p 0 = [true] /\ mask wallet_p 1 = [true] /\ mask wallet_p 2 = [true] /\ mask wallet_p 3 = [false].
 Proof. repeat split; vm_compute; reflexivity. Qed.
 
-Theorem wallet_p_reps : length (RepS (jb wallet_p [0; 0]) wallet_pA 24) = 2754%nat /\
-  length (RepS (jb wallet_p [3]) wallet_pA 18) = 24964%nat.
+Theorem wallet_p_reps : Z.of_nat (length (RepS (jb wallet_p [0; 0]) wallet_pA 24)) = 2754%Z /\
+  Z.of_nat (length (RepS (jb wallet_p [3]) wallet_pA 18)) = 24964%Z.
 Proof. split; vm_compute; reflexivity. Qed.
 
 Theorem wallet_p_checks : pterm_check wallet_p wallet_pA 24 1 = true /\
@@ -1490,7 +1490,7 @@ Theorem facts_frag : pfrag facts_p facts_A 0 2 = true /\ wcc1 0 2 1 = 16%Z /\
   mask facts_p 0 = [true] /\ mask facts_p 1 = [true].
 Proof. repeat split; vm_compute; reflexivity. Qed.
 
-Theorem facts_reps : length (RepS (jb facts_p [0; 1]) facts_A 16) = 242208%nat.
+Theorem facts_reps : Z.of_nat (length (RepS (jb facts_p [0; 1]) facts_A 16)) = 242208%Z.
 Proof. vm_compute. reflexivity. Qed.
 
 Theorem facts_checks : pterm_check facts_p facts_A 16 1 = true /\ pcc1v_check facts_p facts_A 16 1 Nat.leb = true.
@@ -1675,7 +1675,7 @@ Definition cx_A : list Z := [0%Z; 1%Z; 1000%Z; M6; H9].
 
 Definition cx_I (a b : nat) : bool := Nat.eqb a 0 && Nat.eqb b 1.
 
-Theorem addp_check_passes : length (RepS (jb addp [0; 1]) cx_A 0) = 7600%nat /\
+Theorem addp_check_passes : Z.of_nat (length (RepS (jb addp [0; 1]) cx_A 0)) = 7600%Z /\
   pcc1v_check addp cx_A 0 0 cx_I = true.
 Proof. split; vm_compute; reflexivity. Qed.
 
