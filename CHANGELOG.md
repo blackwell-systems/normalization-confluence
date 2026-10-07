@@ -775,6 +775,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/ROADMAP.md`: planned paper, the regime map (a fourth paper whose main object is the classification: the question, the axes, the map table, representative theorems, transfer between regimes, the open part, quotients for checking, and the audit method; drafting after gap 19 lands). No theorem added, removed or renamed.
 - `coq/verify.sh`: gates `NC.Checker.run_perm_invariant` (axiom-free), which gsm's `docs/theory.md` cites for CC1 correctness but which was not in the gate. Gate 3029 to 3030.
 - `docs/ROADMAP.md` item 8: the history-side reduction expanded into a progression (pairwise swap, trace equivalence, canonical histories, per-condition exactness, symmetry combined with it), with independence derived rather than declared and each restriction tied to an existing mechanized counterexample. `docs/THEORY.md`: new subsection "Quotients for checking" (every proved semantic quotient is a potential verification quotient, qualified per condition). No theorem added, removed or renamed.
 - `docs/ROADMAP.md` item 8: a history-side reduction (partial-order reduction) for the checks that explore reachable states, with soundness to be proved per condition. No theorem added, removed or renamed.
