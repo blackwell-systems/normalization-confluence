@@ -451,3 +451,11 @@ all: ReconfigurationClosure.vo
 
 ReconfigurationClosure.vo: ReconfigurationClosure.v Newman.vo GovernanceConverse.vo Trace.vo Reconfiguration.vo
 	coqc -Q . NC ReconfigurationClosure.v
+
+# Difference constraints with saturating writes: CC1, repair within K steps, idempotence and gsm's
+# runtime guarantee over the declared ranges iff over the states within n(W + 1) of an anchor, W the
+# guard constants plus the chained offsets (roadmap item 8 step 2, DifferenceAbstraction.v).
+all: DifferenceAbstraction.vo
+
+DifferenceAbstraction.vo: DifferenceAbstraction.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo
+	coqc -Q . NC DifferenceAbstraction.v

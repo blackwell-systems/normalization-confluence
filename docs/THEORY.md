@@ -252,6 +252,22 @@ additive rules, where states of one order type can differ on `x + y < z` (`trian
 There the reduction is to the validity of one formula per condition (`lin_exact`), not to a finite
 quotient.
 
+For difference constraints (`DifferenceAbstraction.v`) a finite quotient returns, with a finer
+equivalence: region equivalence, as for difference-bound matrices and timed automata. Two states,
+with the constants as fixed anchors, are equivalent at threshold `W` when every pairwise
+difference is equal in both or beyond `W` on the same side in both. Guards `x - y op c` with
+`|c| <= W` cannot tell them apart, and a write `x := y + c` keeps them equivalent at threshold
+`W - |c|` (`near_shift`). A saturating write is a comparison with a bound first, so the bounds are
+anchors like any constant (`clamp_near`). The threshold is therefore a budget spent by the offsets
+along a check: CC1 runs both orders of two governed steps as one joint relation and needs
+`gam + 4(K + 1) mu` (`cc1_pair`). The budget is necessary in kind: two increments by 3 separate
+states that agree at threshold 5 (`granularity_needs_chain`). Every class has a member within
+`n(W + 1)` of an anchor (`compress_d`), so each condition over the declared ranges is decided over
+a set whose size does not depend on their widths (`dcc1v_abs`, `dgsm_exact`). At threshold 0
+the equivalence is the order type (`rel0_oiso`), which is how the comparison fragment sits inside
+it. A sum of two variables leaves the quotient: it moves a value to a place no difference relation
+predicts (`sum_diverges`).
+
 Compositional checking (`CompositionalCheck.v`) uses locality, or independence, for checking. If
 every rule reads and writes only variables of one footprint component, then a repair step of the
 registry is a repair step of exactly one component (`rho_step`). The registry's canonicalizer is

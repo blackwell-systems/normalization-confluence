@@ -82,3 +82,4 @@ AbstractionCutoff.v
 AbstractionGsm.v
 CompositionalCheck.v
 ReconfigurationClosure.v
+DifferenceAbstraction.v

@@ -1,7 +1,8 @@
 # Abstraction: check relationships between values, not the values
 
 Detailed results for the abstraction reduction over integer-valued state (roadmap item 8, step 2;
-gsm roadmap item 1b), and its gsm instantiation. Each module's one-line summary is in the
+gsm roadmap item 1b), its gsm instantiation, and the difference-constraint fragment with saturating
+writes ([below](#difference-constraints-differenceabstractionv)). Each module's one-line summary is in the
 [module index](../README.md#modules-by-regime). This is a reduction for checking, not a regime:
 it does not change any gap in [REGIME-AUDIT.md](../../REGIME-AUDIT.md).
 
@@ -118,7 +119,9 @@ The formulas:
 
 What this does and does not give: the reduction to formula validity is mechanized and exact.
 Deciding validity is left to an external SMT solver, which is the trusted step. No finite
-representative set is claimed for the linear fragment. The repair must reach validity within a
+representative set is claimed for the linear fragment as a whole. For its difference-constraint
+part (increments, decrements, copies with an offset, guards on differences), with gsm's saturating
+writes, `DifferenceAbstraction.v` gives one: [Difference constraints](#difference-constraints-differenceabstractionv). The repair must reach validity within a
 declared bound `K`, which is checked by `phi_term`. A repair that needs a number of steps that
 depends on the values (decrement until valid) is outside this form.
 
@@ -337,3 +340,246 @@ representative check fails, as it should.
 | `NotIdempotent` from the representatives | `idem_valid_abs`, `idem_runtime_abs` |
 | The repair-first registry is in the fragment | `derived_ordinv`, `oimap_comp` |
 | The prose route | `cc1_derived_valid`, `cc1_valid_derived_abs` |
+
+## Difference constraints (`DifferenceAbstraction.v`)
+
+**When it applies.** The most common business arithmetic: "balance - amount >= 0",
+"stock + restock <= cap", "reserved <= stock". The rules compare differences of two variables
+against small constants, compare a variable against a constant, and write increments,
+decrements, copies with an offset and constants. Every write saturates at the declared bounds,
+as gsm's `Int` writes do. The result is a finite representative cutoff (route A): each condition
+gsm checks holds over the full declared ranges iff it holds over a finite set of representative
+states, whose size depends on the number of variables, the constants and the repair bound, not on
+the widths of the ranges. Axiom-free.
+
+**The model is gsm's.** A registry `dprog` has `n` integer variables, variable `i` declared in
+`[lo_i, hi_i]`.
+
+- Rules are gsm's combinators: expressions `V`, `Lit`, `Add`, `Sub`; comparisons `Le`, `Lt`, `Eq`,
+  `Ne`, `Ge`, `Gt`; `And`, `Or`, `Not`.
+- An event is a guard and a list of assignments applied left to right; it is a no-op when the guard
+  is false. Events take no parameters.
+- An invariant is a predicate and a repair transform. One repair step applies the first violated
+  invariant's repair (`drepair`).
+- Every write saturates at the target's bounds (`clampZ`, gsm's `SetInt`).
+- The governed step `dgov K k` is the event followed by `K` repair steps. gsm's runtime step
+  `drun K k` normalizes first. The states are the lists in range (`InBox`).
+
+**The fragment** (`dfrag P A gam mu`, a boolean check). `norm` reads an expression as a difference
+term `x_p - x_q + c` (at most one variable with each sign), or fails.
+
+- Every comparison `a op b` reads as `(a - b) op 0`, and must normalize to one of:
+  - `x_i - x_j op c` with `|c| <= gam`;
+  - `x_i op a` with `a` an anchor (a constant in `A`);
+  - a comparison of constants.
+- Every write is `x_k := x_j + c` (increment, decrement, copy with an offset) or `x_k := a` with
+  `a` an anchor.
+- The offsets one transform adds sum to at most `mu`.
+- Every bound `lo_i`, `hi_i` is an anchor. A saturating write compares `x_j + c` with a bound, so
+  bounds act exactly like constants.
+
+**The region relation.** Two states, together with the anchors, are related at threshold `W`
+(`RelS W A`) when every pairwise difference of their values (anchors included) is either equal in
+both states, or above `W` in both, or below `-W` in both. This is region equivalence for
+difference-bound matrices, over the integers, with the anchors as fixed clocks.
+
+- A guard whose constants have size at most `W` evaluates the same on related states (`atom_same`,
+  `pred_same`).
+- A write `x := x_j + c` keeps the relation with `W` lowered by `|c|` (`near_shift`). A saturating
+  write is a comparison with an anchor first, so it does the same (`clamp_near`, `write_rel`).
+- A governed step lowers `W` by `(K + 1) mu` (`dgov_rel`).
+- The two sides of a CC1 instance run as one joint relation over both runs, so equality of the two
+  final states transfers (`eq_transfer`, `cc1_pair`).
+
+**Compression** (`compress_d`). Every state in range is related at `W` to a representative state:
+a state in range with every variable within the radius `n(W + 1)` of some anchor (`RepS`,
+`RepS_spec`). The proof is by pigeonhole (`pigeon`, `shift_step`): a variable farther than the
+radius from every anchor sits in a block of values with no anchor, with `W + 1` free integers below
+and above it. That block moves down by one, which keeps the relation. The sum of the values
+decreases, so the moves stop at a representative.
+
+| Condition | Threshold `W` (any larger `W` works) | Theorem |
+|---|---|---|
+| Validity | `gam` | `valid_pair` |
+| Repair within `K` steps (`DTermBox`) | `gam + K mu` | `dterm_abs` |
+| Idempotence of kind `k` at every valid state | `gam + 3(K + 1) mu` | `didemv_abs` |
+| CC1 for the pairs of `I` at every valid state (gsm's CC1) | `gam + 4(K + 1) mu` | `dcc1v_abs` |
+| CC1 for the pairs of `I` at every state | `gam + 4(K + 1) mu` | `dcc1_abs` |
+
+Each row is an iff: the condition holds at every state in the declared ranges iff it holds at
+every state of `RepS P A W`.
+
+**Domain size.** `|RepS|` is the product over the variables of the number of values in
+`[lo_i, hi_i]` that lie within `n(W + 1)` of an anchor (`RepS_length`). Each factor is at most
+`|A| (2n(W + 1) + 1)` (`dom_length`). Every representative is a state in range, so a failure at a
+representative is a failure of the declared machine. The witness is never outside the ranges, as
+it can be in the comparison route.
+
+**gsm's guarantee.**
+
+- `dgsm_exact`: given repair within `K` steps over the representatives, CC1 for `I` at the valid
+  representatives holds iff, from every valid state in range, trace-equivalent sequences of events
+  reach the same state.
+- `dgsm_sound` and `dgsm_sound_all`: the same for gsm's runtime step, from every state in range.
+- `dbuild_sound`, end to end: from `dfrag`, `dterm_check` and `dcc1v_check` at `W = wcc1 gam mu K`,
+  gsm's runtime converges from every state in range. The three boolean checks have exact
+  specifications (`dterm_check_spec`, `dcc1v_check_spec`, `didemv_check_spec`).
+- `dcheck_fail_real`: a failing check refutes CC1 over the ranges.
+
+**The comparison fragment, recovered.** With no arithmetic (`gam = mu = 0`), every threshold is 0.
+
+- `near0_compare`, `rel0_oiso`: at threshold 0 the relation is exactly the order type.
+  `RelS 0 A s s'` holds iff some `f` with `OIso A s f` (`AbstractionCutoff.v`'s order isomorphisms
+  fixing the constants) maps `s` to `s'`.
+- The radius is `n`, the cutoff of `term_abs` and `cc1_abs` for `m = 0`, made two-sided around
+  every constant. `reps_in_dom`: `reps n C` lies in the domain.
+- `inventory_d_*`: gsm's documented example over `[0, 10^9]^3` at threshold 0, with `13^3`
+  states.
+
+**The threshold must cover chained increments** (`granularity_needs_chain`). In a registry with
+`x, y, z` in `[0, 100]`, event A adds 3 to `x` twice (offset 6 in one event), and event B sets
+`z := z + 1` when `x = y`.
+
+- The states `(0, 6, 0)` and `(0, 7, 0)` are related at threshold `5 = 2 * 3 - 1`.
+- CC1 of A and B fails at the first state and holds at the second.
+- So a threshold below the chained offset does not transfer CC1: two increments by `c` need
+  representatives `2c` apart.
+
+`4(K + 1) mu` is a sufficient threshold. The least one is not mechanized.
+
+### Boundaries
+
+- **A difference guard fools the order-pattern check; this check reports it** (`gap_frag`,
+  `gap_check_fails`, `gap_diverges`, `gap_order_check_passes`).
+  - The rule: `x, y` in `[0, 10^9]`; A sets `x := y` when `y - x >= 2`; B sets `y := x` under the
+    same guard.
+  - In `AbstractionCutoff.v`'s language, the order-pattern check over `reps 2 [] = {0, 1}` passes,
+    because the guard never holds there. The rule is outside `ord_frag`, and over the integers it
+    diverges at `(0, 2)`.
+  - The rule is in the difference fragment (`gam = 2`). The check over `RepS` at threshold 2
+    fails, and `(0, 2)` is a state in range where A and B diverge.
+- **`triangle_diverges` here** (`tri_not_difference`, `tri_refused`, `tri_diverges`).
+  - The guard `x < y < z < x + y` compares `z` with a sum of two variables, which is not a
+    difference constraint.
+  - `dfrag` refuses the registry for every anchor set and threshold.
+  - It diverges at `(2, 3, 4)`.
+  - The reduction never reports it as converging. gsm can verify it only by enumerating a bounded
+    range.
+- **Outside the fragment: a sum of two variables** (`sum_refused`, `sum_check_passes`,
+  `sum_diverges`).
+  - The rule: `x, w` in `[0, 10^9]` and `y` in `[1000, 10^9]`. A sets `x := y + y`; B sets
+    `x := x + 1` when `x = w`.
+  - `dfrag` refuses it.
+  - The representative check at the threshold the formula would give (4, counting the sum as an
+    offset-free write) passes over the anchors `{0, 1000, 10^9}`.
+  - The registry diverges at `(0, 1000, 2000)`, where every value is far from every anchor: a sum
+    moves a value to a place no difference relation predicts.
+  - Multiplication of variables is not in gsm's combinators at all.
+
+### Non-vacuity
+
+All examples are over ranges up to `10^9`, and all checks run by `vm_compute`.
+
+- **Wallet** (`wallet_frag`, `wallet_reps`, `wallet_checks`, `wallet_deposits_converge`,
+  `wallet_withdraw_diverges`, `wallet_repair_fires`).
+  - Balance in `[-1000, 10^9]`, with -1000 the overdraft floor.
+  - Events: deposit 5, deposit 20, withdraw 10 when balance >= 10, and a fee of 3. Invariant
+    balance >= 0; repair balance := 0.
+  - Anchors `{-1000, 10^9, 0, 10}`, `gam = 0`, `mu = 20`, `K = 1`, threshold 160: 657
+    representatives.
+  - The deposits converge, in any order, from every balance in range.
+  - Deposit against withdraw is a real divergence, which the check reports. At balance 5, deposit
+    then withdraw gives 0, and withdraw then deposit gives 10 (the guard fails first).
+  - The fee overdraws at balance 1, and the repair restores 0.
+- **Capped inventory** (`capinv_frag`, `capinv_reps`, `capinv_checks`,
+  `capinv_restocks_converge`, `capinv_ship_diverges`).
+  - Stock in `[0, 10^9]` with cap `10^6` (invariant stock <= 10^6, repair to the cap).
+  - Events: restock 3, restock 7, and ship 2 when stock >= 2.
+  - Threshold 56: 233 representatives.
+  - The restocks converge. Restock against ship diverges one below the cap.
+- **Reservations** (`reserve_frag`, `reserve_reps`, `reserve_checks`, `reserve_converges`,
+  `reserve_release_diverges`).
+  - `(stock, reserved)` in `[0, 10^6]^2`, invariant reserved <= stock, repair reserved := stock.
+  - Events: restock 3, reserve 2, reserve 3, release 1 (saturating at 0), and reserve 1 when
+    reserved < stock.
+  - Threshold 24: `102^2` representative states.
+  - The two reserves converge, and so do restock and release.
+  - Reserve against release diverges when everything is reserved, at `(5, 5)`; so does the guarded
+    reserve against release.
+
+Under saturation, an increment and a decrement of the same variable never commute near a bound,
+and guarded decrements never commute with each other near the guard. These pairs need ordering
+(declared-only pairs, or the escrow results of `LocalTokenBalance.v`). The check finds them with a
+witness in range.
+
+### For gsm
+
+The arithmetic route that gsm deferred, without a solver. This route is now modeled with
+saturation and checked over a finite domain.
+
+1. **Declaration.**
+   - `Registry.Abstract()` as today. A registry whose rules use `Add` or `Sub` of a variable and a
+     literal takes the difference route.
+   - Constants need not be declared: the anchors are computed. They are every bound `lo_i`, `hi_i`,
+     every literal a variable is compared against (`x op c`, also `x + d op c` as `c - d`), and
+     every literal written (`x := c`).
+   - The repair bound `K` is the least `K` up to a cap for which repair reaches validity within
+     `K` steps over the representatives. Each `K` is exact (`dterm_abs`), and a larger `K` needs a
+     larger threshold.
+2. **What Build checks.**
+   - `dfrag` on the combinator trees.
+     - Normalize each comparison `a op b` as `a - b`: two variables with opposite signs and a
+       constant, one variable and a constant (the constant becomes an anchor), or constants.
+     - Normalize each assignment: a variable plus a constant, or a constant.
+     - Compute `gam` (the largest `|c|` in a two-variable comparison) and `mu` (the largest sum of
+       `|offset|` over one event's or one repair's assignments).
+   - `W = gam + 4(K + 1) mu`; the radius is `R = n(W + 1)`.
+   - The domain of variable `i` is the values of `[lo_i, hi_i]` within `R` of an anchor. Enumerate
+     the product (`RepS`).
+   - Run the existing checks over it, with the rules evaluated exactly as at run time, saturation
+     included:
+     - repair within `K` (`dterm_check`);
+     - CC1 for the checked pairs at the valid representatives (`dcc1v_check`);
+     - idempotence at the valid representatives (`didemv_check`; `gam + 3(K + 1) mu` suffices, so
+       the same domain serves).
+   - A pass is gsm's guarantee from every state in range (`dbuild_sound`).
+   - A failure has a witness in range (`dcheck_fail_real`), so `AbstractWitness.InRange` is always
+     true on this route.
+3. **Representative-set size.**
+   - `Π_i |D_i| <= (|A| (2R + 1))^n`. It does not depend on the widths of the ranges.
+   - The wallet over `[-1000, 10^9]` has 657 states, and two variables over `[0, 10^6]` have
+     `102^2`.
+   - gsm's existing limit of `2^20` representative states applies; a larger domain is refused with
+     its size.
+   - Compositional checking (`CompositionalCheck.v`) splits footprint components first. Each
+     component's `n` is what enters `R`.
+4. **Refusals** (an `*AbstractionError` naming the rule).
+   - A sum of two variables, or a variable with a negative sign in a write (`x := y + z`,
+     `x := y - z`, `x := 5 - y`): `sum_diverges`.
+   - Two variables with the same sign in a comparison (`z < x + y`): `tri_refused`,
+     `triangle_diverges`.
+   - Go closures, as today.
+   - A representative domain over the limit.
+5. **Report line.** "Verified by abstraction over balance (difference constraints; anchors
+   {-1000, 0, 10, 1000000000}; threshold 160; 657 representatives)".
+6. **Saturation.**
+   - It is modeled exactly (`clampZ`), so the range-containment restriction that the comparison
+     route needs ("a copied variable's range lies inside its target's") is not needed here.
+   - The bounds are anchors, and the saturation comparisons are difference comparisons against
+     them.
+   - Values stay within the ranges plus `mu` during a step, so 64-bit arithmetic does not wrap
+     for ranges within `±(2^62)`.
+7. **Theorem per step.**
+
+| gsm step | Theorem |
+|---|---|
+| Fragment check | `dfrag`, `norm_eval`, `frag_parts` |
+| Representatives: every state in range compresses to one | `compress_d`, `RepS_spec`, `RepS_length`, `dom_length` |
+| Repair within `K` over the ranges | `dterm_abs` |
+| CC1 at the valid states, for the checked pairs | `dcc1v_abs` |
+| `NotIdempotent` exact | `didemv_abs` |
+| Runs converge from every state in range | `dgsm_exact`, `dgsm_sound`, `dgsm_sound_all`, `dbuild_sound` |
+| Failure is real, witness in range | `dcheck_fail_real`, `RepS_spec` |
+| Saturation | `clamp_near`, `write_box` |
+| Refusals justified | `sum_diverges`, `tri_refused`, `gap_order_check_passes` |
+| Threshold covers chained offsets | `granularity_needs_chain` |

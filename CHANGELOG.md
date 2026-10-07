@@ -7,6 +7,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/DifferenceAbstraction.v`: abstraction for difference constraints with saturating writes
+  (roadmap item 8, step 2, the arithmetic route; gsm roadmap item 1b). Axiom-free. A finite
+  representative cutoff, no solver.
+  - **Model:** gsm's: integer variables with declared ranges, its combinators (`V`, `Lit`, `Add`,
+    `Sub`, comparisons, `And`, `Or`, `Not`), guarded events of sequential assignments, the first
+    violated invariant's repair, and every write saturating at the declared bounds (`clampZ`).
+  - **Fragment:** `dfrag`: guards `x - y op c` with `|c| <= gam` and `x op a` with `a` an anchor;
+    writes `x := y + c` and `x := a`; offsets per transform summing to at most `mu`; the bounds
+    are anchors.
+  - **Cutoffs (each an iff, over the declared ranges against the in-range states within
+    `n(W + 1)` of an anchor):** repair within K steps at `W >= gam + K mu` (`dterm_abs`), CC1 at
+    the valid states and at every state at `W >= gam + 4(K + 1) mu` (`dcc1v_abs`, `dcc1_abs`),
+    idempotence at `W >= gam + 3(K + 1) mu` (`didemv_abs`); gsm's guarantee (`dgsm_exact`,
+    `dgsm_sound`, `dgsm_sound_all`, end to end `dbuild_sound`; `dcheck_fail_real`). Through the
+    region relation (`near`, `RelS`, `cc1_pair`) and compression by pigeonhole (`compress_d`,
+    `shift_step`); size `RepS_length`, `dom_length`.
+  - **Comparison fragment recovered:** at threshold 0 the relation is `AbstractionCutoff.v`'s order
+    isomorphisms (`rel0_oiso`), and `reps n C` lies in the domain (`reps_in_dom`).
+  - **Boundaries:** a difference guard passes the order-pattern check and diverges, and the new
+    check reports it (`gap_order_check_passes`, `gap_check_fails`, `gap_diverges`);
+    `triangle_diverges`' guard is refused (`tri_refused`, `tri_diverges`); a sum of two variables
+    passes the representative check and diverges (`sum_refused`, `sum_check_passes`,
+    `sum_diverges`); the threshold must cover chained increments (`granularity_needs_chain`).
+  - **Non-vacuity, over ranges up to 10^9:** a wallet with overdraft repair over 657
+    representatives (deposits converge; deposit against withdraw diverges at balance 5),
+    capped inventory with restocks (233), reservations `reserved <= stock` (`102^2`), gsm's
+    documented inventory at threshold 0 (`13^3`).
+  - **Docs:** `coq/docs/abstraction.md` (new section with the gsm design input), `docs/ROADMAP.md`
+    item 8, `docs/THEORY.md`, `coq/README.md` row, and the count lines.
+  - **Gate:** raised from 3243 to 3384.
 - `coq/ReconfigurationClosure.v`: the barrier's A part without injectivity, closing gap 20 residue
   (c) in the deterministic model (section `Det` of `Reconfiguration.v`, gsm's runtime). Axiom-free.
   Gap 20 stays narrowed: residues (a) and (b) remain.

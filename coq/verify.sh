@@ -3309,6 +3309,148 @@ Print Assumptions NC.ReconfigurationClosure.merged_classified_outcomes.
 Print Assumptions NC.ReconfigurationClosure.prod_eq_dec.
 Print Assumptions NC.ReconfigurationClosure.ob_eq_dec.
 Print Assumptions NC.ReconfigurationClosure.merged_classified.
+Require NC.DifferenceAbstraction.
+Print Assumptions NC.DifferenceAbstraction.optv_merge.
+Print Assumptions NC.DifferenceAbstraction.addT_eval.
+Print Assumptions NC.DifferenceAbstraction.negT_eval.
+Print Assumptions NC.DifferenceAbstraction.norm_eval.
+Print Assumptions NC.DifferenceAbstraction.cmpZ_sub.
+Print Assumptions NC.DifferenceAbstraction.inZ_spec.
+Print Assumptions NC.DifferenceAbstraction.near_refl.
+Print Assumptions NC.DifferenceAbstraction.near_sym.
+Print Assumptions NC.DifferenceAbstraction.near_trans.
+Print Assumptions NC.DifferenceAbstraction.near_mono.
+Print Assumptions NC.DifferenceAbstraction.near_neg.
+Print Assumptions NC.DifferenceAbstraction.near_shift.
+Print Assumptions NC.DifferenceAbstraction.near_cmp.
+Print Assumptions NC.DifferenceAbstraction.near0_compare.
+Print Assumptions NC.DifferenceAbstraction.Rel_incl.
+Print Assumptions NC.DifferenceAbstraction.Rel_mono.
+Print Assumptions NC.DifferenceAbstraction.Rel_cons.
+Print Assumptions NC.DifferenceAbstraction.in_anc.
+Print Assumptions NC.DifferenceAbstraction.in_anc_inv.
+Print Assumptions NC.DifferenceAbstraction.in_combine_nth.
+Print Assumptions NC.DifferenceAbstraction.in_combine_ex.
+Print Assumptions NC.DifferenceAbstraction.combine_upd.
+Print Assumptions NC.DifferenceAbstraction.upd_len.
+Print Assumptions NC.DifferenceAbstraction.upd_nth_eq.
+Print Assumptions NC.DifferenceAbstraction.upd_nth_neq.
+Print Assumptions NC.DifferenceAbstraction.combine_len.
+Print Assumptions NC.DifferenceAbstraction.find_ext_in.
+Print Assumptions NC.DifferenceAbstraction.forallb_ext_in.
+Print Assumptions NC.DifferenceAbstraction.aloss_nonneg.
+Print Assumptions NC.DifferenceAbstraction.tloss_nonneg.
+Print Assumptions NC.DifferenceAbstraction.frag_parts.
+Print Assumptions NC.DifferenceAbstraction.gam_nonneg.
+Print Assumptions NC.DifferenceAbstraction.mu_nonneg.
+Print Assumptions NC.DifferenceAbstraction.bnd_parts.
+Print Assumptions NC.DifferenceAbstraction.var_in.
+Print Assumptions NC.DifferenceAbstraction.atom_same.
+Print Assumptions NC.DifferenceAbstraction.pred_same.
+Print Assumptions NC.DifferenceAbstraction.clamp_near.
+Print Assumptions NC.DifferenceAbstraction.write_rel.
+Print Assumptions NC.DifferenceAbstraction.applyT_rel.
+Print Assumptions NC.DifferenceAbstraction.tok_parts.
+Print Assumptions NC.DifferenceAbstraction.transform_rel.
+Print Assumptions NC.DifferenceAbstraction.incl_head.
+Print Assumptions NC.DifferenceAbstraction.anc_tail.
+Print Assumptions NC.DifferenceAbstraction.dvalid_same.
+Print Assumptions NC.DifferenceAbstraction.drepair_rel.
+Print Assumptions NC.DifferenceAbstraction.itr_rel.
+Print Assumptions NC.DifferenceAbstraction.dap_rel.
+Print Assumptions NC.DifferenceAbstraction.dgov_rel.
+Print Assumptions NC.DifferenceAbstraction.dgov2_rel.
+Print Assumptions NC.DifferenceAbstraction.rels_parts.
+Print Assumptions NC.DifferenceAbstraction.dup_rel.
+Print Assumptions NC.DifferenceAbstraction.swap_incl.
+Print Assumptions NC.DifferenceAbstraction.ancA.
+Print Assumptions NC.DifferenceAbstraction.valid_pair.
+Print Assumptions NC.DifferenceAbstraction.term_pair.
+Print Assumptions NC.DifferenceAbstraction.eq_transfer.
+Print Assumptions NC.DifferenceAbstraction.incl_mid.
+Print Assumptions NC.DifferenceAbstraction.cc1_pair.
+Print Assumptions NC.DifferenceAbstraction.idem_pair.
+Print Assumptions NC.DifferenceAbstraction.zr_spec.
+Print Assumptions NC.DifferenceAbstraction.dom_spec.
+Print Assumptions NC.DifferenceAbstraction.dom_length.
+Print Assumptions NC.DifferenceAbstraction.tupL_doms.
+Print Assumptions NC.DifferenceAbstraction.bnd_ok_parts.
+Print Assumptions NC.DifferenceAbstraction.RepS_spec.
+Print Assumptions NC.DifferenceAbstraction.RepS_length.
+Print Assumptions NC.DifferenceAbstraction.in_combine_diag.
+Print Assumptions NC.DifferenceAbstraction.RelS_refl.
+Print Assumptions NC.DifferenceAbstraction.in_combine3.
+Print Assumptions NC.DifferenceAbstraction.RelS_trans.
+Print Assumptions NC.DifferenceAbstraction.pigeon.
+Print Assumptions NC.DifferenceAbstraction.zsum_lt.
+Print Assumptions NC.DifferenceAbstraction.zsum_ge.
+Print Assumptions NC.DifferenceAbstraction.combine_map.
+Print Assumptions NC.DifferenceAbstraction.shift_step.
+Print Assumptions NC.DifferenceAbstraction.forallb_false_ex.
+Print Assumptions NC.DifferenceAbstraction.compress_d.
+Print Assumptions NC.DifferenceAbstraction.clamp_in.
+Print Assumptions NC.DifferenceAbstraction.write_box.
+Print Assumptions NC.DifferenceAbstraction.applyT_box.
+Print Assumptions NC.DifferenceAbstraction.drepair_box.
+Print Assumptions NC.DifferenceAbstraction.itr_box.
+Print Assumptions NC.DifferenceAbstraction.dap_box.
+Print Assumptions NC.DifferenceAbstraction.dgov_box.
+Print Assumptions NC.DifferenceAbstraction.drun_box.
+Print Assumptions NC.DifferenceAbstraction.drepair_fix.
+Print Assumptions NC.DifferenceAbstraction.itr_valid_fix.
+Print Assumptions NC.DifferenceAbstraction.HB.
+Print Assumptions NC.DifferenceAbstraction.rep_box.
+Print Assumptions NC.DifferenceAbstraction.box_len.
+Print Assumptions NC.DifferenceAbstraction.dterm_abs.
+Print Assumptions NC.DifferenceAbstraction.dcc1v_abs.
+Print Assumptions NC.DifferenceAbstraction.dcc1_abs.
+Print Assumptions NC.DifferenceAbstraction.didemv_abs.
+Print Assumptions NC.DifferenceAbstraction.term_rep_box.
+Print Assumptions NC.DifferenceAbstraction.dgsm_exact.
+Print Assumptions NC.DifferenceAbstraction.dgsm_sound.
+Print Assumptions NC.DifferenceAbstraction.dgsm_sound_all.
+Print Assumptions NC.DifferenceAbstraction.implb_t.
+Print Assumptions NC.DifferenceAbstraction.dterm_check_spec.
+Print Assumptions NC.DifferenceAbstraction.dcc1v_check_spec.
+Print Assumptions NC.DifferenceAbstraction.didemv_check_spec.
+Print Assumptions NC.DifferenceAbstraction.dbuild_sound.
+Print Assumptions NC.DifferenceAbstraction.dcheck_fail_real.
+Print Assumptions NC.DifferenceAbstraction.rel0_oiso.
+Print Assumptions NC.DifferenceAbstraction.reps_in_dom.
+Print Assumptions NC.DifferenceAbstraction.nearb_spec.
+Print Assumptions NC.DifferenceAbstraction.relb_spec.
+Print Assumptions NC.DifferenceAbstraction.inboxb_spec.
+Print Assumptions NC.DifferenceAbstraction.wallet_frag.
+Print Assumptions NC.DifferenceAbstraction.wallet_reps.
+Print Assumptions NC.DifferenceAbstraction.wallet_checks.
+Print Assumptions NC.DifferenceAbstraction.wallet_deposits_converge.
+Print Assumptions NC.DifferenceAbstraction.wallet_withdraw_diverges.
+Print Assumptions NC.DifferenceAbstraction.wallet_repair_fires.
+Print Assumptions NC.DifferenceAbstraction.capinv_frag.
+Print Assumptions NC.DifferenceAbstraction.capinv_reps.
+Print Assumptions NC.DifferenceAbstraction.capinv_checks.
+Print Assumptions NC.DifferenceAbstraction.capinv_restocks_converge.
+Print Assumptions NC.DifferenceAbstraction.capinv_ship_diverges.
+Print Assumptions NC.DifferenceAbstraction.reserve_frag.
+Print Assumptions NC.DifferenceAbstraction.reserve_reps.
+Print Assumptions NC.DifferenceAbstraction.reserve_checks.
+Print Assumptions NC.DifferenceAbstraction.reserve_converges.
+Print Assumptions NC.DifferenceAbstraction.reserve_release_diverges.
+Print Assumptions NC.DifferenceAbstraction.inventory_d_frag.
+Print Assumptions NC.DifferenceAbstraction.inventory_d_reps.
+Print Assumptions NC.DifferenceAbstraction.inventory_d_checks.
+Print Assumptions NC.DifferenceAbstraction.inventory_d_converges.
+Print Assumptions NC.DifferenceAbstraction.gap_frag.
+Print Assumptions NC.DifferenceAbstraction.gap_check_fails.
+Print Assumptions NC.DifferenceAbstraction.gap_diverges.
+Print Assumptions NC.DifferenceAbstraction.gap_order_check_passes.
+Print Assumptions NC.DifferenceAbstraction.tri_not_difference.
+Print Assumptions NC.DifferenceAbstraction.tri_refused.
+Print Assumptions NC.DifferenceAbstraction.tri_diverges.
+Print Assumptions NC.DifferenceAbstraction.sum_refused.
+Print Assumptions NC.DifferenceAbstraction.sum_check_passes.
+Print Assumptions NC.DifferenceAbstraction.sum_diverges.
+Print Assumptions NC.DifferenceAbstraction.granularity_needs_chain.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3319,8 +3461,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3243 ]; then
-  echo "FAIL: expected 3243 axiom-free results, got $N"
+if [ "$N" -lt 3384 ]; then
+  echo "FAIL: expected 3384 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
