@@ -3672,6 +3672,153 @@ Print Assumptions NC.CompositionBlocks.ch_c2r.
 Print Assumptions NC.CompositionBlocks.dist_collapse_refuted.
 Print Assumptions NC.CompositionBlocks.c2_common.
 Print Assumptions NC.CompositionBlocks.dist_collapse_needs_c2.
+Require NC.DifferenceParams.
+Print Assumptions NC.DifferenceParams.inbox_bx.
+Print Assumptions NC.DifferenceParams.nth_app_r.
+Print Assumptions NC.DifferenceParams.upd_app.
+Print Assumptions NC.DifferenceParams.nth_nil_false.
+Print Assumptions NC.DifferenceParams.tx_eval.
+Print Assumptions NC.DifferenceParams.txP_eval.
+Print Assumptions NC.DifferenceParams.clip_eval.
+Print Assumptions NC.DifferenceParams.clipP_eval.
+Print Assumptions NC.DifferenceParams.find_map'.
+Print Assumptions NC.DifferenceParams.forallb_map'.
+Print Assumptions NC.DifferenceParams.applyT_len.
+Print Assumptions NC.DifferenceParams.drepair_len.
+Print Assumptions NC.DifferenceParams.itr_len.
+Print Assumptions NC.DifferenceParams.papplyT_len.
+Print Assumptions NC.DifferenceParams.pap_len.
+Print Assumptions NC.DifferenceParams.pgov_len.
+Print Assumptions NC.DifferenceParams.jw_apply.
+Print Assumptions NC.DifferenceParams.jevt.
+Print Assumptions NC.DifferenceParams.jw_clip.
+Print Assumptions NC.DifferenceParams.jvalid.
+Print Assumptions NC.DifferenceParams.jrepair.
+Print Assumptions NC.DifferenceParams.jitr.
+Print Assumptions NC.DifferenceParams.forallb_seq.
+Print Assumptions NC.DifferenceParams.pfrag_base.
+Print Assumptions NC.DifferenceParams.pfrag_one.
+Print Assumptions NC.DifferenceParams.pfrag_two.
+Print Assumptions NC.DifferenceParams.base_parts.
+Print Assumptions NC.DifferenceParams.tupL_spec.
+Print Assumptions NC.DifferenceParams.nth_map_seq.
+Print Assumptions NC.DifferenceParams.rng_in.
+Print Assumptions NC.DifferenceParams.hat_sigs.
+Print Assumptions NC.DifferenceParams.hat_agree.
+Print Assumptions NC.DifferenceParams.agree_trans.
+Print Assumptions NC.DifferenceParams.agree_sym.
+Print Assumptions NC.DifferenceParams.exact_eq.
+Print Assumptions NC.DifferenceParams.firstn_app_len.
+Print Assumptions NC.DifferenceParams.skipn_app_len.
+Print Assumptions NC.DifferenceParams.bx_app.
+Print Assumptions NC.DifferenceParams.jlo_var.
+Print Assumptions NC.DifferenceParams.jhi_var.
+Print Assumptions NC.DifferenceParams.jlo_p1.
+Print Assumptions NC.DifferenceParams.jhi_p1.
+Print Assumptions NC.DifferenceParams.jlo_p2.
+Print Assumptions NC.DifferenceParams.jhi_p2.
+Print Assumptions NC.DifferenceParams.jlen.
+Print Assumptions NC.DifferenceParams.jgov2a.
+Print Assumptions NC.DifferenceParams.jgov2b.
+Print Assumptions NC.DifferenceParams.jcc1.
+Print Assumptions NC.DifferenceParams.jvalid2.
+Print Assumptions NC.DifferenceParams.jgov1.
+Print Assumptions NC.DifferenceParams.jidem.
+Print Assumptions NC.DifferenceParams.split2.
+Print Assumptions NC.DifferenceParams.split3.
+Print Assumptions NC.DifferenceParams.Hlen.
+Print Assumptions NC.DifferenceParams.G0.
+Print Assumptions NC.DifferenceParams.M0.
+Print Assumptions NC.DifferenceParams.HTi.
+Print Assumptions NC.DifferenceParams.box2.
+Print Assumptions NC.DifferenceParams.box1.
+Print Assumptions NC.DifferenceParams.exok_parts.
+Print Assumptions NC.DifferenceParams.nth_mid.
+Print Assumptions NC.DifferenceParams.nth_end.
+Print Assumptions NC.DifferenceParams.pcc1v_abs.
+Print Assumptions NC.DifferenceParams.pidemv_abs.
+Print Assumptions NC.DifferenceParams.pterm_abs.
+Print Assumptions NC.DifferenceParams.HBb.
+Print Assumptions NC.DifferenceParams.pwrite_box.
+Print Assumptions NC.DifferenceParams.pap_box.
+Print Assumptions NC.DifferenceParams.pgov_box.
+Print Assumptions NC.DifferenceParams.prun_box.
+Print Assumptions NC.DifferenceParams.term_rep_box_p.
+Print Assumptions NC.DifferenceParams.pgov_valid.
+Print Assumptions NC.DifferenceParams.pgsm_exact.
+Print Assumptions NC.DifferenceParams.pgsm_sound.
+Print Assumptions NC.DifferenceParams.pterm_check_spec.
+Print Assumptions NC.DifferenceParams.pcc1v_check_spec.
+Print Assumptions NC.DifferenceParams.pidemv_check_spec.
+Print Assumptions NC.DifferenceParams.pbuild_sound.
+Print Assumptions NC.DifferenceParams.pidem_build.
+Print Assumptions NC.DifferenceParams.pcheck_fail_real.
+Print Assumptions NC.DifferenceParams.tequiv_sym_cover.
+Print Assumptions NC.DifferenceParams.pbuild_perm.
+Print Assumptions NC.DifferenceParams.prod_dom.
+Print Assumptions NC.DifferenceParams.RepS_size.
+Print Assumptions NC.DifferenceParams.pcc1_domain_size.
+Print Assumptions NC.DifferenceParams.pidem_domain_size.
+Print Assumptions NC.DifferenceParams.pradius0.
+Print Assumptions NC.DifferenceParams.preps0_in_dom.
+Print Assumptions NC.DifferenceParams.evOf_embed.
+Print Assumptions NC.DifferenceParams.prmOf_embed.
+Print Assumptions NC.DifferenceParams.nprm_embed.
+Print Assumptions NC.DifferenceParams.papplyT_embed.
+Print Assumptions NC.DifferenceParams.pap_embed.
+Print Assumptions NC.DifferenceParams.pgov_embed.
+Print Assumptions NC.DifferenceParams.PArgs_embed.
+Print Assumptions NC.DifferenceParams.flat_embed.
+Print Assumptions NC.DifferenceParams.jb_embed.
+Print Assumptions NC.DifferenceParams.embed_cc1_box.
+Print Assumptions NC.DifferenceParams.skipn_len_all.
+Print Assumptions NC.DifferenceParams.firstn_len_all.
+Print Assumptions NC.DifferenceParams.embed_cc1_rep.
+Print Assumptions NC.DifferenceParams.tx_id.
+Print Assumptions NC.DifferenceParams.merge_some_l.
+Print Assumptions NC.DifferenceParams.merge_some_r.
+Print Assumptions NC.DifferenceParams.norm_allv.
+Print Assumptions NC.DifferenceParams.pok_id.
+Print Assumptions NC.DifferenceParams.aok_allv.
+Print Assumptions NC.DifferenceParams.tr_id.
+Print Assumptions NC.DifferenceParams.trc_id.
+Print Assumptions NC.DifferenceParams.dfrag_sub.
+Print Assumptions NC.DifferenceParams.ev_ok.
+Print Assumptions NC.DifferenceParams.inv_id.
+Print Assumptions NC.DifferenceParams.jev_id.
+Print Assumptions NC.DifferenceParams.embed_frag.
+Print Assumptions NC.DifferenceParams.m0_special.
+Print Assumptions NC.DifferenceParams.wallet_p_frag.
+Print Assumptions NC.DifferenceParams.wallet_p_reps.
+Print Assumptions NC.DifferenceParams.wallet_p_checks.
+Print Assumptions NC.DifferenceParams.wallet_p_converges.
+Print Assumptions NC.DifferenceParams.wallet_p_set_idem.
+Print Assumptions NC.DifferenceParams.wallet_p_diverges.
+Print Assumptions NC.DifferenceParams.facts_frag.
+Print Assumptions NC.DifferenceParams.facts_reps.
+Print Assumptions NC.DifferenceParams.facts_checks.
+Print Assumptions NC.DifferenceParams.facts_converges.
+Print Assumptions NC.DifferenceParams.facts_flag.
+Print Assumptions NC.DifferenceParams.stock_frag.
+Print Assumptions NC.DifferenceParams.stock_checks.
+Print Assumptions NC.DifferenceParams.stock_converges.
+Print Assumptions NC.DifferenceParams.stock_reserve_diverges.
+Print Assumptions NC.DifferenceParams.room_frag.
+Print Assumptions NC.DifferenceParams.room_checks.
+Print Assumptions NC.DifferenceParams.room_converges.
+Print Assumptions NC.DifferenceParams.room_diverges.
+Print Assumptions NC.DifferenceParams.room_setcap_domain.
+Print Assumptions NC.DifferenceParams.addw_stepA.
+Print Assumptions NC.DifferenceParams.addw_stepB.
+Print Assumptions NC.DifferenceParams.addw_no_threshold.
+Print Assumptions NC.DifferenceParams.addw_refused.
+Print Assumptions NC.DifferenceParams.addp_check_passes.
+Print Assumptions NC.DifferenceParams.addp_diverges.
+Print Assumptions NC.DifferenceParams.addp_refused.
+Print Assumptions NC.DifferenceParams.sum2_check_passes.
+Print Assumptions NC.DifferenceParams.sum2_diverges.
+Print Assumptions NC.DifferenceParams.sum2_refused.
+Print Assumptions NC.DifferenceParams.exact_needs_width.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3682,8 +3829,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3603 ]; then
-  echo "FAIL: expected 3603 axiom-free results, got $N"
+if [ "$N" -lt 3749 ]; then
+  echo "FAIL: expected 3749 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

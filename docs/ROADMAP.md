@@ -9,7 +9,7 @@ Role of this page: what is next. What is proved today, regime by regime, is
 which it did not until gaps 15 to 21 were added, is [COVERAGE.md](COVERAGE.md); how to pick a regime as a user is [REGIMES.md](REGIMES.md);
 prior work is [LANDSCAPE.md](LANDSCAPE.md). The map of all pages is [README.md](README.md).
 
-Status of the gate: 3513 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
+Status of the gate: 3749 theorems, all axiom-free (`coq/verify.sh`), CI on Coq 8.18, Coq 8.20 and
 Rocq 9.3 (135 when this page was first written). Items 1 to 4 and 6 have landed, item 7 has landed
 except the parts listed under it, and item 5 is open. The exactness work that followed the regime
 audit (#47 to #51, #54 to #60, #62, #64, #67, #70 to #74, #77, #80, #83, #90, #91, #92, #93) is in the Done table; what remains open is listed under "Open items"
@@ -306,7 +306,8 @@ The original item text follows. Known gaps at the time, from the README's [paper
 **Status: step 1 (symmetry) landed (`SymmetryCutoff.v`, #107); step 2 (abstraction) landed for
 comparison-only rules with a finite representative domain and for linear rules as an exact
 reduction to formula validity (`AbstractionCutoff.v`), and for difference constraints with gsm's
-saturating writes with a finite representative domain, no solver (`DifferenceAbstraction.v`); step 3 (compositional checking) landed for
+saturating writes with a finite representative domain, no solver (`DifferenceAbstraction.v`), and
+for events with integer parameters (`DifferenceParams.v`); step 3 (compositional checking) landed for
 WFC and gsm's guarantee, CC1 on valid states (`CompositionalCheck.v`); the history-side reduction
 planned.**
 
@@ -364,6 +365,30 @@ planned.**
   a literal other than 1), repair whose step count depends on the values, dense orders (strings,
   decimals), and the gsm side (the design input is in
   [coq/docs/abstraction.md](../coq/docs/abstraction.md#for-gsm-1)).
+- **Step 2, arithmetic with event parameters, done (`coq/DifferenceParams.v`).** Events that carry
+  integer arguments ("withdraw amount", "reserve qty", "book n rooms"), each parameter with a
+  declared range. A check runs on the joint state of the variables and the arguments of one or two
+  events, and every condition holds over the declared ranges of variables and arguments iff over
+  the joint representatives (`n + m1 + m2` coordinates, each within `(n + m1 + m2)(W + 1)` of an
+  anchor): CC1 at the valid states (`pcc1v_abs`), idempotence (`pidemv_abs`), repair within K
+  (`pterm_abs`), gsm's guarantee (`pgsm_exact`, `pgsm_sound`, end to end `pbuild_sound`). A
+  parameter used in difference guards and copies (`x - p op c`, `x := p + c`) is a coordinate and
+  costs nothing, at any range width. `balance := balance - amount` does not fit with `amount` as a
+  coordinate: the sum leaves the region quotient at every threshold (`addw_no_threshold`), and the
+  representative check run that way passes and diverges (`addp_diverges`, `sum2_diverges` for
+  `x := p + q`). It fits with `amount` exact, read value by value: related states agree on narrow
+  coordinates (`exact_eq`), and the threshold pays the amount's magnitude, so the domain stays
+  independent of the variables' ranges and grows with the amount's (`exact_needs_width`). No
+  parameters is the previous step (`m0_special`), and at threshold 0 the joint radius is
+  `n + 2m`, the cutoff of `cc1_abs` (`pradius0`). Non-vacuity over ranges up to `10^9`: a wallet
+  with deposit(amount), withdraw(amount), fee and set(v), where deposits and fees converge and
+  the other pairs diverge at real states near the guard and the bounds (`wallet_p_diverges`); the
+  same wallet with events that record facts and invariants that derive the overdraft, where every
+  pair converges (`facts_converges`); inventory with reserve(qty) and restock(qty); room booking
+  with book(n), cancel(n) and setcap(c) under a capacity. Not yet done: a width-independent
+  domain for added parameters (it would need sums in the relation, beyond difference regions),
+  and the gsm side (the design input is in
+  [coq/docs/abstraction.md](../coq/docs/abstraction.md#for-gsm-2)).
 
 - **Step 3, compositional checking: check each footprint component, conclude for the registry.**
   When every rule's footprint lies in one component, a repair step of the registry is a repair

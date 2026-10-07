@@ -476,3 +476,12 @@ all: CompositionBlocks.vo
 
 CompositionBlocks.vo: CompositionBlocks.v Trace.vo Federation.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo Collapse.vo FederationEventsCycles.vo DistributedCycles.vo CohomologyGraph.vo RootlessCycles.vo RootlessNetworks.vo
 	coqc -Q . NC CompositionBlocks.v
+
+# Difference constraints for events with integer parameters: parameters as read-only coordinates of
+# the joint state, exact parameters (x := x - p, reserved + q <= stock) read as their values and
+# paid in the threshold; CC1, idempotence, repair and gsm's runtime guarantee over the joint
+# representatives (roadmap item 8, DifferenceParams.v).
+all: DifferenceParams.vo
+
+DifferenceParams.vo: DifferenceParams.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo DifferenceAbstraction.vo
+	coqc -Q . NC DifferenceParams.v
