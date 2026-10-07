@@ -775,6 +775,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `README.md`: the status paragraph under the headline (one 45-line paragraph) is now a short list: exact, hardness, counting and gluing, the eight open convergence gaps by number, and the design exclusions. Details stay in `REGIME-AUDIT.md`. No theorem added, removed or renamed.
+
 - `docs/COVERAGE.md` section 4: four candidate dimensions outside the axes, added after the pass with dispositions pending: observation before convergence (what intermediate reads return), irreversible external effects, compaction (deduplication and history that forget), and nondeterministic events (the event-side twin of X2). No gap numbered, no cell count changed, no theorem added, removed or renamed.
 
 - `docs/ROADMAP.md`: planned paper, the regime map (a fourth paper whose main object is the classification: the question, the axes, the map table, representative theorems, transfer between regimes, the open part, quotients for checking, and the audit method; drafting after gap 19 lands). No theorem added, removed or renamed.
