@@ -4018,6 +4018,97 @@ Print Assumptions NC.ReconfigurationDelivery.rm_run_set.
 Print Assumptions NC.ReconfigurationDelivery.rm_ds1.
 Print Assumptions NC.ReconfigurationDelivery.rescaled_max.
 Print Assumptions NC.ReconfigurationDelivery.instances_classified.
+Require NC.ProjectionChains.
+Print Assumptions NC.ProjectionChains.pc_len_app.
+Print Assumptions NC.ProjectionChains.pc_firstn_all.
+Print Assumptions NC.ProjectionChains.pc_firstn_len.
+Print Assumptions NC.ProjectionChains.pc_skipn_len.
+Print Assumptions NC.ProjectionChains.pc_firstn_skipn.
+Print Assumptions NC.ProjectionChains.pc_firstn_app_le.
+Print Assumptions NC.ProjectionChains.pc_firstn_app_ge.
+Print Assumptions NC.ProjectionChains.pc_skipn_app_le.
+Print Assumptions NC.ProjectionChains.pc_skipn_app_ge.
+Print Assumptions NC.ProjectionChains.pc_firstn_firstn_le.
+Print Assumptions NC.ProjectionChains.pc_firstn_split.
+Print Assumptions NC.ProjectionChains.pc_skipn_skipn.
+Print Assumptions NC.ProjectionChains.pc_Forall_skipn.
+Print Assumptions NC.ProjectionChains.pc_Forall_firstn.
+Print Assumptions NC.ProjectionChains.ins_len.
+Print Assumptions NC.ProjectionChains.ins_firstn_le.
+Print Assumptions NC.ProjectionChains.ins_firstn_gt.
+Print Assumptions NC.ProjectionChains.ins_skipn_le.
+Print Assumptions NC.ProjectionChains.ins_skipn_gt.
+Print Assumptions NC.ProjectionChains.ins_Forall.
+Print Assumptions NC.ProjectionChains.minl_le_d.
+Print Assumptions NC.ProjectionChains.minl_le.
+Print Assumptions NC.ProjectionChains.minl_ge.
+Print Assumptions NC.ProjectionChains.maxl_ge_d.
+Print Assumptions NC.ProjectionChains.maxl_ge.
+Print Assumptions NC.ProjectionChains.maxl_le.
+Print Assumptions NC.ProjectionChains.rch_inv.
+Print Assumptions NC.ProjectionChains.rch_trans.
+Print Assumptions NC.ProjectionChains.topo_idx_l.
+Print Assumptions NC.ProjectionChains.rch_order.
+Print Assumptions NC.ProjectionChains.rch_antisym.
+Print Assumptions NC.ProjectionChains.rch_reader.
+Print Assumptions NC.ProjectionChains.exists_dec.
+Print Assumptions NC.ProjectionChains.rch_dec_n.
+Print Assumptions NC.ProjectionChains.rchb_true.
+Print Assumptions NC.ProjectionChains.rchb_false.
+Print Assumptions NC.ProjectionChains.dF_agree.
+Print Assumptions NC.ProjectionChains.ins_state.
+Print Assumptions NC.ProjectionChains.ins_state_full.
+Print Assumptions NC.ProjectionChains.Ho.
+Print Assumptions NC.ProjectionChains.actor_in.
+Print Assumptions NC.ProjectionChains.Forall_skipn_mono.
+Print Assumptions NC.ProjectionChains.emu_shrink.
+Print Assumptions NC.ProjectionChains.shp_cases.
+Print Assumptions NC.ProjectionChains.shp_mono.
+Print Assumptions NC.ProjectionChains.skipn_firstn_split.
+Print Assumptions NC.ProjectionChains.emu_ins.
+Print Assumptions NC.ProjectionChains.pc_in_skipn.
+Print Assumptions NC.ProjectionChains.touchb_false.
+Print Assumptions NC.ProjectionChains.touchb_true.
+Print Assumptions NC.ProjectionChains.ltouch_len.
+Print Assumptions NC.ProjectionChains.ltouch_suffix.
+Print Assumptions NC.ProjectionChains.ltouch_min.
+Print Assumptions NC.ProjectionChains.livepos_in.
+Print Assumptions NC.ProjectionChains.livepos_el.
+Print Assumptions NC.ProjectionChains.readers_in.
+Print Assumptions NC.ProjectionChains.readers_el.
+Print Assumptions NC.ProjectionChains.above_in.
+Print Assumptions NC.ProjectionChains.above_el.
+Print Assumptions NC.ProjectionChains.e2_notouch.
+Print Assumptions NC.ProjectionChains.reader_ne.
+Print Assumptions NC.ProjectionChains.emu_ins_at.
+Print Assumptions NC.ProjectionChains.q_le.
+Print Assumptions NC.ProjectionChains.q_notouch.
+Print Assumptions NC.ProjectionChains.emu_ev.
+Print Assumptions NC.ProjectionChains.minl_in.
+Print Assumptions NC.ProjectionChains.dF_suffix.
+Print Assumptions NC.ProjectionChains.live_send.
+Print Assumptions NC.ProjectionChains.emu_send.
+Print Assumptions NC.ProjectionChains.emu_merge.
+Print Assumptions NC.ProjectionChains.emu_step.
+Print Assumptions NC.ProjectionChains.emu_run.
+Print Assumptions NC.ProjectionChains.vchan_nested_emulate.
+Print Assumptions NC.ProjectionChains.cxur_nested.
+Print Assumptions NC.ProjectionChains.vchan_nested_exact.
+Print Assumptions NC.ProjectionChains.rch_read.
+Print Assumptions NC.ProjectionChains.twolevel_nested.
+Print Assumptions NC.ProjectionChains.single_nested.
+Print Assumptions NC.ProjectionChains.vchan_twolevel_exact_recovered.
+Print Assumptions NC.ProjectionChains.vchan_single_exact.
+Print Assumptions NC.ProjectionChains.k_topo.
+Print Assumptions NC.ProjectionChains.k_common.
+Print Assumptions NC.ProjectionChains.k_inv_step.
+Print Assumptions NC.ProjectionChains.k_inv_run.
+Print Assumptions NC.ProjectionChains.k_inv_s0.
+Print Assumptions NC.ProjectionChains.k_xuat.
+Print Assumptions NC.ProjectionChains.k_not_nested.
+Print Assumptions NC.ProjectionChains.vchan_skip_counterexample.
+Print Assumptions NC.ProjectionChains.ch_common.
+Print Assumptions NC.ProjectionChains.chain_instance.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4028,8 +4119,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3947 ]; then
-  echo "FAIL: expected 3947 axiom-free results, got $N"
+if [ "$N" -lt 4037 ]; then
+  echo "FAIL: expected 4037 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

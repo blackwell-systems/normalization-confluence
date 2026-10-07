@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 3947 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 3947 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4037 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4037 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -142,6 +142,7 @@ is on the same page.
 | `DistributedCyclesExact.v` | No resets, unconditional: `flush_agree_iff`, `fair_agree_iff`, `flush_fed_iff`, `fair_fed_iff`; each conjunct needed (`copy_xu_fails`, `fm_conv_fails`, `flip_noflush`, `ghost_exact`); gsm's per-target check: `lens_noreset_iff`, `lens_noreset_fair_iff` | [No-reset model, exactly](docs/distributed.md#the-no-reset-model-on-monotone-cycles-exactly-distributedcyclesexactv) |
 | `DistributedConvergenceExact.v` | No resets, convergence alone (gap 14): `conv_quiet_exact` (`FlushR /\ DConvQ <-> FlushR /\ FlushDetR /\ FlushXUR /\ QMConv`, the canonical state is where propagation settles, ghost allowed), `fair_conv_exact`; each conjunct needed (`flip_conv_noflush`, `fork_conv_nodet`, `copy_conv_noxu`, `fm_conv_noqm`); ghost-free case `quiet_conv_recovered`, `agree_conv_noghost`, `flush_fed_recovered`; `soundr_conv_iff`; `conv_ghost_instance`, `ghost_conv_not_fed` | [Convergence alone](docs/distributed.md#convergence-alone-on-monotone-cycles-distributedconvergenceexactv) |
 | `ProjectionChannels.v` | Channels that deliver projections late, reordered or duplicated (gap 21, narrowed), plain and versioned merge: `chan_exact`, `chan_exact_global`, `chan_global_exact_roots`; versioned converges at drain `vsettle`, `vsettle_exact_cond`, `vsettle_cv`, `vsettle_xu_c2`; plain `plain_settle_iff`, `plain_stale_counterexample`; two-level `vchan_emulate`, `vchan_twolevel_exact`; `version_order_counterexample`, `no_final_send_counterexample`; cycles `vchan_cyc_ghost` | [Propagation over channels](docs/distributed.md#propagation-over-channels-projectionchannelsv) |
+| `ProjectionChains.v` | Versioned channels beyond two-level networks (gap 21 residue (a)): nested networks (every single-source network) `vchan_nested_emulate`, `cxur_nested`, `vchan_nested_exact`, `vchan_single_exact`, `vchan_twolevel_exact_recovered`; `vchan_skip_counterexample` (not nested: `CXUR true` fails, `XUR` holds); `chain_instance` | [Projection channels beyond two-level networks](docs/distributed.md#projection-channels-beyond-two-level-networks-projectionchainsv) |
 | `RobertFair.v` | Robert's theorem for fair asynchronous schedules on acyclic networks (gap 16 (d), closed): `rb_robert_fair` (every fair schedule from every valid start settles at the run of one topological order), `rb_unique`, `rb_topo_runs`, `rb_order_independent`; rounds `rb_rounds`, `rb_rounds_all`, `rb_rounds_pos`; effective steps `rb_effective`, `rb_closed`; events `rb_events`, `rb_event_schedule`, exactly `rb_fair_dist_exact`; resolver model `rb_lens_robert`, `rb_lens_closed`; Boolean global graph `rb_robert_boolean`; boundaries `rb_neg2_cycle`, `rb_copyback_cycle`, `rb_converse_fails`, `rb_dist_cycle_needed`, `rb_absorb_needed`; instances `rb_example`, `rb_bool3`, `rb_supply_events`, `rb_supply_fair_conv`, `rb_gg_not_fair_conv` | [Fair schedules on acyclic networks](docs/distributed.md#fair-schedules-on-acyclic-networks-robertfairv) |
 
 ### 9 and 10. Monotone cycles ([docs/monotone-cycles.md](docs/monotone-cycles.md))
@@ -264,7 +265,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3947
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4037
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

@@ -534,9 +534,62 @@ at the least fixed point. By `emb_run` every cyclic current-value run is a versi
 the cyclic counterexamples transfer; flush and reset epochs over channels have no theorem (an
 in-flight projection from before a reset is a hazard the current-value epoch theorems do not see).
 
-Not covered (the residue of gap 21): whether versioned channels reach new stale combinations beyond
-two-level networks (chains, multi-source targets), that is whether `CXUR true` equals `XUR` there;
-channels on cycles. Loss without redelivery is outside the model (the eventual-delivery limit).
+Not covered here: whether, beyond two-level networks, versioned channels reach stale combinations
+the current-value model cannot (`ProjectionChains.v`, next section: not on nested networks, and in
+general they can); channels on cycles. Loss without redelivery is outside the model (the eventual-delivery
+limit).
+
+## Projection channels beyond two-level networks (`ProjectionChains.v`)
+
+`vchan_twolevel_exact` shows that on two-level networks versioned channels need exactly
+`dist_exact`'s condition: `CXUR true s0` (XU at every channel-reachable state) equals `XUR s0` (XU
+at every current-value state). This file asks the same on every acyclic network, with chains (a
+projection of a projection) and targets with several sources (audit gap 21 residue (a); 90 gated
+results, axiom-free).
+
+**Nested networks.** `Rch y x`: `x` is `y`, or reads (through registries of `o`) a registry
+`Rch`-reachable from `y`. `rt` marks pure roots (repair the identity). `Nested src o rt`: whenever a
+registry `y` that is not a pure root lies above a target `j` that is not a pure root, every source
+of `j` lies below `y` too. Two-level networks are nested (`twolevel_nested`), and so is every
+network whose targets have at most one source, chains and trees of any depth (`single_nested`,
+`SingleSource`, with no pure root marked).
+
+- **`vchan_nested_emulate`**: on a nested network every state a disciplined versioned channel run
+  reaches (projections late, reordered, duplicated) is, at every registry, the state of a
+  current-value run. The invariant (`EmuN`) keeps a current-value word reaching the channel state
+  and gives every live projection a position in it, where the projection's sources hold its
+  snapshot and after which nothing below its target acts; positions are monotone in the version
+  and along the network. A local event or an applied projection of `r` is inserted after the last
+  action touching `r` (`ltouch`) and after the positions of `r`'s readers (`emu_ins_at`,
+  `emu_merge`); a send takes the least position above it (`emu_send`), and Nested is exactly what
+  makes the sources' values there the snapshot's.
+- **`cxur_nested`**: `CXUR true s0 <-> XUR s0`. **`vchan_nested_exact`**: `ChanConv true s0`,
+  `SettleConv s0` and `DistConv s0` are each equivalent to `XUR s0 /\ C2R (N s0)`.
+- **`vchan_single_exact`**: the same on single-source networks, the class gsm certifies for
+  projection deployments (acyclic, every target with one incoming edge).
+  `vchan_twolevel_exact_recovered` rederives `vchan_twolevel_exact`. `chain_instance`: non-vacuity,
+  the chain `0 -> 1 -> 2` (registry 2 copies registry 1's copy of registry 0's flag), not two-level
+  for any marking, where the theorem applies and `SettleConv` and `DistConv` hold.
+
+**Beyond nested networks the equality fails.** **`vchan_skip_counterexample`**: four registries
+over four booleans; 1 copies 0's flag, 2 copies the pair (0's flag, 1's flag), 3 copies (1's flag,
+2's pair); `Flip` sets 0's flag, `Mark` on 3 sets a local bit when 3 shows "1 unset while 2 saw 0
+and 1 both set". Registry 2 lies above 3 but 3's source 1 does not lie below 2, so the network is
+not nested for any marking of pure roots (`k_not_nested`). From a start where 1 holds a stale set
+flag, the current-value model never shows that combination at 3 (an invariant: once 2 saw both set,
+1 stays set), so `XUR` holds and `DistConv` holds by `dist_exact`. The disciplined versioned run
+"send 1 (0 unset); flip 0; send 2 and deliver (0 set, 1 still stale-set); deliver 1's late
+projection (1 unset); send 3 and deliver" shows it, XU fails there, and `CXUR true`, `ChanConv true`
+and `SettleConv` all fail. Two snapshots that no single current-value order can produce in sequence
+(2's view taken before 1's late merge, 3's view after it) meet in one projection. gsm's static XU
+(`ProjectionSafe`) rejects `Mark`, so the static certificate is unaffected: `vsettle_xu_c2` holds
+on every acyclic network, and `chan_exact_global` is the every-start condition on every acyclic
+network.
+
+Not covered: the exact network class. Between Nested and the pattern of
+`vchan_skip_counterexample` it is open whether versioned channels reach stale combinations the
+current-value model cannot (for example a diamond, two non-root sources reading one root, or a
+target reading a chain and a non-root registry with no sources).
 
 ## Causal and at-least-once event delivery (`DistributedDelivery.v`)
 

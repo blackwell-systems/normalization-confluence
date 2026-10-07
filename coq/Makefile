@@ -492,3 +492,11 @@ all: ReconfigurationDelivery.vo
 
 ReconfigurationDelivery.vo: ReconfigurationDelivery.v Newman.vo Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo AtLeastOnceDeclared.vo GovernanceConverse.vo Reconfiguration.vo ReconfigurationClosure.vo DistributedDelivery.vo
 	coqc -Q . NC ReconfigurationDelivery.v
+# Versioned projection channels beyond two-level networks: on nested networks (every single-source
+# network among them) every channel state is a current-value state, so dist_exact's condition is
+# exact; a four-registry network outside the class where it fails (gap 21 residue (a),
+# ProjectionChains.v).
+all: ProjectionChains.vo
+
+ProjectionChains.vo: ProjectionChains.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo ProjectionChannels.vo
+	coqc -Q . NC ProjectionChains.v
