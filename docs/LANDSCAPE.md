@@ -150,6 +150,45 @@ structure.
   Reservation-style enforcement remains a candidate avoidance strategy for gsm where a lossy
   after-the-fact repair is unacceptable.
 
+- **Bayou** (Terry et al., SOSP 1995). The earliest system with application-supplied repair: each
+  write carries a dependency check (a query and its expected result) and a merge procedure that runs
+  when the check fails. Its convergence argument is not the repair, though. In the paper's words, two
+  features give eventual consistency: writes "are performed in the same, well-defined order at all
+  servers", and "the conflict detection and merge procedures are deterministic". The order is fixed by
+  a primary server that commits writes; tentative writes are undone and re-executed when a newly
+  received write lands earlier in the log. So Bayou converges by agreeing on one order, which is
+  coordination, and merge procedures need no property beyond determinism. The paper names the
+  alternative and sets it aside: writes known to commute could run in any order, but "because Bayou's
+  Write operations include arbitrary merge procedures, it is effectively impossible either to
+  determine whether two Writes commute or to transform two Writes so they can be reordered".
+  Normalization confluence is that determination for governed state: the conditions under which
+  every order of events with their repairs reaches one state (CC1 and CC2, exact at reachable states),
+  decided on gsm's finite combinator rules, so no primary and no rollback are needed when they hold.
+  For rules written as arbitrary Go closures the determination stays out of reach, as Bayou said;
+  gsm tests closures and does not prove them (see the fundamental limits in the roadmap).
+
+- **IceCube** (Kermarrec, Rowstron, Shapiro and Druschel, PODC 2001). Reconciliation of divergent
+  replica logs by search: the application classifies pairs of actions (safe to reorder, possibly
+  conflicting, unsafe) and states preconditions, and the system explores candidate schedules,
+  simulates them against the state, and selects one. Like Bayou, it makes the outcome
+  order-independent by choosing an order; normalization confluence asks when the choice does not
+  matter. Its pairwise classification is close in spirit to gsm's per-pair checks and declared
+  independence, with the difference that gsm decides the classification instead of taking it from the
+  application.
+
+- **Operational transformation** (Ellis and Gibbs, SIGMOD 1989; Ressel, Nitsche-Ruhland and
+  Gunzenhäuser, CSCW 1996). The collaborative-editing route: an incoming operation is transformed
+  against the concurrent operations already applied, so that transformed operations commute. The
+  standard correctness conditions are TP1 (two concurrent operations commute after transformation)
+  and TP2 (transforming against two operations does not depend on their order), stated as sufficient
+  for convergence. TP1 is a critical-pair condition on the transformed system, the same shape as CC1.
+  The conditions proved hard to get right: the original dOPT algorithm was refuted by counterexample
+  (Cormack, 1995), and establishing TP2 for published transformation functions became its own line of
+  work, including machine-checked attempts (Imine, Molli, Oster and Rusinowitch, ECSCW 2003) and
+  their later corrections. The difference in route: OT changes the operations so they commute;
+  normalization confluence keeps the operations, lets them conflict, and requires the repair to make
+  the outcome order-independent, with conditions that are necessary as well as sufficient.
+
 - **ECROs** (De Porre et al., EuroSys 2021) and **Hamsaz** (Houshmand & Lesani, POPL 2019). Given a
   sequential data type and its invariants, use an SMT solver to find which operation pairs conflict
   and synthesize the coordination or restriction needed. This is the close cousin of
