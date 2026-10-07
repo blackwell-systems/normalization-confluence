@@ -633,6 +633,8 @@ convergence in general).
 
 Status: planned, not started. Not a caveat removal; it does not change what is proved.
 
+Poster draft: [docs/atlas/](atlas/README.md) (`poster.html`: one tile per regime with a detail card, following REGIME-AUDIT.md; `check.py` verifies the theorem names against the gate).
+
 ## Planned paper: the regime map
 
 A fourth paper whose main object is the map itself, not one regime. The three papers each state
