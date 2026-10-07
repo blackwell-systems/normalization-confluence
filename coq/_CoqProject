@@ -83,3 +83,4 @@ AbstractionGsm.v
 CompositionalCheck.v
 ReconfigurationClosure.v
 DifferenceAbstraction.v
+CompositionBlocks.v
