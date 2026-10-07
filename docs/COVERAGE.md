@@ -6,7 +6,7 @@ This page tests it from the other side. It derives the regime space from the mod
 hypotheses that vary across the Coq theorems and the audit's vocabulary), maps every meaningful
 combination to the audit, and lists what no row covered. It adds no proofs and changes no
 existing gap's status. The pass ran at `main` `d24d26d` (gate: 2241 axiom-free results) and gsm
-`main` `0f094f1`; the page has been kept current since, through #98, the closing of gap 15 and of gap 16 (d), and the narrowing of gap 20 (gate: 2693).
+`main` `0f094f1`; the page has been kept current since, through #98, the closing of gap 15 and of gap 16 (d), the narrowing of gap 20 (gate: 2693), and the closing of gap 5 and narrowing of gap 19 (gate: 3513).
 
 Results, in one paragraph. Thirteen axes vary in the source. Of the 179 cells of the matrix below
 (section 3), 58 are covered (54 by an exact theorem, 4 more by an exact theorem together with a
@@ -32,7 +32,12 @@ semantics, a change at a quiescent barrier and a live change with events in flig
 (`barrier_exact`, `live_exact`, `fed_barrier_exact`, `fed_live_exact`), and in the deterministic
 model the barrier's A part for a migration that is not faithful has a local, finite exact form
 (`ReconfigurationClosure.v`: `amodm_closure_exact`, `det_classify_complete`); the residue is listed
-under gap 20 (section 4; again the counts in section 3 do not change).
+under gap 20 (section 4; again the counts in section 3 do not change). Gap 5 is closed and gap 19
+narrowed by `CompositionBlocks.v`: A14's normalizer and asynchronous cells, B11's distributed cell,
+B12's replay cell and B13's replay cell are exact (`compose_exact`, `compose_collapse`,
+`dist_collapse_iff`, `mono_collapse_exact`), B12's rewrite cell is degenerate (B3's, gap 16 (c)),
+and B12's distributed cells are open under gap 19 (b), whose residue is a cyclic block in the
+distributed model; the counts in section 3 include these changes.
 
 How to read the statuses:
 
@@ -157,7 +162,7 @@ some word; asynchronous repair, every fair schedule.
 | A11 | Lossy, rootless, resolver reading B, in-degree two or more | **uncovered**: no row for fixed points of the resolver map without a spanning root; the reductions between the readings are conjectures (LOSSY-NETWORKS.md section 1); gap 18 | **ill-formed**: as A10 | **open (gap 3)**: sufficient `richard_t3`, `richard_t4`, `shih_dong_E` | **open (gap 3)**: sufficient `signed_settlement`, `signed_fidelity`, `one_token_fair_settlement`, `two_token_fair_settlement`; synchronous `sync_simple` |
 | A12 | Lossy, single cycle (in-degree one, P4) | **exact**: `thm_obstruction_general`, `thm_obstruction_reachable`, `c15_exact_refuter` | **degenerate**: A9 (a root on the cycle) | **open (gap 3)**: the rootless resolver row includes cycles | **open (gap 3)** |
 | A13 | Signed resolvers with a balanced global graph | **degenerate**: A4 after switching (P6) | **degenerate**: A4 (P6) | **open (gap 3)**: sufficient `signed_settlement` | **open (gap 3)**: sufficient `signed_settlement`, `signed_fidelity` |
-| A14 | Mixed engines in one network, coordination-free | **degenerate**: A9 existence on one sum fiber (P5) | **open (gap 5)** when the only cyclic blocks are monotone and the rest is acyclic (their collapse); otherwise **uncovered**: gap 19 | **uncovered**: gap 19 | **degenerate**: A14 async, some word |
+| A14 | Mixed engines in one network, coordination-free | **degenerate**: A9 existence on one sum fiber (P5) | **exact**: monotone blocks, blockwise least fixed points (`bekic_lfp`, `mono_collapse_nf`; gap 5, closed); any engines, the normal form is the block-by-block one under `compose_exact`'s conjuncts (`compose_collapse`) | **exact**: `compose_exact` (each conjunct needed, `compose_isolated_refuted`, `mixed_ghost_refuted`), engines `mixed_rootless_exact`, `mixed_mono_iff`; interface closed under composition `interface_closed`; gap 19 (a), closed | **degenerate**: A14 async, some word |
 
 Notes. Within one strongly connected block a mixture of edge kinds is simply the most general
 class present (a cycle with one negation edge is non-monotone), so it falls to A7, A8, A10 or A11.
@@ -182,9 +187,9 @@ epochs.
 | B8 | Invertible, rootless, no unique normal form | **excluded (design)**: the repair layer already diverges (`copyback_without_authority`, `rootless_two_orders`; `net_unique_iff`) | **degenerate**: B8 rewrite | **degenerate**: B8 rewrite | **ill-formed**: as B7 |
 | B9 | Lossy, root-set coordination | **degenerate**: B2 on the driving forest (P3) | **exact**: `forest_events_exact`, `forest_events_exact_global` | **degenerate**: B2 (P3) | **degenerate**: B2 (P3) |
 | B10 | Lossy, rootless | **open (gap 3)**: the repair layer is open (A11; for edge writers, gap 17) | **open (gap 3)** | **open (gap 3)** | **open (gap 3)** |
-| B11 | Collapse of an acyclic convex block | **exact**: `collapse_c_unguarded_iff` | **exact**: `collapse_c_exact`, `collapse_a_guarded_exact` | **uncovered**: collapse preservation when the block's internal propagation interleaves with outer events (the flattened network is B2, P9; the compositional statement is not); gap 19 | **degenerate**: B11 distributed |
-| B12 | Collapse of a monotone cyclic block | **open (gap 5)** | **open (gap 5)** | **open (gap 5)**: the flattened network is B3, the collapse statement is gap 5 | **open (gap 5)** |
-| B13 | Collapse of a non-monotone cyclic block | **degenerate**: B13 replay | **uncovered**: gap 19 | **degenerate**: B13 replay | **degenerate**: B13 replay |
+| B11 | Collapse of an acyclic convex block | **exact**: `collapse_c_unguarded_iff` | **exact**: `collapse_c_exact`, `collapse_a_guarded_exact` | **exact**: `dist_collapse_iff` (`N` converges iff `N'` does and XU holds at every state `N` reaches), `dist_collapse_exact`; the plain statement fails (`dist_collapse_refuted`); gap 19 (b), closed for an acyclic block | **degenerate**: B11 distributed |
+| B12 | Collapse of a monotone cyclic block | **degenerate**: B3 rewrite (gap 16 (c)) | **exact**: `mono_collapse_converges_iff`, `mono_collapse_exact` (gap 5, closed) | **open (gap 19 (b))**: the flattened network is B3; collapse with `J`'s propagation as one step is not stated on cycles | **open (gap 19 (b))**: as before, with reset epochs |
+| B13 | Collapse of a non-monotone cyclic block | **degenerate**: B13 replay | **exact**: the composite's normal form is the block-by-block one exactly under `compose_exact`'s conjuncts (`compose_collapse`), and event order is `gc_iff` for that normalizer; gap 19 (a), closed | **degenerate**: B13 replay | **degenerate**: B13 replay |
 
 ### 3.3 Delivery and enabledness, by execution model
 
@@ -243,24 +248,24 @@ step by P1); stream processors; distributed propagation.
 
 | Status | Cells |
 |---|---|
-| exact | 60 |
+| exact | 65 |
 | exact + hardness | 4 |
 | sufficient (no owning gap) | 0 |
 | excluded (design: gaps 8 and 9, and B8's counterexamples) | 9 |
 | excluded (scope: fundamental limits) | 3 |
-| open, existing gaps 3, 5, 13 and one ROADMAP item | 19 |
-| degenerate | 55 |
+| open, existing gaps 3, 13, 19 (b) and one ROADMAP item | 16 |
+| degenerate | 56 |
 | ill-formed | 14 |
-| **uncovered (now gaps 16 to 19)** | **15** |
+| **uncovered (now gaps 16 to 18)** | **12** |
 | total | 179 |
 
 Cells are counted per table row and column (sections 3.1 to 3.3), and per row in sections 3.4
-and 3.5, by the status that leads the cell; A14's normalizer cell, open for monotone blocks and
-uncovered otherwise, counts as open. One question can span several cells, so the 15 uncovered
-cells are 7 distinct questions (the four questions of gap 15, cells C10, C8 streams, C3 and C8
-distributed, and C6, and A2's fair schedules, 16 (d), are now exact): the edge-writer dynamics of A3, A8
-and A10 (17); reading-B existence and counting, A11 and F7 (18); composition across engines, A14
-and B13 (19 a), and collapse in the distributed model, B11 (19 b); local compensation as steps on
+and 3.5, by the status that leads the cell. One question can span several cells, so the 12
+uncovered cells are 5 distinct questions (the four questions of gap 15, cells C10, C8 streams, C3
+and C8 distributed, and C6, A2's fair schedules, 16 (d), and gap 19's composition across engines,
+A14 and B13, and collapse in the distributed model, B11, are now exact; gap 5's cells B12 are exact
+in replay and open under gap 19 (b) in the distributed columns): the edge-writer dynamics of A3, A8
+and A10 (17); reading-B existence and counting, A11 and F7 (18); local compensation as steps on
 cycles, B3 (16 c); distributed ACC, B4 (16 b); and rootless propagation with events, B7 (16 a).
 
 What surprised: A2's fair cell. LOSSY-NETWORKS.md called Robert's theorem mechanized in the
@@ -292,9 +297,9 @@ dimension the model does not represent at all.
 | Time and deadlines | new axis | a timer firing is an event, so time-triggered rules are existing cells; bounds on convergence time are the asymptotic cost ROADMAP item 7 lists out of scope by design (step bounds are mechanized where they exist: `base_lem_termination_bound`, `sync_simple`'s `2^n`) | **design exclusion X5** (real-time semantics) |
 | Message loss without redelivery | cell of the delivery axis | stated fundamental limit (eventual delivery) | excluded (scope), F11 |
 | Partial replication | not a new axis | a replica holding part of the state with single-writer overlaps is a federation (sections 6 to 12 of the audit); overlapping writers are the variable-level site | existing cells; multi-writer part is **gap 13** |
-| Mixed federations | cells (A14, B13) | across blocks needs composition | **gap 5** (monotone blocks), **gap 19** (others) |
+| Mixed federations | cells (A14, B13) | across blocks needs composition: exact for any engines (`compose_exact`, `compose_collapse`), and for monotone blocks by Bekic's principle (`bekic_lfp`, `mono_collapse_exact`) | **gap 19 (a)** and **gap 5**, closed |
 | Multivalued local interaction graphs | value of the state axis on the resolver rows | listed in gap 3 | **gap 3** |
-| Nested federations, collapse with distributed propagation | cells (B11, B12) | flattening covers convergence of the flattened network; collapse preservation is not stated | **gap 19** (acyclic blocks), **gap 5** (monotone blocks) |
+| Nested federations, collapse with distributed propagation | cells (B11, B12) | flattening covers convergence of the flattened network; collapse preservation is exact for acyclic blocks (`dist_collapse_iff`; the plain statement fails, `dist_collapse_refuted`) and not stated for cyclic blocks | **gap 19 (b)**, closed for acyclic blocks, open on cycles |
 | Synthesis of a convergent repair | value of the property axis | gsm `Registry.Synthesize` is implemented, not mechanized | open, ROADMAP lower-value item ("Synthesis") |
 | Observation before convergence: what a read or query returns while events are in flight (session guarantees such as read-your-writes and monotonic reads) | new axis (every property on axis 12 is about normal forms, reachable states or agreement at the end; no theorem states what an intermediate read may return) | not represented | **candidate**, added after the pass; disposition pending (a new gap if a property of intermediate reads is stated, otherwise a scope sentence) |
 | Irreversible external effects: an event that emits an effect outside the state (a message sent, a payment charged), which repair cannot undo | new axis (`apply : E -> State -> State` keeps every effect in the state, so `rho` can repair it) | an effect recorded in the state (an outbox) and emitted only from a normal form is an existing cell; an effect emitted from an intermediate state is not represented | **candidate**, added after the pass; disposition pending (a new gap or a design exclusion) |
@@ -313,7 +318,7 @@ Numbered after the audit's last gap (14). Sizes follow the audit's scale.
 | 16 | Distributed propagation off its current hypotheses: (a) events interleaved with rootless propagation on cyclic invertible networks with authority roots (no distributed model off monotone cycles); (b) monotone cycles with ACC and no finite height (every distributed module assumes `rank_bound`); (c) local compensation as separate steps on cycles (`G_Fed` is acyclic only); (d) settlement of every fair update schedule on an acyclic network, Robert's asynchronous half: since closed (`RobertFair.v`: `rb_robert_fair`, `rb_fair_dist_exact`, `rb_lens_robert`, and for Boolean networks with an acyclic global graph `rb_robert_boolean`, through `fair_settlement_of_acyclic`) | cells | medium | 8, 11 |
 | 17 | Rootless edge-writer dynamics beyond the regular action: lossy maps at in-degree two or more (where the edge-writer and resolver readings differ), and invertible maps under a non-free action. Quiescent states are reading-A sections, so existence is already exact and NP-complete (`root_set_criterion_graph`, `net_section_iff_sat`); open is when every fair order reaches one, and uniqueness. Gap 3 is the resolver reading only | cells | medium | 11, 12 |
 | 18 | Existence and counting in reading B without a spanning root (fixed points of the resolver map, in-degree two or more): no row. The polynomial reductions between the readings (LOSSY-NETWORKS.md section 1) are conjectures validated by checks 8 and 9; mechanizing one transfers `net_section_iff_sat` and `net_count` | cells | small | 12 |
-| 19 | Composition beyond acyclic collapse: (a) coordination-free networks whose cyclic blocks use different engines (a non-monotone cyclic block, invertible or lossy, feeding or fed by other blocks); (b) collapse preservation in the distributed model (a block whose internal propagation interleaves with outer events). An instance of the cyclic frontier for (a) | cells | medium to large | 14 |
+| 19 | Composition beyond acyclic collapse: (a) coordination-free networks whose cyclic blocks use different engines (a non-monotone cyclic block, invertible or lossy, feeding or fed by other blocks); (b) collapse preservation in the distributed model (a block whose internal propagation interleaves with outer events). An instance of the cyclic frontier for (a). Since narrowed by `CompositionBlocks.v`: (a) closed for any engines (`compose_exact`, `compose_collapse`, `interface_closed`), (b) closed for an acyclic block (`dist_collapse_iff`); the residue is (b) for a cyclic block | cells | medium to large | 14 |
 | 20 | **New axis.** Reconfiguration inside a run: the topology (`src`) or the rules (`apply`, `rho`, morphisms) change while events or propagation are in flight. A change at a quiescent barrier reduces to two runs of existing cells. Since narrowed by `Reconfiguration.v` (`barrier_exact`, `barrier_exact_faithful`, `live_exact`, `fed_live_exact`, `classify_finite`); an unfaithful migration's barrier A part is local and finite in the deterministic model (`ReconfigurationClosure.v`: `amodm_closure_exact`, `det_classify_complete`); the residue is a live change in the distributed model (propagation in flight) and other delivery classes across the switch | new axis | medium | none (COVERAGE.md section 4) |
 | 21 | **New axis.** Propagation over channels: projections delivered late, reordered or duplicated. gsm's `MergeProjection` (no order check: a late or duplicate projection is merged as it arrives, and a stale one merged after a newer one wins) and `MergeProjectionAfter` (rejects a projection whose version is not newer than the last one applied from that edge) are outside the mechanized propagation model, whose step reads the sources' current values, so no theorem covers a deployment whose projections travel over such channels. Freshness keeps an older value from overwriting a newer one; it is not proved to give convergence (gsm's own documentation says the same). Since narrowed by `ProjectionChannels.v` (`chan_exact`, `vsettle_exact_cond`, `vsettle_xu_c2`, `plain_settle_iff`, `vchan_twolevel_exact`); the residue is the current-value form beyond two-level networks and cycles | new axis | small to medium | 8 |
 

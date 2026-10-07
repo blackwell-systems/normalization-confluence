@@ -3451,6 +3451,136 @@ Print Assumptions NC.DifferenceAbstraction.sum_refused.
 Print Assumptions NC.DifferenceAbstraction.sum_check_passes.
 Print Assumptions NC.DifferenceAbstraction.sum_diverges.
 Print Assumptions NC.DifferenceAbstraction.granularity_needs_chain.
+Require NC.CompositionBlocks.
+Print Assumptions NC.CompositionBlocks.run_app.
+Print Assumptions NC.CompositionBlocks.projA_ok.
+Print Assumptions NC.CompositionBlocks.projB_ok.
+Print Assumptions NC.CompositionBlocks.fst_runC.
+Print Assumptions NC.CompositionBlocks.runC_inl.
+Print Assumptions NC.CompositionBlocks.runC_inr.
+Print Assumptions NC.CompositionBlocks.ok_inl.
+Print Assumptions NC.CompositionBlocks.ok_inr.
+Print Assumptions NC.CompositionBlocks.ok_app'.
+Print Assumptions NC.CompositionBlocks.runA_ext.
+Print Assumptions NC.CompositionBlocks.runB_ext.
+Print Assumptions NC.CompositionBlocks.runC_ext.
+Print Assumptions NC.CompositionBlocks.QA_run.
+Print Assumptions NC.CompositionBlocks.QA_eq.
+Print Assumptions NC.CompositionBlocks.QB_eq.
+Print Assumptions NC.CompositionBlocks.QC_iff.
+Print Assumptions NC.CompositionBlocks.eqC_sym.
+Print Assumptions NC.CompositionBlocks.QC_eq.
+Print Assumptions NC.CompositionBlocks.runC_quiet.
+Print Assumptions NC.CompositionBlocks.lk_index.
+Print Assumptions NC.CompositionBlocks.lk_run.
+Print Assumptions NC.CompositionBlocks.conv_A.
+Print Assumptions NC.CompositionBlocks.conv_WNB.
+Print Assumptions NC.CompositionBlocks.conv_LkUnique.
+Print Assumptions NC.CompositionBlocks.compose_suff.
+Print Assumptions NC.CompositionBlocks.compose_exact.
+Print Assumptions NC.CompositionBlocks.compose_collapse.
+Print Assumptions NC.CompositionBlocks.KB_run.
+Print Assumptions NC.CompositionBlocks.lk_KB.
+Print Assumptions NC.CompositionBlocks.interface_lk.
+Print Assumptions NC.CompositionBlocks.interface_closed.
+Print Assumptions NC.CompositionBlocks.K_run.
+Print Assumptions NC.CompositionBlocks.settles_conv.
+Print Assumptions NC.CompositionBlocks.okT_all.
+Print Assumptions NC.CompositionBlocks.okC_all.
+Print Assumptions NC.CompositionBlocks.flip_run.
+Print Assumptions NC.CompositionBlocks.flip_conv.
+Print Assumptions NC.CompositionBlocks.sticky_idem.
+Print Assumptions NC.CompositionBlocks.sticky_run.
+Print Assumptions NC.CompositionBlocks.sticky_conv.
+Print Assumptions NC.CompositionBlocks.compose_isolated_refuted.
+Print Assumptions NC.CompositionBlocks.compose_needs_A.
+Print Assumptions NC.CompositionBlocks.compose_needs_wn.
+Print Assumptions NC.CompositionBlocks.compose_transient_free.
+Print Assumptions NC.CompositionBlocks.rrun_fire.
+Print Assumptions NC.CompositionBlocks.rok_incl.
+Print Assumptions NC.CompositionBlocks.rquiet_iff.
+Print Assumptions NC.CompositionBlocks.rootless_conv_lhs.
+Print Assumptions NC.CompositionBlocks.rootless_conv_iff.
+Print Assumptions NC.CompositionBlocks.peq_refl'.
+Print Assumptions NC.CompositionBlocks.peq_sym'.
+Print Assumptions NC.CompositionBlocks.peq_trans'.
+Print Assumptions NC.CompositionBlocks.mixed_rootless_exact.
+Print Assumptions NC.CompositionBlocks.mixed_instance.
+Print Assumptions NC.CompositionBlocks.prs_run.
+Print Assumptions NC.CompositionBlocks.sg_ok.
+Print Assumptions NC.CompositionBlocks.mquiet_iff.
+Print Assumptions NC.CompositionBlocks.mono_block_interface_iff.
+Print Assumptions NC.CompositionBlocks.mixed_mono_iff.
+Print Assumptions NC.CompositionBlocks.au_incr.
+Print Assumptions NC.CompositionBlocks.au_sound.
+Print Assumptions NC.CompositionBlocks.au_mono.
+Print Assumptions NC.CompositionBlocks.au_fixed.
+Print Assumptions NC.CompositionBlocks.au_cover.
+Print Assumptions NC.CompositionBlocks.ctop.
+Print Assumptions NC.CompositionBlocks.au_decr.
+Print Assumptions NC.CompositionBlocks.au_cosound.
+Print Assumptions NC.CompositionBlocks.aF_unique.
+Print Assumptions NC.CompositionBlocks.par_add.
+Print Assumptions NC.CompositionBlocks.par_fair.
+Print Assumptions NC.CompositionBlocks.mixed_mono_instance.
+Print Assumptions NC.CompositionBlocks.mixed_ghost_refuted.
+Print Assumptions NC.CompositionBlocks.leP_antisym.
+Print Assumptions NC.CompositionBlocks.lfp_below_prefixed.
+Print Assumptions NC.CompositionBlocks.bekic_lfp.
+Print Assumptions NC.CompositionBlocks.mono_collapse_nf.
+Print Assumptions NC.CompositionBlocks.mono_collapse_runs_agree.
+Print Assumptions NC.CompositionBlocks.mono_collapse_converges_iff.
+Print Assumptions NC.CompositionBlocks.mono_collapse_exact.
+Print Assumptions NC.CompositionBlocks.gle_refl.
+Print Assumptions NC.CompositionBlocks.gle_trans.
+Print Assumptions NC.CompositionBlocks.gbot_least.
+Print Assumptions NC.CompositionBlocks.grank_strict.
+Print Assumptions NC.CompositionBlocks.grank_bound.
+Print Assumptions NC.CompositionBlocks.gu_incr.
+Print Assumptions NC.CompositionBlocks.gu_sound.
+Print Assumptions NC.CompositionBlocks.gu_mono.
+Print Assumptions NC.CompositionBlocks.gu_fixed.
+Print Assumptions NC.CompositionBlocks.gts_cover.
+Print Assumptions NC.CompositionBlocks.mono_collapse_instance.
+Print Assumptions NC.CompositionBlocks.dA_app.
+Print Assumptions NC.CompositionBlocks.dA_props.
+Print Assumptions NC.CompositionBlocks.evsA_app.
+Print Assumptions NC.CompositionBlocks.evsA_props.
+Print Assumptions NC.CompositionBlocks.props_flush.
+Print Assumptions NC.CompositionBlocks.flushA.
+Print Assumptions NC.CompositionBlocks.flushA0.
+Print Assumptions NC.CompositionBlocks.evatoms_ok.
+Print Assumptions NC.CompositionBlocks.evatoms_concat.
+Print Assumptions NC.CompositionBlocks.evs_map.
+Print Assumptions NC.CompositionBlocks.fl_lands.
+Print Assumptions NC.CompositionBlocks.xura_nec.
+Print Assumptions NC.CompositionBlocks.tc_nec.
+Print Assumptions NC.CompositionBlocks.xura_c1r1.
+Print Assumptions NC.CompositionBlocks.dist_atoms_exact.
+Print Assumptions NC.CompositionBlocks.single_concat.
+Print Assumptions NC.CompositionBlocks.single_ok.
+Print Assumptions NC.CompositionBlocks.At1_ok.
+Print Assumptions NC.CompositionBlocks.dist_exact_recovered.
+Print Assumptions NC.CompositionBlocks.concat_single.
+Print Assumptions NC.CompositionBlocks.flC_word.
+Print Assumptions NC.CompositionBlocks.htopo.
+Print Assumptions NC.CompositionBlocks.flC_ok.
+Print Assumptions NC.CompositionBlocks.AtC_shape.
+Print Assumptions NC.CompositionBlocks.flC_flush.
+Print Assumptions NC.CompositionBlocks.dist_collapse_exact.
+Print Assumptions NC.CompositionBlocks.AtC_ok.
+Print Assumptions NC.CompositionBlocks.dist_collapse_sound.
+Print Assumptions NC.CompositionBlocks.xur_xurc.
+Print Assumptions NC.CompositionBlocks.dist_collapse_iff.
+Print Assumptions NC.CompositionBlocks.dist_collapse_xu.
+Print Assumptions NC.CompositionBlocks.ch_common.
+Print Assumptions NC.CompositionBlocks.ch_convex.
+Print Assumptions NC.CompositionBlocks.ch_inv.
+Print Assumptions NC.CompositionBlocks.ch_xurc.
+Print Assumptions NC.CompositionBlocks.ch_c2r.
+Print Assumptions NC.CompositionBlocks.dist_collapse_refuted.
+Print Assumptions NC.CompositionBlocks.c2_common.
+Print Assumptions NC.CompositionBlocks.dist_collapse_needs_c2.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3461,8 +3591,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3384 ]; then
-  echo "FAIL: expected 3384 axiom-free results, got $N"
+if [ "$N" -lt 3513 ]; then
+  echo "FAIL: expected 3513 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
