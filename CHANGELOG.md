@@ -7,6 +7,41 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/LayerInterfaces.v`: the interfaces between the three layers (A executions, B constraints,
+  C settlement), tested against the objection that they are unrelated theories stapled together.
+  A, B and C unchanged. Axiom-free. No REGIME-AUDIT status changes.
+  - **Descent, stated as the elementary shape it is:** `DescendsOn P N e`
+    (`N (e (N x)) = N (e x)` on `P`) is equivalent to respecting the kernel of `N` and to factoring
+    through `N` (`descends_iff_respects`, `descends_iff_factors`); strict commutation implies it
+    (`commutes_descends`). Instances: A's state descent (`state_descent_is_descends`), CC2
+    (`cc2_is_descends`), XU and C1 with `N` the registry repair (`xu_is_descends`,
+    `xu_iff_respects`, `c1_is_descends`, `c1_iff_respects`); Candidate implies XU
+    (`candidate_implies_xu`) and is unnecessarily strong (`strict_not_necessary`).
+  - **A-C:** `newman_bridge` (under termination, local joinability, confluence and unique normal
+    forms coincide). Fair settlement does not replace termination
+    (`four_point_fair_not_confluent`); under C2 every reachable moving loop starves a label
+    (`fair_starves`), so termination is exactly the absence of a reachable starved loop on a
+    finite state type (`fair_sn_exact`, `fair_newman`); exact for termination, not confluence
+    (`drop_starved_confluent`).
+  - **B-C:** settled states are sections and CSP solutions, for edge repairs and resolver repairs
+    (`edge_fixed_iff_section`, `edge_fixed_iff_csp`, `rupd_fixed_iff_csp`); under C2, canonical
+    settlement iff every reachable B-solution is in the target fiber (`settled_canon_exact`);
+    `singleton_iff_solution`, `ghost_refutes`, `multistable`; flip2 as a network with a unique
+    solution and a fair livelock (`flip2_unique_solution_livelock`). Leak: no solution does not
+    refute canonical settlement (`no_solution_canon_settles`).
+  - **A-B strict:** natural families map sections to sections (`natural_maps_sections`); exact per
+    network on section values (`preserves_exact`); squares necessary edge by edge off self-loops
+    (`natural_iff_edgewise`); counterexamples `natural_converse_fails`,
+    `selfloop_square_not_necessary`; the uniform case is a unary polymorphism.
+  - **Scales:** `history_from_descent`, `descent_not_history`, `history_not_descent`; C's `N` is
+    trajectory-level: `canon_settles_quotient_invariant` under descent, `trajectory_needs_descent`
+    without it.
+  - **Cited, not claimed:** Newman 1942; Huet 1980; congruences (Burris and Sankappanavar 1981);
+    naturality (Mac Lane 1971); weak fairness (Lehmann, Pnueli and Stavi 1981; Francez 1986).
+  - **Docs:** THEORY.md "Interfaces between the layers", coq/docs/interfaces.md, ROADMAP.md paper
+    outline.
+  - **Gate:** raised from 4444 to 4541.
+
 - `coq/CanonicalRecurrence.v`: layer C of the regime map, settlement dynamics, as fair recurrence
   (docs/THEORY.md, "Layer C"). A preregistered experiment, run like layer A. Axiom-free. No
   REGIME-AUDIT status changes.

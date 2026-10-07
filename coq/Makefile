@@ -541,3 +541,11 @@ all: CanonicalRecurrence.vo
 
 CanonicalRecurrence.vo: CanonicalRecurrence.v Newman.vo DistributedCycles.vo Chaotic.vo CohomologyGraph.vo SignedCycles.vo CanonicalExecution.vo DistributedCyclesExact.vo SignedResolver.vo
 	coqc -Q . NC CanonicalRecurrence.v
+
+# The interfaces between the layers: one descent definition for state descent, CC2, C1 and XU;
+# Newman as the A-C bridge and the exact condition under which fair settlement replaces
+# termination; settled states as B-solutions; natural families on sections (LayerInterfaces.v).
+all: LayerInterfaces.vo
+
+LayerInterfaces.vo: LayerInterfaces.v Newman.vo DistributedCycles.vo CohomologyGraph.vo CohomologyGeneral.vo CanonicalExecution.vo PresentedExecution.vo TransportCSP.vo SignedResolver.vo DistributedCyclesExact.vo CanonicalRecurrence.vo FederationEvents.vo GovernanceConverse.vo GovernanceWFConverse.vo RhoStar.vo
+	coqc -Q . NC LayerInterfaces.v

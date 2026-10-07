@@ -356,6 +356,74 @@ finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and 
 C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
 settlement implies LPO), which the recoveries avoid because their targets are fixed points.
 
+### Interfaces between the layers
+
+The objection to a three-layer framework is that A (executions), B (constraints) and C (settlement)
+are three classical theories stapled together. `LayerInterfaces.v` attacks the three interfaces
+without changing A, B or C (axiom-free, in the gate; statements, instances and the statement
+review in [coq/docs/interfaces.md](../coq/docs/interfaces.md)).
+
+**The shape, stated first.** For `N : X -> X` and states `P`, `e` *descends along* `N` on `P` when
+`N (e (N x)) = N (e x)` for `x` in `P` (`DescendsOn`). When `P` is closed under `N` and `N` is
+idempotent on `P`, this is equivalent to `e` respecting the kernel of `N` and to `N o e` factoring
+through `N` (`descends_iff_respects`, `descends_iff_factors`): the textbook condition for an
+operation to be compatible with an equivalence, so that it passes to the quotient (congruences in
+universal algebra). "Descends" is used in the sense of the existing state and history descent,
+not Grothendieck descent. The shape is elementary; the content is which `N` and which `P` each
+layer uses, and that the condition is exact there.
+
+**A-C, Newman as the bridge.** Under termination from the start and decidable normality, local
+joinability at reachable peaks, confluence and unique normal forms coincide (`newman_bridge`, from
+`peak_exact`); the converses need no termination (`cr_peaks`, `cr_unf`). In layer C's form the
+reduction is a moving step of some label, and its normal forms are the settled states
+(`nf_iff_stable`). Fair settlement does not replace termination: in the standard four-point system
+`ka <- kb <-> kc -> kd`, every peak joins and every fair run settles, but the run under the swap
+alone is an unfair infinite reduction, and `ka`, `kd` are two normal forms below `kb`
+(`four_point_fair_not_confluent`). The exact replacement: under C2, every reachable moving loop
+starves a label (a label it never names moves every loop state, `fair_starves`), so on a finite
+state type termination is exactly the absence of a reachable starved loop (`fair_sn_exact`), and
+then Newman applies (`fair_newman`). Fair settlement replaces termination exactly when reductions
+cannot be hidden forever. The condition is exact for termination, not for confluence: the drop
+network has a starved loop and is confluent (`drop_starved_confluent`). `cc_exact` is the
+single-registry instance, with WFC supplying termination and CC2 being the descent below.
+
+**B-C, the fixed points are the B-solutions.** On a store with the lens laws, a state is fixed by
+every edge repair `s[v := f (s_u)]` iff it is a section iff it solves the network's CSP
+(`edge_fixed_iff_section`, `edge_fixed_iff_csp`), and fixed by every resolver repair
+`s[j := F_j s]` iff it solves the merge network's CSP (`rupd_fixed_iff_csp`). In C's vocabulary:
+no B-solution gives no raw settlement (`no_solution_no_settlement`); C2's singleton fair recurrent
+classes are exactly the reachable B-solutions (`singleton_iff_solution`); under C2, canonical
+settlement at `c` holds iff every reachable B-solution lies in the fiber of `c`
+(`settled_canon_exact`), so a ghost is a reachable B-solution outside it (`ghost_refutes`) and two
+with different images refute every target (`multistable`). A unique B-solution does not give
+settlement: flip2 is a one-vertex reading-A network with the unique section `fz` and a fair
+livelock (`flip2_unique_solution_livelock`). Leak: no B-solution does not refute canonical
+settlement (`no_solution_canon_settles`, the semantic oscillation).
+
+**A-B, naturality.** Strict: a per-vertex family commuting with every edge map maps sections to
+sections (`natural_maps_sections`); for one network the exact condition is commutation on the
+values sections take (`preserves_exact`), and the squares themselves are necessary edge by edge
+for edges that are not self-loops (`square_necessary`, `natural_iff_edgewise`), with
+counterexamples to the naive converse (`natural_converse_fails`, `selfloop_square_not_necessary`).
+The uniform case is a unary polymorphism (`uniform_natural_is_unary_pol`). Canonicalized:
+`FederationEvents.Candidate` is strict commutation, `XU` and `C1` are descent on the valid and the
+consistent states with `N` the registry's repair (`xu_is_descends`, `c1_is_descends`), so
+Candidate implies XU (`candidate_implies_xu`), and XU says exactly that the event passes to the
+quotient by the repair (`xu_iff_respects`). On the supply federation XU holds, Candidate fails and
+every order converges (`strict_not_necessary`).
+
+**What unifies, and what does not.** At the transition level one definition covers A's state
+descent S (`state_descent_is_descends`), CC2 (`cc2_is_descends`), XU and C1, with Candidate as its
+strict form. Across scales the uses form a hierarchy: one transition (`N o e o N = N o e`); finite
+histories (history descent, `h ~ k` gives `N (run h) = N (run k)`), reached from descent by
+`history_from_descent` and independent of it (`descent_not_history`, `history_not_descent`,
+and the existing `copy_xu_esh`, `fm_conv_esh`); infinite histories, where C's `N` is an observation
+and canonical settlement asks the trajectory `N (x_t)` to become constant. C's use is of a
+different kind: it reads `N` only through one fiber (`canon_settles_fiber`); descent gives it a
+reduction, the `N`-trajectory depends only on the `N`-image of the dynamics
+(`canon_settles_quotient_invariant`), and without descent it does not
+(`trajectory_needs_descent`). Descent neither implies canonical settlement nor is implied by it.
+
 ### Symmetry and state descent
 
 The symmetry reduction (`SymmetryCutoff.v`, [ROADMAP.md](ROADMAP.md) item 8) is a small instance

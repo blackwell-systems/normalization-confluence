@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 4444 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 4444 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4541 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4541 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -248,6 +248,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 | `CanonicalLocality.v` | Validated, scoped to acyclic composition (on cycles, soundness only): the P layer, interaction locality as factorization through a composition boundary, `factor_exact`, `factor_pointwise`, `factor_needs_sound`, `factor_needs_exposed`, `factor_needs_realizable`; the acyclic federation as an instance, `gc_iff_reach_P`, `reach_commute_iff_P`, `fed_exact_P`, `fed_exact_full_P`, `fed_gc_sites`; `cyclic_lc_fails`, `cyclic_lc_sound_fails`, `cyc_factor_sound`, `cyc_factor_sound_gc`, `common_r1`, `c_local_iff_r1`, `fed_state_and_interaction` | [Canonical execution, the P layer](docs/canonical-execution.md#the-p-layer-interaction-locality-canonicallocalityv) |
 | `PresentedExecution.v` | Layer A, the execution algebra, as a presented admissible path system ([THEORY.md](../docs/THEORY.md#layer-a-the-execution-algebra-as-a-presented-admissible-path-system)): whiskered generators `Whisk`, generated equivalence `PEq`, continuation closure `PPC` (`ppc_least`, `ppc_iff_whisk`); P2 `closure_exact`, P1 `local_exact`, `local_exact_all`, `seeds_necessary`; free delivery `free_congruence`, `swap_peq_perm`; seeds insufficient `hw_seeds_insufficient`, `hw_closure_witness`, `hw_not_resp`; state side `state_side_transfer`; recovered `history_descent_recovered`, `amodm_closure_recovered`, `amodm_swap_recovered`, `causal_exact_recovered`, `tconv_exact_recovered`, `causal_alo_idem_recovered`, `alo_exact_recovered`, `det_live_recovered` | [Layer A](docs/canonical-execution.md#layer-a-presented-admissible-path-systems-presentedexecutionv) |
 | `CanonicalRecurrence.v` | Layer C, settlement dynamics as fair recurrence ([THEORY.md](../docs/THEORY.md#layer-c-settlement-dynamics-as-fair-recurrence)), a preregistered experiment: fair lassos `FairLasso`, `BadLasso`; kernel `bad_lasso_refutes`, `recurrence_nn_exact`, `recurrence_closed_exact`, `recurrence_classical`; C1 `C1_nn`, `C1_closed`, `C1_classical`, `C1_refutes`; C2 `C2`, `C2_loops`, `C2_reach`; the constructive leak `lpo_leak`; recovered `chaotic_reaches_lfp_lasso`, `signed_settlement_lasso`, `signed_fidelity_lasso`, `fairflush_lasso`, `fairflushR_lasso`, `flip2_fair_lasso`, `copyback_ghost_lasso`; fairness test `nonfair_cycle_not_refuting`; classification `class_negation_cycle`, `class_good_resolver`, `class_multiple_fixed_points`, `semantic_oscillation`, `lasso_classification` | [Layer C](docs/recurrence.md) |
+| `LayerInterfaces.v` | The interfaces between the layers ([THEORY.md](../docs/THEORY.md#interfaces-between-the-layers)): descent `DescendsOn`, `descends_iff_respects`, `descends_iff_factors`, `commutes_descends`, `descends_word`; instances `state_descent_is_descends`, `cc2_is_descends`, `xu_is_descends`, `xu_iff_respects`, `c1_is_descends`, `c1_iff_respects`, `candidate_implies_xu`, `strict_not_necessary`; scales `history_from_descent`, `descent_not_history`, `history_not_descent`, `canon_settles_quotient_invariant`, `trajectory_needs_descent`; A-C `newman_bridge`, `nf_iff_stable`, `fair_starves`, `sn_iff_no_loop`, `fair_sn_exact`, `fair_newman`, `four_point_fair_not_confluent`, `drop_starved_confluent`, `or_fair_newman`; B-C `edge_fixed_iff_section`, `edge_fixed_iff_csp`, `rupd_fixed_iff_csp`, `no_solution_no_settlement`, `singleton_iff_solution`, `settled_canon_exact`, `ghost_refutes`, `multistable`, `flip2_unique_solution_livelock`, `negation_no_solution`, `no_solution_canon_settles`; A-B `natural_maps_sections`, `preserves_exact`, `natural_iff_edgewise`, `uniform_natural_is_unary_pol`, `natural_converse_fails`, `selfloop_square_not_necessary` | [Interfaces](docs/interfaces.md) |
 
 ## Adding a module
 
@@ -270,7 +271,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4444
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4541
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

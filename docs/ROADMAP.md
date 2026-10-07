@@ -705,6 +705,14 @@ Outline:
    third layer next to A (executions) and B (constraints). Recovered through it:
    `chaotic_reaches_lfp`, `signed_settlement`, `signed_fidelity`, fair flushing and the ghost, on
    finite fragments (the finiteness leak, [THEORY.md](THEORY.md#layer-c-settlement-dynamics-as-fair-recurrence)).
+   The interfaces between the layers (`LayerInterfaces.v`,
+   [THEORY.md](THEORY.md#interfaces-between-the-layers)): one descent definition (an operation
+   passing to the quotient by `N`, stated as the elementary condition it is) covers state descent,
+   CC2, XU and C1, with Candidate as its strict form; Newman is the A-C bridge, and fair
+   settlement replaces termination exactly when no reachable loop starves a label
+   (`fair_sn_exact`, with the four-point counterexample); C2's settled states are B's solutions
+   (`settled_canon_exact`); C's use of `N` is trajectory-level, linked to descent by quotient
+   invariance rather than an instance of it.
 2. **The axes.** The thirteen axes, the ten axis dependences that prune the product, and how the
    empty cells were found before any proof ([COVERAGE.md](COVERAGE.md)): gaps 15 to 21 were
    predicted by the axes, not discovered case by case.
