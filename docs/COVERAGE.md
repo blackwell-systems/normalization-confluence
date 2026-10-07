@@ -17,7 +17,7 @@ into a named representative cell), 14 are ill-formed, and 21 had no row at all. 
 cells are 12 distinct questions, proposed as gaps 15 to 19. Outside the axes, seven candidate
 dimensions are not represented in the model at all (section 4): two become gaps 20 and 21 (new
 axes), five become explicit design exclusions X1 to X5, and the rest map onto existing cells or
-stated limits. Since the pass, gap 15 has closed: cell C10 (15 (a)) is exact
+stated limits. Four further candidates were added after the pass (section 4: observation before convergence, irreversible external effects, compaction, nondeterministic events), each with its disposition pending. Since the pass, gap 15 has closed: cell C10 (15 (a)) is exact
 (`AtLeastOnceDeclared.v`, `dalo_exact`), and so are C8 streams (15 (b), `StreamAtLeastOnce.v`,
 `stream_alo_exact_free`), C3 and C8 distributed (15 (c), `DistributedDelivery.v`,
 `dist_causal_exact`, `dist_alo_exact`) and C6 rewrite (15 (d), `FederatedGuards.v`,
@@ -296,6 +296,10 @@ dimension the model does not represent at all.
 | Multivalued local interaction graphs | value of the state axis on the resolver rows | listed in gap 3 | **gap 3** |
 | Nested federations, collapse with distributed propagation | cells (B11, B12) | flattening covers convergence of the flattened network; collapse preservation is not stated | **gap 19** (acyclic blocks), **gap 5** (monotone blocks) |
 | Synthesis of a convergent repair | value of the property axis | gsm `Registry.Synthesize` is implemented, not mechanized | open, ROADMAP lower-value item ("Synthesis") |
+| Observation before convergence: what a read or query returns while events are in flight (session guarantees such as read-your-writes and monotonic reads) | new axis (every property on axis 12 is about normal forms, reachable states or agreement at the end; no theorem states what an intermediate read may return) | not represented | **candidate**, added after the pass; disposition pending (a new gap if a property of intermediate reads is stated, otherwise a scope sentence) |
+| Irreversible external effects: an event that emits an effect outside the state (a message sent, a payment charged), which repair cannot undo | new axis (`apply : E -> State -> State` keeps every effect in the state, so `rho` can repair it) | an effect recorded in the state (an outbox) and emitted only from a normal form is an existing cell; an effect emitted from an intermediate state is not represented | **candidate**, added after the pass; disposition pending (a new gap or a design exclusion) |
+| Compaction: snapshots, log truncation, deduplication tables that forget | new value of the delivery axis (the at-least-once modules deliver duplicates against an unbounded history; `dalo_notidem_needs_dedup` places deduplication but not its retention) | not represented: whether the at-least-once results survive a redelivery after the history that would reject it is gone | **candidate**, added after the pass; disposition pending |
+| Nondeterministic events: an event whose effect reads a clock, a random source or other local input | value of the execution axis, the event-side twin of X2 | a value fixed when the event is created is part of the event (`E` is any type), so existing cells cover it; a value read separately at each replica when the event is applied makes `apply` a relation, which is not represented | **candidate**, added after the pass; disposition pending (the second case is likely a design exclusion with X2) |
 
 ## 5. Proposals
 
