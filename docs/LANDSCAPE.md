@@ -354,6 +354,263 @@ where `thm:obstruction` is a fixed-point condition rather than group cohomology
 the companion paper's variable-level and monotone-overlap site. Cited: the complexity results for
 group feedback edge sets.
 
+## Related work for the constraint layer
+
+Layer B of the theory ([THEORY.md](THEORY.md#static-consistency-as-csp)) asks whether a transport
+network has a consistent state at all. `TransportCSP.v` states the answer as a constraint
+satisfaction problem: each edge `(u, v, f)` is the binary relation `{(x, f x)}`, each pinned vertex
+a unary relation `{c}`, a k-ary resolver merge the `(k+1)`-ary graph of the merge map, and the
+sections of the network are exactly the solutions of the instance over the template Gamma_F of
+the transport family `F` (`section_iff_csp`, `hsection_iff_csp`). An operation is a polymorphism
+of the graph of `f` iff it commutes with `f` (`pol_iff_commute`), so Pol(Gamma_F) is the set of
+operations commuting with every map of `F` and fixing the pins (`pol_gamma_iff`). The file then
+places three families at known points of the CSP classification: group translations (Mal'tsev,
+`group_maltsev`), the 26-map family of the 3-SAT reduction (NP-complete, `hard_family_csp`), and
+monotone maps on a finite chain (semilattice and majority polymorphisms, `chain_pol`; arc
+consistency decides, `ac_exact`). The question for this section is how much of this was already
+connected in the literature. Every work below was checked at least at its abstract. Theorem-level
+claims were read in the paper for the Abramsky papers of 2013 to 2017, Ó Conghaile 2022, Ghrist and
+Riess 2022, Huntsman, Robinson and Huntsman 2024, Deville and Van Hentenryck 1991, Jeavons, Cohen
+and Gyssens 1997, Jeavons, Cohen and Cooper 1998, Cohen and Jeavons 2006, Machida 2010 and Stevens
+2020; Jeavons and Cooper 1995 is described through those restatements, and the classical results
+already cited elsewhere in this file are described as the literature states them.
+
+**Global sections and CSP solutions: the sheaf-theoretic contextuality line.** This is the closest
+prior connection, and it is more than a decade old.
+
+- Abramsky and Brandenburger ("The sheaf-theoretic structure of non-locality and contextuality,"
+  *New J. Phys.* 13, 113036, 2011), already cited above, read an empirical model as a presheaf of
+  local data over a cover of measurement contexts and contextuality as the absence of a global
+  section. Abramsky ("Relational databases and Bell's theorem," in *In Search of Elegance in the
+  Theory and Practice of Computation*, LNCS 8000, Springer, 2013, 13-35) identifies a global section
+  of a possibilistic model with a universal relation of a database instance. Abramsky ("Contextual
+  semantics: from quantum mechanics to logic, databases, constraints, and complexity," *Bull.
+  EATCS* 113, 2014, 137-163, footnote 10) notes that a Kochen-Specker model over a finite outcome
+  set is a constraint satisfaction problem and that contextuality means it has no solution.
+- Abramsky, Barbosa, Kishida, Lal and Mansfield ("Contextuality, cohomology and paradox," CSL 2015,
+  LIPIcs 41, 211-228) list constraint satisfaction as one instance of the same picture (local data
+  are the constraints; no global section is no solution), and treat the Liar cycle as the Boolean
+  equations `x1 = x2, ..., x(n-1) = xn, xn = not x1`: any `n - 1` of them are consistent and all `n`
+  are not. That is a `Z/2`-labeled cycle with odd holonomy, the shape of `ac_needs_mono`'s negation
+  triangle and of Harary balance (`harary_balance`). Their All-vs-Nothing arguments are local
+  consistency and global inconsistency of linear equations over a ring, witnessed by Čech
+  cohomology.
+- Abramsky, Barbosa, de Silva and Zapata ("The quantum monad on relational structures," MFCS 2017,
+  LIPIcs 83, 35:1-35:19, Propositions 11 to 13) state the correspondence as a theorem: CSP solutions
+  correspond one to one with homomorphisms between the associated structures, and the consistent
+  global assignments of an empirical model correspond one to one with the solutions of a CSP built
+  from its support tables, so strong contextuality is unsatisfiability. This is the closest prior
+  statement to `section_iff_csp`.
+- Abramsky, Gottlob and Kolaitis ("Robust constraint satisfaction and local hidden variables in
+  quantum mechanics," IJCAI 2013, 440-446) use constraint satisfaction to show that deciding
+  whether a relational model has a local hidden-variable model is NP-complete (for `n >= 2`
+  parties), through a "robust" variant of CSP (every compatible partial assignment of a given size
+  extends to a solution). Abramsky, Dawar and Wang ("The pebbling comonad in finite model theory,"
+  LICS 2017, 1-12, Section 8) relate strong k-consistency to contextuality, with a system of `Z/2`
+  equations that is locally consistent and globally inconsistent.
+- Polymorphisms enter this line only for quantum relaxations. Atserias, Kolaitis and Severini
+  ("Generalized satisfiability problems via operator assignments," *J. Comput. System Sci.* 105,
+  2019, 171-198) classify the Boolean constraint languages for which satisfiability by operator
+  assignments differs from Boolean satisfiability, in Schaefer's framework; Ciardo ("Quantum
+  advantage and CSP complexity," LICS 2024, Article 23) proves that quantum advantage for
+  homomorphism problems is governed by a minion, the structure that captures polymorphism
+  identities.
+
+How close: the statement "global sections are CSP solutions" is in this line in general form, with
+arbitrary relations on arbitrary contexts. `section_iff_csp` is its specialization to one kind of
+presheaf, a network of maps over a graph (contexts are edges, the local relation on an edge is the
+graph of its map, pins are unary relations), and that specialization is what turns the template
+into Gamma_F, one fixed template per transport family, whose polymorphisms are the operations
+commuting with the family. The contextuality papers do not single out functional constraints as a
+class (the Liar cycle is one example of them) and, apart from the quantum-relaxation work, do not
+use the polymorphism side. What `TransportCSP.v` adds here: the specialization to this repository's
+two section notions (reading A edges and reading B merges), proved in Coq. It does not add a
+contextuality result or a more general form of the correspondence.
+
+**CSP as global sections, and cohomological local consistency.**
+
+- Ó Conghaile ("Cohomology in constraint satisfaction and structure isomorphism," MFCS 2022,
+  LIPIcs 241, 75:1-75:16) shows that CSP itself is the existence of a global section of a presheaf
+  `H_k(A, B)` of local homomorphisms, that k-consistency computes a greatest sub-presheaf, and that
+  a Čech-cohomological refinement of k-consistency solves systems of equations over every finite
+  ring. Abramsky ("Notes on presheaf representations of strategies and cohomological refinements of
+  k-consistency and k-equivalence," arXiv:2206.12156, 2022) represents positional k-pebble
+  strategies as presheaves, the same objects as the Abramsky-Brandenburger models.
+- How close: this is the converse direction (any CSP read as a sheaf problem), in full generality.
+  It parallels this repository's split, cohomology where transports are invertible and local
+  consistency on monotone chains, but the parallel is at the level of method, not of results:
+  `TransportCSP.v` contributes nothing to cohomological k-consistency, and its group case is the
+  classical binary-translation case where the `H^1` test is already exact
+  (`section_iff_coboundary`).
+
+**Cellular sheaves and lattice-valued sections.** A transport network is a cellular sheaf of sets
+on its graph (stalk `D` on every vertex and edge, restriction `f` from the tail of an edge and the
+identity from its head), and a section is a global section, `H^0`. The cellular-sheaf work cited
+above (Hansen and Ghrist 2019; Robinson 2017; Felber, Hummes Flores and Rincon Galeana 2025) uses
+that language; none of it uses polymorphisms.
+
+- Ghrist and Riess ("Cellular sheaves of lattices and the Tarski Laplacian," *Homology Homotopy
+  Appl.* 24(1), 2022, 325-345, Theorem 3.1 and Theorem 3.2) take sheaves valued in lattices with
+  Galois-connection restriction maps, show that the global sections are exactly the fixed points of
+  `id ∧ L` for their Tarski Laplacian `L`, and that on finitely many cells with stalks satisfying the
+  descending chain condition the iteration reaches a section in finitely many steps, with consensus
+  and distributed optimization as applications. This is the closest sheaf-side analogue of
+  `ac_exact` (a monotone fixed-point computation whose limit is a section), but the settings differ:
+  their iteration acts on one lattice value per cell, needs restriction maps with adjoints, and on
+  complete stalks always has a section; `ac_exact` acts on sets of chain values, allows pins, and
+  decides existence, which can fail. We have not derived `ac_exact` from their theorems.
+- Huntsman, Robinson and Huntsman ("Prospects for inconsistency detection using large language
+  models and sheaves," arXiv:2401.16713, 2024, Section 3.1) sketch a cellular sheaf of a CNF formula
+  whose global sections are its satisfying assignments, and attribute the remark that the solutions
+  of a CSP form a sheaf to Srinivas ("A sheaf-theoretic approach to pattern matching and related
+  problems," *Theoret. Comput. Sci.* 112(1), 1993, 53-97; not read here beyond the citation).
+
+**Constraint networks and local consistency.**
+
+- Montanari ("Networks of constraints: fundamental properties and applications to picture
+  processing," *Inform. Sci.* 7, 1974, 95-132) introduces networks of binary constraints; Mackworth
+  ("Consistency in networks of relations," *Artificial Intelligence* 8(1), 1977, 99-118) gives arc
+  consistency; Freuder ("A sufficient condition for backtrack-free search," *J. ACM* 29(1), 1982,
+  24-32) shows that arc consistency makes search backtrack-free on tree-structured networks. A
+  pinned transport network is a binary constraint network in Montanari's sense, and
+  `section_iff_csp` is, mathematically, the unfolding of that observation: a section is a
+  homomorphism from the network to the template.
+- Deville and Van Hentenryck ("An efficient arc consistency algorithm for a class of CSP problems,"
+  IJCAI 1991, 325-330) and Van Hentenryck, Deville and Teng ("A generic arc-consistency algorithm
+  and its specializations," *Artificial Intelligence* 57(2-3), 1992, 291-321) give `O(ed)` arc
+  consistency for "functional" constraints (at most one support in each direction, a partial
+  bijection on the domain) and "monotonic" ones (`C(v, w)` implies `C(v', w')` for `v' <= v`,
+  `w' >= w`), and prove that arc consistency with node consistency decides CHIP's basic constraints
+  (domain constraints and `aX != b`, `aX = bY + c`, `aX <= bY + c`, `aX >= bY + c` with nonnegative
+  constants). The graph of a lossy monotone map is neither functional nor monotonic in their sense,
+  so their theorem does not cover `ac_exact` directly.
+- Jeavons and Cooper ("Tractable constraints on ordered domains," *Artificial Intelligence* 79(2),
+  1995, 327-339) identify the max-closed constraints on a totally ordered domain as tractable.
+  Jeavons, Cohen and Gyssens ("Closure properties of constraints," *J. ACM* 44(4), 1997, 527-548,
+  Theorem 5.13 and Example 5.15) generalize this to any semilattice (ACI) polymorphism `u`: after
+  local consistency is enforced, either a domain is empty or assigning `u(D(v))` to every variable
+  is a solution; the proof uses only that each constraint, restricted to the remaining domains,
+  supports every remaining value, and the paper notes that the CHIP basic constraints are max-closed. Cohen and Jeavons
+  ("The complexity of constraint languages," in Rossi, van Beek and Walsh (eds.), *Handbook of
+  Constraint Programming*, Elsevier, 2006, Chapter 6, Proposition 37 and Example 39) state the
+  result in the form used here: a semilattice polymorphism means generalised arc consistency
+  decides the instance, max-closed constraints included. The graph of a monotone map on a chain is
+  min-closed and max-closed (`chain_pol`), so **`ac_exact` is a mechanized instance of this
+  classical result** (the binary, min-closed case, with pins as unary constraints and the minimum
+  of each arc-consistent domain as the witness), not a new tractability result. Its pass bound
+  (`ac_pass_bound`) is the usual counting argument for arc consistency, and `ac_needs_mono` (a
+  negation triangle on `{0, 1}` that passes arc consistency and has no section) is the classical
+  example that arc consistency is incomplete in general.
+- Jeavons, Cohen and Cooper ("Constraints, consistency and closure," *Artificial Intelligence*
+  101(1-2), 1998, 251-265, Corollary 3.6) show that a near-unanimity polymorphism of arity `r` makes
+  strong `r`-consistency decide the instance; a majority polymorphism is the case `r = 3`. This is
+  the cited source of tractability for `median_family`, of which only the commutation is
+  mechanized.
+
+**Groups, gain graphs and permutation constraints.**
+
+- Under the regular action, a group-labeled network is a gain graph (Zaslavsky 1989; Harary 1953
+  for `Z/2`, both above) and a section is a switching to the identity labeling. In CSP terms each
+  edge relation is the graph of a left translation, and `x y^-1 z` is a Mal'tsev polymorphism of all
+  of them (`group_maltsev`), which is the standard Mal'tsev term of a group. Feder and Vardi ("The
+  computational structure of monotone monadic SNP and constraint satisfaction: a study through
+  Datalog and group theory," *SIAM J. Comput.* 28(1), 1998, 57-104) identify group-theoretic
+  ("subgroup") problems as one of the two known sources of tractability, and Bulatov and Dalmau ("A
+  simple algorithm for Mal'tsev constraints," *SIAM J. Comput.* 36(1), 2006, 16-27) solve every
+  Mal'tsev template in polynomial time.
+- Goldmann and Russell ("The complexity of solving equations over finite groups," *Inform. and
+  Comput.* 178(1), 2002, 253-262) show that systems of general equations over a fixed finite group
+  are NP-complete when the group is non-abelian and polynomial otherwise. Translation networks use
+  only equations `x_v = g x_u`, two variables and one constant, which stay polynomial for every
+  group; the hardness needs equations outside this form, so it does not apply to the invertible
+  fragment.
+- Khot ("On the power of unique 2-prover 1-round games," STOC 2002, 767-775) defines unique games,
+  whose constraints are permutations; deciding whether such an instance is fully satisfiable is easy
+  by propagation (the [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md) survey records this). Invertible transports on a finite
+  fiber are instances of that problem, so the existence half of the invertible fragment is classical
+  as a decision problem; the repository's contribution there is the obstruction theory and the
+  mechanization, recorded in the cohomological section above.
+
+**Polymorphisms of graphs of maps: clone theory.** For an operation `g` and a unary map `f`, `g`
+preserves the graph of `f` exactly when `g` and `f` commute, and the centralizer `F*` of a set `F`
+(the operations commuting with every member) is the intersection of the polymorphism clones of the
+graphs of the members of `F`. This is standard in clone theory; Machida ("Commutation and
+centralizers in clone theory," *RIMS Kôkyûroku* 1712, 2010, 101-110) records it in this form
+(`{s}* = Pol s^□`) and surveys the centralizers of monoids of unary maps studied with Rosenberg
+(Machida and Rosenberg, "On the centralizers of monoids in clone theory," ISMVL 2003, 303-308).
+`pol_iff_commute` and `pol_gamma_iff` are this fact, mechanized, with pins as unary constant
+relations; Pol(Gamma_F) is the centralizer of the monoid generated by `F` cut down to the
+operations fixing the pins.
+
+**Homomorphism problems for templates built from maps.**
+
+- Feder and Vardi (1998, above) recast every CSP(Gamma) as homomorphism to a fixed structure; a
+  transport network is a homomorphism problem into `(D; graph of f for f in F; {c} for each pin)`.
+  Hell and Nešetřil ("On the complexity of H-coloring," *J. Combin. Theory Ser. B* 48(1), 1990,
+  92-110) settle the undirected binary case (polynomial if `H` is bipartite or has a loop,
+  NP-complete otherwise); graphs of maps are directed, so their theorem does not classify Gamma_F.
+- Feder, Madelaine and Stewart ("Dichotomies for classes of homomorphism problems involving unary
+  functions," *Theoret. Comput. Sci.* 314(1-2), 2004, 1-43; abstract read, full text not) study
+  templates given by unary functions: one function gives a problem that is L-complete or trivial,
+  two functions already reflect the full computational significance of CSPs on relational
+  structures, and a pair of mutually inverse functions gives a P versus NP-complete dichotomy. So
+  restricting templates to maps does not, in general, make classification easier than the general
+  dichotomy, and the per-family question for Gamma_F is decided only by the cited dichotomy (Bulatov
+  2017; Zhuk 2017, 2020). `hard_family_csp` is one explicit NP-complete family of this kind,
+  extracted from the 3-SAT reduction; it is a concrete instance, not a new kind of hardness.
+
+**Consistency of networks of models and replicated state.**
+
+- Stevens ("Maintaining consistency in networks of models: bidirectional transformations in the
+  large," *Softw. Syst. Model.* 19(1), 2020, 39-65) studies networks of models joined by binary
+  consistency relations, treats a unidirectional transformation `f` as the consistency relation
+  `n = f(m)`, introduces authority sets (models that must not change) and orientations of the edges,
+  and relates the multiary-to-binary question to constraint networks in CSP (dual and
+  hidden-variable encodings), noting that CSP asks for any solution while bidirectional
+  transformations care how consistency is restored. This is the closest systems-side precedent: a
+  network of maps with authoritative vertices whose consistent states are CSP solutions. It does not
+  use polymorphisms or classify complexity per family.
+- Replicated data. Targeted searches (October 2026) combining CRDTs, eventual consistency,
+  invariant confluence or replicated data with constraint satisfaction, polymorphisms or clones
+  found no work relating replica or federation consistency to the algebraic theory of CSP.
+  Invariant confluence (Bailis et al., above) decides coordination-freedom per invariant and
+  operation set; it is not a CSP classification.
+- Mechanization. Polymorphisms have been mechanized before in another setting: Dvořák's Lean 4
+  thesis ("Pursuit of truth and beauty in Lean 4: formally verified theory of grammars,
+  optimization, matroids," arXiv:2602.12891, 2026) proves that a valued CSP template with symmetric
+  fractional polymorphisms of all arities has a tight basic LP relaxation, and Manrique and Szeider
+  ("LeanCSP: a framework for certifying constraint reformulation and solving in Lean,"
+  arXiv:2607.28459, 2026) certify CSP reformulations in Lean. We did not search proof-assistant
+  libraries exhaustively for a mechanized semilattice or max-closed arc-consistency theorem.
+
+Search scope (October 2026): the papers named above, read as stated; web and arXiv searches for
+sheaves, cellular sheaves or presheaves with constraint satisfaction, polymorphisms or clones;
+contextuality with polymorphisms; max-closed, semilattice and functional constraints with arc
+consistency; equations over groups; unary-function templates; and replicated or federated
+consistency (CRDT, eventual consistency, invariant confluence, bidirectional transformations) with
+constraint satisfaction. A search result, not a proof of absence.
+
+**What the constraint layer contributes, given this literature.** The identification of global
+sections with CSP solutions is Abramsky's line (2011 to 2017; the closest statement is Abramsky,
+Barbosa, de Silva and Zapata 2017, Proposition 13), its converse for arbitrary CSPs is Ó Conghaile
+2022, the polymorphisms of graphs of maps are the clone-theoretic centralizer, `ac_exact` is a
+mechanized instance of Jeavons and Cooper 1995 (in the semilattice form of Jeavons, Cohen and
+Gyssens 1997), the group case is Mal'tsev (Feder and Vardi 1998; Bulatov and Dalmau 2006) and
+unique-games propagation, and classification per family is the cited dichotomy. What
+`TransportCSP.v` contributes is narrower: the specific identification of this repository's
+transport networks (reading A sections and reading B merges, with pins) with CSP(Gamma_F), stated
+and proved in Coq against the same definitions the rest of the development uses; the reading of
+REGIME-AUDIT.md's lossy existence cell per transport family, so that the NP-completeness of the
+general cell (`net_section_iff_sat`) and the polynomial cases sit in one classification indexed by
+the centralizer of the family; and three mechanized anchor points of known classes (Mal'tsev for
+groups, the reduction's NP-complete 26-map family, monotone chains decided by arc consistency),
+with mechanized counterexamples marking where the chain and monotonicity hypotheses are needed
+(`diamond_join_fails`, `diamond_g_fails`, `ac_needs_mono`). It does not contribute a tractability or
+hardness result for any constraint language, a mechanization of the dichotomy, of Mal'tsev
+tractability or of bounded width, or a general sheaf-theoretic treatment of CSP. The application of
+the algebraic CSP theory to replicated or federated state was not found in the searches above; that
+is the extent of the claim.
+
 ## Related work for canonical execution
 
 The canonical-execution framework ([THEORY.md](THEORY.md#canonical-execution)) splits canonicity
@@ -540,44 +797,6 @@ conclusion of Shih and Ho 1999 with the local condition needed only on the orbit
 (`one_token_fair_settlement`). Not claimed: an exact condition, fair-schedule settlement from
 local conditions from every start, or multivalued local graphs; those are open (REGIME-AUDIT gap
 3).
-
-## Related work for static consistency (constraint satisfaction)
-
-Whether a transport network has a consistent state at all is a constraint satisfaction problem:
-each edge `(u, v, f)` is the binary relation `{(x, f x)}`, each pinned vertex a unary relation,
-and a section is a solution. `TransportCSP.v` states this correspondence as theorems
-(`section_iff_csp`, `hsection_iff_csp`) and identifies the polymorphisms of the template Gamma_F
-of a transport family `F` with the operations commuting with every map of `F`
-(`pol_iff_commute`, `pol_gamma_iff`). The classification itself is the literature's, cited and not
-mechanized.
-
-- **Polymorphisms and closure properties.** Jeavons, Cohen and Gyssens ("Closure properties of
-  constraints," *J. ACM* 44(4), 1997, 527-548) show that a constraint language not closed under a
-  suitable operation gives an NP-complete problem, and that closure under a constant, majority,
-  affine or semilattice (ACI) operation gives a tractable one. Jeavons ("On the algebraic structure
-  of combinatorial problems," *Theoret. Comput. Sci.* 200, 1998, 185-204) develops the Galois
-  connection between relations and their polymorphisms. `chain_pol` places monotone families on a
-  chain in the semilattice and majority classes; `ac_exact` mechanizes the arc-consistency
-  algorithm for that case with its exactness proof.
-- **Mal'tsev templates.** Bulatov and Dalmau ("A simple algorithm for Mal'tsev constraints,"
-  *SIAM J. Comput.* 36(1), 2006, 16-27) solve every CSP with a Mal'tsev polymorphism in polynomial
-  time. Group translations have the Mal'tsev polymorphism `x y^-1 z` (`group_maltsev`); for them the
-  development's own criterion is the coboundary test (`section_iff_coboundary`).
-- **Bounded width and Datalog.** Feder and Vardi ("The computational structure of monotone monadic
-  SNP and constraint satisfaction: a study through Datalog and group theory," *SIAM J. Comput.*
-  28(1), 1998, 57-104) formulate the dichotomy conjecture and relate tractability to bounded width
-  (local consistency) and to group structure. Families with a majority polymorphism
-  (`median_family`) have bounded width; only the commutation is mechanized here.
-- **The dichotomy.** Bulatov ("A dichotomy theorem for nonuniform CSPs," FOCS 2017, 319-330) and
-  Zhuk ("A proof of CSP dichotomy conjecture," FOCS 2017, 331-342; journal version "A proof of the
-  CSP dichotomy conjecture," *J. ACM* 67(5), 2020, Article 30) prove that for every finite template
-  CSP(Gamma) is in P or NP-complete, decided by the polymorphisms. So section existence for a fixed
-  finite transport family is classified by the centralizer of the family. The 3-SAT reduction of
-  `LossyHardness.v` uses one fixed family of 26 maps (`hard_family_csp`), an NP-complete template.
-
-What the development adds here is the precise correspondence, stated and proved in Coq, between its
-section notions and CSP instances, and the regime cells it predicts with their mechanized
-instances; the CSP theory itself is cited.
 
 ## The ideas it connects (and makes rigorous)
 
