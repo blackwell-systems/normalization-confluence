@@ -812,6 +812,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ### Changed
 - `README.md`: the status list follows #117 (seven open convergence gaps; gap 5 closed in the FedMachine model; gap 19 narrowed to distributed collapse of a cyclic block; composition of blocks of any engines listed as exact) and the theorem count is 3513. No theorem added, removed or renamed.
+
+- `docs/LANDSCAPE.md`, related systems: Bayou (convergence by a primary-committed order with deterministic merge procedures; the paper's own remark that deciding whether writes commute is out of reach for arbitrary merge procedures), IceCube (reconciliation by searching for one order), and operational transformation (TP1 and TP2, sufficient conditions on transformed operations; dOPT's counterexample). No theorem added, removed or renamed.
 - `README.md`: the status paragraph under the headline (one 45-line paragraph) is now a short list: exact, hardness, counting and gluing, the eight open convergence gaps by number, and the design exclusions. Details stay in `REGIME-AUDIT.md`. No theorem added, removed or renamed.
 
 - `docs/COVERAGE.md` section 4: four candidate dimensions outside the axes, added after the pass with dispositions pending: observation before convergence (what intermediate reads return), irreversible external effects, compaction (deduplication and history that forget), and nondeterministic events (the event-side twin of X2). No gap numbered, no cell count changed, no theorem added, removed or renamed.
