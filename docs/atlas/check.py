@@ -10,7 +10,9 @@ Fails (exit 1) if:
   - a name in a tile's theorems is not declared in one of the tile's modules, a module is missing,
     or a module declares none of the tile's theorems;
   - a tile's section anchor (or, for a gap, the open-gaps anchor) is not a heading of REGIME-AUDIT.md;
-  - the theorem count on the poster differs from verify.sh's gate threshold.
+  - the theorem count on the poster differs from verify.sh's gate threshold;
+  - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
+    convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
 """
 import json
 import re
@@ -72,6 +74,26 @@ def anchors(path):
     return out
 
 
+def audit_gaps():
+    """Return (open convergence gaps from the Current state sentence, {gap: closed?})."""
+    text = AUDIT.read_text(encoding="utf-8")
+    m = re.search(r"Open convergence gaps: ([^;.]*)", text)
+    current = set()
+    if m:
+        for a, b in re.findall(r"(\d+) to (\d+)", m.group(1)):
+            current.update(range(int(a), int(b) + 1))
+        current.update(int(x) for x in re.findall(r"\d+", re.sub(r"\d+ to \d+", "", m.group(1))))
+    start = text.index("### The open gaps")
+    end = text.find("\n### ", start + 10)
+    rows = {}
+    for line in text[start:end if end > 0 else None].splitlines():
+        r = re.match(r"^\| (\d+) \|[^|]*\| ([^|]*)\|", line)
+        if r:
+            kind = r.group(2).strip().lower()
+            rows[int(r.group(1))] = kind.startswith("**closed**") or kind.startswith("design")
+    return current, rows
+
+
 def main():
     atlas = load_atlas()
     decl = coq_declarations()
@@ -110,6 +132,22 @@ def main():
                 errors.append(f"{where}: anchor #{GAPS_ANCHOR} is not a heading of REGIME-AUDIT.md")
             if t["kind"] in ("exact", "hard") and not t.get("thm"):
                 errors.append(f"{where}: {t['kind']} tile with no theorem")
+
+    current, rows = audit_gaps()
+    if not current:
+        errors.append("REGIME-AUDIT.md: no 'Open convergence gaps:' sentence found")
+    shown_open = set()
+    for fam in atlas["families"]:
+        for t in fam["tiles"]:
+            if t["kind"] == "open":
+                g = int(t.get("gap", t.get("mark", 0)))
+                shown_open.add(g)
+                if g not in rows:
+                    errors.append(f'{fam["code"]} {t["name"]}: gap {g} has no row in the open gaps tables')
+                elif rows[g]:
+                    errors.append(f'{fam["code"]} {t["name"]}: gap {g} is closed in REGIME-AUDIT.md but shown open')
+    for g in sorted(current - shown_open):
+        errors.append(f"gap {g} is open in REGIME-AUDIT.md's Current state but has no open tile")
 
     poster = (HERE / "poster.html").read_text(encoding="utf-8")
     plates = re.findall(r'class="plate-thm">(' + NAME + r")<", poster)
