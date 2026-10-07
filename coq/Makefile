@@ -534,3 +534,10 @@ all: TransportCSPHard.vo
 
 TransportCSPHard.vo: TransportCSPHard.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo TransportCSP.vo
 	coqc -Q . NC TransportCSPHard.v
+
+# Layer C, settlement dynamics as fair recurrence: on a finite state type, every fair schedule
+# settles in a canonical fiber iff no fair lasso has a loop state outside it (CanonicalRecurrence.v).
+all: CanonicalRecurrence.vo
+
+CanonicalRecurrence.vo: CanonicalRecurrence.v Newman.vo DistributedCycles.vo Chaotic.vo CohomologyGraph.vo SignedCycles.vo CanonicalExecution.vo DistributedCyclesExact.vo SignedResolver.vo
+	coqc -Q . NC CanonicalRecurrence.v

@@ -299,6 +299,63 @@ start under DS1 (`lv_seeds_live`). Not recovered: `cc_exact`'s CC1 part, whose a
 peak of a rewrite system with compensation steps (`classified_peak_exact`, criterion A), not a
 pair of event words; the declared-pairs row covers the trace-monoid case.
 
+### Layer C: settlement dynamics as fair recurrence
+
+Layer C asks whether runs reach a consistent state and which one. `CanonicalRecurrence.v` is a
+preregistered experiment on it, run like layer A: one generic kernel, then the existing settlement
+results as short bridges through it, with every leak reported (axiom-free, in the gate; details,
+bridge sizes and the statement review in [coq/docs/recurrence.md](../coq/docs/recurrence.md)). The
+hypothesis: fair convergence is exactly the absence of a bad fair recurrent behavior, made concrete
+as a finite lasso.
+
+**The kernel.** States `X` with decidable equality, labels `js`, an asynchronous update `u`, runs
+and fairness exactly as in `DistributedCycles.v` (`prs`, `Fair`: every label named infinitely
+often). A fair lasso from `s0` is a word `p` reaching `x` and a nonempty word `q` returning `x` to
+`x` that names every label; its loop states are the states `q` visits. For a canonical observation
+`N : X -> C` and a target `c`:
+
+- **C1** (`C1_closed`, `C1_nn`, `C1_classical`): on a finite `X`, every fair run is eventually
+  always in `N^-1(c)` iff no fair lasso from `s0` has a loop state outside `N^-1(c)`. Axiom-free in
+  the strong form when the fiber is closed under the steps, and for every fiber in the
+  double-negated form; for every fiber in the strong form with excluded middle as a premise. The
+  refutation direction needs no finiteness (`C1_refutes`).
+- **C2** (`C2`, `C2_loops`): on a finite `X`, every fair run eventually stays settled (fixed by
+  every label) iff every fair recurrent loop is a singleton fixed point.
+
+This is the classical fair-cycle characterization (Clarke, Emerson and Sistla 1986; Emerson and
+Lei 1986; Vardi and Wolper 1986, nonemptiness as a reachable accepting cycle); it is not claimed as
+new. The experiment is whether it compresses this development's settlement results.
+
+**Recoveries.** Each bridge proves that no bad fair lasso exists and reads settlement off C1 or C2,
+over a shared regime-independent toolkit (pigeonhole, inflationary loops, `loop_floor`).
+
+| Existing result | Recovered as | Why no bad lasso | Leak |
+|---|---|---|---|
+| `chaotic_reaches_lfp` | `chaotic_reaches_lfp_lasso` | a fair loop at a reachable state is inflationary, so a singleton normal form, which `normal_is_lfp` identifies | `L` listed; finite component list |
+| `signed_settlement` | `signed_settlement_lasso` | the bottom run under the loop word stabilizes at a fixed point below the loop (C1); from sound starts every fair loop is a singleton fixed point (C2) | `Sh` listed |
+| `signed_fidelity` | `signed_fidelity_lasso` | the top run bounds every loop by a fixed point, unique, so every recurrent class is `{slfp}` | `Sh` listed |
+| `FairFlushAt`, `FairFlushR` | `fairflush_lasso`, `fairflushR_lasso` | they are C2 | `Sh` listed |
+| `flip2_fair_livelock` | `flip2_fair_lasso` | the explicit bad fair lasso `fa -0-> fb -1-> fb -0-> fa` | none |
+| `copyback_ghost` | `copyback_ghost_lasso` | a settled singleton loop in the wrong fiber: C2 holds, C1 fails | none |
+
+A merely non-fair cycle does not refute C1 or C2 (`nonfair_cycle_not_refuting`: a bad cycle that
+never names one label, in a network where every fair run settles).
+
+**Classification** (`lasso_classification`): the negation cycle is a bad non-singleton fair lasso,
+bad for every target; flip2 is a bad fair lasso although the repair has one fixed point; the
+copyback ghost is a wrong singleton; a good monotone resolver has no bad fair lasso from any start;
+several fixed points are several reachable singleton classes (C2 holds, every target fails). A new
+example separates the two: a fair raw oscillation `a -> b -> a` with `N a = N b`, where C2 fails and
+C1 holds (`semantic_oscillation`).
+
+**Outcome: PASS, qualified by a finiteness leak.** One kernel recovers all five preregistered
+targets, every long-run obstruction met is a fair lasso, and the no-bad-lasso arguments are 5 to 11
+lines each. Leaks: every recovery assumes a finite state type that the original does not (the
+originals assume finite height, which allows infinitely many states), so the recoveries are of the
+finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and the strong form of
+C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
+settlement implies LPO), which the recoveries avoid because their targets are fixed points.
+
 ### Symmetry and state descent
 
 The symmetry reduction (`SymmetryCutoff.v`, [ROADMAP.md](ROADMAP.md) item 8) is a small instance
@@ -713,7 +770,7 @@ The theory has three layers. **(A) Execution algebra:** events, traces and merge
 order matters (repair and event confluence, the canonical-execution decomposition). **(B)
 Constraint algebra:** which states are consistent, a static question about the network's
 equations. **(C) Dynamics:** whether runs reach a consistent state and which one (settlement,
-fidelity, fair schedules). Existence of a section is a layer-B question; settlement is layer C;
+fidelity, fair schedules; [layer C as fair recurrence](#layer-c-settlement-dynamics-as-fair-recurrence)). Existence of a section is a layer-B question; settlement is layer C;
 `SignedResolver.v` and the local-graph modules above are layer-C results that presuppose layer-B
 answers.
 

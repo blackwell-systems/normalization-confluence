@@ -698,6 +698,13 @@ Outline:
    of the generator pairs (P2, `closure_exact`), and iff it agrees on the generator pairs alone when
    the semantics respects the future past the seeds (P1, `local_exact`); state descent stays on the
    state side (`state_side_transfer`).
+   Layer C, whether runs settle and where, is stated once as fair recurrence
+   (`CanonicalRecurrence.v`): on a finite state type, every fair run settles in the canonical fiber
+   iff no fair lasso has a loop state outside it (C1), and raw settlement iff every fair recurrent
+   loop is a singleton fixed point (C2); the classical fair-cycle characterization, used here as the
+   third layer next to A (executions) and B (constraints). Recovered through it:
+   `chaotic_reaches_lfp`, `signed_settlement`, `signed_fidelity`, fair flushing and the ghost, on
+   finite fragments (the finiteness leak, [THEORY.md](THEORY.md#layer-c-settlement-dynamics-as-fair-recurrence)).
 2. **The axes.** The thirteen axes, the ten axis dependences that prune the product, and how the
    empty cells were found before any proof ([COVERAGE.md](COVERAGE.md)): gaps 15 to 21 were
    predicted by the axes, not discovered case by case.

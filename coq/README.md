@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 4335 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 4335 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4444 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4444 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -247,6 +247,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 | `CanonicalExecution.v`, `CanonicalInstances.v` | Validated, scoped to single systems and acyclic composition ([THEORY.md](../docs/THEORY.md#canonical-execution)): the canonical-execution kernel `peak_exact`, `classified_peak_exact`, `history_descent_exact`, `esh_exact`; rederivations `jc_exact_kernel`, `jcg_exact_kernel`, `causal_exact_kernel`, `causal_alo_exact_kernel`, `alo_exact_kernel`, `fed_exact_kernel`, `pjc_exact_kernel`, `flush_fed_iff_kernel`; `stream_free_hd_iff_pcc` (the kernel part of `stream_free_history`, which rereads `stream_exact_free`) | [Canonical execution](docs/canonical-execution.md) |
 | `CanonicalLocality.v` | Validated, scoped to acyclic composition (on cycles, soundness only): the P layer, interaction locality as factorization through a composition boundary, `factor_exact`, `factor_pointwise`, `factor_needs_sound`, `factor_needs_exposed`, `factor_needs_realizable`; the acyclic federation as an instance, `gc_iff_reach_P`, `reach_commute_iff_P`, `fed_exact_P`, `fed_exact_full_P`, `fed_gc_sites`; `cyclic_lc_fails`, `cyclic_lc_sound_fails`, `cyc_factor_sound`, `cyc_factor_sound_gc`, `common_r1`, `c_local_iff_r1`, `fed_state_and_interaction` | [Canonical execution, the P layer](docs/canonical-execution.md#the-p-layer-interaction-locality-canonicallocalityv) |
 | `PresentedExecution.v` | Layer A, the execution algebra, as a presented admissible path system ([THEORY.md](../docs/THEORY.md#layer-a-the-execution-algebra-as-a-presented-admissible-path-system)): whiskered generators `Whisk`, generated equivalence `PEq`, continuation closure `PPC` (`ppc_least`, `ppc_iff_whisk`); P2 `closure_exact`, P1 `local_exact`, `local_exact_all`, `seeds_necessary`; free delivery `free_congruence`, `swap_peq_perm`; seeds insufficient `hw_seeds_insufficient`, `hw_closure_witness`, `hw_not_resp`; state side `state_side_transfer`; recovered `history_descent_recovered`, `amodm_closure_recovered`, `amodm_swap_recovered`, `causal_exact_recovered`, `tconv_exact_recovered`, `causal_alo_idem_recovered`, `alo_exact_recovered`, `det_live_recovered` | [Layer A](docs/canonical-execution.md#layer-a-presented-admissible-path-systems-presentedexecutionv) |
+| `CanonicalRecurrence.v` | Layer C, settlement dynamics as fair recurrence ([THEORY.md](../docs/THEORY.md#layer-c-settlement-dynamics-as-fair-recurrence)), a preregistered experiment: fair lassos `FairLasso`, `BadLasso`; kernel `bad_lasso_refutes`, `recurrence_nn_exact`, `recurrence_closed_exact`, `recurrence_classical`; C1 `C1_nn`, `C1_closed`, `C1_classical`, `C1_refutes`; C2 `C2`, `C2_loops`, `C2_reach`; the constructive leak `lpo_leak`; recovered `chaotic_reaches_lfp_lasso`, `signed_settlement_lasso`, `signed_fidelity_lasso`, `fairflush_lasso`, `fairflushR_lasso`, `flip2_fair_lasso`, `copyback_ghost_lasso`; fairness test `nonfair_cycle_not_refuting`; classification `class_negation_cycle`, `class_good_resolver`, `class_multiple_fixed_points`, `semantic_oscillation`, `lasso_classification` | [Layer C](docs/recurrence.md) |
 
 ## Adding a module
 
@@ -269,7 +270,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4335
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4444
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
