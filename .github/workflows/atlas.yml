@@ -1,0 +1,19 @@
+name: atlas
+
+# Keeps the Convergence Atlas poster in step with the development: every theorem name it shows is
+# declared and gated, its theorem count equals the gate, and its open tiles match the open gaps in
+# REGIME-AUDIT.md. A PR that changes a regime without updating docs/atlas/regimes.js fails here.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Atlas names, count and gap status
+        run: python3 docs/atlas/check.py

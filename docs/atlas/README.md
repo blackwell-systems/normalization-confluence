@@ -29,12 +29,17 @@ into it; Escape closes it. On a narrow screen the card is a bottom sheet. Cards 
 - `check.py`: verifies the names. Every theorem name on a tile, in a card or on a plate must be
   declared as a Theorem, Lemma or Corollary in `coq/*.v` and be in `coq/verify.sh`'s
   Print Assumptions list; each card's theorems must be declared in the modules it names; every link
-  anchor must be a heading of REGIME-AUDIT.md; and the theorem count on the poster must equal the
-  gate's threshold.
+  anchor must be a heading of REGIME-AUDIT.md; the theorem count on the poster must equal the
+  gate's threshold; and the open tiles must match the open gaps in REGIME-AUDIT.md (no tile shows a
+  closed gap as open, and every open convergence gap in its Current state sentence has a tile).
+  CI runs it on every PR (`.github/workflows/atlas.yml`).
 
 ```
 python3 docs/atlas/check.py
 ```
 
-When the audit changes, update the affected entries in `regimes.js` from the audit rows, then run
-`check.py`.
+Keeping it current: a PR that changes a regime (closes or narrows a gap, adds an exact theorem a
+tile should cite) updates the affected entries in `regimes.js` from its audit rows in the same PR,
+and runs `check.py`. A closed gap's tile becomes an exact tile with its theorem and card; a narrowed
+gap keeps its open tile with the card's open part restated. The merge script keeps the theorem
+count in step.
