@@ -1,0 +1,309 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>The Convergence Atlas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Draft poster of the Convergence Atlas (docs/ROADMAP.md). Tile and card data: regimes.js,
+     checked against coq/ by check.py. Prints at its fixed size, 1800 x 2800 px. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@500;600;700&amp;display=swap">
+<style>
+:root{--sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;--cond:'IBM Plex Sans Condensed','Arial Narrow',var(--sans);--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace}
+html,body{margin:0;background:#0C0F14}
+a{color:#8CC4FF}a:hover{color:#BFDDFF}
+/* The poster scrolls inside #wrap, so a phone keeps its own viewport width for the bottom sheet. */
+#wrap{overflow-x:auto;overflow-y:hidden;max-width:100vw}
+#poster{position:relative;width:1800px;height:2800px;box-sizing:border-box;padding:88px 80px 72px;background:#0C0F14;color:#F2F6FB;font-family:var(--sans);display:flex;flex-direction:column;gap:40px}
+.fam{display:grid;grid-template-columns:220px minmax(0,1fr);column-gap:20px;align-items:stretch}
+.fam-label{display:flex;flex-direction:column;justify-content:center;gap:4px;border-top:2px solid #3A4250;padding-top:10px}
+.fam-code{font-family:var(--mono);font-size:13px;letter-spacing:0.12em;color:#8E99A8}
+.fam-name{font-family:var(--cond);font-size:24px;font-weight:600;line-height:1.1}
+.fam-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.tile{box-sizing:border-box;height:112px;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;position:relative;margin:0;border:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
+.tile .mark{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.04em}
+.tile .name{font-family:var(--sans);font-size:17px;line-height:1.2;font-weight:500;padding-right:34px}
+.tile .thm{font-family:var(--mono);font-size:12.5px;line-height:1.25;word-break:break-all}
+.exact{background:#163A66;color:#F2F6FB}
+.exact .mark{color:#9CCBFF}
+.exact .thm{color:#B9D6F5}
+.hard{background:#B4561A;color:#FFF7F0}
+.hard .mark{color:#FFE2C9}
+.hard .thm{color:#FFE7D4}
+.open{background:#0C0F14;color:#F2F6FB;border:2px dashed #C9D2DD}
+.open .mark{color:#0C0F14;background:#F2F6FB;border-radius:4px;padding:1px 6px}
+.open .thm{color:#AEB8C5}
+.excl{background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 9px,#1F242D 9px,#1F242D 18px);color:#AEB8C5;border:1px solid #2A303A}
+.excl .mark{color:#AEB8C5}
+.excl .thm{color:#8E99A8}
+.fresh{box-shadow:0 0 0 3px #F2C14E}
+.tile:hover{filter:brightness(1.12)}
+.tile:focus{outline:none}
+.tile:focus-visible,.tile[aria-expanded="true"]{outline:3px solid #8CC4FF;outline-offset:3px}
+.plate{border:1px solid #2A303A;border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;background:#11151C}
+.plate-thm{margin-top:auto;font-family:var(--mono);font-size:13px;color:#8E99A8}
+
+/* Detail card: beside the tile on wide screens, a bottom sheet on narrow ones. Screen only. */
+#card{position:absolute;z-index:10;width:440px;box-sizing:border-box;padding:18px 20px 16px;background:#11151C;color:#E6ECF3;border:1px solid #3A4250;border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,0.55);font-family:var(--sans);font-size:15px;line-height:1.45}
+#card[hidden]{display:none}
+#card .c-top{display:flex;align-items:baseline;gap:10px;margin:0 30px 2px 0;font-family:var(--mono);font-size:12px;letter-spacing:0.1em;color:#8E99A8;text-transform:uppercase}
+#card .c-kind{font-weight:600}
+#card .k-exact{color:#9CCBFF}#card .k-hard{color:#F0A46B}#card .k-open{color:#F2F6FB}#card .k-excl{color:#AEB8C5}#card .k-fresh{color:#F2C14E}
+#card h3{margin:2px 30px 10px 0;font-family:var(--cond);font-size:23px;font-weight:600;line-height:1.15;color:#F2F6FB}
+#card dl{margin:0;display:grid;gap:8px}
+#card dt{font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8E99A8}
+#card dd{margin:0}
+#card code{font-family:var(--mono);font-size:13px;color:#B9D6F5;overflow-wrap:anywhere}
+#card ul{margin:0;padding-left:18px}
+#card li{margin:1px 0}
+#card .c-links{margin-top:12px;padding-top:10px;border-top:1px solid #2A303A;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}
+#card .c-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid #3A4250;background:#171B22;color:#C9D2DD;font:600 18px/1 var(--sans);cursor:pointer}
+#card .c-close:hover{background:#1F242D}
+#card .c-close:focus-visible,#card a:focus-visible{outline:2px solid #8CC4FF;outline-offset:2px}
+@media (max-width:700px){
+  #card{position:fixed;left:0;right:0;bottom:0;top:auto!important;width:auto;max-height:62vh;overflow:auto;border-radius:14px 14px 0 0;border-width:1px 0 0;padding:18px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+}
+@media print{
+  @page{size:1800px 2800px;margin:0}
+  html,body{background:#0C0F14;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #card{display:none!important}
+  #wrap{overflow:visible;max-width:none}
+  .tile{outline:none!important;filter:none!important}
+}
+</style>
+</head><body>
+<div id="wrap">
+<div id="poster">
+
+<div style="display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; font-family: var(--mono); font-size: 16px; letter-spacing: 0.18em; color: #9AA6B4">
+<span>THE CONVERGENCE ATLAS</span>
+<span>PLATE INDEX I to IV</span>
+</div>
+<h1 style="margin: 0; font-family: var(--cond); font-weight: 700; font-size: 104px; line-height: 0.98; letter-spacing: -0.01em; max-width: 1500px">When does concurrent state with invariant repair converge?</h1>
+<p style="margin: 0; font-size: 26px; line-height: 1.4; color: #C9D2DD; max-width: 1380px">An exact regime map. In every regime: a necessary and sufficient condition, a hardness result showing none is efficient, or a gap stated in the open. Every answer machine-checked: 3,513 axiom-free theorems in Coq.</p>
+</div>
+
+<div style="display: flex; gap: 36px; align-items: center; font-size: 17px; color: #C9D2DD; padding-bottom: 6px; border-bottom: 1px solid #2A303A">
+<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: #163A66"></div><span>Exact (iff)</span></div>
+<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: #B4561A"></div><span>Hardness (mechanized reduction)</span></div>
+<div style="display: flex; gap: 10px; align-items: center"><div style="width: 26px; height: 18px; border-radius: 4px; border: 2px dashed #C9D2DD"></div><span>Open, numbered gap</span></div>
+<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: repeating-linear-gradient(135deg,#171B22 0px,#171B22 5px,#2A303A 5px,#2A303A 10px)"></div><span>Excluded by design</span></div>
+<div style="display: flex; gap: 10px; align-items: center"><div style="width: 26px; height: 18px; border-radius: 4px; box-shadow: 0 0 0 3px #F2C14E"></div><span>Closed in #117</span></div>
+<span class="hint" style="margin-left: auto; font-size: 15px; color: #8E99A8">Hover, focus or tap a tile for its detail card.</span>
+</div>
+
+<div id="fams" style="display: flex; flex-direction: column; gap: 14px"></div>
+
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #2A303A; padding-bottom: 10px">
+<h2 style="margin: 0; font-family: var(--cond); font-size: 34px; font-weight: 600">Why each condition is needed</h2>
+<span style="font-size: 18px; color: #9AA6B4">Every plate is a gated counterexample: drop one condition and convergence fails.</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+
+<div class="plate">
+<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE I</div>
+<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The sticky block</div>
+<div style="display: flex; align-items: center; gap: 10px; height: 92px">
+<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">A rises once</div><div>false to true</div></div>
+<div style="font-size: 26px; color: #C9D2DD">&#8594;</div>
+<div style="flex: 1 1 0; border: 2px solid #F2C14E; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #F2C14E">B latches once</div><div>y := 2 if A, else 1</div></div>
+</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">A converges. B converges at every fixed input. Together they reach two final states: y = 2 or y = 1, decided by whether B moves before or after A.</p>
+<div class="plate-thm">compose_isolated_refuted</div>
+</div>
+
+<div class="plate">
+<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE II</div>
+<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The leaked repair</div>
+<div style="display: flex; align-items: center; gap: 8px; height: 92px">
+<div style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #C9D2DD; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">0</div>
+<div style="font-size: 22px; color: #C9D2DD">&#8594;</div>
+<div style="flex: 1 1 0; border: 2px dashed #9CCBFF; border-radius: 30px; padding: 12px 10px; display: flex; align-items: center; justify-content: space-around">
+<div style="width: 46px; height: 46px; border-radius: 50%; background: #B4561A; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">1</div>
+<div style="font-size: 22px; color: #F2C14E">&#8594;</div>
+<div style="width: 46px; height: 46px; border-radius: 50%; border: 2px solid #C9D2DD; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">2</div>
+</div>
+</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">An event on 1 propagates to 2 before 1 is repaired. Collapsed into one block J = {1, 2}, the network converges. Distributed, it does not.</p>
+<div class="plate-thm">dist_collapse_refuted</div>
+</div>
+
+<div class="plate">
+<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE III</div>
+<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The ghost</div>
+<div style="display: flex; align-items: center; gap: 10px; height: 92px">
+<div style="flex: 0 0 auto; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">rootless</div><div>alarm, briefly</div></div>
+<div style="font-size: 26px; color: #C9D2DD">&#8594;</div>
+<div style="flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px">
+<div style="width: 46px; height: 46px; border-radius: 50%; background: #F2F6FB; color: #0C0F14; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 15px; font-weight: 600">on</div>
+<div style="font-size: 24px; color: #C9D2DD">&#8644;</div>
+<div style="width: 46px; height: 46px; border-radius: 50%; background: #F2F6FB; color: #0C0F14; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 15px; font-weight: 600">on</div>
+</div>
+</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">A transient alarm feeds a monotone flag cycle. The flags hold each other up: a fixed point no clean run reaches, so two normal forms.</p>
+<div class="plate-thm">mixed_ghost_refuted</div>
+</div>
+
+<div class="plate">
+<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE IV</div>
+<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The raised cap</div>
+<div style="display: flex; align-items: center; gap: 10px; height: 92px">
+<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">config A</div><div>cap 5</div></div>
+<div style="display: flex; flex-direction: column; align-items: center; font-family: var(--mono); font-size: 12px; color: #F2C14E"><span>add, add</span><span style="font-size: 26px; color: #C9D2DD">&#8594;</span><span>in flight</span></div>
+<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">config B</div><div>cap 10</div></div>
+</div>
+<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">Each configuration converges, and so does a switch at a barrier. Switch live with adds in flight and A's repair is not absorbed: it diverges.</p>
+<div class="plate-thm">cap_raise</div>
+</div>
+
+</div>
+</div>
+
+<div style="margin-top: auto; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 40px; border-top: 1px solid #2A303A; padding-top: 24px; font-size: 17px; line-height: 1.5; color: #C9D2DD">
+<div>
+<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">THE OPEN FRONTIER</div>
+<div>Gaps 3, 16, 17, 18, 19, 20, 21. Most are one question: what extra structure makes composition exact on cycles.</div>
+</div>
+<div>
+<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">OUTSIDE THE MAP, BY DESIGN</div>
+<div>Byzantine participants, nondeterministic repair, probabilistic schedules, infinite networks, real time.</div>
+</div>
+<div>
+<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">SOURCE</div>
+<div>github.com/blackwell-systems/normalization-confluence</div>
+<div style="color: #F2F6FB">Dayna Blackwell, Blackwell Systems</div>
+</div>
+</div>
+
+<div id="card" role="dialog" aria-modal="false" aria-labelledby="card-title" tabindex="-1" hidden></div>
+</div>
+</div>
+
+<script src="regimes.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.ATLAS;
+  var KIND = { exact: 'Exact', hard: 'Hardness', open: 'Open gap', excl: 'Excluded by design' };
+  var COND = { exact: 'Exact condition', hard: 'Hardness', open: 'Proved so far, and what is open', excl: 'Why it is outside the map' };
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var code = function (s) { return '<code>' + esc(s) + '</code>'; };
+
+  // Tiles: real buttons, in reading order.
+  var list = [];
+  document.getElementById('fams').innerHTML = A.families.map(function (f) {
+    return '<div class="fam"><div class="fam-label"><div class="fam-code">' + esc(f.code) + '</div><div class="fam-name">' + esc(f.name) + '</div></div>' +
+      '<div class="fam-tiles">' + f.tiles.map(function (t) {
+        var i = list.push({ t: t, f: f }) - 1;
+        var label = t.thm ? t.thm + (t.thmNote ? ' ' + t.thmNote : '') : t.note;
+        var kind = KIND[t.kind] + (t.gap ? ' ' + t.gap : '');
+        return '<button type="button" class="tile ' + t.kind + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
+          esc(t.name + '. ' + kind + '. ' + label + (t.fresh ? '. Closed in #117' : '')) + '">' +
+          '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span><span class="name">' + esc(t.name) + '</span><span class="thm">' + esc(label) + '</span></button>';
+      }).join('') + '</div></div>';
+  }).join('');
+
+  var poster = document.getElementById('poster');
+  var card = document.getElementById('card');
+  var sheet = window.matchMedia('(max-width: 700px)');
+  var cur = null, pinned = false, hideTimer = null, refocus = false;
+
+  function render(e) {
+    var t = e.t, f = e.f, h = '';
+    h += '<button type="button" class="c-close" aria-label="Close">&#215;</button>';
+    h += '<div class="c-top"><span class="c-kind k-' + t.kind + '">' + esc(KIND[t.kind]) + (t.gap ? ' &middot; gap ' + esc(t.gap) : '') + '</span>' +
+      (t.fresh ? '<span class="k-fresh">closed in #117</span>' : '') + '<span>' + esc(f.code + ' ' + f.name) + '</span></div>';
+    h += '<h3 id="card-title">' + esc(t.name) + '</h3><dl>';
+    h += '<dt>Setting</dt><dd>' + esc(t.setting) + '</dd>';
+    h += '<dt>' + COND[t.kind] + '</dt><dd>' + esc(t.condition) + '</dd>';
+    if (t.needed && t.needed.length) {
+      h += '<dt>' + (t.kind === 'open' ? 'Known limits' : 'Needed') + '</dt><dd><ul>' + t.needed.map(function (p) {
+        return '<li>' + code(p[0]) + ': ' + esc(p[1]) + '</li>';
+      }).join('') + '</ul></dd>';
+    }
+    if (t.gsm) h += '<dt>gsm</dt><dd>' + esc(t.gsm) + '</dd>';
+    h += '<dt>Theorems</dt><dd>' + t.theorems.map(code).join(', ') + '<br>in ' + t.modules.map(function (m) { return code('coq/' + m); }).join(', ') + '</dd>';
+    h += '</dl><div class="c-links"><a href="' + esc(A.repo + 'REGIME-AUDIT.md#' + t.section) + '" target="_blank" rel="noopener">REGIME-AUDIT.md, ' +
+      (t.section === 'the-open-gaps' ? 'the open gaps' : 'section ' + esc(t.section.split('-')[0])) + '</a>';
+    if (t.gap) h += '<a href="' + esc(A.repo + 'REGIME-AUDIT.md#the-open-gaps') + '" target="_blank" rel="noopener">Gap ' + esc(t.gap) + ' row</a>';
+    h += '</div>';
+    card.innerHTML = h;
+    card.querySelector('.c-close').addEventListener('click', function () { close(true); });
+  }
+
+  function place(btn) {
+    if (sheet.matches) { card.style.left = card.style.top = ''; return; }
+    var pr = poster.getBoundingClientRect(), r = btn.getBoundingClientRect(), gap = 14;
+    var w = card.offsetWidth, h = card.offsetHeight, pw = poster.offsetWidth, ph = poster.offsetHeight;
+    var left = r.right - pr.left + gap;
+    if (left + w > pw - 16) left = r.left - pr.left - gap - w;   // no room right: go left, never over the tile
+    var top = r.top - pr.top;
+    top = Math.max(16, Math.min(top, ph - h - 16));
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+  }
+
+  function show(btn, pin) {
+    clearTimeout(hideTimer);
+    if (cur && cur !== btn) cur.setAttribute('aria-expanded', 'false');
+    if (cur !== btn || card.hidden) { cur = btn; render(list[+btn.dataset.i]); card.hidden = false; }
+    pinned = !!pin;
+    btn.setAttribute('aria-expanded', 'true');
+    place(btn);
+  }
+
+  function close(returnFocus) {
+    clearTimeout(hideTimer);
+    var btn = cur;
+    card.hidden = true; pinned = false;
+    if (btn) { btn.setAttribute('aria-expanded', 'false'); if (returnFocus) { refocus = true; btn.focus(); refocus = false; } }
+    cur = null;
+  }
+
+  function softHide() {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      if (pinned) return;
+      if (card.matches(':hover') || card.contains(document.activeElement)) return;
+      if (cur && (cur.matches(':hover') || cur === document.activeElement)) return;
+      close(false);
+    }, 160);
+  }
+
+  var fams = document.getElementById('fams');
+  fams.addEventListener('mouseover', function (ev) {
+    var b = ev.target.closest('.tile'); if (!b || pinned) return;
+    show(b, false);
+  });
+  fams.addEventListener('mouseout', function (ev) {
+    var b = ev.target.closest('.tile'); if (!b || b.contains(ev.relatedTarget)) return;
+    softHide();
+  });
+  fams.addEventListener('focusin', function (ev) {
+    var b = ev.target.closest('.tile'); if (!b || refocus) return;   // focus returned by Escape stays closed
+    if (pinned && cur === b) return;
+    show(b, false);
+  });
+  fams.addEventListener('focusout', function () { softHide(); });
+  fams.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.tile'); if (!b) return;
+    if (pinned && cur === b) { close(false); return; }
+    show(b, true);
+    if (ev.detail === 0) card.focus();   // keyboard Enter or Space: move into the card
+  });
+  card.addEventListener('mouseleave', softHide);
+  card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
+  card.addEventListener('focusout', softHide);
+  document.addEventListener('keydown', function (ev) {
+    if ((ev.key === 'Escape' || ev.key === 'Esc') && !card.hidden) {
+      ev.preventDefault();
+      close(card.contains(document.activeElement) || pinned);
+    }
+  });
+  document.addEventListener('click', function (ev) {
+    if (card.hidden || card.contains(ev.target) || ev.target.closest('.tile')) return;
+    close(false);
+  });
+  window.addEventListener('resize', function () { if (cur && !card.hidden) place(cur); });
+  window.addEventListener('beforeprint', function () { close(false); });
+})();
+</script>
+</body></html>
