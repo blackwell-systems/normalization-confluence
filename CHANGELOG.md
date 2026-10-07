@@ -21,7 +21,70 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     current-value run reaches, and `CXUR true`, `ChanConv true` and `SettleConv` fail. gsm's static
     XU rejects the event there.
   - **Non-vacuity:** `chain_instance`, a chain `0 -> 1 -> 2` that is not two-level.
-  - **Gate:** raised from 3603 to 3693.
+  - **Gate:** raised from 3947 to 4037.
+- `coq/DifferenceParams.v`: difference constraints for events with integer parameters ("withdraw
+  amount", "reserve qty", "book n rooms"; roadmap item 8, the arithmetic route). Axiom-free.
+  - **Model:** `DifferenceAbstraction.v`'s registries with parameterized events: each kind declares
+    its parameters with ranges, read-only during the event; `pgov`, `prun` apply a kind with
+    arguments.
+  - **Joint state:** a check runs on the variables followed by the arguments of one or two events;
+    `joint` places the events there as an unparameterized registry that computes the
+    parameterized one exactly (`jcc1`, `jidem`, `jvalid`, `jitr`).
+  - **Does `x := x - p` fit:** not with `p` a coordinate: a sum leaves the region quotient at every
+    threshold (`addw_no_threshold`), and the representative check run that way passes and
+    diverges (`addp_check_passes`, `addp_diverges`; `sum2_check_passes`, `sum2_diverges` for
+    `x := p + q`). It fits with `p` exact, read value by value: related states agree on narrow
+    coordinates (`exact_eq`), and the threshold pays the parameter's magnitude
+    (`exact_needs_width`; refusals `addw_refused`, `addp_refused`, `sum2_refused`). Parameters in
+    difference guards and copies stay coordinates at any range width.
+  - **Fragment:** `pfrag`: the variables' registry in `dfrag`, writes to variables only, exact
+    parameters of width at most `2 (gam + mu)`, and every single and pair joint registry in
+    `dfrag` for every value of the exact parameters.
+  - **Cutoffs (each an iff over the declared ranges of variables and arguments, against the joint
+    representatives):** CC1 at the valid states `pcc1v_abs` (`n + m1 + m2` coordinates,
+    `gam + 4(K + 1) mu`), idempotence `pidemv_abs` (`n + m`, `gam + 3(K + 1) mu`), repair
+    `pterm_abs`; gsm's guarantee `pgsm_exact`, `pgsm_sound`, end to end `pbuild_sound`,
+    `pbuild_perm`, `pidem_build`; checks with exact specifications; `pcheck_fail_real`. Size
+    `pcc1_domain_size`, `pidem_domain_size`, `RepS_size`: independent of every range width.
+  - **Special cases:** no parameters gives `dcc1v_abs` (`m0_special`, `embed_frag`,
+    `embed_cc1_box`, `embed_cc1_rep`); at threshold 0 the joint radius is `n + 2m`, the cutoff of
+    `cc1_abs` and `cc1_valid_abs` (`pradius0`, `preps0_in_dom`).
+  - **Non-vacuity, over ranges up to 10^9:** a wallet with deposit, withdraw, fee (amounts exact)
+    and set(v) (abstract): deposits and fees converge, set is idempotent, the other pairs diverge
+    at real states near the guard and both bounds (`wallet_p_diverges`); the wallet with events
+    that record facts and invariants that derive the overdraft flag: every pair converges
+    (`facts_converges`, 242208 joint representatives per pair); inventory with reserve and
+    restock (`stock_converges`); room booking with book, cancel and setcap under a capacity
+    (`room_converges`, `room_setcap_domain`).
+  - **Docs:** `coq/docs/abstraction.md` (new section with the gsm design input), `docs/ROADMAP.md`
+    item 8, `docs/THEORY.md`, `coq/README.md` row, and the count lines.
+  - **Gate:** raised from 3603 to 3749.
+- `coq/ReconfigurationDelivery.v`: reconfiguration inside a run under a delivery class. Closes
+  gap 20's residue (b) in the deterministic model (gsm's runtime); gap 20 stays narrowed, with (a)
+  open. Axiom-free.
+  - **Generic:** a run is a delivery sequence of the combined alphabet (A-events before the switch,
+    B-events after it, in-flight A-events applied through `tau`), a delivery class any
+    prefix-closed set of sequences compared by a relation reflexive on it. Live, `live_delivery_exact`:
+    B's class condition over the combined alphabet from the migrated start, plus S1 at every
+    A-prefix the class admits. Barrier, `barrier_delivery_exact`: B's class condition at every
+    migrated reachable state, plus A's class convergence modulo the migration.
+  - **Classes:** declared pairs (`live_trace_exact`, `barrier_trace_exact`; with every sequence
+    admissible, gsm's `Independent`, `live_declared_exact` and `barrier_declared_exact`, the pair
+    closure seeded with declared pairs only); causal (`live_causal_exact`, `barrier_causal_exact`);
+    at-least-once (`live_alo_exact`, `barrier_alo_exact`, free `live_free_alo_exact`,
+    `barrier_free_alo_exact`), where a redelivery straddling the barrier is a conjunct of its own.
+  - **Recovered:** `det_live_exact`, `det_barrier_exact`, `det_barrier_closure_exact` at free
+    delivery (`free_live_exact`, `free_barrier_exact`, `free_barrier_closure_exact`); with no
+    switch, `causal_exact`, `tconv_exact`, `alo_exact`, `dalo_exact` (`causal_no_switch`,
+    `declared_no_switch`, `alo_no_switch`, `dalo_no_switch`).
+  - **Finite instances:** `classify_declared_complete`, `classify_causal_complete`,
+    `classify_alo_complete`, no unknown case (causal and at-least-once through a closure over
+    states and delivered sets).
+  - **Counterexamples and non-vacuity:** `cross_declared_barrier`, `cross_causal_barrier` (the cross
+    pair the class reorders), `count_dup_prefix` (S1 at a duplicate prefix), `reset_straddle` (a
+    redelivery straddling the barrier: barrier only exactly once, unsafe at least once),
+    `barrier_b_needed`, `barrier_a_needed`; `rescaled_max`, `instances_classified`.
+  - **Gate:** raised from 3749 to 3947.
 
 - `coq/EventCollapse.v`: events with equal governed steps are checked once, the theorem for gsm's
   single check of a parameterized event outside its declared ranges (gsm theory section 11.12,

@@ -477,6 +477,21 @@ all: CompositionBlocks.vo
 CompositionBlocks.vo: CompositionBlocks.v Trace.vo Federation.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo Collapse.vo FederationEventsCycles.vo DistributedCycles.vo CohomologyGraph.vo RootlessCycles.vo RootlessNetworks.vo
 	coqc -Q . NC CompositionBlocks.v
 
+# Difference constraints for events with integer parameters: parameters as read-only coordinates of
+# the joint state, exact parameters (x := x - p, reserved + q <= stock) read as their values and
+# paid in the threshold; CC1, idempotence, repair and gsm's runtime guarantee over the joint
+# representatives (roadmap item 8, DifferenceParams.v).
+all: DifferenceParams.vo
+
+DifferenceParams.vo: DifferenceParams.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo DifferenceAbstraction.vo
+	coqc -Q . NC DifferenceParams.v
+# Reconfiguration under a delivery class: declared independence, causal and at-least-once delivery
+# across the switch, live and at a barrier, decided on finite instances (gap 20 residue (b),
+# ReconfigurationDelivery.v).
+all: ReconfigurationDelivery.vo
+
+ReconfigurationDelivery.vo: ReconfigurationDelivery.v Newman.vo Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo AtLeastOnceDeclared.vo GovernanceConverse.vo Reconfiguration.vo ReconfigurationClosure.vo DistributedDelivery.vo
+	coqc -Q . NC ReconfigurationDelivery.v
 # Versioned projection channels beyond two-level networks: on nested networks (every single-source
 # network among them) every channel state is a current-value state, so dist_exact's condition is
 # exact; a four-registry network outside the class where it fails (gap 21 residue (a),

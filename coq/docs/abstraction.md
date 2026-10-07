@@ -1,8 +1,9 @@
 # Abstraction: check relationships between values, not the values
 
 Detailed results for the abstraction reduction over integer-valued state (roadmap item 8, step 2;
-gsm roadmap item 1b), its gsm instantiation, and the difference-constraint fragment with saturating
-writes ([below](#difference-constraints-differenceabstractionv)). Each module's one-line summary is in the
+gsm roadmap item 1b), its gsm instantiation, the difference-constraint fragment with saturating
+writes ([below](#difference-constraints-differenceabstractionv)), and its extension to events with
+integer parameters ([below](#difference-constraints-with-event-parameters-differenceparamsv)). Each module's one-line summary is in the
 [module index](../README.md#modules-by-regime). This is a reduction for checking, not a regime:
 it does not change any gap in [REGIME-AUDIT.md](../../REGIME-AUDIT.md).
 
@@ -654,3 +655,221 @@ saturation and checked over a finite domain.
 | Saturation | `clamp_near`, `write_box` |
 | Refusals justified | `sum_diverges`, `tri_refused`, `gap_order_check_passes` |
 | Threshold covers chained offsets | `granularity_needs_chain` |
+
+## Difference constraints with event parameters (`DifferenceParams.v`)
+
+**When it applies.** Events that carry integer arguments: "withdraw amount", "reserve qty",
+"book n rooms", "set the cap to c". Each event kind declares its parameters, each with a range.
+The difference route of the previous section extends to them, with one boundary that decides
+which rules fit: a parameter added to a value must be **exact**, read as each of its values, and
+its range is paid in the threshold. Axiom-free.
+
+**The model.** `DifferenceAbstraction.v`'s registries, with parameterized events (`pprog`).
+
+- Event kind `k` declares `m` parameters, parameter `j` in `[lo_j, hi_j]`. In its guard and
+  effect, `DV i` reads variable `i` for `i < n` and parameter `i - n` for `n <= i < n + m`.
+- Parameters are read-only. Writes saturate at the variable's bounds, as before.
+- `pgov K k ps s`: event `k` with arguments `ps`, then `K` repair steps. `prun` normalizes first
+  (gsm's runtime). The invariants read the variables only.
+- `PInBox P s`: the state is in range. `PArgs P k ps`: every argument is in its declared range.
+
+**The joint state.** A check of one event runs on `s ++ ps` (`n + m` coordinates); a CC1 check of
+two events runs on `s ++ ps1 ++ ps2` (`n + m1 + m2`). `joint P l` places the events of `l` in the
+joint state as an unparameterized registry of `DifferenceAbstraction.v`: each event reads its own
+block of parameters (`jev`), and the invariants read only the variables (`clipI`). The joint
+registry computes the parameterized one exactly (`jcc1`, `jidem`, `jvalid`, `jitr`), so every
+transfer of the previous section applies to it.
+
+**Does `balance := balance - amount` fit?** Not with `amount` as a coordinate, and yes with
+`amount` exact.
+
+- **As a coordinate, no, at any threshold.** `x + p` is a sum of two coordinates. The region
+  relation compares differences of two values, and a sum moves a value to a place no difference
+  predicts. `addw_no_threshold`: in a registry with `A(p)`: `x := x + p` when `x <> w`, and `B`:
+  `z := 1` when `x = w`, for every threshold `W` the joint states `(W + 1, 2W + 2, 0; p = W + 1)`
+  and `(W + 1, 2W + 3, 0; p = W + 1)` are in range and related at `W`. CC1 of `A` and `B` fails at
+  the first and holds at the second. The representative check run that way passes and the
+  registry diverges (`addp_check_passes`, `addp_diverges`).
+- **As an exact parameter, yes.** A comparison or a write that is not a difference constraint
+  with the parameters as coordinates (`fbA`, `fbW`: `x := x + p`, `x := x - p`,
+  `reserved + q <= stock`) reads its parameters as their values. For each value it is then a
+  difference constraint with a constant offset, in `dfrag`, and the value counts in `mu` (in a
+  write) or in `gam` (in a comparison). The parameters it reads are the exact ones (`mask`).
+- **Why exact is sound.** Related joint states agree on every coordinate whose range has width at
+  most `2W` (`exact_eq`): its distances to both bounds cannot both exceed `W`. So a state and its
+  representative carry the same exact arguments, and one unparameterized registry (`hat`, the
+  exact values substituted) covers both.
+- **The price.** The threshold must reach the exact parameter's magnitude. With amounts in
+  `[1, 3]` and a balance in `[-1000, 10^9]`, the domain is independent of the balance's range.
+  With amounts in `[0, 10^9]` the parameter is refused (`addw_refused`: accepted only if
+  `2 (gam + mu)` covers the range). Below the range, related states differ on CC1
+  (`exact_needs_width`).
+
+Every other use of a parameter costs nothing: guards `x - p op c`, `p op a`, `x op p`, and copies
+`x := p + c` keep the parameter a coordinate, abstract, with a range of any width.
+
+**The fragment** (`pfrag P A gam mu`, a boolean check).
+
+- `dfrag` holds for the registry without its events (`base P`).
+- Every event writes only variables (`tgt_ok`).
+- Every exact parameter has a range of width at most `2 (gam + mu)` (`exok`).
+- For every value of the exact parameters (`sigs`), the joint registry of every event and of every
+  pair of events is in `dfrag`, with the parameter bounds among the anchors.
+
+**The transfers.** Each is an iff: the condition over all states and all arguments in the declared
+ranges, against the joint representatives `RepS (jb P [k1; k2]) A W`, every coordinate (variables
+and parameters) within `(n + m1 + m2)(W + 1)` of an anchor.
+
+| Condition | Threshold `W` | Joint coordinates | Theorem |
+|---|---|---|---|
+| Repair within `K` steps | `gam + K mu` | `n` | `pterm_abs` |
+| Idempotence of kind `k`, the same arguments twice, at every valid state | `gam + 3(K + 1) mu` | `n + m` | `pidemv_abs` |
+| CC1 for the pairs of `I`, all arguments, at every valid state | `gam + 4(K + 1) mu` | `n + m1 + m2` | `pcc1v_abs` |
+
+**Domain size.** `pcc1_domain_size`, `pidem_domain_size`: at most `(|A| (2R + 1))^N` with `N` the
+number of joint coordinates and `R = N(W + 1)`. It does not depend on the width of any range,
+the abstract parameters' included. `room_setcap_domain`: the pair (setcap, cancel), with
+`c` in `[0, 10^9]`, has 4 coordinates and radius 76 at threshold 18.
+
+**gsm's guarantee.** An event occurrence is a kind with its arguments.
+
+- `pgsm_exact`: given repair within `K` steps over the representatives, CC1 for `I` at the valid
+  joint representatives iff, from every valid state, trace-equivalent sequences of events with
+  arguments in range reach the same state.
+- `pgsm_sound`: gsm's runtime, from every state in range.
+- `pbuild_sound`, end to end from `pfrag`, `pterm_check` and `pcc1v_check` at `W = wcc1 gam mu K`.
+  `pbuild_perm`: with every pair checked in one orientation (`k1 <= k2`), any permutation
+  (`tequiv_sym_cover`). `pidem_build`: idempotence from `pidemv_check`.
+- The checks have exact specifications (`pterm_check_spec`, `pcc1v_check_spec`,
+  `pidemv_check_spec`), and a failure is a real failure (`pcheck_fail_real`): its witness is a
+  state and arguments in range.
+
+**The special cases.**
+
+- **No parameters.** `embed` reads a registry of `DifferenceAbstraction.v` as one whose events take
+  no arguments. `embed_frag`: `dfrag` gives `pfrag`; `embed_cc1_box`, `embed_cc1_rep`,
+  `pgov_embed`: the conditions coincide. `m0_special`: `dcc1v_abs` is `pcc1v_abs` with no
+  parameters.
+- **Threshold 0** (comparisons and copies only). `pradius0`: the radius of the joint box of two
+  events is `n + m1 + m2`, which is `n + 2m` for `m` parameters each: the cutoff of `cc1_abs` and
+  `cc1_valid_abs`. For one event it is `n + m`, the cutoff of `idem_valid_abs`. `preps0_in_dom`:
+  `reps (n + 2m) C` lies in the domain, and at threshold 0 the relation is the order type
+  (`rel0_oiso`), parameters included.
+
+### Boundaries
+
+- **`x := x + p` with `p` a coordinate** (`addw_no_threshold`, `addw_refused`, `addp_check_passes`,
+  `addp_diverges`, `addp_refused`).
+  - No threshold transfers CC1 (above).
+  - `addp`: `x` in `[1000, 10^9]`, `w` in `[0, 10^6]`, `p` in `[1000, 10^6]`. With `p` a
+    coordinate, the check of `(A, B)` at threshold 0 passes over 7600 joint representatives:
+    `x + p = w` needs `w` near 2000, far from every anchor. At `(1000, 2000, 0)` with `p = 1000`
+    the orders give `z = 1` and `z = 0`.
+  - `pfrag` makes `p` exact and refuses it unless `2 (gam + mu) >= 10^6 - 1000`.
+- **A sum of two parameters** (`sum2_check_passes`, `sum2_diverges`, `sum2_refused`):
+  `x := p + q`, `p, q` in `[1000, 10^6]`. The check over 241920 joint representatives passes; at
+  `(0, 2000, 0)` with `p = q = 1000` the registry diverges. `p + p` behaves the same.
+- **An exact parameter's range is paid** (`exact_needs_width`): `x := x + p`, `p` in `[0, 15]`.
+  The joint states `(20, 27, 0; 7)` and `(20, 27, 0; 8)` are related at threshold 6, and CC1 fails
+  at the first and holds at the second. The registry is in the fragment with `mu = 15`.
+- A sum of two variables, and a comparison of two same-signed variables, are refused as in the
+  previous section.
+
+### Non-vacuity
+
+All over ranges up to `10^9`, checks by `vm_compute`.
+
+- **Wallet, direct** (`wallet_p_frag`, `wallet_p_reps`, `wallet_p_checks`, `wallet_p_converges`,
+  `wallet_p_set_idem`, `wallet_p_diverges`).
+  - Balance in `[-1000, 10^9]`. Events: deposit(a), withdraw(b) when balance >= b, fee(f), amounts
+    in `[1, 3]` (exact); set(v), `v` in `[-1000, 10^9]` (abstract). Overdraft repair to 0.
+  - `gam = 0`, `mu = 3`, `K = 1`, threshold 24; 2754 joint representatives for two deposits;
+    24964 for set at threshold 18.
+  - Two deposits converge, and two fees converge, from every balance and all amounts. set is
+    idempotent at every valid balance and every `v`.
+  - The other pairs diverge at real states, which the check reports: the guard (balance 1,
+    deposit 1, withdraw 2: 0 against 2); saturation at the upper bound (balance `10^9 - 1`,
+    deposit 3, withdraw 3: `10^9 - 3` against `10^9 - 1`); the repair at the lower bound
+    (balance 0, deposit 1, fee 3: 0 against 1); two withdrawals (balance 3, withdraw 2 and 3: 1
+    against 0).
+- **Wallet, events record facts, invariants derive outcomes** (`facts_frag`, `facts_reps`,
+  `facts_checks`, `facts_converges`, `facts_flag`).
+  - deposited and requested in `[0, 10^9]`, flag in `[0, 1]`. deposit(a): deposited += a;
+    withdraw(b): requested += b; amounts in `[1, 2]`. Invariants: requested <= deposited or
+    flag = 1; deposited < requested or flag = 0; each repair sets the flag.
+  - 242208 joint representatives per pair at threshold 16. Every pair converges, so every
+    permutation of deposits and withdrawals, any amounts, converges from every state.
+  - The overdraft is an outcome the invariants derive, not a decision an event takes, so no
+    pair needs ordering. Saturation at `10^9` loses the excess but commutes.
+- **Inventory** (`stock_frag`, `stock_checks`, `stock_converges`, `stock_reserve_diverges`).
+  - Stock and reserved in `[0, 10^9]`. restock(q): stock += q. reserve(q): reserved += q when
+    reserved + q <= stock (a comparison of a sum: `q` exact, the guard reads
+    `reserved - stock <= -q`). Invariant reserved <= stock. `q` in `[1, 2]`.
+  - Restocks converge (97344 joint representatives). Two reserves diverge when stock runs short;
+    reserve and restock diverge at an empty stock.
+- **Room booking under a capacity** (`room_frag`, `room_checks`, `room_converges`,
+  `room_diverges`, `room_setcap_domain`).
+  - booked and cap in `[0, 10^9]`. book(n) when booked + n <= cap; cancel(n), saturating at 0;
+    `n` in `[1, 2]`; setcap(c), `c` in `[0, 10^9]` abstract. Invariant booked <= cap.
+  - Cancellations converge (97344 joint representatives). Two bookings diverge one room below the
+    cap; booking and cancelling diverge at a full house; lowering the cap and cancelling diverge.
+
+### For gsm
+
+Events with arguments on the difference route.
+
+1. **Declaring parameters.**
+   - Each event kind declares its parameters by name and range: `Param("amount", 1, 3)`. A range is
+     required, as for a variable. Rules read a parameter through a combinator `P("amount")`, which
+     gsm compiles to the index `n + j`.
+   - Invariants and repairs do not read parameters.
+2. **Applying an event with arguments.**
+   - `Apply(state, kind, args)`. gsm validates every argument against its declared range and
+     rejects an out-of-range argument (the guarantee covers arguments in range: `PEv`).
+   - The rules evaluate with the arguments read-only, writes saturate at the variables' bounds, then
+     `K` repair steps, as for parameterless events (`pgov`, `prun`).
+3. **What Build checks.**
+   - Classify each parameter. Normalize every comparison and write with the parameters as
+     variables. A parameter that occurs in one that is not a difference constraint is **exact**
+     (`mask`); the others are **abstract**.
+   - An exact parameter's range must be within `2 (gam + mu)`. The comparisons and writes it occurs
+     in are normalized once per value of the exact parameters (`sigs`); `gam` and `mu` are the
+     maxima over the values.
+   - Anchors: the bounds of every variable and every parameter, and the literals, as before.
+   - `W = gam + 4(K + 1) mu`. For each checked pair `(k1, k2)`: the joint domain over
+     `n + m1 + m2` coordinates, each within `(n + m1 + m2)(W + 1)` of an anchor and inside its range
+     (`RepS (jb P [k1; k2])`). Run CC1 at the valid joint representatives (`pcc1v_check`). For
+     idempotence, the joint domain of one kind over `n + m` coordinates (`pidemv_check`). Repair
+     within `K` over the variables alone (`pterm_check`).
+   - A pass is gsm's guarantee for every sequence of events with arguments in range
+     (`pbuild_sound`). A failure has a witness in range, state and arguments (`pcheck_fail_real`).
+   - The joint domain grows with the number of coordinates, so compositional checking matters
+     more here. A pair whose kinds touch disjoint footprints needs no joint check
+     (`CompositionalCheck.v`).
+4. **Refusals** (an `*AbstractionError` naming the rule and the parameter).
+   - An exact parameter with a range wider than the threshold allows: "amount in [0, 10^9] is added
+     to balance in withdraw; an added parameter is checked value by value; declare a narrower
+     range" (`addw_no_threshold`, `addw_refused`, `addp_diverges`). The formula route of
+     `AbstractionCutoff.v` takes such rules over unbounded integers, with a solver.
+   - A sum of two parameters with a wide range, `x := p + q` or `x := p + p` (`sum2_diverges`,
+     `sum2_refused`).
+   - A sum of two variables, as before (`sum_diverges`, `tri_refused`).
+   - A joint domain over gsm's limit, reported with its size.
+5. **Report line.** "Verified by abstraction over balance (difference constraints with
+   parameters; amount exact in [1, 3], v abstract in [-1000, 1000000000]; anchors {-1000, 0, 1, 3,
+   1000000000}; threshold 24; 2754 joint representatives for deposit/deposit)".
+6. **Theorem per step.**
+
+| gsm step | Theorem |
+|---|---|
+| Joint state computes the parameterized rules | `jcc1`, `jidem`, `jvalid`, `jitr`, `tx_eval`, `txP_eval` |
+| Exact parameters, substituted by value | `mask`, `hat_agree`, `hat_sigs`, `exact_eq` |
+| Fragment check | `pfrag`, `pfrag_one`, `pfrag_two`, `base_parts` |
+| Repair within `K` | `pterm_abs` |
+| CC1 at the valid states, checked pairs, all arguments | `pcc1v_abs` |
+| `NotIdempotent` exact, per kind and arguments | `pidemv_abs`, `pidem_build` |
+| Runs with arguments converge from every state | `pgsm_exact`, `pgsm_sound`, `pbuild_sound`, `pbuild_perm` |
+| Failure is real, witness in range | `pcheck_fail_real` |
+| Domain size independent of the ranges | `pcc1_domain_size`, `pidem_domain_size`, `RepS_size` |
+| Parameterless registries unchanged | `m0_special`, `embed_frag` |
+| Refusals justified | `addw_no_threshold`, `addp_diverges`, `sum2_diverges`, `exact_needs_width` |
