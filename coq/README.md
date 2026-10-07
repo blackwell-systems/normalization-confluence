@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 3530 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 3530 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 3659 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 3659 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -34,7 +34,7 @@ the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over
 coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
 rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles, and over channels), the federated
-rewrite system and compositional collapse), and reconfiguration inside a run (`Reconfiguration.v`, `ReconfigurationClosure.v`).
+rewrite system and compositional collapse, and the composition of blocks of any engines), and reconfiguration inside a run (`Reconfiguration.v`, `ReconfigurationClosure.v`).
 The [module index](#modules-by-regime) below lists
 each module with its headline theorems; the pages in [`docs/`](docs) give each module's results in
 full.
@@ -203,6 +203,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 | Module | Headline theorems | Details |
 |---|---|---|
 | `Collapse.v` | Acyclic `J`: `collapse_a_guarded_exact`, `collapse_c_exact`, `collapse_c_guarded_iff`, `collapse_modular_converges`; ports `port_c1_transfer`; refuted: `collapse_a_refuted` | [Compositional collapse](docs/collapse.md#compositional-collapse-sub-federations-as-effective-registries-collapsev) |
+| `CompositionBlocks.v` | Blocks of any engines (gap 19 (a)): the composite of an upstream system and a block reading it converges iff the upstream converges, the block settles at every quiet input, and the block's settled states are not separated by its steps at the transient inputs `compose_exact`; the normal form is the block-by-block one `compose_collapse`; the interface (settles, with normal forms determined by preserved inputs) is closed under composition `interface_closed`, `settles_conv`; each conjunct needed `compose_isolated_refuted` (every block converges in isolation, the composite does not), `compose_needs_A`, `compose_needs_wn`, `compose_transient_free`. Engines: rootless `rootless_conv_iff`, `mixed_rootless_exact`; monotone `mono_block_interface_iff`, `mixed_mono_iff`; `mixed_instance`, `mixed_mono_instance`, `mixed_ghost_refuted`. Cyclic monotone `J`, FedMachine (gap 5): `bekic_lfp`, `mono_collapse_nf`, `mono_collapse_converges_iff`, `mono_collapse_exact`, `mono_collapse_instance`. Distributed model (gap 19 (b)): `dist_atoms_exact` (recovers `dist_exact`, `dist_exact_recovered`), `dist_collapse_exact`, `dist_collapse_sound`, `dist_collapse_iff`, `dist_collapse_xu`; `dist_collapse_refuted`, `dist_collapse_needs_c2` | [Composition of blocks](docs/collapse.md#composition-of-blocks-of-any-engines-compositionblocksv) |
 
 ### 15. Reconfiguration inside a run ([docs/reconfiguration.md](docs/reconfiguration.md))
 
@@ -261,7 +262,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3530
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3659
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

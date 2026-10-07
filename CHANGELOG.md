@@ -43,7 +43,43 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     (`room_converges`, `room_setcap_domain`).
   - **Docs:** `coq/docs/abstraction.md` (new section with the gsm design input), `docs/ROADMAP.md`
     item 8, `docs/THEORY.md`, `coq/README.md` row, and the count lines.
-  - **Gate:** raised from 3384 to 3530.
+  - **Gate:** raised from 3513 to 3659.
+- `coq/CompositionBlocks.v`: composition beyond acyclic collapse. Closes gap 5 in the FedMachine
+  model and narrows gap 19 (REGIME-AUDIT.md section 14; COVERAGE.md cells A14, B11, B12, B13).
+  Axiom-free.
+  - **Blocks of any engines (gap 19 (a), closed):** a composite of an upstream system and a block
+    that reads its current state converges (from every start a quiet state is reached, and every
+    reachable one is the same) iff the upstream converges, the block reaches a quiet state from
+    every start at every quiet input, and two quiet states of the block at a quiet input are equal
+    when its steps at the inputs the upstream passes through connect them (`compose_exact`). The
+    normal form is the block-by-block one (`compose_collapse`). A black-box interface (each block
+    settles, with normal forms determined by inputs its steps preserve) is closed under
+    composition, exactly (`interface_closed`, `settles_conv`, `interface_lk`), so it iterates over
+    any DAG of blocks.
+  - **Each conjunct needed:** `compose_needs_A`, `compose_needs_wn`, and
+    `compose_isolated_refuted`: every block converges in isolation, and the composite reaches two
+    normal forms (the sticky block). The block is constrained only at quiet inputs
+    (`compose_transient_free`).
+  - **Engines:** rootless invertible networks, `rootless_conv_iff` (`net_unique_normal_form_iff`
+    read as convergence) and `mixed_rootless_exact`; monotone cycles, `mono_block_interface_iff`
+    (one fixed point, through `q1_unique_iff`) and `mixed_mono_iff`. Instances `mixed_instance`,
+    `mixed_mono_instance`, and `mixed_ghost_refuted`: a rootless block feeding the flag cycle, where
+    a transient alarm lifts the cycle to its ghost.
+  - **Cyclic monotone `J` (gap 5, closed in the FedMachine model):** Bekic's principle for the
+    triangular repair (`bekic_lfp`), so `N'` and `N` have the same normal form
+    (`mono_collapse_nf`), the same runs, and converge together, exactly under GC
+    (`mono_collapse_converges_iff`, `mono_collapse_exact`); instance with gsm's `normalizeCyclic`
+    (`mono_collapse_instance`).
+  - **Distributed model (gap 19 (b), closed for an acyclic `J`):** `dist_atoms_exact`, the exact
+    condition over any atom set (`dist_exact` recovered, `dist_exact_recovered`); with `J`
+    propagating as one atom, `dist_collapse_exact`; `N` converges iff `N'` does and XU holds at
+    every state `N` reaches (`dist_collapse_iff`, `dist_collapse_sound`); the plain collapse
+    statement fails (`dist_collapse_refuted`: a chain, `J = {1, 2}`), XU alone is not enough
+    (`dist_collapse_needs_c2`), and static XU restores it (`dist_collapse_xu`). Residue: a cyclic
+    `J` in the distributed model.
+  - **Docs:** `coq/docs/collapse.md` (new section), `coq/README.md` row, REGIME-AUDIT.md (section
+    14, gaps 5 and 19, the cyclic frontier), docs/COVERAGE.md (cells and counts), docs/ROADMAP.md.
+  - **Gate:** raised from 3384 to 3513.
 - `coq/DifferenceAbstraction.v`: abstraction for difference constraints with saturating writes
   (roadmap item 8, step 2, the arithmetic route; gsm roadmap item 1b). Axiom-free. A finite
   representative cutoff, no solver.
@@ -812,6 +848,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `README.md`: the status paragraph under the headline (one 45-line paragraph) is now a short list: exact, hardness, counting and gluing, the eight open convergence gaps by number, and the design exclusions. Details stay in `REGIME-AUDIT.md`. No theorem added, removed or renamed.
+
+- `docs/COVERAGE.md` section 4: four candidate dimensions outside the axes, added after the pass with dispositions pending: observation before convergence (what intermediate reads return), irreversible external effects, compaction (deduplication and history that forget), and nondeterministic events (the event-side twin of X2). No gap numbered, no cell count changed, no theorem added, removed or renamed.
+
+- `docs/ROADMAP.md`: planned paper, the regime map (a fourth paper whose main object is the classification: the question, the axes, the map table, representative theorems, transfer between regimes, the open part, quotients for checking, and the audit method; drafting after gap 19 lands). No theorem added, removed or renamed.
 - `coq/verify.sh`: gates `NC.Checker.run_perm_invariant` (axiom-free), which gsm's `docs/theory.md` cites for CC1 correctness but which was not in the gate. Gate 3029 to 3030.
 - `docs/ROADMAP.md` item 8: the history-side reduction expanded into a progression (pairwise swap, trace equivalence, canonical histories, per-condition exactness, symmetry combined with it), with independence derived rather than declared and each restriction tied to an existing mechanized counterexample. `docs/THEORY.md`: new subsection "Quotients for checking" (every proved semantic quotient is a potential verification quotient, qualified per condition). No theorem added, removed or renamed.
 - `docs/ROADMAP.md` item 8: a history-side reduction (partial-order reduction) for the checks that explore reachable states, with soundness to be proved per condition. No theorem added, removed or renamed.
