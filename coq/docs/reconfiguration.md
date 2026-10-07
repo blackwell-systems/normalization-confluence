@@ -1,6 +1,6 @@
 # Reconfiguration inside a run
 
-Detailed results for `Reconfiguration.v`: a run that switches from one configuration to another
+Detailed results for `Reconfiguration.v` and `ReconfigurationClosure.v`: a run that switches from one configuration to another
 while events are in flight, at a quiescent barrier or live, for a single registry and for
 federations. The module's one-line summary is in the [module index](../README.md#modules-by-regime);
 the status of the question is gap 20 of [REGIME-AUDIT.md](../../REGIME-AUDIT.md#the-open-gaps).
@@ -110,6 +110,8 @@ each fails exactly one conjunct of `LiveCond`.
   migration `BarConv` is decidable (`barrier_dec_faithful`) and `classify_finite` returns the
   outcome. `finite_instance` discharges its hypotheses. `instances_classified` classifies the
   instances above (three `BarrierOnly`, two `Online`, one `Unsafe`).
+- In the deterministic model (section `Det`, gsm's runtime), the outcome is decided on finite
+  instances with no faithfulness hypothesis: `det_classify_complete`, below.
 
 ## Federations: topology changes
 
@@ -144,12 +146,109 @@ B-events.
   `late_edge_fresh`: from a start whose target already agrees with the new image, the same change is
   online-safe, and every hypothesis of `fed_live_exact` holds there (non-vacuity).
 
+## The barrier without injectivity (`ReconfigurationClosure.v`)
+
+`det_barrier_exact` splits the barrier condition into B's part at every migrated reachable state and
+A's part, **A converges modulo M** (`AmodM s0`): for every two permutations `u`, `u'` of one list of
+A-events, `M (runA u s0) ~ M (runA u' s0)`. `det_barrier_faithful` replaces it by A's own
+convergence when `M` reflects and preserves the equivalences; without that, `AmodM` quantifies over
+every pair of permutations. This module gives it a local and a finite exact form, and closes
+residue (c) for the deterministic model.
+
+- `amodm_swap_exact`: `AmodM s0` iff for every word `u` (the reachable state `t = runA u s0`), events
+  `a`, `b` and continuation `w`, `M (runA w (stepA b (stepA a t))) ~ M (runA w (stepA a (stepA b t)))`.
+  Necessity: `u a b w` and `u b a w` are permutations of each other. Sufficiency: two permutations
+  are joined by a chain of adjacent transpositions (induction on `Permutation`), and `~` is
+  transitive along the chain. The continuation `w` cannot be dropped: `M` need not respect the
+  steps, so two states with one image can separate later.
+- The **pair closure** `PC s0` is the least relation containing the seeds
+  `(stepA b (stepA a t), stepA a (stepA b t))` for every reachable `t` and events `a`, `b`, and closed
+  under applying one event to both components (`pc_iff`: its pairs are exactly the pairs of the
+  swap form). `amodm_closure_exact`: `AmodM s0` iff `M x ~ M y` on every pair of `PC s0`
+  (`ClosureOK`).
+- `det_barrier_closure_exact`: `DBar s0 <-> (forall u, PermB (M (runA u s0))) /\ ClosureOK s0`.
+  `permB_local_exact` makes B's part local (stepB respects `~`, so there the continuation drops):
+  `det_barrier_local_exact` and `det_live_local_exact` state both outcomes as commutation at
+  reachable states plus, for the barrier, the closure, which is what gsm's `CheckMigration`
+  evaluates; `permA_eq_local_exact` does the same for A's own convergence with equality.
+- Finite instances (finite lists of states and events on both sides, decidable state equality,
+  decidable `~`): reachability and `PC` are computed by the closure of `star_fin_dec`
+  (`run_star_iff`, `pc_star_iff`), so `ClosureOK` is decidable (`closure_dec`). `amodm_witness_exact`:
+  `AmodM s0` fails iff the closure has a pair `M` separates; a search that enumerates the closure
+  finds a witness iff there is one, and an exhausted search is a certificate.
+- **Complete classification.** `DClassified s0 o` for `o` in `Online` (`DLive`), `BarrierOnly`
+  (`DBar` and not `DLive`), `Unsafe` (not `DBar`); at most one holds (`det_classified_unique`).
+  `det_live_dec`, `det_barrier_dec` and `det_classify_complete` decide the outcome on every finite
+  instance, with no faithfulness hypothesis and no unknown case. `det_unsafe_exact`: the barrier
+  diverges iff B diverges after a barrier switch at some reachable state or the closure has a pair
+  `M` separates.
+- **The faithful case recovered.** `det_barrier_faithful_closure`: when `M` reflects and preserves
+  the equivalences, `ClosureOK` is A's own convergence, and `det_barrier_closure_faithful` gives
+  `det_barrier_faithful` back. `det_closure_of_permA`: when `M` preserves them (always, with
+  equality on A), A's convergence implies `ClosureOK`.
+- **gsm's pruned search.** `PCg` seeds only for one orientation `sel a b` of each pair of distinct
+  events and only where the two states differ, and does not expand a pair of equal states.
+  `gsm_closure_exact`: given decidable state equality and `sel` covering every pair
+  (`a = b \/ sel a b \/ sel b a`), `ClosureOK` on `PCg` is `ClosureOK` on `PC`: equal pairs stay
+  equal under common events, and a pair and its mirror are separated together.
+
+Generic forms (section `Swap`, any deterministic `step`, observation `obs` and equivalence):
+`perm_swap_exact`, `closure_perm_exact`, `closure_swap_exact`, `perm_local_exact` (for an
+observation compatible with the steps), `closure_witness_exact`.
+
+Instances. A is last-writer-wins on `option bool` (`None` the start, `Some b` the last write); it
+diverges (`lww_diverges`). Each migration is not injective on the states A reaches
+(`merge_not_injective`, `partial_not_injective`), the case the classification under `Faithful`
+left open.
+
+- `merged_online`: `mergeM` sends both writes to one B-state; B sets a flag and every A-event becomes
+  the flag event: `Online`.
+- `merged_barrier`: `mergeM` again, B ignores the translated events, so an in-flight write is lost
+  (`DS1` fails): `BarrierOnly`, certified by the closure (`merged_barrier_closure`), with A
+  diverging and `M` not injective.
+- `partial_merge`: `partialM` sends `None` and `Some true` to one state and `Some false` to another.
+  The seed at the start with events `true`, `false` is a pair it separates
+  (`partial_merge_witness`): `Unsafe`.
+- `closure_nonvacuous` (the closure condition holds for one migration and fails for the other),
+  `gsm_search_instances` (the same for the pruned closure, with `sel_tf` covering every pair), and
+  `merged_classified_outcomes` (`det_classify_complete` runs on the three instances, its finite
+  hypotheses all hold, and returns `Online`, `BarrierOnly`, `Unsafe`).
+
+### gsm design input
+
+For an exhausted search to certify the barrier, `CheckMigration`'s AmodM search must compute
+`PCg` from each start `s0`, with `stepA` the old registry's `Apply` and `M` its migration followed by
+normalization under the new registry:
+
+- **Seeds:** for every state `t` reachable from `s0` by `stepA` (the whole reachable set, not a
+  sample) and every pair of events `e1 < e2`, the pair `(stepA e2 (stepA e1 t), stepA e1 (stepA e2 t))`
+  when its two states differ.
+- **Closure:** apply each event of A to both components; skip a pair of equal states.
+- **Test:** compare `M` on both components of every pair, seeds included.
+- **Outcome:** if no pair is separated and the search was exhaustive, `AmodM` holds
+  (`amodm_witness_exact`, `gsm_closure_exact`), and with `PermB-every` the change is safe behind a
+  barrier (`det_barrier_closure_exact`). If a pair is separated, the two orders
+  `l e1 e2 r` and `l e2 e1 r` (with `l` the path to `t` and `r` the closure path) are the witness
+  (`amodm_swap_exact`, necessity). Only a search stopped by a resource limit leaves the outcome
+  undecided.
+
+gsm `main` `2d90eea` (`migration.go`, `fromStart`) computes exactly this closure: its seeds are
+`runAll(t, [e1, e2])` against `runAll(t, [e2, e1])` at every reachable `t` for `e1 < e2`, kept only
+when different; it closes under every event applied to both sides, skipping equal pairs, and
+deduplicates. The differences are in the conclusion only: it reports `Unknown` when the exhausted
+search finds no witness, where `ClosureOK` holds and the outcome is `SafeBehindBarrier`, and its
+`AmodM` condition is reported as not decided in that case.
+
 ## Scope and residue
 
 Exact here: the single registry under free delivery (rewriting model, compensation as steps), at a
-barrier and live; federations under FedMachine semantics, at a barrier and live. Not covered (the
-residue of gap 20): (a) a live switch in the distributed model (`DistributedExact.v`), where
-propagation is itself in flight, so projections sent under A can be merged under B; (b) declared
-independence, causal or at-least-once delivery across the switch; (c) a local form of the barrier's
-A part (`AmodF`) when the migration is not faithful (`barrier_exact` is exact there, but `AmodF`
-quantifies over all buffers).
+barrier and live; federations under FedMachine semantics, at a barrier and live; and, in the
+deterministic model, the barrier's A part without injectivity, in local and finite form, so the
+classification is decided on finite instances with no unknown case. Not covered (the residue of gap
+20): (a) a live switch in the distributed model (`DistributedExact.v`), where propagation is itself
+in flight, so projections sent under A can be merged under B; (b) declared independence, causal or
+at-least-once delivery across the switch. Residue (c), a local form of the barrier's A part when
+the migration is not faithful, is closed for the deterministic model, the model of gsm's runtime
+(`ReconfigurationClosure.v`). In the rewriting model with compensation as separate steps,
+`barrier_exact` remains exact but its `AmodF` has no local form here: its runs interleave optional
+compensation steps, which adjacent swaps of events do not connect.
