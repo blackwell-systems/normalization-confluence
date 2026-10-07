@@ -7,6 +7,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/TransportCSPHard.v`: the predicted hard cell of the CSP reading. Monotone transports on the
+  diamond (two flags, the Boolean lattice 2 x 2) are NP-complete, and the polymorphisms predict it.
+  Refines the per-family cell of REGIME-AUDIT.md section 12. Axiom-free.
+  - **Search:** `research/predicted-hard-cell/search.py` (output `search.out`) decides by exhaustive
+    search whether small families with every pin have a 4-ary Siggers polymorphism: the monotone
+    maps of every non-chain poset of three or more elements tried have none (V, Lambda, 1 + 2, the
+    diamond, 2 + 2, the fence, Y, N5, M3), chains and join-homomorphism families have one.
+  - **Reduction:** six monotone maps (`dfam`: read one flag, the AND or the OR of the two flags,
+    or a constant, written into both flags) carry a linear 3-SAT reduction (`dnet_iff_sat`,
+    `dnet_size`: `18m + 2` edges, `dnet_np_certificate`, `diamond_hard_csp`, `mono_family_hard`).
+  - **Algebra:** for every arity, Pol(`gamma dfam []`) is exactly the projections
+    (`pol_dfam_iff`, `pol_dfam_pins_iff`, `pol_superfamily_proj`), so no Siggers, majority,
+    Mal'tsev or binary commutative polymorphism (`dfam_no_siggers`, `dfam_no_majority`,
+    `dfam_no_maltsev`, `dfam_no_commutative`); join, meet and median fail with witnesses
+    (`dfam_lattice_fails`); each map is needed (`dfam_minimal`); join-homomorphic families keep join
+    as a semilattice polymorphism (`semilattice_pol`, `joinhom_pol`, `meethom_pol`).
+  - **Cited, not mechanized:** Bulatov 2017, Zhuk 2017 and 2020 (dichotomy); Bulatov, Jeavons and
+    Krokhin 2005 (no Taylor polymorphism, NP-complete); Siggers 2010 and Kearnes, Markovic and
+    McKenzie 2014 (the Siggers terms); Jeavons, Cohen and Gyssens 1997 (semilattices).
+  - **Docs:** THEORY.md "Static consistency as CSP" (the hard cell next to the tractable one);
+    REGIME-AUDIT.md section 12, COVERAGE.md A9, ROADMAP.md; atlas hardness tile for monotone
+    transports off the chain.
+  - **Gate:** raised from 4270 to 4335.
+
 - `coq/PresentedExecution.v`: layer A of the regime map, the execution algebra, as a presented
   admissible path system (docs/THEORY.md, canonical execution, layer A). Axiom-free. No
   REGIME-AUDIT status changes.

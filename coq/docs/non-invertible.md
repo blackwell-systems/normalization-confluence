@@ -1,7 +1,8 @@
 # Non-invertible (lossy) transports
 
 Detailed results for general transport maps: the obstruction and the diagnostic, the root-set
-criterion, the 3-SAT reduction, and event order under root-set coordination. Each module's one-line
+criterion, the 3-SAT reduction, event order under root-set coordination, and the CSP reading with its
+predicted tractable and hard cells. Each module's one-line
 summary is in the [module index](../README.md#modules-by-regime); the status of each question in
 this regime is in [REGIME-AUDIT.md](../../REGIME-AUDIT.md#12-non-invertible-transports), section 12.
 
@@ -844,3 +845,73 @@ min-closed form). The identification of global sections with CSP solutions is kn
 (Abramsky, Barbosa, de Silva and Zapata, MFCS 2017, Proposition 13); `section_iff_csp` is its form
 for transport networks. Prior work in full:
 [LANDSCAPE.md](../../docs/LANDSCAPE.md#related-work-for-the-constraint-layer).
+
+## The predicted hard cell (`TransportCSPHard.v`)
+
+**Setting.** Reading A on the diamond `dia = {dz < da, db < du}` of `TransportCSP.v`, read as two
+flags: `dz = (0, 0)`, `da = (1, 0)`, `db = (0, 1)`, `du = (1, 1)` (the Boolean lattice 2 x 2;
+`bit1`, `bit2`, `mkd`). The family `dfam` has six monotone maps (`dfam_mono`), each computing one
+bit of the two flags and writing it into both: `dp1` (the first flag), `dp2` (the second), `dfl`
+(their AND; the lossy map of `diamond_join_fails`), `dor` (their OR), and the constants `dc0`,
+`dc1`. A constant self-loop pins a vertex, so the family carries its own pins for `dz` and `du`.
+
+**Search.** `research/predicted-hard-cell/search.py` (output in `search.out`) decides, for small
+families with every value pinned, whether Gamma_F has a 4-ary Siggers polymorphism
+`s (a, r, e, a) = s (r, a, r, e)`, by an exhaustive search; with every pin the template is an
+idempotent core, so by the cited dichotomy a Siggers polymorphism means polynomial and none means
+NP-complete. Every family of all monotone maps (and of all monotone retractions) on a non-chain
+poset of three or more elements in the table is Siggers-free: the 3-element antichain, V, Lambda
+and 1 + 2, the diamond, 2 + 2, the 4-element fence and Y, the pentagon N5 and M3. On chains all are
+tractable (min, max, median), and on the 2-element antichain (all maps of two points) a majority
+polymorphism exists. Join
+homomorphisms keep join, so every join-homomorphism family on a lattice is tractable. The six maps
+of `dfam` are a minimal hard subfamily of the monotone maps of the diamond: dropping any one gives
+a Siggers polymorphism.
+
+**Main results (the reduction).**
+
+- `dnet_iff_sat`: for every 3-CNF `f`, the network `dnet f` has a section iff `f` is satisfiable.
+  Per variable `x`, a hidden vertex `T_x` with `dfl T_x = dz` and `dor T_x = du`, so `T_x` is `da`
+  or `db`, and its flags give `P_x = dp1 T_x` (the value of `x`, broadcast) and
+  `N_x = dp2 T_x` (its negation). Per clause `l0 or l1 or l2`, a hidden `W` with `dp1 W = l0` and
+  `dp2 W = l1`, a vertex `Q = dor W`, and a hidden `R` with `dp1 R = Q`, `dp2 R = l2` and
+  `dor R = du` (`var_core`, `clause_core` are the two local facts). `dstate f a` is the section of
+  an assignment, `dassign s` the assignment of a section.
+- `dnet_size`: `|dnet f| = 18 |f| + 2`. `dnet_labeled`, `dnet_mono`: every edge is labeled by
+  `dfam`, so by a monotone map. `dnet_np_certificate`: membership in NP, by `np_certificate` of
+  `LossyHardness.v` over the four values.
+- `diamond_hard_csp`: the CSP form, `csp_of (dnet f) []` is an instance of CSP(`gamma dfam []`)
+  satisfiable iff `f` is. `mono_family_hard`: every family containing `dfam` (all monotone maps of
+  the diamond, say) carries the same networks.
+
+**Main results (the algebra).**
+
+- `pol_dfam_iff`: for every arity `k`, an operation is a polymorphism of `gamma dfam []` iff it is
+  a projection. The proof: commuting with `dp1` and `dp2` makes `p` act flagwise by one Boolean
+  operation `sig`; commuting with `dfl` and `dor` makes `sig` a lattice homomorphism, and with
+  `dc0` and `dc1` it keeps 0 and 1; such a map is a coordinate (`bool_hom_proj`).
+  `pol_dfam_pins_iff`: the same with every value pinned; `pol_superfamily_proj`: the same for any
+  family containing `dfam`, with any pins.
+- `dfam_no_siggers`, `dfam_no_majority`, `dfam_no_maltsev`, `dfam_no_commutative`: no 4-ary
+  Siggers, majority, Mal'tsev or binary commutative polymorphism. `dfam_lattice_fails`: join fails
+  at `dfl`, meet at `dor`, the lattice median (a majority operation) at `dor`, with witnesses.
+- `dfam_minimal`: each map is needed. Without `dfl`, join is a polymorphism (with every pin);
+  without `dor`, meet is; without `dc0` the constant `du` state is a section of every network, and
+  without `dc1` the constant `dz` state is.
+- `semilattice_pol`: for any idempotent binary operation `j`, a family of `j`-homomorphisms has `j`
+  as a polymorphism with any pins; `joinhom_pol`, `meethom_pol` on the diamond. So transports that
+  preserve join (the CRDT shape) are on the tractable side, while monotone transports off the chain
+  are not.
+
+**Instances.** `dnet_fsat`, `dnet_fsat_check` (one satisfiable clause: a section, checked by
+computation), `dnet_funsat` (the unsatisfiable 8-clause formula of `LossyHardness.v`: no section),
+`dnet_needs_pins` (without the two constant self-loops, the all-`dz` state is a section of every
+network).
+
+**Cited, not mechanized.** The dichotomy (Bulatov, FOCS 2017; Zhuk, FOCS 2017 and J. ACM 67(5),
+2020); hardness of templates with no Taylor polymorphism (Bulatov, Jeavons and Krokhin, SIAM J.
+Comput. 34(3), 2005); the Siggers term (Siggers, Algebra Universalis 64, 2010, 6-ary; the 4-ary form
+used by the search is Kearnes, Markovic and McKenzie, Algebra Universalis 72, 2014); semilattice
+tractability (Jeavons, Cohen and Gyssens, J. ACM 44(4), 1997). For `dfam` both sides are
+mechanized: the hardness by the reduction, and the absence of Taylor-type polymorphisms by
+`pol_dfam_iff`; the dichotomy only links the two.

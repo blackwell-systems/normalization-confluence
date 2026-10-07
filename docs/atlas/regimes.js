@@ -701,6 +701,20 @@ window.ATLAS = {
   {
     "kind": "hard",
     "mark": "NP",
+    "name": "Monotone transports off the chain",
+    "thm": "dnet_iff_sat",
+    "setting": "A fixed family of monotone transport maps on the diamond (two flags, the Boolean lattice 2 x 2), any graph, pinned vertices allowed: does a consistent state exist.",
+    "condition": "NP-complete, as the algebra predicts: six monotone maps (read one flag, the AND or the OR of the two flags, or a constant) carry a mechanized linear 3-SAT reduction with an NP certificate, and every polymorphism of their template, at every arity, is a projection, so there is no Siggers, majority or Mal'tsev polymorphism. Any family containing them, such as all monotone maps of the diamond, is hard too.",
+    "needed": [
+      ["dfam_minimal", "each map is needed: without the AND map join is a polymorphism, without the OR map meet is, without a constant a constant state is a section"],
+      ["joinhom_pol", "join-homomorphic transports keep join as a semilattice polymorphism"]],
+    "theorems": ["dnet_iff_sat", "pol_dfam_iff", "dfam_no_siggers", "dnet_np_certificate", "mono_family_hard"],
+    "modules": ["TransportCSPHard.v"],
+    "section": "12-non-invertible-transports"
+  },
+  {
+    "kind": "hard",
+    "mark": "NP",
     "name": "Minimum coordination",
     "thm": "lmin_reduction",
     "setting": "The fewest edges to delete so that a non-invertible network has a consistent state.",
