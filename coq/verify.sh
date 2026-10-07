@@ -4204,6 +4204,147 @@ Print Assumptions NC.PresentedExecution.lv_out_perm.
 Print Assumptions NC.PresentedExecution.lv_out_canon.
 Print Assumptions NC.PresentedExecution.lv_dlive_inv.
 Print Assumptions NC.PresentedExecution.det_live_recovered.
+Require NC.TransportCSP.
+Print Assumptions NC.TransportCSP.tc_map_nth_seq.
+Print Assumptions NC.TransportCSP.tc_map_const_seq.
+Print Assumptions NC.TransportCSP.csat_econ.
+Print Assumptions NC.TransportCSP.csat_pcon.
+Print Assumptions NC.TransportCSP.section_solution.
+Print Assumptions NC.TransportCSP.section_iff_csp.
+Print Assumptions NC.TransportCSP.section_iff_csp_nopin.
+Print Assumptions NC.TransportCSP.csat_hcon.
+Print Assumptions NC.TransportCSP.hsection_iff_csp.
+Print Assumptions NC.TransportCSP.hsection_over.
+Print Assumptions NC.TransportCSP.msection_as_hsection.
+Print Assumptions NC.TransportCSP.pol_iff_commute.
+Print Assumptions NC.TransportCSP.pol_pin_iff.
+Print Assumptions NC.TransportCSP.pol_gamma_iff.
+Print Assumptions NC.TransportCSP.pol_solutions.
+Print Assumptions NC.TransportCSP.section_closure.
+Print Assumptions NC.TransportCSP.inv_op.
+Print Assumptions NC.TransportCSP.group_maltsev.
+Print Assumptions NC.TransportCSP.group_pol.
+Print Assumptions NC.TransportCSP.group_section_as_msection.
+Print Assumptions NC.TransportCSP.prj_signs.
+Print Assumptions NC.TransportCSP.prj_signs_eq.
+Print Assumptions NC.TransportCSP.hard_family_length.
+Print Assumptions NC.TransportCSP.sprj_in.
+Print Assumptions NC.TransportCSP.prj_in.
+Print Assumptions NC.TransportCSP.net_in_hard_family.
+Print Assumptions NC.TransportCSP.hard_family_csp.
+Print Assumptions NC.TransportCSP.mono_min_commute.
+Print Assumptions NC.TransportCSP.mono_max_commute.
+Print Assumptions NC.TransportCSP.mono_median_commute.
+Print Assumptions NC.TransportCSP.med_majority.
+Print Assumptions NC.TransportCSP.chain_pol.
+Print Assumptions NC.TransportCSP.chain_min_section.
+Print Assumptions NC.TransportCSP.hard_family_min_fails.
+Print Assumptions NC.TransportCSP.diamond_join_fails.
+Print Assumptions NC.TransportCSP.diamond_meet_ok.
+Print Assumptions NC.TransportCSP.diamond_g_fails.
+Print Assumptions NC.TransportCSP.median_family.
+Print Assumptions NC.TransportCSP.median_family_not_lattice.
+Print Assumptions NC.TransportCSP.tc_filter_le.
+Print Assumptions NC.TransportCSP.tc_filter_eq.
+Print Assumptions NC.TransportCSP.msum_ext.
+Print Assumptions NC.TransportCSP.msum_lt.
+Print Assumptions NC.TransportCSP.msum_bound.
+Print Assumptions NC.TransportCSP.lmin_in.
+Print Assumptions NC.TransportCSP.lmin_le.
+Print Assumptions NC.TransportCSP.memb_spec.
+Print Assumptions NC.TransportCSP.tab_spec.
+Print Assumptions NC.TransportCSP.nxt_spec.
+Print Assumptions NC.TransportCSP.measure_nxt.
+Print Assumptions NC.TransportCSP.ac_run_some.
+Print Assumptions NC.TransportCSP.ac_pass_bound.
+Print Assumptions NC.TransportCSP.sol_ok.
+Print Assumptions NC.TransportCSP.run_spec.
+Print Assumptions NC.TransportCSP.stable_spec.
+Print Assumptions NC.TransportCSP.ac_min_section.
+Print Assumptions NC.TransportCSP.ac_exact.
+Print Assumptions NC.TransportCSP.ac_family.
+Print Assumptions NC.TransportCSP.mono_fam_mono.
+Print Assumptions NC.TransportCSP.ac_ex1.
+Print Assumptions NC.TransportCSP.ac_ex2.
+Print Assumptions NC.TransportCSP.ac_ex3.
+Print Assumptions NC.TransportCSP.ac_needs_mono.
+Print Assumptions NC.TransportCSP.bridge_instances.
+Require NC.ReconfigurationGsm.
+Print Assumptions NC.ReconfigurationGsm.pcig_pci.
+Print Assumptions NC.ReconfigurationGsm.pci_pcig.
+Print Assumptions NC.ReconfigurationGsm.closureIg_exact.
+Print Assumptions NC.ReconfigurationGsm.closureIg_witness_iff.
+Print Assumptions NC.ReconfigurationGsm.symI_sym.
+Print Assumptions NC.ReconfigurationGsm.pci_symI.
+Print Assumptions NC.ReconfigurationGsm.pci_I_symI.
+Print Assumptions NC.ReconfigurationGsm.closureI_symmetrize.
+Print Assumptions NC.ReconfigurationGsm.closureIg_sym_exact.
+Print Assumptions NC.ReconfigurationGsm.closureIg_witness_exact.
+Print Assumptions NC.ReconfigurationGsm.barrier_declared_pruned_exact.
+Print Assumptions NC.ReconfigurationGsm.I_ne_sym.
+Print Assumptions NC.ReconfigurationGsm.lww_pci_some.
+Print Assumptions NC.ReconfigurationGsm.declared_pruned_instances.
+Print Assumptions NC.ReconfigurationGsm.sel_ft_cover.
+Print Assumptions NC.ReconfigurationGsm.pruning_needs_symmetry.
+Print Assumptions NC.ReconfigurationGsm.IXa_sym.
+Print Assumptions NC.ReconfigurationGsm.declared_barrier_instances.
+Print Assumptions NC.ReconfigurationGsm.runT_label.
+Print Assumptions NC.ReconfigurationGsm.ml_nodup_app_r.
+Print Assumptions NC.ReconfigurationGsm.ml_map_eq_app.
+Print Assumptions NC.ReconfigurationGsm.ml_map_eq_one.
+Print Assumptions NC.ReconfigurationGsm.fresh_two.
+Print Assumptions NC.ReconfigurationGsm.fresh_one.
+Print Assumptions NC.ReconfigurationGsm.commnd_fresh.
+Print Assumptions NC.ReconfigurationGsm.idemnd_fresh.
+Print Assumptions NC.ReconfigurationGsm.tg_fst.
+Print Assumptions NC.ReconfigurationGsm.tg_ids.
+Print Assumptions NC.ReconfigurationGsm.tg_nodup.
+Print Assumptions NC.ReconfigurationGsm.subfresh_tg.
+Print Assumptions NC.ReconfigurationGsm.evX_toMsg.
+Print Assumptions NC.ReconfigurationGsm.toMsg_inj.
+Print Assumptions NC.ReconfigurationGsm.subfresh_tagX.
+Print Assumptions NC.ReconfigurationGsm.runS.
+Print Assumptions NC.ReconfigurationGsm.sameset_map.
+Print Assumptions NC.ReconfigurationGsm.map_fst_t0.
+Print Assumptions NC.ReconfigurationGsm.map_evX_t0X.
+Print Assumptions NC.ReconfigurationGsm.map_evX_inl.
+Print Assumptions NC.ReconfigurationGsm.map_t0X_inl.
+Print Assumptions NC.ReconfigurationGsm.stepXS.
+Print Assumptions NC.ReconfigurationGsm.outDS.
+Print Assumptions NC.ReconfigurationGsm.ds1_sub.
+Print Assumptions NC.ReconfigurationGsm.comm_start_iff.
+Print Assumptions NC.ReconfigurationGsm.idem_start_iff.
+Print Assumptions NC.ReconfigurationGsm.submissions_live_exact.
+Print Assumptions NC.ReconfigurationGsm.absorb_sub.
+Print Assumptions NC.ReconfigurationGsm.amod_sub.
+Print Assumptions NC.ReconfigurationGsm.submissions_barrier_exact.
+Print Assumptions NC.ReconfigurationGsm.compare_live.
+Print Assumptions NC.ReconfigurationGsm.qa_proj.
+Print Assumptions NC.ReconfigurationGsm.qa_lift.
+Print Assumptions NC.ReconfigurationGsm.compare_barrier.
+Print Assumptions NC.ReconfigurationGsm.sameset_proj.
+Print Assumptions NC.ReconfigurationGsm.sameset_lift.
+Print Assumptions NC.ReconfigurationGsm.relg_proj.
+Print Assumptions NC.ReconfigurationGsm.relg_lift.
+Print Assumptions NC.ReconfigurationGsm.submissions_one_message_live.
+Print Assumptions NC.ReconfigurationGsm.submissions_one_message_barrier.
+Print Assumptions NC.ReconfigurationGsm.gsm_relg_live.
+Print Assumptions NC.ReconfigurationGsm.gsm_relg_barrier.
+Print Assumptions NC.ReconfigurationGsm.gsm_alo_live_exact.
+Print Assumptions NC.ReconfigurationGsm.gsm_alo_barrier_exact.
+Print Assumptions NC.ReconfigurationGsm.gsm_alo_live_implies_barrier.
+Print Assumptions NC.ReconfigurationGsm.okT_ext.
+Print Assumptions NC.ReconfigurationGsm.classify_submissions_complete.
+Print Assumptions NC.ReconfigurationGsm.amodfree_search_exact.
+Print Assumptions NC.ReconfigurationGsm.sub_rescaled_online.
+Print Assumptions NC.ReconfigurationGsm.sub_count_dup.
+Print Assumptions NC.ReconfigurationGsm.sub_reset_straddle.
+Print Assumptions NC.ReconfigurationGsm.merge_run_cons.
+Print Assumptions NC.ReconfigurationGsm.lww_amod_merge.
+Print Assumptions NC.ReconfigurationGsm.sub_merged_online.
+Print Assumptions NC.ReconfigurationGsm.sub_merged_barrier.
+Print Assumptions NC.ReconfigurationGsm.sub_partial_unsafe.
+Print Assumptions NC.ReconfigurationGsm.submission_instances_classified.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4214,8 +4355,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4131 ]; then
-  echo "FAIL: expected 4131 axiom-free results, got $N"
+if [ "$N" -lt 4270 ]; then
+  echo "FAIL: expected 4270 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

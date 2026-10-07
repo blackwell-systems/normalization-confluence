@@ -508,3 +508,21 @@ all: PresentedExecution.vo
 
 PresentedExecution.vo: PresentedExecution.v Newman.vo Trace.vo CanonicalExecution.vo CausalReplay.vo GovernanceConverse.vo ReconfigurationClosure.vo CanonicalInstances.vo AtLeastOnce.vo AtLeastOnceExact.vo AtLeastOnceDeclared.vo Reconfiguration.vo
 	coqc -Q . NC PresentedExecution.v
+
+
+# Static consistency as a CSP: sections of a transport network are the solutions of a CSP instance
+# over Gamma_F, Pol(Gamma_F) is the centralizer of F, the reduction's 26-map family, and arc
+# consistency deciding monotone transports on finite chains (TransportCSP.v).
+all: TransportCSP.vo
+
+TransportCSP.vo: TransportCSP.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo
+	coqc -Q . NC TransportCSP.v
+
+# gsm's migration check under a delivery class, its two own-argument steps: the declared closure
+# search pruned to one orientation per declared pair (exact for a symmetric relation, and for any
+# relation once symmetrized), and at-least-once delivery with repeated submissions (gsm's checks at
+# every reachable state are the exact conditions; ReconfigurationGsm.v).
+all: ReconfigurationGsm.vo
+
+ReconfigurationGsm.vo: ReconfigurationGsm.v Newman.vo Trace.vo AtLeastOnce.vo AtLeastOnceExact.vo Reconfiguration.vo ReconfigurationClosure.vo ReconfigurationDelivery.vo
+	coqc -Q . NC ReconfigurationGsm.v

@@ -502,9 +502,9 @@ window.ATLAS = {
       ["cross_declared_barrier", "the cross pairs the class reorders are needed"],
       ["count_dup_prefix", "S1 at a duplicate prefix is needed"],
       ["reset_straddle", "absorbing a redelivery that straddles the barrier is needed"]],
-    "gsm": "CheckMigration refuses registries with Independent pairs; classify_declared_complete states the check for them.",
-    "theorems": ["live_delivery_exact", "barrier_delivery_exact", "barrier_alo_exact", "classify_causal_complete", "classify_alo_complete"],
-    "modules": ["ReconfigurationDelivery.v"],
+    "gsm": "CheckMigration checks declared independence and at-least-once delivery; its declared closure search, pruned to one orientation per declared pair, is exact (barrier_declared_pruned_exact), and its at-least-once checks at every reachable state are exact for repeated submissions (gsm_alo_live_exact, gsm_alo_barrier_exact).",
+    "theorems": ["live_delivery_exact", "barrier_delivery_exact", "barrier_alo_exact", "classify_causal_complete", "classify_alo_complete", "barrier_declared_pruned_exact", "gsm_alo_live_exact", "gsm_alo_barrier_exact", "classify_submissions_complete"],
+    "modules": ["ReconfigurationDelivery.v", "ReconfigurationGsm.v"],
     "section": "the-open-gaps",
     "gap": 20
   },
@@ -682,6 +682,20 @@ window.ATLAS = {
       ["no_pin_trivial", "the gadget is needed"]],
     "theorems": ["net_section_iff_sat", "net_bijection", "np_certificate"],
     "modules": ["LossyHardness.v"],
+    "section": "12-non-invertible-transports"
+  },
+  {
+    "kind": "exact",
+    "mark": "iff",
+    "name": "Monotone transports on a chain",
+    "thm": "ac_exact",
+    "setting": "A fixed family of monotone transport maps on a finite chain {0..N}, any graph, pinned vertices allowed: does a consistent state exist.",
+    "condition": "Arc consistency decides it: the procedure returns true iff a consistent state with values in the chain exists, and the minimum of each arc-consistent domain is one. Per fixed family, existence is CSP(Gamma_F), classified by the operations commuting with every map (cited dichotomy); min and max are among them on a chain.",
+    "needed": [
+      ["ac_needs_mono", "monotonicity is needed: a negation triangle passes arc consistency with no section"],
+      ["diamond_join_fails", "the chain is needed: on the diamond a monotone lossy map does not commute with join"]],
+    "theorems": ["ac_exact", "chain_pol", "section_iff_csp", "pol_gamma_iff", "hard_family_csp"],
+    "modules": ["TransportCSP.v"],
     "section": "12-non-invertible-transports"
   },
   {

@@ -28,6 +28,61 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     `alo_exact_recovered`, `det_live_recovered` (P1; the live switch with switch squares
     `[a; sw] ~ [sw; tau a]` and `Q` = past the switch).
   - **Gate:** raised from 4037 to 4131.
+
+- `coq/TransportCSP.v`: static consistency as a finite-domain CSP, and the regime cells this
+  predicts. Refines the lossy consistency cell of REGIME-AUDIT.md section 12 per transport family.
+  Axiom-free.
+  - **Bridge:** a network labeled by a family `F`, with pinned vertices, has a section iff its CSP
+    instance over Gamma_F (graphs of the maps, unary pins) is satisfiable (`section_iff_csp`);
+    reading B's merges as `(k+1)`-ary graphs (`hsection_iff_csp`, `msection_as_hsection`).
+  - **Polymorphisms:** a `k`-ary operation preserves the graph of `f` iff it commutes with `f`
+    (`pol_iff_commute`), and a pin `{c}` iff it fixes `c` (`pol_pin_iff`); Pol(Gamma_F) is the
+    centralizer of `F` fixing the pins (`pol_gamma_iff`); polymorphisms map solutions to solutions
+    (`pol_solutions`, `section_closure`). Group translations have the Mal'tsev polymorphism
+    `x y^-1 z` (`group_maltsev`, `group_pol`, `group_section_as_msection`).
+  - **The reduction's family:** `prj c p` depends on `c` only through its signs (`prj_signs`), so
+    every 3-SAT network uses one fixed family of 26 maps (`net_in_hard_family`); section existence
+    for it is NP-complete by the existing reduction (`hard_family_csp`).
+  - **Monotone chains:** monotone maps commute with min, max and median (`chain_pol`); arc
+    consistency decides section existence for monotone transports on `{0..N}` with pins, the
+    witness being the minimum of each domain (`ac_exact`, `ac_min_section`, `ac_run_some`,
+    `ac_pass_bound`, `ac_family`); monotonicity needed (`ac_needs_mono`).
+  - **Off the chain:** the diamond's lossy monotone map does not commute with join
+    (`diamond_join_fails`; it does with meet, `diamond_meet_ok`), and `diamond_g_fails` commutes
+    with neither; a non-chain family with a majority polymorphism (`median_family`,
+    `median_family_not_lattice`).
+  - **Cited, not mechanized:** Bulatov 2017, Zhuk 2017 and 2020 (dichotomy); Bulatov and Dalmau
+    2006 (Mal'tsev); Jeavons, Cohen and Gyssens 1997 and Jeavons 1998 (closure properties,
+    polymorphisms); Feder and Vardi 1998.
+  - **Docs:** THEORY.md "Static consistency as CSP" (the three layers; existence is layer B,
+    settlement layer C); LANDSCAPE.md related work on CSP; REGIME-AUDIT.md section 12, COVERAGE.md
+    A9 and A11, ROADMAP.md; atlas tile for monotone transports on chains.
+  - **Gate:** raised from 4037 to 4101.
+
+- `coq/ReconfigurationGsm.v`: the two steps of gsm's migration check under a delivery class that
+  rested on gsm's own argument (gsm `docs/theory.md` section 11.11), mechanized in the
+  deterministic model. Gap 20 status unchanged. Axiom-free.
+  - **Declared closure pruning:** gsm's search seeded with one orientation per declared pair, equal
+    pairs skipped, is exact for a symmetric declared relation (`closureIg_exact`,
+    `closureIg_witness_iff`; finite `closureIg_witness_exact`, so `closureI_witness_exact`
+    transfers; `barrier_declared_pruned_exact`), and for any relation once symmetrized
+    (`closureI_symmetrize`, `closureIg_sym_exact`, what gsm's `declaredPairs` computes).
+    `pruning_needs_symmetry`: an asymmetric relation whose pruned closure is empty while
+    `ClosureI` has a pair the migration separates.
+  - **At-least-once with repeated submissions:** messages are (event, submission) pairs. Under
+    fresh submissions (`SubFresh`, which gsm's model satisfies: `subfresh_tg`, `subfresh_tagX`),
+    duplicate-free commutation and idempotence are the checks at every reachable state
+    (`commnd_fresh`, `idemnd_fresh`); the live and barrier outcomes are exactly gsm's checks,
+    `PermB-start`, `Idem-start`, `DS1` and `PermB-every`, `Idem-every`, `AbsorbS`, `AmodA`
+    (`submissions_live_exact`, `submissions_barrier_exact`; with gsm's comparison, the same set of
+    events, `gsm_alo_live_exact`, `gsm_alo_barrier_exact`). The one-message model has the same
+    outcomes (`submissions_one_message_live`, `submissions_one_message_barrier`), so
+    `classify_submissions_complete` decides gsm's reading on finite instances;
+    `amodfree_search_exact` is gsm's `AmodA` search over (state, set of events applied).
+  - **Instances:** `declared_pruned_instances`, `declared_barrier_instances`,
+    `sub_rescaled_online`, `sub_count_dup`, `sub_reset_straddle`,
+    `submission_instances_classified` (Online, BarrierOnly, Unsafe, Unsafe).
+  - **Gate:** raised from 4037 to 4112.
 - `coq/ProjectionChains.v`: versioned projection channels beyond two-level networks. Narrows
   gap 21 residue (a) (REGIME-AUDIT.md section 8). Axiom-free.
   - **Nested networks:** whenever a registry that is not a pure root lies above a target, every
