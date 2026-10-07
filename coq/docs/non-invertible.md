@@ -775,7 +775,8 @@ columns of any `k x n` matrix whose rows lie in `R`).
 - `pol_iff_commute`: `p` preserves `rgraph f` iff `f (p xs) = p (map f xs)` for every `xs` of length
   `k`. `pol_pin_iff`: `p` preserves `{c}` iff `p (c, ..., c) = c`. `pol_gamma_iff`: Pol(Gamma_F) is
   exactly the set of operations commuting with every map of `F` (the centralizer of `F`) that fix
-  the pinned values.
+  the pinned values. This is the classical centralizer fact of clone theory (the centralizer of a
+  set of maps is the intersection of the polymorphism clones of their graphs), mechanized.
 - `pol_solutions`: a polymorphism maps `k` solutions of any instance over Gamma to a solution
   (the closure property); `section_closure` is the network form.
 - `group_maltsev`, `group_pol`, `group_section_as_msection`: for a group acting on itself by left
@@ -803,8 +804,12 @@ columns of any `k x n` matrix whose rows lie in `R`).
   witness is the minimum of each arc-consistent domain (`ac_min_section`); pruning never removes a
   section's value (`run_spec`). Termination: `ac_run_some`, within `measure init + 1` passes, and
   `ac_pass_bound`: `measure init <= |vs| (N + 1)`, `vs` the vertices of `G` and the pinned
-  vertices. Step bound (stated, not mechanized as a cost model): each pass examines every value of
-  every domain against every edge, `O(|vs| (N + 1) |G| (N + 1))` checks, so the procedure is
+  vertices. This is a mechanized instance of a classical result, not a new tractability class: the
+  graph of a monotone map on a chain is min-closed, and min-closed (max-closed) constraints are
+  decided by arc consistency, the minimum (maximum) of each domain being a solution (Jeavons and
+  Cooper, Artificial Intelligence 79(2), 1995; Jeavons, Cohen and Gyssens 1997, Theorem 5.13, for
+  any semilattice polymorphism). Step bound (stated, not mechanized as a cost model): each pass
+  examines every value of every domain against every edge, `O(|vs| (N + 1) |G| (N + 1))` checks, so the procedure is
   polynomial in the network and the chain length. `ac_family` states it per family.
 - `ac_needs_mono`: monotonicity is needed. The negation `x |-> 1 - x` around a triangle on `{0, 1}`
   passes arc consistency with full domains and has no section.
@@ -833,4 +838,9 @@ polymorphism connection and the tractable closure classes (constant, majority, s
 affine): Jeavons, Cohen and Gyssens, J. ACM 44(4), 1997; Jeavons, Theoret. Comput. Sci. 200, 1998.
 Bounded width: Feder and Vardi, SIAM J. Comput. 28(1), 1998. Per fixed family `F`, section
 existence is therefore classified by Pol(Gamma_F); the correspondence above is what makes that
-reading precise.
+reading precise. Mechanized instances of classical results: `pol_gamma_iff` (the clone-theoretic
+centralizer), `group_maltsev` (the Mal'tsev term of a group), `ac_exact` (Jeavons and Cooper 1995,
+min-closed form). The identification of global sections with CSP solutions is known in general
+(Abramsky, Barbosa, de Silva and Zapata, MFCS 2017, Proposition 13); `section_iff_csp` is its form
+for transport networks. Prior work in full:
+[LANDSCAPE.md](../../docs/LANDSCAPE.md#related-work-for-the-constraint-layer).
