@@ -468,3 +468,11 @@ all: EventCollapse.vo
 
 EventCollapse.vo: EventCollapse.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo AbstractionGsm.vo
 	coqc -Q . NC EventCollapse.v
+
+# Composition beyond acyclic collapse: the exact interface theorem for blocks of any engines, its
+# interleaving conjunct, the cyclic monotone J by Bekic's principle (gap 5), and collapse in the
+# distributed model (gap 19, CompositionBlocks.v).
+all: CompositionBlocks.vo
+
+CompositionBlocks.vo: CompositionBlocks.v Trace.vo Federation.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo Collapse.vo FederationEventsCycles.vo DistributedCycles.vo CohomologyGraph.vo RootlessCycles.vo RootlessNetworks.vo
+	coqc -Q . NC CompositionBlocks.v

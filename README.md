@@ -24,54 +24,34 @@ conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-c
 and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
 is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
 [ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (3384 theorems at the time of writing; `coq/verify.sh` is
+mechanized axiom-free in [`coq/`](coq) (3513 theorems at the time of writing; `coq/verify.sh` is
 the source of truth).
 
-"Machine-checked" in the line above applies to the exact conditions. Of the hardness results,
-deciding consistency of a lossy network without a spanning root is NP-complete: the 3-SAT
-reduction is machine-checked (correct in both directions, parsimonious, linear in size, with a
-checkable certificate; `coq/LossyHardness.v`), and NP-completeness follows from it by the standard
-argument. Minimum coordination is exact for invertible and for lossy networks (on invertible networks the best
-coordination plan is the group feedback edge set number; on lossy networks the minimum is decided
-through root sets), and its NP-hardness has a machine-checked reduction too: from Max-Cut on
-invertible networks, and from 3-SAT on lossy ones, where even telling minimum 0 from 1 is hard;
-NP-completeness of 3-SAT and Max-Cut is cited. `H^1` on the nerve as a 2-complex is classified,
-with its count over Z/2, and sheaf gluing is exact on sub-federation covers. The distributed
-propagation model is exact on acyclic networks and on monotone cycles with or without reset epochs
-(on cycles, both for convergence together with agreement with gsm's synchronous `FedMachine` and
-for convergence alone, when interleavings may all settle on a state the `FedMachine` never
-produces). Rootless propagation is exact on every finite invertible network: a unique normal form
-from every start exactly when, given `H^1 = 0`, each weakly connected component has an authority
-root (a registry no other registry writes, upstream of the whole component), or the group is trivial. The
-gaps still open are rootless propagation on
-lossy networks (where sufficient signed-cycle certificates are mechanized, with Harary's balance
-theorem proved for finite signed graphs, and sufficient certificates on Boolean local interaction
-graphs, which give settlement by some update order but not under every fair schedule; under no
-local cycle plus out-degree at most one, fair settlement is mechanized for synchronous updates and
-for starts with at most two unstable vertices), and cyclic
-monotone collapse (paper only). Both are cyclic; the audit states them as one question, what
-makes composition exact on cycles. A systematic coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md))
-derived the regime space from the model's axes, mapped every combination to the audit, and found
-seven more open gaps, 15 to 21. Gap 15, delivery and enabledness off the replay model, is now
-exact in all four parts (at-least-once delivery under declared independence and for stream
-processors, causal and at-least-once delivery in the distributed model, and buffered guards in
-federations), so eight convergence gaps are open in all: the distributed model off its current
-hypotheses
-(rootless invertible cycles with events, ACC without finite height, compensation as separate
-steps on cycles; every fair schedule on an acyclic network, Robert's theorem, is now mechanized); rootless edge-writer dynamics
-beyond the regular action; existence in the resolver reading; composition of cyclic blocks of
-different engines; reconfiguration inside a run, a dimension the other modules do not represent,
-now modeled and exact for a single registry and for FedMachine federations, at a barrier and live
-with events in flight, and open while propagation itself is in flight;
-and propagation over channels that can deliver late, reorder or duplicate, now modeled and exact
-in reachable form for acyclic networks (with versioned merging the channels deliver the flush
-themselves; plain merging cannot), open beyond two-level networks for the current-value form and on
-cycles. Sheaf gluing on the companion paper's variable-level and
-monotone-overlap site, and a sheaf condition for relative certificates on covers not closed under
-sources, are paper only. Least fixed points without ACC are a design exclusion, and so are
-Byzantine participants, nondeterministic repair, probabilistic schedules, infinite networks and
-real-time semantics.
-[REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's status with its Coq theorem.
+"Machine-checked" in the headline applies to the exact conditions. Each hardness result is a
+machine-checked reduction from a problem whose NP-completeness is cited (3-SAT, Max-Cut).
+
+Where the map stands:
+
+- **Exact:** single registries; causal and at-least-once delivery; CRDTs; stream processors;
+  acyclic federations; the distributed propagation model (acyclic, and monotone cycles with or
+  without reset epochs); rootless propagation on every finite invertible network; reconfiguration
+  of a single registry or a federation, at a barrier and live; propagation over channels on acyclic
+  networks; composition of blocks of any engines, including cyclic monotone collapse.
+- **Hardness:** consistency of a lossy network without a spanning root is NP-complete. Minimum
+  coordination is exact and NP-hard (from Max-Cut on invertible networks, from 3-SAT on lossy ones).
+- **Counting and gluing:** `H^1` on the nerve is classified (counted over Z/2); sheaf gluing is
+  exact on sub-federation covers.
+- **Open, seven convergence gaps:** rootless lossy networks (3), the distributed model off its
+  hypotheses (16), rootless edge-writer dynamics (17), existence in the
+  resolver reading (18), distributed collapse of a cyclic block (19), reconfiguration with propagation in
+  flight or other delivery classes (20) and channels beyond two-level networks (21). Most are cyclic, and the audit states
+  them as one question: what makes composition exact on cycles.
+- **Excluded by design:** least fixed points without ACC, Byzantine participants, nondeterministic
+  repair, probabilistic schedules, infinite networks, real-time semantics.
+
+Gaps 15 to 21 came from a coverage pass that derived the regime space from the model's axes
+([docs/COVERAGE.md](docs/COVERAGE.md)). [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's
+status with its Coq theorem.
 
 **Dayna Blackwell** | dayna@blackwell-systems.com
 
