@@ -443,3 +443,11 @@ all: CompositionalCheck.vo
 
 CompositionalCheck.vo: CompositionalCheck.v AstChecker.vo Checker.vo Trace.vo TableCheck.vo
 	coqc -Q . NC CompositionalCheck.v
+
+# The barrier's A part without injectivity: A converges modulo the migration iff every pair of
+# the closure of adjacent swaps under common continuations has equal images, decided on finite
+# instances, so the barrier outcome is exact (gap 20 residue (c), ReconfigurationClosure.v).
+all: ReconfigurationClosure.vo
+
+ReconfigurationClosure.vo: ReconfigurationClosure.v Newman.vo GovernanceConverse.vo Trace.vo Reconfiguration.vo
+	coqc -Q . NC ReconfigurationClosure.v

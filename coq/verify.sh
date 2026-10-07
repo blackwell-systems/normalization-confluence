@@ -3245,6 +3245,70 @@ Print Assumptions NC.CompositionalCheck.ast_rho_repair1.
 Print Assumptions NC.CompositionalCheck.ast_N_normalize.
 Print Assumptions NC.CompositionalCheck.ast_demo.
 Print Assumptions NC.Checker.run_perm_invariant.
+Require NC.ReconfigurationClosure.
+Print Assumptions NC.ReconfigurationClosure.run_swap.
+Print Assumptions NC.ReconfigurationClosure.perm_swap_exact.
+Print Assumptions NC.ReconfigurationClosure.pc_run.
+Print Assumptions NC.ReconfigurationClosure.pc_iff.
+Print Assumptions NC.ReconfigurationClosure.closure_swap_exact.
+Print Assumptions NC.ReconfigurationClosure.closure_perm_exact.
+Print Assumptions NC.ReconfigurationClosure.closure_witness_refutes.
+Print Assumptions NC.ReconfigurationClosure.perm_local_exact.
+Print Assumptions NC.ReconfigurationClosure.pcg_pc.
+Print Assumptions NC.ReconfigurationClosure.pc_pcg.
+Print Assumptions NC.ReconfigurationClosure.gsm_closure_exact.
+Print Assumptions NC.ReconfigurationClosure.gsm_closure_perm_exact.
+Print Assumptions NC.ReconfigurationClosure.dec_exists_fin.
+Print Assumptions NC.ReconfigurationClosure.prod_full.
+Print Assumptions NC.ReconfigurationClosure.run_star_iff.
+Print Assumptions NC.ReconfigurationClosure.run_dec.
+Print Assumptions NC.ReconfigurationClosure.forall_run_dec.
+Print Assumptions NC.ReconfigurationClosure.pc_star_iff.
+Print Assumptions NC.ReconfigurationClosure.pc_dec.
+Print Assumptions NC.ReconfigurationClosure.closure_dec.
+Print Assumptions NC.ReconfigurationClosure.perm_obs_dec.
+Print Assumptions NC.ReconfigurationClosure.closure_witness_exact.
+Print Assumptions NC.ReconfigurationClosure.amodm_swap_exact.
+Print Assumptions NC.ReconfigurationClosure.amodm_closure_exact.
+Print Assumptions NC.ReconfigurationClosure.permB_local_exact.
+Print Assumptions NC.ReconfigurationClosure.permA_eq_local_exact.
+Print Assumptions NC.ReconfigurationClosure.det_barrier_closure_exact.
+Print Assumptions NC.ReconfigurationClosure.det_barrier_local_exact.
+Print Assumptions NC.ReconfigurationClosure.det_live_local_exact.
+Print Assumptions NC.ReconfigurationClosure.det_barrier_faithful_closure.
+Print Assumptions NC.ReconfigurationClosure.det_closure_of_permA.
+Print Assumptions NC.ReconfigurationClosure.det_barrier_closure_faithful.
+Print Assumptions NC.ReconfigurationClosure.det_classified_unique.
+Print Assumptions NC.ReconfigurationClosure.permB_dec.
+Print Assumptions NC.ReconfigurationClosure.det_live_dec.
+Print Assumptions NC.ReconfigurationClosure.det_barrier_dec.
+Print Assumptions NC.ReconfigurationClosure.det_classify_complete.
+Print Assumptions NC.ReconfigurationClosure.amodm_witness_exact.
+Print Assumptions NC.ReconfigurationClosure.det_unsafe_exact.
+Print Assumptions NC.ReconfigurationClosure.eq_refl'.
+Print Assumptions NC.ReconfigurationClosure.eq_sym'.
+Print Assumptions NC.ReconfigurationClosure.eq_trans'.
+Print Assumptions NC.ReconfigurationClosure.eq_ext'.
+Print Assumptions NC.ReconfigurationClosure.ob_full.
+Print Assumptions NC.ReconfigurationClosure.b_full.
+Print Assumptions NC.ReconfigurationClosure.u_full.
+Print Assumptions NC.ReconfigurationClosure.lww_diverges.
+Print Assumptions NC.ReconfigurationClosure.lww_run_cons.
+Print Assumptions NC.ReconfigurationClosure.merge_not_injective.
+Print Assumptions NC.ReconfigurationClosure.partial_not_injective.
+Print Assumptions NC.ReconfigurationClosure.lww_pc_some.
+Print Assumptions NC.ReconfigurationClosure.merged_barrier_closure.
+Print Assumptions NC.ReconfigurationClosure.merged_online.
+Print Assumptions NC.ReconfigurationClosure.merged_barrier.
+Print Assumptions NC.ReconfigurationClosure.partial_merge_witness.
+Print Assumptions NC.ReconfigurationClosure.partial_merge.
+Print Assumptions NC.ReconfigurationClosure.closure_nonvacuous.
+Print Assumptions NC.ReconfigurationClosure.sel_tf_cover.
+Print Assumptions NC.ReconfigurationClosure.gsm_search_instances.
+Print Assumptions NC.ReconfigurationClosure.merged_classified_outcomes.
+Print Assumptions NC.ReconfigurationClosure.prod_eq_dec.
+Print Assumptions NC.ReconfigurationClosure.ob_eq_dec.
+Print Assumptions NC.ReconfigurationClosure.merged_classified.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -3255,8 +3319,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 3180 ]; then
-  echo "FAIL: expected 3180 axiom-free results, got $N"
+if [ "$N" -lt 3243 ]; then
+  echo "FAIL: expected 3243 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

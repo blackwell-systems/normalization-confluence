@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 3180 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 3179 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 3243 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 3243 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -34,7 +34,7 @@ the CRDT-subsumption results, the categorical core and bridge, sheaf gluing over
 coordination (`CoordinationMinimum.v`, `LossyMinimum.v`), and the federation modules (acyclic event
 order and its converse, monotone cycles and their exact validity and reachability, coordinated and
 rootless cycles and networks, the distributed propagation model (acyclic and on monotone cycles, and over channels), the federated
-rewrite system and compositional collapse), and reconfiguration inside a run (`Reconfiguration.v`).
+rewrite system and compositional collapse), and reconfiguration inside a run (`Reconfiguration.v`, `ReconfigurationClosure.v`).
 The [module index](#modules-by-regime) below lists
 each module with its headline theorems; the pages in [`docs/`](docs) give each module's results in
 full.
@@ -209,6 +209,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 | Module | Headline theorems | Details |
 |---|---|---|
 | `Reconfiguration.v` | A switch from configuration A to configuration B with events in flight (gap 20, narrowed). Single registry: barrier `barrier_exact`, `barrier_exact_faithful`; live `live_exact` (B's CC from every migrated reachable state, plus the cross pairs S1 and S2), `live_exact_faithful`, `live_implies_barrier`, `live_no_change` (recovers `cc_exact_from`); counterexamples `cap_raise`, `doubling_migration`, `migrated_transient`, `forgetful_migration`; non-vacuity `rescaled_cap`. Classification: `classified_unique`, `classify`, `classify_finite`, `live_dec`, `barrier_dec_faithful`, `reach_dec`. Federations (FedMachine): `det_live_exact`, `det_barrier_exact`, `fed_live_exact`, `fed_barrier_exact`; `late_edge`, `late_edge_fresh` | [Reconfiguration](docs/reconfiguration.md) |
+| `ReconfigurationClosure.v` | The barrier's A part without injectivity (gap 20 residue (c), closed in the deterministic model). A converges modulo M iff M agrees on the pair closure: `amodm_swap_exact`, `amodm_closure_exact` (generic `perm_swap_exact`, `closure_perm_exact`, `perm_local_exact`); barrier `det_barrier_closure_exact`, `det_barrier_local_exact`, live `det_live_local_exact`; faithful case recovered `det_barrier_closure_faithful`. Finite instances: `closure_dec`, `amodm_witness_exact`, `det_unsafe_exact`, and `det_classify_complete` (no faithfulness hypothesis, no unknown case); gsm's pruned search `gsm_closure_exact`. Instances `merged_online`, `merged_barrier`, `partial_merge`, `merged_classified_outcomes` | [Barrier without injectivity](docs/reconfiguration.md#the-barrier-without-injectivity-reconfigurationclosurev) |
 
 ### Reductions for checking ([docs/symmetry.md](docs/symmetry.md), [docs/abstraction.md](docs/abstraction.md), [docs/compositional.md](docs/compositional.md))
 
@@ -258,7 +259,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3179
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 3243
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

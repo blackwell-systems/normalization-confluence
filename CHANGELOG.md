@@ -7,6 +7,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/ReconfigurationClosure.v`: the barrier's A part without injectivity, closing gap 20 residue
+  (c) in the deterministic model (section `Det` of `Reconfiguration.v`, gsm's runtime). Axiom-free.
+  Gap 20 stays narrowed: residues (a) and (b) remain.
+  - **Exact characterization:** A converges modulo M (two permutations of the same A-events reach
+    states with equivalent images, the A part of `det_barrier_exact`) iff M agrees after every
+    adjacent swap at a reachable state followed by any common continuation (`amodm_swap_exact`),
+    iff M agrees on every pair of the pair closure: the seeds `(b (a t), a (b t))` at reachable `t`,
+    closed under applying one event to both components (`amodm_closure_exact`, `pc_iff`). Generic
+    forms for any deterministic step and observation: `perm_swap_exact`, `closure_perm_exact`,
+    `perm_local_exact`.
+  - **The barrier and live outcomes in local form:** `det_barrier_closure_exact`,
+    `det_barrier_local_exact`, `det_live_local_exact`, `permB_local_exact`, `permA_eq_local_exact`;
+    `det_barrier_faithful` recovered (`det_barrier_faithful_closure`,
+    `det_barrier_closure_faithful`), and the sufficient direction (`det_closure_of_permA`).
+  - **Complete classification:** on finite instances the closure is computed (`pc_star_iff`,
+    `closure_dec`) and finds a separated pair iff A diverges modulo M (`amodm_witness_exact`,
+    `closure_witness_exact`); `det_classify_complete` decides Online, BarrierOnly or Unsafe with
+    no faithfulness hypothesis and no unknown case (`det_live_dec`, `det_barrier_dec`,
+    `det_classified_unique`, `det_unsafe_exact`).
+  - **gsm's search:** the pruned closure `PCg` (one orientation per event pair, equal pairs
+    skipped), as `CheckMigration` computes it, checks the same condition (`gsm_closure_exact`), so an
+    exhausted search with no witness certifies the barrier.
+  - **Instances:** last-writer-wins A with non-injective migrations: `merged_online` (Online),
+    `merged_barrier` (BarrierOnly, certified by the closure, with A diverging and M not injective),
+    `partial_merge` (Unsafe, `partial_merge_witness`); `closure_nonvacuous`,
+    `gsm_search_instances`, `merged_classified_outcomes` (non-vacuity of every hypothesis).
+  - **Docs:** `coq/docs/reconfiguration.md` (new section with the gsm design input, scope),
+    `REGIME-AUDIT.md` gap 20, `docs/ROADMAP.md` item 9, `docs/COVERAGE.md`, `coq/README.md` row,
+    and the count lines.
+  - **Gate:** raised from 3180 to 3243.
+
 - `coq/CompositionalCheck.v`: compositional checking by default, roadmap item 8 step 3 (gsm
   roadmap item 1c: check each footprint component, conclude for the registry). Axiom-free. Roadmap
   work, not a regime gap: no gap status changes.
