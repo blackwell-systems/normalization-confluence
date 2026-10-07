@@ -459,3 +459,12 @@ all: DifferenceAbstraction.vo
 
 DifferenceAbstraction.vo: DifferenceAbstraction.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo
 	coqc -Q . NC DifferenceAbstraction.v
+
+# Events with equal governed steps are checked once: a check over any list of parameter
+# assignments that covers the representative ones returns the full check's boolean; with gsm's
+# range test conjoined to the guard, every out-of-range assignment is repair alone, so gsm's list
+# (in-range assignments plus one out-of-range) decides CC1 and idempotence over Z (EventCollapse.v).
+all: EventCollapse.vo
+
+EventCollapse.vo: EventCollapse.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo AbstractionGsm.vo
+	coqc -Q . NC EventCollapse.v
