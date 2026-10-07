@@ -500,6 +500,15 @@ all: ProjectionChains.vo
 
 ProjectionChains.vo: ProjectionChains.v Trace.vo FederationEvents.vo FederationEventsConverse.vo FederationGRS.vo DistributedExact.vo ProjectionChannels.vo
 	coqc -Q . NC ProjectionChains.v
+# Layer A of the regime map, the execution algebra: a presented admissible path system (whiskered
+# generator squares); P2 (invariance iff the continuation closure agrees) and P1 (generators suffice
+# locally when the semantics respects the future); six existing exact theorems recovered
+# (PresentedExecution.v).
+all: PresentedExecution.vo
+
+PresentedExecution.vo: PresentedExecution.v Newman.vo Trace.vo CanonicalExecution.vo CausalReplay.vo GovernanceConverse.vo ReconfigurationClosure.vo CanonicalInstances.vo AtLeastOnce.vo AtLeastOnceExact.vo AtLeastOnceDeclared.vo Reconfiguration.vo
+	coqc -Q . NC PresentedExecution.v
+
 
 # Static consistency as a CSP: sections of a transport network are the solutions of a CSP instance
 # over Gamma_F, Pol(Gamma_F) is the centralizer of F, the reduction's 26-map family, and arc

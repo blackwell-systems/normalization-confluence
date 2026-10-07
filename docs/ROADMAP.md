@@ -692,6 +692,11 @@ Outline:
 1. **The question.** Do all event orders reach one normal form, and what condition is necessary
    and sufficient. The canonical execution layers E, S, H and P, and why the same layers recur in
    every regime ([THEORY.md](THEORY.md)).
+   Layer A, which executions count as the same, is stated once as a presented admissible path
+   system (`PresentedExecution.v`): invariance iff the semantics agrees on the continuation closure
+   of the generator pairs (P2, `closure_exact`), and iff it agrees on the generator pairs alone when
+   the semantics respects the future past the seeds (P1, `local_exact`); state descent stays on the
+   state side (`state_side_transfer`).
 2. **The axes.** The thirteen axes, the ten axis dependences that prune the product, and how the
    empty cells were found before any proof ([COVERAGE.md](COVERAGE.md)): gaps 15 to 21 were
    predicted by the axes, not discovered case by case.
@@ -703,6 +708,10 @@ Outline:
    (`live_exact`, `amodm_closure_exact`), each with its boundary counterexample.
 5. **Transfer.** Results in one regime that are instances of another (`cvrdt_on_exact`, the
    rootless corollaries of `net_unique_normal_form_iff`, engine instances of block composition).
+   Six delivery and reconfiguration results are instances of layer A's P1 or P2, one presentation
+   each (`causal_exact_recovered`, `tconv_exact_recovered`, `causal_alo_idem_recovered`,
+   `alo_exact_recovered`, `det_live_recovered`, `amodm_closure_recovered`; table in
+   [THEORY.md](THEORY.md#layer-a-the-execution-algebra-as-a-presented-admissible-path-system)).
 6. **The open part.** The gaps stated in the open, with the cyclic frontier as the one remaining
    question, and the design exclusions X1 to X5 with their justifications.
 7. **Quotients for checking.** How the semantic quotients become verification quotients: the

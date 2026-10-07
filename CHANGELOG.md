@@ -7,6 +7,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/PresentedExecution.v`: layer A of the regime map, the execution algebra, as a presented
+  admissible path system (docs/THEORY.md, canonical execution, layer A). Axiom-free. No
+  REGIME-AUDIT status changes.
+  - **Structure:** admissible words, generator pairs `Gen p u v` at a point, and the generated
+    equivalence `PEq`: the equivalence closure, every vertex admissible, of the whiskered pairs
+    `p ++ u ++ w ~ p ++ v ++ w`. Free delivery is the monoid-congruence case
+    (`free_congruence`; with adjacent swaps, `swap_peq_perm`).
+  - **P2:** `closure_exact`, under prefix closure invariance iff the semantics agrees on the
+    continuation closure `PPC` (the least relation containing the seeds and closed under
+    admissible continuation, `ppc_least`, `ppc_iff_whisk`). Seeds alone do not suffice:
+    `hw_seeds_insufficient`, `hw_closure_witness`.
+  - **P1:** `local_exact`, `local_exact_all`: when the semantics respects the future on a predicate
+    covering the seeds (`RespOn`), invariance iff every generator pair is observationally equal
+    at its point; `hw_not_resp` shows the hypothesis is what fails in the counterexample.
+  - **State side:** `state_side_transfer`, state descent (CC2's all-events form) enters through the
+    semantics, not as a path generator.
+  - **Recovered:** `history_descent_recovered`, `amodm_closure_recovered`, `amodm_swap_recovered`
+    (P2), `causal_exact_recovered`, `tconv_exact_recovered`, `causal_alo_idem_recovered`,
+    `alo_exact_recovered`, `det_live_recovered` (P1; the live switch with switch squares
+    `[a; sw] ~ [sw; tau a]` and `Q` = past the switch).
+  - **Gate:** raised from 4037 to 4131.
+
 - `coq/TransportCSP.v`: static consistency as a finite-domain CSP, and the regime cells this
   predicts. Refines the lossy consistency cell of REGIME-AUDIT.md section 12 per transport family.
   Axiom-free.

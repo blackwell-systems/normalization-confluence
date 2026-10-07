@@ -8,8 +8,8 @@
 > not. The sections below keep the validation record as it was run.
 
 Modules: `CanonicalExecution.v` (the generic kernel), `CanonicalInstances.v` (the six
-validation criteria) and `CanonicalLocality.v` (the P layer, interaction locality, and the rerun
-of criterion D). All three are axiom-free and in `verify.sh`'s gate. The module index rows are in
+validation criteria), `CanonicalLocality.v` (the P layer, interaction locality, and the rerun
+of criterion D) and `PresentedExecution.v` (layer A, [below](#layer-a-presented-admissible-path-systems-presentedexecutionv)). All four are axiom-free and in `verify.sh`'s gate. The module index rows are in
 the [infrastructure table](../README.md#infrastructure-docsinfrastructuremd).
 
 ## The hypothesis under test
@@ -309,6 +309,52 @@ locality lemma, reused; the same holds for `Realizable`, whose proof is `pair_co
 (through `fed_reflects` and `reflects_realizable`). Interface resolution is literally kernel state descent
 (`StateDescentAt`) and local resolution literally the kernel's governed run (`grun`), so the two
 definitional identifications of the first run are now the definitions.
+
+## Layer A: presented admissible path systems (`PresentedExecution.v`)
+
+The kernel's H layer takes the generator edges as given. `PresentedExecution.v` gives them their
+structure: executions are admissible words, an elementary alternative is a generator pair
+`Gen p u v` of fragments at a point `p`, and the generated equivalence `PEq` is `AC` on the
+whiskered pairs `p ++ u ++ w ~ p ++ v ++ w`, every vertex admissible. The semantics is a map `sem`
+on words compared by an equivalence `eqv`; `PInv` is invariance under `PEq`.
+
+Plain statements (all axiom-free, in the gate):
+
+- `ppc_least`: the continuation closure `PPC` (seeds `(p ++ u, p ++ v)` with both sides admissible,
+  then the same admissible event appended to both sides) is contained in every relation with the
+  same two closure properties. `ppc_iff_whisk`: under `AdmPrefix`, `PPC t t'` iff `t`, `t'` are
+  admissible and a whiskered generator pair.
+- `closure_exact` (P2): `AdmPrefix -> (PInv <-> forall t t', PPC t t' -> eqv (sem t) (sem t'))`.
+- `seeds_necessary`: `PInv -> PSeedOK`, with no hypothesis.
+- `local_exact` (P1): `AdmPrefix -> QSeeds -> QExt -> RespOn -> (PInv <-> PSeedOK)`, where `QSeeds`:
+  `Q` holds on both sides of every admissible seed; `QExt`: `Q` is kept by admissible one-event
+  extension; `RespOn`: eqv-related `Q`-paths stay eqv-related after the same admissible event.
+  `local_exact_all` is `Q` everywhere; `resp_of_compat` gives `RespOn` for `sem = obs o run` when
+  `eqv (obs x) (obs y) -> eqv (obs (step e x)) (obs (step e y))`.
+- `free_congruence`: with every word admissible and `Gen` independent of the point, `PEq` is closed
+  under `l ++ _ ++ r`. `swap_peq_perm`: for the adjacent swaps, `PEq` is `Permutation`.
+- `hw_seeds_insufficient`: hidden writes revealed later; every swap seed agrees at every point
+  (`hw_seeds_ok`), invariance fails (`hw_not_inv`), the separating closure pair is a seed continued
+  by the reveal (`hw_closure_witness`), and `RespOn` is what fails (`hw_not_resp`).
+- `state_side_transfer`: under `StateDescent N act`, for every `Adm`, `Gen`, `eqv`,
+  `PInv` of `t -> N (rawrun act t s0)` iff `PInv` of `t -> grun N act t (N s0)`. State descent is a
+  relation between states (one word from `s` and from `N s`), so it is not a generator.
+
+Recovered results, each from P1 or P2 with the presentation named:
+
+| Recovered | From | Presentation |
+|---|---|---|
+| `history_descent_recovered` (`history_descent_exact`) | P1 | executions as one-letter words; `RespOn` vacuous (no admissible extension of a nonempty word) |
+| `amodm_closure_recovered`, `amodm_swap_recovered` (`amodm_closure_exact`, `amodm_swap_exact`) | P2 | free delivery, adjacent swaps, observation `M`; `fs_closure_iff`: `ReconfigurationClosure.PC` is `PPC` |
+| `causal_exact_recovered` (`causal_exact`) | P1 | causal orders; concurrent swaps at a causal point (`cg_whisk_cswap`: the whiskered generators are `cswap`) |
+| `tconv_exact_recovered` (`tconv_exact`) | P1 | causal histories over `Ev`; declared pairs (`dg_tequiv_peq`, `dg_peq_tequiv`: `PEq` is `tequiv I` there) |
+| `causal_alo_idem_recovered`, `alo_exact_recovered` (`causal_alo_exact_idem`, `alo_exact`) | P1 | causal at-least-once deliveries; swaps and the duplicate landing (`ag_whisk`: the whiskered generators are `G_idem`) |
+| `det_live_recovered` (`det_live_exact`) | P1, `Q` = contains the switch | typed phases (`phA`); switch squares and post-switch swaps; `lv_dlive_inv`: `DLive` is invariance, `lv_seeds_iff` and `lv_seeds_live`: the seeds are DS1 plus the post-switch swaps, which are `PermB (M s0)` under DS1 |
+
+Adequacy is reused where it already exists (`causal_adequate`, `alo_adequate_idem`); the
+reconfiguration instance proves its own (`lv_post_perm`, `lv_switch_front`, `lv_out_canon`).
+Not recovered: `cc_exact`'s CC1, a peak condition of a rewrite system with compensation steps
+(criterion A's route), not a pair of event words.
 
 ## Statement review
 
