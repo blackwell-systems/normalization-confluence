@@ -630,6 +630,55 @@ convergence in general).
 
 Status: planned, not started. Not a caveat removal; it does not change what is proved.
 
+## Planned paper: the regime map
+
+A fourth paper whose main object is the map itself, not one regime. The three papers each state
+part of the theory (the single registry, federated networks, the categorical structure); none
+states the classification: one question asked in every regime, the axes that generate the regimes,
+and in each cell an exact condition, a hardness result or a gap stated in the open, mechanized and
+audited. The Atlas above is the reference catalog; this paper is the citable argument for it.
+
+Working title: *An exact regime map of governed concurrent state*.
+
+Outline:
+
+1. **The question.** Do all event orders reach one normal form, and what condition is necessary
+   and sufficient. The canonical execution layers E, S, H and P, and why the same layers recur in
+   every regime ([THEORY.md](THEORY.md)).
+2. **The axes.** The thirteen axes, the ten axis dependences that prune the product, and how the
+   empty cells were found before any proof ([COVERAGE.md](COVERAGE.md)): gaps 15 to 21 were
+   predicted by the axes, not discovered case by case.
+3. **The map.** One table, one row per regime: the exact condition with its theorem name, the
+   counterexamples showing each conjunct is needed, and the check gsm runs. Generated from
+   [REGIME-AUDIT.md](../REGIME-AUDIT.md), like the Atlas.
+4. **Representative theorems** in plain mathematics: the single-registry iff (`cc_exact`), a
+   composition result (block composition, gap 19, when it lands), and reconfiguration
+   (`live_exact`, `amodm_closure_exact`), each with its boundary counterexample.
+5. **Transfer.** Results in one regime that are instances of another (`cvrdt_on_exact`, the
+   rootless corollaries of `net_unique_normal_form_iff`, engine instances of block composition).
+6. **The open part.** The gaps stated in the open, with the cyclic frontier as the one remaining
+   question, and the design exclusions X1 to X5 with their justifications.
+7. **Quotients for checking.** How the semantic quotients become verification quotients: the
+   symmetry, abstraction, difference and compositional reductions behind gsm's scale features,
+   each with the counterexample that marks its fragment.
+8. **Method.** Every cited name read as a statement, every result gated axiom-free on three Coq
+   versions, and the audit's rule that a cell claims no more than its theorem.
+
+Constraints:
+
+- **Scope in the claim.** "Exact" is relative to the model each regime states; the abstract and
+  every table caption say so.
+- **Related work per community.** CRDTs and CALM, invariant confluence, rewriting (Newman, Huet),
+  Boolean and discrete networks (Robert, Thomas, Richard, Shih and Ho), fixed points (Knaster-Tarski,
+  Bekić), using [LANDSCAPE.md](LANDSCAPE.md) and [SUBSUMPTION.md](SUBSUMPTION.md). No "first" or
+  "new" without a literature check recorded there.
+- **Venue.** arXiv first; then a journal that takes long mechanized work (for example Logical
+  Methods in Computer Science); a conference version at a mechanization venue (CPP, ITP) only after
+  checking its current dates.
+
+Status: planned, not started. Drafting begins after gap 19 lands, so the map includes block
+composition. Not a caveat removal; it does not change what is proved.
+
 ## Fundamental limits (stated, not removable)
 
 - **Continuous state.** Convergence of continuous dynamics needs a different argument (contraction,
