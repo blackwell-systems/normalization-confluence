@@ -4109,6 +4109,101 @@ Print Assumptions NC.ProjectionChains.k_not_nested.
 Print Assumptions NC.ProjectionChains.vchan_skip_counterexample.
 Print Assumptions NC.ProjectionChains.ch_common.
 Print Assumptions NC.ProjectionChains.chain_instance.
+Require NC.PresentedExecution.
+Print Assumptions NC.PresentedExecution.ac_adm'.
+Print Assumptions NC.PresentedExecution.ppc_whisk.
+Print Assumptions NC.PresentedExecution.whisk_ppc_w.
+Print Assumptions NC.PresentedExecution.ppc_iff_whisk.
+Print Assumptions NC.PresentedExecution.ppc_least.
+Print Assumptions NC.PresentedExecution.closure_exact.
+Print Assumptions NC.PresentedExecution.seeds_necessary.
+Print Assumptions NC.PresentedExecution.local_closure.
+Print Assumptions NC.PresentedExecution.local_exact.
+Print Assumptions NC.PresentedExecution.local_exact_all.
+Print Assumptions NC.PresentedExecution.free_congruence.
+Print Assumptions NC.PresentedExecution.msem_snoc.
+Print Assumptions NC.PresentedExecution.resp_of_compat.
+Print Assumptions NC.PresentedExecution.hw_seeds_ok.
+Print Assumptions NC.PresentedExecution.hw_closure_witness.
+Print Assumptions NC.PresentedExecution.hw_not_inv.
+Print Assumptions NC.PresentedExecution.hw_not_resp.
+Print Assumptions NC.PresentedExecution.hw_seeds_insufficient.
+Print Assumptions NC.PresentedExecution.state_side_transfer.
+Print Assumptions NC.PresentedExecution.os_eqv_refl.
+Print Assumptions NC.PresentedExecution.os_eqv_sym.
+Print Assumptions NC.PresentedExecution.os_eqv_trans.
+Print Assumptions NC.PresentedExecution.os_prefix.
+Print Assumptions NC.PresentedExecution.os_snoc.
+Print Assumptions NC.PresentedExecution.os_whisk.
+Print Assumptions NC.PresentedExecution.os_peq.
+Print Assumptions NC.PresentedExecution.ac_os.
+Print Assumptions NC.PresentedExecution.history_descent_recovered.
+Print Assumptions NC.PresentedExecution.ac_impl.
+Print Assumptions NC.PresentedExecution.msem_eq_resp.
+Print Assumptions NC.PresentedExecution.fs_prefix.
+Print Assumptions NC.PresentedExecution.swap_peq_perm.
+Print Assumptions NC.PresentedExecution.fs_ppc_pc.
+Print Assumptions NC.PresentedExecution.fs_pc_ppc.
+Print Assumptions NC.PresentedExecution.fs_closure_iff.
+Print Assumptions NC.PresentedExecution.fs_perm_inv.
+Print Assumptions NC.PresentedExecution.perm_closure_recovered.
+Print Assumptions NC.PresentedExecution.perm_swap_recovered.
+Print Assumptions NC.PresentedExecution.amodm_closure_recovered.
+Print Assumptions NC.PresentedExecution.amodm_swap_recovered.
+Print Assumptions NC.PresentedExecution.cg_prefix.
+Print Assumptions NC.PresentedExecution.cg_whisk_cswap.
+Print Assumptions NC.PresentedExecution.cg_peq.
+Print Assumptions NC.PresentedExecution.causal_exact_recovered.
+Print Assumptions NC.PresentedExecution.dg_prefix.
+Print Assumptions NC.PresentedExecution.dg_tequiv_peq.
+Print Assumptions NC.PresentedExecution.dg_peq_tequiv.
+Print Assumptions NC.PresentedExecution.tconv_exact_recovered.
+Print Assumptions NC.PresentedExecution.ag_prefix.
+Print Assumptions NC.PresentedExecution.ag_whisk.
+Print Assumptions NC.PresentedExecution.ag_peq.
+Print Assumptions NC.PresentedExecution.causal_alo_idem_recovered.
+Print Assumptions NC.PresentedExecution.alo_exact_recovered.
+Print Assumptions NC.PresentedExecution.phA_prefix.
+Print Assumptions NC.PresentedExecution.phA_mapA.
+Print Assumptions NC.PresentedExecution.phA_shape.
+Print Assumptions NC.PresentedExecution.phA_post_LS.
+Print Assumptions NC.PresentedExecution.phA_A_point.
+Print Assumptions NC.PresentedExecution.phA_post_point.
+Print Assumptions NC.PresentedExecution.labo_perm.
+Print Assumptions NC.PresentedExecution.lv_run_A.
+Print Assumptions NC.PresentedExecution.lv_run_post.
+Print Assumptions NC.PresentedExecution.lv_sem_complete.
+Print Assumptions NC.PresentedExecution.lv_sem_A.
+Print Assumptions NC.PresentedExecution.lv_run_inr.
+Print Assumptions NC.PresentedExecution.lv_run_LS.
+Print Assumptions NC.PresentedExecution.lv_resp.
+Print Assumptions NC.PresentedExecution.lv_qseeds.
+Print Assumptions NC.PresentedExecution.lv_qext.
+Print Assumptions NC.PresentedExecution.lv_local.
+Print Assumptions NC.PresentedExecution.labo_LB.
+Print Assumptions NC.PresentedExecution.labo_LT_LB.
+Print Assumptions NC.PresentedExecution.lv_sem_post.
+Print Assumptions NC.PresentedExecution.forall_LB.
+Print Assumptions NC.PresentedExecution.lv_seeds_iff.
+Print Assumptions NC.PresentedExecution.lv_runB_ext.
+Print Assumptions NC.PresentedExecution.lv_M_run.
+Print Assumptions NC.PresentedExecution.lv_permB_local.
+Print Assumptions NC.PresentedExecution.lv_seeds_live.
+Print Assumptions NC.PresentedExecution.phA_complete.
+Print Assumptions NC.PresentedExecution.lv_post_perm.
+Print Assumptions NC.PresentedExecution.lv_switch_front.
+Print Assumptions NC.PresentedExecution.lv_aOf_complete.
+Print Assumptions NC.PresentedExecution.lv_bOf_complete.
+Print Assumptions NC.PresentedExecution.lv_whisk_perm.
+Print Assumptions NC.PresentedExecution.lv_peq_perm.
+Print Assumptions NC.PresentedExecution.lv_whisk_LS.
+Print Assumptions NC.PresentedExecution.not_LS_A.
+Print Assumptions NC.PresentedExecution.lv_peq_LS.
+Print Assumptions NC.PresentedExecution.lv_out_path.
+Print Assumptions NC.PresentedExecution.lv_out_perm.
+Print Assumptions NC.PresentedExecution.lv_out_canon.
+Print Assumptions NC.PresentedExecution.lv_dlive_inv.
+Print Assumptions NC.PresentedExecution.det_live_recovered.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4119,8 +4214,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4037 ]; then
-  echo "FAIL: expected 4037 axiom-free results, got $N"
+if [ "$N" -lt 4131 ]; then
+  echo "FAIL: expected 4131 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
