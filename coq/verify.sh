@@ -4345,6 +4345,72 @@ Print Assumptions NC.ReconfigurationGsm.sub_merged_online.
 Print Assumptions NC.ReconfigurationGsm.sub_merged_barrier.
 Print Assumptions NC.ReconfigurationGsm.sub_partial_unsafe.
 Print Assumptions NC.ReconfigurationGsm.submission_instances_classified.
+Require NC.TransportCSPHard.
+Print Assumptions NC.TransportCSPHard.mkd_bits.
+Print Assumptions NC.TransportCSPHard.bit1_mkd.
+Print Assumptions NC.TransportCSPHard.bit2_mkd.
+Print Assumptions NC.TransportCSPHard.bit1_bv.
+Print Assumptions NC.TransportCSPHard.bit2_bv.
+Print Assumptions NC.TransportCSPHard.bv_inj.
+Print Assumptions NC.TransportCSPHard.dall_spec.
+Print Assumptions NC.TransportCSPHard.dfl_bits.
+Print Assumptions NC.TransportCSPHard.dfam_mono.
+Print Assumptions NC.TransportCSPHard.dfam_broadcast.
+Print Assumptions NC.TransportCSPHard.dcedges_in.
+Print Assumptions NC.TransportCSPHard.dcedges_has.
+Print Assumptions NC.TransportCSPHard.div6.
+Print Assumptions NC.TransportCSPHard.dstate_T.
+Print Assumptions NC.TransportCSPHard.dstate_P.
+Print Assumptions NC.TransportCSPHard.dstate_N.
+Print Assumptions NC.TransportCSPHard.dstate_l.
+Print Assumptions NC.TransportCSPHard.dstate_W.
+Print Assumptions NC.TransportCSPHard.dstate_Q.
+Print Assumptions NC.TransportCSPHard.dstate_R.
+Print Assumptions NC.TransportCSPHard.clause_val_lits.
+Print Assumptions NC.TransportCSPHard.var_edges_ok.
+Print Assumptions NC.TransportCSPHard.dsection_of_sat.
+Print Assumptions NC.TransportCSPHard.var_core.
+Print Assumptions NC.TransportCSPHard.clause_core.
+Print Assumptions NC.TransportCSPHard.dsection_clause.
+Print Assumptions NC.TransportCSPHard.dsat_of_section.
+Print Assumptions NC.TransportCSPHard.dnet_iff_sat.
+Print Assumptions NC.TransportCSPHard.dcedges_length.
+Print Assumptions NC.TransportCSPHard.dnet_size.
+Print Assumptions NC.TransportCSPHard.dnet_labeled.
+Print Assumptions NC.TransportCSPHard.dnet_mono.
+Print Assumptions NC.TransportCSPHard.dnet_np_certificate.
+Print Assumptions NC.TransportCSPHard.diamond_hard_csp.
+Print Assumptions NC.TransportCSPHard.mono_family_hard.
+Print Assumptions NC.TransportCSPHard.nth_map_seq.
+Print Assumptions NC.TransportCSPHard.bool_hom_proj.
+Print Assumptions NC.TransportCSPHard.btup_length.
+Print Assumptions NC.TransportCSPHard.sig_ext.
+Print Assumptions NC.TransportCSPHard.p_btup.
+Print Assumptions NC.TransportCSPHard.tup_bits.
+Print Assumptions NC.TransportCSPHard.sig_bit1.
+Print Assumptions NC.TransportCSPHard.sig_bit2.
+Print Assumptions NC.TransportCSPHard.pair_tup_length.
+Print Assumptions NC.TransportCSPHard.pair_bits.
+Print Assumptions NC.TransportCSPHard.sig_comb.
+Print Assumptions NC.TransportCSPHard.sig_const.
+Print Assumptions NC.TransportCSPHard.dfam_pol_proj.
+Print Assumptions NC.TransportCSPHard.proj_pol.
+Print Assumptions NC.TransportCSPHard.pol_dfam_iff.
+Print Assumptions NC.TransportCSPHard.pol_dfam_pins_iff.
+Print Assumptions NC.TransportCSPHard.pol_superfamily_proj.
+Print Assumptions NC.TransportCSPHard.dfam_no_siggers.
+Print Assumptions NC.TransportCSPHard.dfam_no_majority.
+Print Assumptions NC.TransportCSPHard.dfam_no_maltsev.
+Print Assumptions NC.TransportCSPHard.dfam_no_commutative.
+Print Assumptions NC.TransportCSPHard.dfam_lattice_fails.
+Print Assumptions NC.TransportCSPHard.semilattice_pol.
+Print Assumptions NC.TransportCSPHard.joinhom_pol.
+Print Assumptions NC.TransportCSPHard.meethom_pol.
+Print Assumptions NC.TransportCSPHard.dfam_minimal.
+Print Assumptions NC.TransportCSPHard.dnet_fsat.
+Print Assumptions NC.TransportCSPHard.dnet_fsat_check.
+Print Assumptions NC.TransportCSPHard.dnet_funsat.
+Print Assumptions NC.TransportCSPHard.dnet_needs_pins.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4355,8 +4421,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4270 ]; then
-  echo "FAIL: expected 4270 axiom-free results, got $N"
+if [ "$N" -lt 4335 ]; then
+  echo "FAIL: expected 4335 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

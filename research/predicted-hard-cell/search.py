@@ -1,0 +1,385 @@
+#!/usr/bin/env python3
+"""Predicted hard cells: classify fixed transport families by their polymorphisms.
+
+For a family F of maps D -> D, Gamma_F is the template of the graphs {(x, f x)} (TransportCSP.v),
+plus the pins {c} for every c in D (the model pins roots to arbitrary values; every family below
+that contains the constants gets the pins for free through constant self-loops).  By
+pol_gamma_iff, Pol(Gamma_F) is the set of operations commuting with every f in F and fixing every
+pinned value.  The template with all pins is an idempotent core, so by the CSP dichotomy (Bulatov
+2017; Zhuk 2017, 2020) CSP(Gamma_F) is in P iff Gamma_F has a Taylor polymorphism, and NP-complete
+otherwise.  For finite idempotent algebras, a Taylor term exists iff a 4-ary Siggers term
+s(a, r, e, a) = s(r, a, r, e) exists (Siggers 2010 gives a 6-ary term; the 4-ary form is Kearnes,
+Markovic and McKenzie 2014).  This script decides the existence of a 4-ary Siggers polymorphism
+exactly, by a complete backtracking search with arc consistency, and also looks for majority,
+Mal'tsev and binary commutative (idempotent) polymorphisms, which name the tractable reason.
+
+The unpinned variant (no pins; F only) is reported for families without constants; a Siggers
+polymorphism is height-1, so its existence decides the unpinned template without coring.
+
+Run: python3 research/predicted-hard-cell/search.py      (no dependencies; about a minute)
+"""
+
+import itertools
+import sys
+
+# ---------------------------------------------------------------------------------------------
+# Posets on {0..n-1}, given by covering pairs.
+
+def closure(n, covers):
+    le = [[i == j for j in range(n)] for i in range(n)]
+    for (a, b) in covers:
+        le[a][b] = True
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                if le[i][k] and le[k][j]:
+                    le[i][j] = True
+    return le
+
+POSETS = {
+    "chain 2":            (2, [(0, 1)]),
+    "chain 3":            (3, [(0, 1), (1, 2)]),
+    "chain 4":            (4, [(0, 1), (1, 2), (2, 3)]),
+    "antichain 2":        (2, []),
+    "antichain 3":        (3, []),
+    "V (0 < a, b)":       (3, [(0, 1), (0, 2)]),
+    "Lambda (a, b < 1)":  (3, [(0, 2), (1, 2)]),
+    "1 + 2":              (3, [(0, 1)]),
+    "diamond M2 = 2x2":   (4, [(0, 1), (0, 2), (1, 3), (2, 3)]),
+    "2 + 2":              (4, [(0, 1), (2, 3)]),
+    "fence N (a<c>b<d)":  (4, [(0, 2), (1, 2), (1, 3)]),
+    "Y (0<1<2, 1<3)":     (4, [(0, 1), (1, 2), (1, 3)]),
+    "V + top? (0<1,2<3)": (4, [(0, 1), (0, 2), (1, 3), (2, 3)]),
+    "pentagon N5":        (5, [(0, 1), (1, 2), (2, 4), (0, 3), (3, 4)]),
+    "M3":                 (5, [(0, 1), (0, 2), (0, 3), (1, 4), (2, 4), (3, 4)]),
+}
+del POSETS["V + top? (0<1,2<3)"]  # same poset as the diamond; kept out of the table
+
+# Lattice operations, for the lattices among the posets.
+
+def lattice_ops(n, le):
+    def lub(x, y):
+        ubs = [z for z in range(n) if le[x][z] and le[y][z]]
+        least = [z for z in ubs if all(le[z][w] for w in ubs)]
+        return least[0] if least else None
+    def glb(x, y):
+        lbs = [z for z in range(n) if le[z][x] and le[z][y]]
+        great = [z for z in lbs if all(le[w][z] for w in lbs)]
+        return great[0] if great else None
+    J = [[lub(x, y) for y in range(n)] for x in range(n)]
+    M = [[glb(x, y) for y in range(n)] for x in range(n)]
+    if any(v is None for r in J + M for v in r):
+        return None
+    return J, M
+
+# ---------------------------------------------------------------------------------------------
+# Families.
+
+def all_maps(n):
+    return [tuple(f) for f in itertools.product(range(n), repeat=n)]
+
+def is_mono(le, f):
+    n = len(f)
+    return all(le[f[x]][f[y]] for x in range(n) for y in range(n) if le[x][y])
+
+def monotone(n, le):
+    return [f for f in all_maps(n) if is_mono(le, f)]
+
+def idempotent(fs):
+    return [f for f in fs if all(f[f[x]] == f[x] for x in range(len(f)))]
+
+def join_homs(n, J):
+    return [f for f in all_maps(n)
+            if all(f[J[x][y]] == J[f[x]][f[y]] for x in range(n) for y in range(n))]
+
+def lattice_homs(n, J, M):
+    return [f for f in all_maps(n)
+            if all(f[J[x][y]] == J[f[x]][f[y]] and f[M[x][y]] == M[f[x]][f[y]]
+                   for x in range(n) for y in range(n))]
+
+def constants(n):
+    return [tuple([c] * n) for c in range(n)]
+
+def compose(f, g):  # f after g
+    return tuple(f[g[x]] for x in range(len(g)))
+
+def monoid(gens, n):
+    ident = tuple(range(n))
+    seen = {ident}
+    frontier = [ident]
+    while frontier:
+        new = []
+        for h in frontier:
+            for g in gens:
+                k = compose(g, h)
+                if k not in seen:
+                    seen.add(k)
+                    new.append(k)
+        frontier = new
+    return seen
+
+def generators(fs, n):
+    """A small generating set of the monoid generated by fs (commuting with generators suffices)."""
+    target = monoid(fs, n)
+    gens, cur = [], {tuple(range(n))}
+    for f in sorted(fs, key=lambda f: -len(set(f))):
+        if f not in cur:
+            gens.append(f)
+            cur = monoid(gens, n)
+            if cur == target:
+                break
+    return gens
+
+# ---------------------------------------------------------------------------------------------
+# Polymorphism search: the unknowns are the values p(t) for t in D^k.
+
+class UF:
+    def __init__(self, items):
+        self.p = {x: x for x in items}
+    def find(self, x):
+        while self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]
+            x = self.p[x]
+        return x
+    def union(self, a, b):
+        a, b = self.find(a), self.find(b)
+        if a != b:
+            self.p[a] = b
+
+def find_pol(n, F, k, merges=(), fixes=(), pins=True, limit_nodes=2_000_000):
+    """Search an operation p : D^k -> D commuting with every f in F, with p(t1) = p(t2) for
+    (t1, t2) in merges, p(t) = d for (t, d) in fixes, and p(c, .., c) = c for every c if pins.
+    Returns a table (dict) or None; complete (exhaustive) search."""
+    tuples = list(itertools.product(range(n), repeat=k))
+    uf = UF(tuples)
+    for (a, b) in merges:
+        uf.union(a, b)
+    reps = sorted({uf.find(t) for t in tuples})
+    idx = {r: i for i, r in enumerate(reps)}
+    var = {t: idx[uf.find(t)] for t in tuples}
+    full = (1 << n) - 1
+    dom = [full] * len(reps)
+    def restrict(v, mask):
+        dom[v] &= mask
+    for (t, d) in fixes:
+        restrict(var[t], 1 << d)
+    if pins:
+        for c in range(n):
+            restrict(var[tuple([c] * k)], 1 << c)
+    # constraints: value(var[f t]) = f(value(var[t]))
+    cons = []
+    for f in F:
+        for t in tuples:
+            cons.append((var[t], var[tuple(f[x] for x in t)], f))
+    # dedupe
+    cons = list({(a, b, f) for (a, b, f) in cons})
+    adj = [[] for _ in reps]
+    for ci, (a, b, f) in enumerate(cons):
+        adj[a].append(ci)
+        adj[b].append(ci)
+    pre = {}
+    def image(f, mask):
+        r = 0
+        for x in range(n):
+            if mask >> x & 1:
+                r |= 1 << f[x]
+        return r
+    def preimage(f, mask):
+        r = 0
+        for x in range(n):
+            if mask >> f[x] & 1:
+                r |= 1 << x
+        return r
+    def propagate(d, queue):
+        inq = set(queue)
+        while queue:
+            ci = queue.pop()
+            inq.discard(ci)
+            a, b, f = cons[ci]
+            nb = d[b] & image(f, d[a])
+            na = d[a] & preimage(f, nb)
+            for v, nv in ((a, na), (b, nb)):
+                if nv != d[v]:
+                    if nv == 0:
+                        return False
+                    d[v] = nv
+                    for cj in adj[v]:
+                        if cj not in inq:
+                            inq.add(cj)
+                            queue.append(cj)
+        return True
+    d0 = list(dom)
+    if any(m == 0 for m in d0) or not propagate(d0, list(range(len(cons)))):
+        return None
+    nodes = [0]
+    def solve(d):
+        nodes[0] += 1
+        if nodes[0] > limit_nodes:
+            raise RuntimeError("node limit")
+        best, bc = None, n + 1
+        for v, m in enumerate(d):
+            c = bin(m).count("1")
+            if 1 < c < bc:
+                best, bc = v, c
+        if best is None:
+            return d
+        for x in range(n):
+            if d[best] >> x & 1:
+                e = list(d)
+                e[best] = 1 << x
+                if propagate(e, list(adj[best])):
+                    r = solve(e)
+                    if r is not None:
+                        return r
+        return None
+    sol = solve(d0)
+    if sol is None:
+        return None
+    return {t: sol[var[t]].bit_length() - 1 for t in tuples}
+
+def check_pol(n, F, k, table, pins):
+    """Independent check of a returned table: commutation with F, and the pins."""
+    for t in itertools.product(range(n), repeat=k):
+        for f in F:
+            assert f[table[t]] == table[tuple(f[x] for x in t)]
+    if pins:
+        for c in range(n):
+            assert table[tuple([c] * k)] == c
+
+def siggers(n, F, pins=True):
+    merges = [((a, r, e, a), (r, a, r, e)) for a in range(n) for r in range(n) for e in range(n)]
+    s = find_pol(n, F, 4, merges=merges, pins=pins)
+    if s is not None:
+        check_pol(n, F, 4, s, pins)
+        assert all(s[(a, r, e, a)] == s[(r, a, r, e)]
+                   for a in range(n) for r in range(n) for e in range(n))
+    return s
+
+def majority(n, F):
+    fixes = []
+    for x in range(n):
+        for y in range(n):
+            fixes += [((x, x, y), x), ((x, y, x), x), ((y, x, x), x)]
+    return find_pol(n, F, 3, fixes=fixes)
+
+def maltsev(n, F):
+    fixes = []
+    for x in range(n):
+        for y in range(n):
+            fixes += [((x, x, y), y), ((y, x, x), y)]
+    return find_pol(n, F, 3, fixes=fixes)
+
+def binary_commutative(n, F):
+    merges = [((x, y), (y, x)) for x in range(n) for y in range(n)]
+    return find_pol(n, F, 2, merges=merges)
+
+def semilattice(n, F):
+    """A binary idempotent commutative associative polymorphism, by enumerating the commutative
+    idempotent ones (small n only)."""
+    pairs = [(x, y) for x in range(n) for y in range(x + 1, n)]
+    for vals in itertools.product(range(n), repeat=len(pairs)):
+        T = [[x if x == y else None for y in range(n)] for x in range(n)]
+        for (x, y), v in zip(pairs, vals):
+            T[x][y] = T[y][x] = v
+        if any(T[T[x][y]][z] != T[x][T[y][z]] for x in range(n) for y in range(n) for z in range(n)):
+            continue
+        if all(f[T[x][y]] == T[f[x]][f[y]] for f in F for x in range(n) for y in range(n)):
+            return T
+    return None
+
+def commutes(f, op, k, n):
+    return all(f[op(*t)] == op(*(f[x] for x in t)) for t in itertools.product(range(n), repeat=k))
+
+# ---------------------------------------------------------------------------------------------
+
+def classify(name, n, fam, pins=True, extra=""):
+    gens = generators(fam, n)
+    s = siggers(n, gens, pins=pins)
+    row = {
+        "family": name, "n": n, "size": len(fam), "gens": len(gens),
+        "pins": "all" if pins else "none",
+        "siggers": s is not None,
+    }
+    if pins:
+        row["majority"] = majority(n, gens) is not None
+        row["maltsev"] = maltsev(n, gens) is not None
+        row["semilattice"] = (semilattice(n, gens) is not None) if n <= 4 else None
+    row["extra"] = extra
+    return row
+
+def fmt(row):
+    def b(v):
+        return "-" if v is None else ("yes" if v else "no")
+    cls = "P" if row["siggers"] else "NP-c"
+    return (f"| {row['family']:<44} | {row['n']} | {row['size']:>4} | {row['pins']:<4} | "
+            f"{b(row['siggers']):<7} | {b(row.get('majority')):<8} | {b(row.get('maltsev')):<7} | "
+            f"{b(row.get('semilattice')):<11} | {cls:<4} | {row['extra']}")
+
+def main():
+    rows = []
+    for pname, (n, covers) in POSETS.items():
+        le = closure(n, covers)
+        mon = monotone(n, le)
+        rows.append(classify(f"Mon({pname})", n, mon))
+        rows.append(classify(f"Ret({pname}) idempotent monotone", n, idempotent(mon)))
+        lo = lattice_ops(n, le)
+        if lo is not None:
+            J, M = lo
+            rows.append(classify(f"JoinHom({pname})", n, join_homs(n, J),
+                                 extra="join is a polymorphism"))
+            lh = lattice_homs(n, J, M) + constants(n)
+            rows.append(classify(f"LatHom({pname}) + constants", n, sorted(set(lh)),
+                                 extra="meet and join are polymorphisms"))
+    for n in (2, 3, 4):
+        rows.append(classify(f"T({n}) all maps", n, all_maps(n)))
+        rows.append(classify(f"Idem({n}) all idempotent maps", n, idempotent(all_maps(n))))
+        perms = [f for f in all_maps(n) if len(set(f)) == n]
+        rows.append(classify(f"S({n}) permutations, pinned", n, perms))
+        rows.append(classify(f"S({n}) permutations, unpinned", n, perms, pins=False))
+        rank2 = [f for f in all_maps(n) if len(set(f)) <= 2]
+        rows.append(classify(f"rank <= 2 maps on {n}", n, rank2))
+    # The chosen hard cell: six monotone maps of the diamond {0 < a, b < 1} = bool x bool,
+    # 0 = (0, 0), a = (1, 0), b = (0, 1), 1 = (1, 1).  Each reads one flag, or the AND or the OR of
+    # the two flags, or resets to a constant, and writes the result into both flags.  These are the
+    # maps of the reduction in TransportCSPHard.v (dp1, dp2, dfl, dor, dc0, dc1).
+    dfam = {"dp1": (0, 3, 0, 3), "dp2": (0, 0, 3, 3), "dfl": (0, 0, 0, 3),
+            "dor": (0, 3, 3, 3), "dc0": (0, 0, 0, 0), "dc1": (3, 3, 3, 3)}
+    le = closure(4, POSETS["diamond M2 = 2x2"][1])
+    assert all(is_mono(le, f) for f in dfam.values())
+    F = list(dfam.values())
+    rows.append(classify("dfam = {dp1, dp2, dfl, dor, dc0, dc1} (diamond)", 4, F, pins=False,
+                         extra="no pins: dc0, dc1 pin 0 and 1"))
+    rows.append(classify("dfam (diamond)", 4, F, extra="all pins"))
+    for k in dfam:
+        G = [f for kk, f in dfam.items() if kk != k]
+        rows.append(classify(f"dfam without {k}", 4, G, pins=False,
+                             extra={"dfl": "join is a polymorphism", "dor": "meet is a polymorphism",
+                                    "dc0": "constant 1 section", "dc1": "constant 0 section"}.get(k, "")))
+    # Monoids generated by two maps on 3 points, with all pins: a census up to relabelling.
+    n = 3
+    maps3 = all_maps(3)
+    perms3 = [f for f in maps3 if len(set(f)) == 3]
+    seen, hard, easy, hard_pairs = set(), 0, 0, []
+    for f, g in itertools.combinations(maps3, 2):
+        key = min(tuple(sorted((tuple(p[f[q[x]]] for x in range(3)), tuple(p[g[q[x]]] for x in range(3)))))
+                  for p in perms3 for q in [tuple(p.index(x) for x in range(3))])
+        if key in seen:
+            continue
+        seen.add(key)
+        if siggers(3, [f, g]) is None:
+            hard += 1
+            hard_pairs.append((f, g))
+        else:
+            easy += 1
+    print("| family | n | size | pins | Siggers | majority | Mal'tsev | semilattice | class | note |")
+    print("|---|---|---|---|---|---|---|---|---|---|")
+    for r in rows:
+        print(fmt(r))
+    print()
+    print(f"Two-generated families on 3 points (pinned, up to relabelling): {len(seen)} classes, "
+          f"{easy} with a Siggers polymorphism, {hard} without:")
+    for f, g in hard_pairs:
+        print(f"  {f} and {g} (with all pins)")
+
+if __name__ == "__main__":
+    main()

@@ -742,6 +742,19 @@ results sit at known points of that classification:
   `ac_pass_bound`). The chain matters: on the four-element diamond a monotone lossy map need not
   commute with join (`diamond_join_fails`, `diamond_g_fails`), and without monotonicity arc
   consistency accepts an instance with no section (`ac_needs_mono`).
+- **Monotone maps off the chain: the predicted hard cell.** The algebra predicts the other
+  direction too. A computational search over small posets
+  ([research/predicted-hard-cell](../research/predicted-hard-cell/search.py)) finds no Siggers
+  polymorphism for the monotone maps of any non-chain poset of three or more elements it tries,
+  and `TransportCSPHard.v` confirms the prediction for the diamond, read as two flags. Six of its
+  monotone maps (read one flag, the AND or the OR of the two, or a constant) have only projections
+  as polymorphisms, at every arity (`pol_dfam_iff`; so no Siggers, majority or Mal'tsev
+  polymorphism, `dfam_no_siggers`), and a mechanized linear 3-SAT reduction to them shows section
+  existence NP-complete (`dnet_iff_sat`, `dnet_size`, `dnet_np_certificate`), for every family
+  containing them as well (`mono_family_hard`). Each of the six is needed (`dfam_minimal`), and
+  what separates the cells is join preservation: transports that preserve join, the CRDT shape,
+  keep join as a semilattice polymorphism on any lattice (`semilattice_pol`, `joinhom_pol`), while
+  monotonicity alone is not enough off the chain.
 - **Majority off the chain.** A family on `bool * bool` with a lossy map commutes with the
   coordinatewise median and not with meet or join (`median_family`,
   `median_family_not_lattice`); tractability then follows from the bounded-width results cited

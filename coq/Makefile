@@ -526,3 +526,11 @@ all: ReconfigurationGsm.vo
 
 ReconfigurationGsm.vo: ReconfigurationGsm.v Newman.vo Trace.vo AtLeastOnce.vo AtLeastOnceExact.vo Reconfiguration.vo ReconfigurationClosure.vo ReconfigurationDelivery.vo
 	coqc -Q . NC ReconfigurationGsm.v
+
+# The predicted hard cell: monotone transports on the diamond (six maps reading one flag, the AND
+# or the OR of two flags, or a constant) are NP-complete by a 3-SAT reduction, and every
+# polymorphism of their template is a projection (TransportCSPHard.v).
+all: TransportCSPHard.vo
+
+TransportCSPHard.vo: TransportCSPHard.v CohomologyGraph.vo CohomologyGeneral.vo RootSet.vo LossyHardness.vo TransportCSP.vo
+	coqc -Q . NC TransportCSPHard.v
