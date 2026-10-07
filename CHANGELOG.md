@@ -7,6 +7,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/CanonicalRecurrence.v`: layer C of the regime map, settlement dynamics, as fair recurrence
+  (docs/THEORY.md, "Layer C"). A preregistered experiment, run like layer A. Axiom-free. No
+  REGIME-AUDIT status changes.
+  - **Kernel:** fair lassos (`FairLasso`: a word to `x`, a nonempty word back to `x` naming every
+    label) and bad lassos (a loop state outside the target). C1: on a finite state type, every fair
+    run is eventually always in the canonical fiber iff no bad fair lasso exists (`C1_closed` for
+    closed fibers, `C1_nn` double negated for every fiber, `C1_classical` with excluded middle as a
+    premise, `C1_refutes` with no finiteness). C2: every fair run eventually stays settled iff every
+    fair recurrent loop is a singleton fixed point (`C2`, `C2_loops`, `C2_reach`).
+  - **Recoveries:** `chaotic_reaches_lfp_lasso`, `signed_settlement_lasso`, `signed_fidelity_lasso`
+    (the original statements), `fairflush_lasso`, `fairflushR_lasso` (FairFlushAt and FairFlushR
+    are C2), `flip2_fair_lasso` (flip2's livelock as an explicit bad fair lasso),
+    `copyback_ghost_lasso` (a settled singleton in the wrong fiber); `nonfair_cycle_not_refuting`
+    (a non-fair bad cycle refutes neither side).
+  - **Classification:** `lasso_classification` (negation cycle, flip2 livelock, copyback ghost, a
+    good monotone resolver, several fixed points) and a new example, `semantic_oscillation`: a fair
+    raw oscillation with constant meaning, C2 false and C1 true.
+  - **Outcome:** PASS, qualified. Leaks: every recovery adds a finite state type (the originals
+    assume finite height); `chaotic_reaches_lfp` also needs a finite component list; the strong form
+    of C1 is classical in general (`lpo_leak`), which the recoveries avoid (their fibers are closed).
+  - **Cited, not claimed:** the fair-cycle characterization (Clarke, Emerson and Sistla 1986;
+    Emerson and Lei 1986; Vardi and Wolper 1986).
+  - **Docs:** THEORY.md layer C, coq/docs/recurrence.md, ROADMAP.md paper outline.
+  - **Gate:** raised from 4335 to 4444.
+
 - `coq/TransportCSPHard.v`: the predicted hard cell of the CSP reading. Monotone transports on the
   diamond (two flags, the Boolean lattice 2 x 2) are NP-complete, and the polymorphisms predict it.
   Refines the per-family cell of REGIME-AUDIT.md section 12. Axiom-free.

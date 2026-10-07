@@ -4411,6 +4411,116 @@ Print Assumptions NC.TransportCSPHard.dnet_fsat.
 Print Assumptions NC.TransportCSPHard.dnet_fsat_check.
 Print Assumptions NC.TransportCSPHard.dnet_funsat.
 Print Assumptions NC.TransportCSPHard.dnet_needs_pins.
+Require NC.CanonicalRecurrence.
+Print Assumptions NC.CanonicalRecurrence.wrun_app.
+Print Assumptions NC.CanonicalRecurrence.seg_len.
+Print Assumptions NC.CanonicalRecurrence.prs_seg.
+Print Assumptions NC.CanonicalRecurrence.firstn_seg.
+Print Assumptions NC.CanonicalRecurrence.seg_path.
+Print Assumptions NC.CanonicalRecurrence.fair_window.
+Print Assumptions NC.CanonicalRecurrence.window_in_seg.
+Print Assumptions NC.CanonicalRecurrence.seg_lasso.
+Print Assumptions NC.CanonicalRecurrence.qpow_add.
+Print Assumptions NC.CanonicalRecurrence.qpow_len.
+Print Assumptions NC.CanonicalRecurrence.qpow_snoc.
+Print Assumptions NC.CanonicalRecurrence.qpow_in.
+Print Assumptions NC.CanonicalRecurrence.wrun_qpow.
+Print Assumptions NC.CanonicalRecurrence.lsg_nth.
+Print Assumptions NC.CanonicalRecurrence.firstn_snoc.
+Print Assumptions NC.CanonicalRecurrence.firstn_app_len.
+Print Assumptions NC.CanonicalRecurrence.prs_list.
+Print Assumptions NC.CanonicalRecurrence.nth_lasso.
+Print Assumptions NC.CanonicalRecurrence.lasso_fair.
+Print Assumptions NC.CanonicalRecurrence.lasso_visits.
+Print Assumptions NC.CanonicalRecurrence.bad_lasso_witness.
+Print Assumptions NC.CanonicalRecurrence.bad_lasso_refutes.
+Print Assumptions NC.CanonicalRecurrence.C1_refutes.
+Print Assumptions NC.CanonicalRecurrence.closed_stays.
+Print Assumptions NC.CanonicalRecurrence.settled_closed.
+Print Assumptions NC.CanonicalRecurrence.path_firstn.
+Print Assumptions NC.CanonicalRecurrence.settled_wrun.
+Print Assumptions NC.CanonicalRecurrence.C2_reach.
+Print Assumptions NC.CanonicalRecurrence.loop_good.
+Print Assumptions NC.CanonicalRecurrence.state_finitely_often.
+Print Assumptions NC.CanonicalRecurrence.nn_bound.
+Print Assumptions NC.CanonicalRecurrence.nobad_nn.
+Print Assumptions NC.CanonicalRecurrence.hits_aux.
+Print Assumptions NC.CanonicalRecurrence.nobad_hits.
+Print Assumptions NC.CanonicalRecurrence.recurrence_nn_exact.
+Print Assumptions NC.CanonicalRecurrence.recurrence_closed_exact.
+Print Assumptions NC.CanonicalRecurrence.recurrence_classical.
+Print Assumptions NC.CanonicalRecurrence.fiber_dec.
+Print Assumptions NC.CanonicalRecurrence.C1_nn.
+Print Assumptions NC.CanonicalRecurrence.C1_closed.
+Print Assumptions NC.CanonicalRecurrence.C1_classical.
+Print Assumptions NC.CanonicalRecurrence.settled_dec.
+Print Assumptions NC.CanonicalRecurrence.C2.
+Print Assumptions NC.CanonicalRecurrence.onloop_base.
+Print Assumptions NC.CanonicalRecurrence.C2_loops.
+Print Assumptions NC.CanonicalRecurrence.l4_full.
+Print Assumptions NC.CanonicalRecurrence.l4_g1.
+Print Assumptions NC.CanonicalRecurrence.l4_nobad.
+Print Assumptions NC.CanonicalRecurrence.ph_blk.
+Print Assumptions NC.CanonicalRecurrence.asg_fair.
+Print Assumptions NC.CanonicalRecurrence.asg_run.
+Print Assumptions NC.CanonicalRecurrence.asg_hit.
+Print Assumptions NC.CanonicalRecurrence.least_true.
+Print Assumptions NC.CanonicalRecurrence.notb_dec.
+Print Assumptions NC.CanonicalRecurrence.lpo_leak.
+Print Assumptions NC.CanonicalRecurrence.in_remove'.
+Print Assumptions NC.CanonicalRecurrence.remove_len_le.
+Print Assumptions NC.CanonicalRecurrence.remove_len_lt.
+Print Assumptions NC.CanonicalRecurrence.search0.
+Print Assumptions NC.CanonicalRecurrence.pigeon_aux.
+Print Assumptions NC.CanonicalRecurrence.pigeon.
+Print Assumptions NC.CanonicalRecurrence.infl_wrun.
+Print Assumptions NC.CanonicalRecurrence.infl_loop_fixed.
+Print Assumptions NC.CanonicalRecurrence.mono_wrun.
+Print Assumptions NC.CanonicalRecurrence.loop_floor.
+Print Assumptions NC.CanonicalRecurrence.ch_reach_wrun.
+Print Assumptions NC.CanonicalRecurrence.ch_lfp_fixed.
+Print Assumptions NC.CanonicalRecurrence.ch_nobad.
+Print Assumptions NC.CanonicalRecurrence.chaotic_settles_lasso.
+Print Assumptions NC.CanonicalRecurrence.ch_run_star.
+Print Assumptions NC.CanonicalRecurrence.chaotic_reaches_lfp_lasso.
+Print Assumptions NC.CanonicalRecurrence.stable_stays.
+Print Assumptions NC.CanonicalRecurrence.prs_wrun.
+Print Assumptions NC.CanonicalRecurrence.fixed_wrun.
+Print Assumptions NC.CanonicalRecurrence.stable_fs.
+Print Assumptions NC.CanonicalRecurrence.fs_fixed_all.
+Print Assumptions NC.CanonicalRecurrence.sr_floor.
+Print Assumptions NC.CanonicalRecurrence.sr_ceiling.
+Print Assumptions NC.CanonicalRecurrence.wrun_below.
+Print Assumptions NC.CanonicalRecurrence.sr_below_nobad.
+Print Assumptions NC.CanonicalRecurrence.sr_unique_nobad.
+Print Assumptions NC.CanonicalRecurrence.sr_sound_nobad.
+Print Assumptions NC.CanonicalRecurrence.sl_closed.
+Print Assumptions NC.CanonicalRecurrence.sl_dec.
+Print Assumptions NC.CanonicalRecurrence.signed_settlement_lasso.
+Print Assumptions NC.CanonicalRecurrence.signed_fidelity_lasso.
+Print Assumptions NC.CanonicalRecurrence.fairflush_lasso.
+Print Assumptions NC.CanonicalRecurrence.fairflushR_lasso.
+Print Assumptions NC.CanonicalRecurrence.bad_lasso_no_fairflush.
+Print Assumptions NC.CanonicalRecurrence.fl_full.
+Print Assumptions NC.CanonicalRecurrence.flip2_fair_lasso.
+Print Assumptions NC.CanonicalRecurrence.fud_fz.
+Print Assumptions NC.CanonicalRecurrence.fud_loops.
+Print Assumptions NC.CanonicalRecurrence.nonfair_cycle_not_refuting.
+Print Assumptions NC.CanonicalRecurrence.ss2_full.
+Print Assumptions NC.CanonicalRecurrence.ss2_fiber_dec.
+Print Assumptions NC.CanonicalRecurrence.cb_tt_fixed.
+Print Assumptions NC.CanonicalRecurrence.cb_ff_fixed.
+Print Assumptions NC.CanonicalRecurrence.cb_lasso_tt.
+Print Assumptions NC.CanonicalRecurrence.cb_lasso_ff.
+Print Assumptions NC.CanonicalRecurrence.copyback_ghost_lasso.
+Print Assumptions NC.CanonicalRecurrence.class_negation_cycle.
+Print Assumptions NC.CanonicalRecurrence.class_good_resolver.
+Print Assumptions NC.CanonicalRecurrence.cb_step_stable.
+Print Assumptions NC.CanonicalRecurrence.class_multiple_fixed_points.
+Print Assumptions NC.CanonicalRecurrence.osc_full.
+Print Assumptions NC.CanonicalRecurrence.osc_not_z.
+Print Assumptions NC.CanonicalRecurrence.semantic_oscillation.
+Print Assumptions NC.CanonicalRecurrence.lasso_classification.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4421,8 +4531,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4335 ]; then
-  echo "FAIL: expected 4335 axiom-free results, got $N"
+if [ "$N" -lt 4444 ]; then
+  echo "FAIL: expected 4444 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
