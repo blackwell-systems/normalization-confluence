@@ -86,3 +86,4 @@ DifferenceAbstraction.v
 EventCollapse.v
 CompositionBlocks.v
 DifferenceParams.v
+ReconfigurationDelivery.v

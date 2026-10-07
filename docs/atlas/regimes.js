@@ -478,14 +478,31 @@ window.ATLAS = {
     "gap": 20
   },
   {
+    "kind": "exact",
+    "mark": "iff",
+    "name": "Switch under a delivery class",
+    "thm": "live_delivery_exact",
+    "setting": "A switch in the deterministic model (gsm's runtime) under declared independence, causal or at-least-once delivery, live or at a barrier.",
+    "condition": "Live iff B's class condition holds over the combined alphabet (in-flight events translated) from the migrated start and S1 holds at every A-prefix the class admits; at a barrier iff B's class condition holds at every migrated reachable state and A converges under the class modulo the migration, plus, at least once, a redelivery straddling the switch is absorbed.",
+    "needed": [
+      ["cross_declared_barrier", "the cross pairs the class reorders are needed"],
+      ["count_dup_prefix", "S1 at a duplicate prefix is needed"],
+      ["reset_straddle", "absorbing a redelivery that straddles the barrier is needed"]],
+    "gsm": "CheckMigration refuses registries with Independent pairs; classify_declared_complete states the check for them.",
+    "theorems": ["live_delivery_exact", "barrier_delivery_exact", "barrier_alo_exact", "classify_causal_complete", "classify_alo_complete"],
+    "modules": ["ReconfigurationDelivery.v"],
+    "section": "the-open-gaps",
+    "gap": 20
+  },
+  {
     "kind": "open",
     "mark": "20",
     "name": "Switch with propagation in flight",
     "note": "open",
     "setting": "Reconfiguration in the distributed model, where projections sent under A are merged under B.",
-    "condition": "Open: gap 20 residue (a), a live switch while propagation is in flight, and (b), declared independence, causal or at-least-once delivery across the switch.",
-    "theorems": ["live_exact", "fed_live_exact", "amodm_closure_exact"],
-    "modules": ["Reconfiguration.v", "ReconfigurationClosure.v"],
+    "condition": "Open: gap 20 residue (a), a live switch while propagation is in flight.",
+    "theorems": ["live_exact", "fed_live_exact", "amodm_closure_exact", "live_delivery_exact"],
+    "modules": ["Reconfiguration.v", "ReconfigurationClosure.v", "ReconfigurationDelivery.v"],
     "section": "the-open-gaps",
     "gap": 20
   }

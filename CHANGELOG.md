@@ -44,6 +44,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   - **Docs:** `coq/docs/abstraction.md` (new section with the gsm design input), `docs/ROADMAP.md`
     item 8, `docs/THEORY.md`, `coq/README.md` row, and the count lines.
   - **Gate:** raised from 3603 to 3749.
+- `coq/ReconfigurationDelivery.v`: reconfiguration inside a run under a delivery class. Closes
+  gap 20's residue (b) in the deterministic model (gsm's runtime); gap 20 stays narrowed, with (a)
+  open. Axiom-free.
+  - **Generic:** a run is a delivery sequence of the combined alphabet (A-events before the switch,
+    B-events after it, in-flight A-events applied through `tau`), a delivery class any
+    prefix-closed set of sequences compared by a relation reflexive on it. Live, `live_delivery_exact`:
+    B's class condition over the combined alphabet from the migrated start, plus S1 at every
+    A-prefix the class admits. Barrier, `barrier_delivery_exact`: B's class condition at every
+    migrated reachable state, plus A's class convergence modulo the migration.
+  - **Classes:** declared pairs (`live_trace_exact`, `barrier_trace_exact`; with every sequence
+    admissible, gsm's `Independent`, `live_declared_exact` and `barrier_declared_exact`, the pair
+    closure seeded with declared pairs only); causal (`live_causal_exact`, `barrier_causal_exact`);
+    at-least-once (`live_alo_exact`, `barrier_alo_exact`, free `live_free_alo_exact`,
+    `barrier_free_alo_exact`), where a redelivery straddling the barrier is a conjunct of its own.
+  - **Recovered:** `det_live_exact`, `det_barrier_exact`, `det_barrier_closure_exact` at free
+    delivery (`free_live_exact`, `free_barrier_exact`, `free_barrier_closure_exact`); with no
+    switch, `causal_exact`, `tconv_exact`, `alo_exact`, `dalo_exact` (`causal_no_switch`,
+    `declared_no_switch`, `alo_no_switch`, `dalo_no_switch`).
+  - **Finite instances:** `classify_declared_complete`, `classify_causal_complete`,
+    `classify_alo_complete`, no unknown case (causal and at-least-once through a closure over
+    states and delivered sets).
+  - **Counterexamples and non-vacuity:** `cross_declared_barrier`, `cross_causal_barrier` (the cross
+    pair the class reorders), `count_dup_prefix` (S1 at a duplicate prefix), `reset_straddle` (a
+    redelivery straddling the barrier: barrier only exactly once, unsafe at least once),
+    `barrier_b_needed`, `barrier_a_needed`; `rescaled_max`, `instances_classified`.
+  - **Gate:** raised from 3749 to 3947.
+
 - `coq/EventCollapse.v`: events with equal governed steps are checked once, the theorem for gsm's
   single check of a parameterized event outside its declared ranges (gsm theory section 11.12,
   "Ranges"). Axiom-free.
