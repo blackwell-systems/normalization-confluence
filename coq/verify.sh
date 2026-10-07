@@ -4521,6 +4521,104 @@ Print Assumptions NC.CanonicalRecurrence.osc_full.
 Print Assumptions NC.CanonicalRecurrence.osc_not_z.
 Print Assumptions NC.CanonicalRecurrence.semantic_oscillation.
 Print Assumptions NC.CanonicalRecurrence.lasso_classification.
+Require NC.LayerInterfaces.
+Print Assumptions NC.LayerInterfaces.descends_iff_respects.
+Print Assumptions NC.LayerInterfaces.descends_iff_factors.
+Print Assumptions NC.LayerInterfaces.commutes_descends.
+Print Assumptions NC.LayerInterfaces.wapply_snoc.
+Print Assumptions NC.LayerInterfaces.wapply_closed.
+Print Assumptions NC.LayerInterfaces.descends_word.
+Print Assumptions NC.LayerInterfaces.state_descent_is_descends.
+Print Assumptions NC.LayerInterfaces.state_descent_respects_recovered.
+Print Assumptions NC.LayerInterfaces.cc2_is_descends.
+Print Assumptions NC.LayerInterfaces.fed_closed.
+Print Assumptions NC.LayerInterfaces.fed_idem.
+Print Assumptions NC.LayerInterfaces.cons_closed.
+Print Assumptions NC.LayerInterfaces.cons_idem.
+Print Assumptions NC.LayerInterfaces.xu_is_descends.
+Print Assumptions NC.LayerInterfaces.xu_iff_respects.
+Print Assumptions NC.LayerInterfaces.c1_is_descends.
+Print Assumptions NC.LayerInterfaces.c1_iff_respects.
+Print Assumptions NC.LayerInterfaces.candidate_is_commutes.
+Print Assumptions NC.LayerInterfaces.candidate_implies_xu.
+Print Assumptions NC.LayerInterfaces.strict_not_necessary.
+Print Assumptions NC.LayerInterfaces.history_from_descent.
+Print Assumptions NC.LayerInterfaces.path_history_from_descent.
+Print Assumptions NC.LayerInterfaces.descent_not_history.
+Print Assumptions NC.LayerInterfaces.history_not_descent.
+Print Assumptions NC.LayerInterfaces.canon_settles_fiber.
+Print Assumptions NC.LayerInterfaces.trajectory_quotient.
+Print Assumptions NC.LayerInterfaces.canon_settles_quotient_invariant.
+Print Assumptions NC.LayerInterfaces.t3u_ta.
+Print Assumptions NC.LayerInterfaces.t3u'_late.
+Print Assumptions NC.LayerInterfaces.t3_fair.
+Print Assumptions NC.LayerInterfaces.trajectory_needs_descent.
+Print Assumptions NC.LayerInterfaces.sn_reach_nf.
+Print Assumptions NC.LayerInterfaces.cr_peaks.
+Print Assumptions NC.LayerInterfaces.cr_unf.
+Print Assumptions NC.LayerInterfaces.newman_bridge.
+Print Assumptions NC.LayerInterfaces.sn_no_cycle.
+Print Assumptions NC.LayerInterfaces.nf_iff_stable.
+Print Assumptions NC.LayerInterfaces.lstep_dec.
+Print Assumptions NC.LayerInterfaces.wrun_star.
+Print Assumptions NC.LayerInterfaces.star_word.
+Print Assumptions NC.LayerInterfaces.mloop_cycle.
+Print Assumptions NC.LayerInterfaces.fixers_spec.
+Print Assumptions NC.LayerInterfaces.wrun_fixed.
+Print Assumptions NC.LayerInterfaces.wrun_ins.
+Print Assumptions NC.LayerInterfaces.path_ins.
+Print Assumptions NC.LayerInterfaces.in_ins_orig.
+Print Assumptions NC.LayerInterfaces.in_ins_fixer.
+Print Assumptions NC.LayerInterfaces.bsearch.
+Print Assumptions NC.LayerInterfaces.fair_starves.
+Print Assumptions NC.LayerInterfaces.sn_no_loop.
+Print Assumptions NC.LayerInterfaces.acc_bound.
+Print Assumptions NC.LayerInterfaces.chain_reach.
+Print Assumptions NC.LayerInterfaces.chain_word.
+Print Assumptions NC.LayerInterfaces.sn_iff_no_loop.
+Print Assumptions NC.LayerInterfaces.fair_sn_exact.
+Print Assumptions NC.LayerInterfaces.fair_newman.
+Print Assumptions NC.LayerInterfaces.kstep.
+Print Assumptions NC.LayerInterfaces.kc_ka.
+Print Assumptions NC.LayerInterfaces.kb_kd.
+Print Assumptions NC.LayerInterfaces.k_nf_a.
+Print Assumptions NC.LayerInterfaces.k_nf_d.
+Print Assumptions NC.LayerInterfaces.k_lc.
+Print Assumptions NC.LayerInterfaces.k_fair_settles.
+Print Assumptions NC.LayerInterfaces.k_ones.
+Print Assumptions NC.LayerInterfaces.four_point_fair_not_confluent.
+Print Assumptions NC.LayerInterfaces.drop_to_fz.
+Print Assumptions NC.LayerInterfaces.drop_starved_confluent.
+Print Assumptions NC.LayerInterfaces.or_fst.
+Print Assumptions NC.LayerInterfaces.or_snd.
+Print Assumptions NC.LayerInterfaces.or_prs.
+Print Assumptions NC.LayerInterfaces.or_fair_newman.
+Print Assumptions NC.LayerInterfaces.erep_fixed_iff.
+Print Assumptions NC.LayerInterfaces.edge_fixed_iff_section.
+Print Assumptions NC.LayerInterfaces.edge_fixed_iff_csp.
+Print Assumptions NC.LayerInterfaces.edge_fixed_exists_iff_csp.
+Print Assumptions NC.LayerInterfaces.rupd_fixed_iff.
+Print Assumptions NC.LayerInterfaces.rupd_fixed_iff_csp.
+Print Assumptions NC.LayerInterfaces.path_js.
+Print Assumptions NC.LayerInterfaces.no_solution_no_settlement.
+Print Assumptions NC.LayerInterfaces.singleton_iff_solution.
+Print Assumptions NC.LayerInterfaces.canon_needs_solutions.
+Print Assumptions NC.LayerInterfaces.settled_canon_exact.
+Print Assumptions NC.LayerInterfaces.ghost_refutes.
+Print Assumptions NC.LayerInterfaces.multistable.
+Print Assumptions NC.LayerInterfaces.flip2_unique_solution_livelock.
+Print Assumptions NC.LayerInterfaces.set2_get2.
+Print Assumptions NC.LayerInterfaces.negation_no_solution.
+Print Assumptions NC.LayerInterfaces.no_solution_canon_settles.
+Print Assumptions NC.LayerInterfaces.copyback_multistable.
+Print Assumptions NC.LayerInterfaces.copyback_ghost_solution.
+Print Assumptions NC.LayerInterfaces.natural_maps_sections.
+Print Assumptions NC.LayerInterfaces.preserves_exact.
+Print Assumptions NC.LayerInterfaces.square_necessary.
+Print Assumptions NC.LayerInterfaces.natural_iff_edgewise.
+Print Assumptions NC.LayerInterfaces.uniform_natural_is_unary_pol.
+Print Assumptions NC.LayerInterfaces.natural_converse_fails.
+Print Assumptions NC.LayerInterfaces.selfloop_square_not_necessary.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4531,8 +4629,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4444 ]; then
-  echo "FAIL: expected 4444 axiom-free results, got $N"
+if [ "$N" -lt 4541 ]; then
+  echo "FAIL: expected 4541 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
