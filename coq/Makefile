@@ -485,3 +485,10 @@ all: DifferenceParams.vo
 
 DifferenceParams.vo: DifferenceParams.v Newman.vo Governance.vo SymmetryCutoff.vo AbstractionCutoff.vo Trace.vo DifferenceAbstraction.vo
 	coqc -Q . NC DifferenceParams.v
+# Reconfiguration under a delivery class: declared independence, causal and at-least-once delivery
+# across the switch, live and at a barrier, decided on finite instances (gap 20 residue (b),
+# ReconfigurationDelivery.v).
+all: ReconfigurationDelivery.vo
+
+ReconfigurationDelivery.vo: ReconfigurationDelivery.v Newman.vo Trace.vo CausalReplay.vo AtLeastOnce.vo AtLeastOnceExact.vo AtLeastOnceDeclared.vo GovernanceConverse.vo Reconfiguration.vo ReconfigurationClosure.vo DistributedDelivery.vo
+	coqc -Q . NC ReconfigurationDelivery.v

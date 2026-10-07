@@ -501,10 +501,25 @@ as a new axis ([COVERAGE.md](COVERAGE.md), gap 20 in [REGIME-AUDIT.md](../REGIME
   (`amodm_witness_exact`), so the classification is decided with no faithfulness hypothesis and no
   unknown outcome (`det_classify_complete`); gsm's pruned search computes the same closure
   (`gsm_closure_exact`), so its empty result is a certificate.
+- **Done (residue (b), `coq/ReconfigurationDelivery.v`).** In the deterministic model, any
+  prefix-closed delivery class across the switch: a run is a delivery sequence of the combined
+  alphabet (A-events before the switch, B-events after it). Live, `live_delivery_exact`: B's class
+  condition over the combined alphabet from the migrated start (the in-flight A-events translated,
+  so the cross pairs count exactly as the class reorders them) plus S1 at every A-prefix the class
+  admits; at a barrier, `barrier_delivery_exact`: B's class condition at every migrated reachable
+  state plus A's class convergence modulo M. Instances: declared pairs (`live_trace_exact`,
+  `barrier_trace_exact`; gsm's `Independent`, `live_declared_exact`, `barrier_declared_exact`, the
+  pair closure seeded with declared pairs only), causal (`live_causal_exact`,
+  `barrier_causal_exact`), at-least-once (`live_alo_exact`, `barrier_alo_exact`, with a redelivery
+  straddling the barrier a conjunct of its own, `reset_straddle`). Free delivery and no switch are
+  corollaries (`free_live_exact`, `free_barrier_closure_exact`; `causal_no_switch`,
+  `alo_no_switch`, `declared_no_switch`, `dalo_no_switch`), and each class is decided on finite
+  instances (`classify_declared_complete`, `classify_causal_complete`, `classify_alo_complete`).
 - **Remaining.** A live switch in the distributed model, where propagation is in flight
-  (projections sent under A merged under B); declared independence, causal or at-least-once
-  delivery across the switch; and gsm's `CheckMigration` reporting the exhausted AmodM search as
-  safe behind a barrier instead of unknown (gsm ROADMAP item 2).
+  (projections sent under A merged under B); the delivery classes in the rewriting model, and
+  declared pairs combined with at-least-once delivery across a switch; gsm's `CheckMigration`
+  reporting the exhausted AmodM search as safe behind a barrier instead of unknown (gsm ROADMAP
+  item 2), and accepting registries with `Independent` pairs (`classify_declared_complete`).
 
 - **Before.** Every module fixed the topology and the rules for a whole run. Real deployments add
   services, migrate schemas and change rules while events and projections are in flight. A change
@@ -578,7 +593,7 @@ something outside P.
 | Rootless edge-writer dynamics beyond the regular action (gap 17): lossy maps at in-degree two or more, non-free invertible actions; existence is exact and NP-complete, settlement and uniqueness are open | open | medium |
 | Existence and counting in reading B without a spanning root (gap 18): mechanize one of the reductions between the readings | open | small |
 | Composition beyond acyclic collapse (gap 19): cyclic blocks of different engines, coordination-free; collapse in the distributed model | narrowed (`CompositionBlocks.v`): (a) done for any engines (`compose_exact`, each conjunct necessary, `compose_isolated_refuted`; `compose_collapse`; `interface_closed`; `mixed_rootless_exact`, `mixed_mono_iff`); (b) done for an acyclic `J` (`dist_collapse_iff`; `dist_collapse_refuted`; `dist_collapse_xu`). Open: (b) for a cyclic `J` (the no-reset cyclic distributed model and reset epochs, `J`'s atom its own flush to quiescence) | medium |
-| Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | narrowed: modeled in `Reconfiguration.v`; single registry under free delivery, exact at a barrier (`barrier_exact`, `barrier_exact_faithful`) and live (`live_exact`: B's condition from every migrated reachable state plus the cross pairs S1 and S2; A's own condition not necessary, `forgetful_migration`); the classification online, barrier only, unsafe decidable on finite instances (`classify_finite`); federations under FedMachine semantics, exact at a barrier and live (`fed_barrier_exact`, `fed_live_exact`; `late_edge`); in the deterministic model, an unfaithful migration's barrier A part in local and finite form, with the classification decided with no unknown case (`ReconfigurationClosure.v`: `amodm_closure_exact`, `det_classify_complete`; residue (c) closed). Open: (a) a live switch with propagation in flight (the distributed model); (b) other delivery classes across the switch | small to medium |
+| Reconfiguration inside a run (gap 20, **new axis**): topology or rules change while events or propagation are in flight | narrowed: modeled in `Reconfiguration.v`; single registry under free delivery, exact at a barrier (`barrier_exact`, `barrier_exact_faithful`) and live (`live_exact`: B's condition from every migrated reachable state plus the cross pairs S1 and S2; A's own condition not necessary, `forgetful_migration`); the classification online, barrier only, unsafe decidable on finite instances (`classify_finite`); federations under FedMachine semantics, exact at a barrier and live (`fed_barrier_exact`, `fed_live_exact`; `late_edge`); in the deterministic model, an unfaithful migration's barrier A part in local and finite form, with the classification decided with no unknown case (`ReconfigurationClosure.v`: `amodm_closure_exact`, `det_classify_complete`; residue (c) closed); in the deterministic model, declared, causal and at-least-once delivery across the switch, exact live and at a barrier and decided on finite instances (`ReconfigurationDelivery.v`: `live_delivery_exact`, `barrier_delivery_exact`, `classify_causal_complete`, `classify_alo_complete`; residue (b) closed). Open: (a) a live switch with propagation in flight (the distributed model) | small to medium |
 | Propagation over channels (gap 21, **new axis**): late, reordered or duplicated projections; gsm's `MergeProjection` and `MergeProjectionAfter` | narrowed: modeled in `ProjectionChannels.v`; acyclic, exact over channel-reachable states in either mode (`chan_exact`, `chan_exact_global`); versioned merging converges at drain exactly when it does after a flush, and under gsm's XU and C2 (`vsettle_exact_cond`, `vsettle_xu_c2`); plain merging settles iff nothing stale is in flight (`plain_settle_iff`; fails under XU, `plain_stale_counterexample`); two-level networks, `dist_exact`'s condition (`vchan_twolevel_exact`). Open: (a) the current-value form beyond two-level networks (does `CXUR true` equal `XUR`); (b) flush and reset epochs over channels on cycles (the ghost survives, `vchan_cyc_ghost`) | small to medium |
 
 Optimization and counting, which do not bear on when state converges (audit gaps 10 to 13):
