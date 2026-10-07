@@ -685,6 +685,20 @@ window.ATLAS = {
     "section": "12-non-invertible-transports"
   },
   {
+    "kind": "exact",
+    "mark": "iff",
+    "name": "Monotone transports on a chain",
+    "thm": "ac_exact",
+    "setting": "A fixed family of monotone transport maps on a finite chain {0..N}, any graph, pinned vertices allowed: does a consistent state exist.",
+    "condition": "Arc consistency decides it: the procedure returns true iff a consistent state with values in the chain exists, and the minimum of each arc-consistent domain is one. Per fixed family, existence is CSP(Gamma_F), classified by the operations commuting with every map (cited dichotomy); min and max are among them on a chain.",
+    "needed": [
+      ["ac_needs_mono", "monotonicity is needed: a negation triangle passes arc consistency with no section"],
+      ["diamond_join_fails", "the chain is needed: on the diamond a monotone lossy map does not commute with join"]],
+    "theorems": ["ac_exact", "chain_pol", "section_iff_csp", "pol_gamma_iff", "hard_family_csp"],
+    "modules": ["TransportCSP.v"],
+    "section": "12-non-invertible-transports"
+  },
+  {
     "kind": "hard",
     "mark": "NP",
     "name": "Minimum coordination",

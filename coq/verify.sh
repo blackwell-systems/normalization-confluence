@@ -4109,6 +4109,71 @@ Print Assumptions NC.ProjectionChains.k_not_nested.
 Print Assumptions NC.ProjectionChains.vchan_skip_counterexample.
 Print Assumptions NC.ProjectionChains.ch_common.
 Print Assumptions NC.ProjectionChains.chain_instance.
+Require NC.TransportCSP.
+Print Assumptions NC.TransportCSP.tc_map_nth_seq.
+Print Assumptions NC.TransportCSP.tc_map_const_seq.
+Print Assumptions NC.TransportCSP.csat_econ.
+Print Assumptions NC.TransportCSP.csat_pcon.
+Print Assumptions NC.TransportCSP.section_solution.
+Print Assumptions NC.TransportCSP.section_iff_csp.
+Print Assumptions NC.TransportCSP.section_iff_csp_nopin.
+Print Assumptions NC.TransportCSP.csat_hcon.
+Print Assumptions NC.TransportCSP.hsection_iff_csp.
+Print Assumptions NC.TransportCSP.hsection_over.
+Print Assumptions NC.TransportCSP.msection_as_hsection.
+Print Assumptions NC.TransportCSP.pol_iff_commute.
+Print Assumptions NC.TransportCSP.pol_pin_iff.
+Print Assumptions NC.TransportCSP.pol_gamma_iff.
+Print Assumptions NC.TransportCSP.pol_solutions.
+Print Assumptions NC.TransportCSP.section_closure.
+Print Assumptions NC.TransportCSP.inv_op.
+Print Assumptions NC.TransportCSP.group_maltsev.
+Print Assumptions NC.TransportCSP.group_pol.
+Print Assumptions NC.TransportCSP.group_section_as_msection.
+Print Assumptions NC.TransportCSP.prj_signs.
+Print Assumptions NC.TransportCSP.prj_signs_eq.
+Print Assumptions NC.TransportCSP.hard_family_length.
+Print Assumptions NC.TransportCSP.sprj_in.
+Print Assumptions NC.TransportCSP.prj_in.
+Print Assumptions NC.TransportCSP.net_in_hard_family.
+Print Assumptions NC.TransportCSP.hard_family_csp.
+Print Assumptions NC.TransportCSP.mono_min_commute.
+Print Assumptions NC.TransportCSP.mono_max_commute.
+Print Assumptions NC.TransportCSP.mono_median_commute.
+Print Assumptions NC.TransportCSP.med_majority.
+Print Assumptions NC.TransportCSP.chain_pol.
+Print Assumptions NC.TransportCSP.chain_min_section.
+Print Assumptions NC.TransportCSP.hard_family_min_fails.
+Print Assumptions NC.TransportCSP.diamond_join_fails.
+Print Assumptions NC.TransportCSP.diamond_meet_ok.
+Print Assumptions NC.TransportCSP.diamond_g_fails.
+Print Assumptions NC.TransportCSP.median_family.
+Print Assumptions NC.TransportCSP.median_family_not_lattice.
+Print Assumptions NC.TransportCSP.tc_filter_le.
+Print Assumptions NC.TransportCSP.tc_filter_eq.
+Print Assumptions NC.TransportCSP.msum_ext.
+Print Assumptions NC.TransportCSP.msum_lt.
+Print Assumptions NC.TransportCSP.msum_bound.
+Print Assumptions NC.TransportCSP.lmin_in.
+Print Assumptions NC.TransportCSP.lmin_le.
+Print Assumptions NC.TransportCSP.memb_spec.
+Print Assumptions NC.TransportCSP.tab_spec.
+Print Assumptions NC.TransportCSP.nxt_spec.
+Print Assumptions NC.TransportCSP.measure_nxt.
+Print Assumptions NC.TransportCSP.ac_run_some.
+Print Assumptions NC.TransportCSP.ac_pass_bound.
+Print Assumptions NC.TransportCSP.sol_ok.
+Print Assumptions NC.TransportCSP.run_spec.
+Print Assumptions NC.TransportCSP.stable_spec.
+Print Assumptions NC.TransportCSP.ac_min_section.
+Print Assumptions NC.TransportCSP.ac_exact.
+Print Assumptions NC.TransportCSP.ac_family.
+Print Assumptions NC.TransportCSP.mono_fam_mono.
+Print Assumptions NC.TransportCSP.ac_ex1.
+Print Assumptions NC.TransportCSP.ac_ex2.
+Print Assumptions NC.TransportCSP.ac_ex3.
+Print Assumptions NC.TransportCSP.ac_needs_mono.
+Print Assumptions NC.TransportCSP.bridge_instances.
 Require NC.ReconfigurationGsm.
 Print Assumptions NC.ReconfigurationGsm.pcig_pci.
 Print Assumptions NC.ReconfigurationGsm.pci_pcig.
@@ -4195,8 +4260,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4112 ]; then
-  echo "FAIL: expected 4112 axiom-free results, got $N"
+if [ "$N" -lt 4176 ]; then
+  echo "FAIL: expected 4176 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

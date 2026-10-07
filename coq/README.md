@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 4112 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 4112 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4176 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4176 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -180,6 +180,7 @@ is on the same page.
 | `LossyHardness.v` | The 3-SAT reduction: `net_section_iff_sat`, `net_bijection`, `net_count`, `net_size`, `np_certificate` (NP-completeness then follows by the standard argument) | [The 3-SAT reduction](docs/non-invertible.md#the-3-sat-reduction-for-lossy-networks-lossyhardnessv) |
 | `RootSetEvents.v` | `forest_events_exact`, `forest_perm_exact`, `forest_events_exact_global`, `forest_runs_by_root` | [Event order under root-set coordination](docs/non-invertible.md#the-exact-event-order-condition-under-root-set-coordination-rootseteventsv) |
 | `LossyMinimum.v` | Minimum coordination: `lfeasible_iff_root_set`, `lmin_root_set`, `lmin_b_correct`, `lmin_zero_iff_sat`, `net_lmin_dichotomy`, `min_le_np_certificate`, `lossy_min_is_gfes`, `lossy_min_exceeds_cycle_bounds` | [Minimum coordination](docs/non-invertible.md#minimum-coordination-for-lossy-networks-lossyminimumv) |
+| `TransportCSP.v` | Static consistency as a CSP: `section_iff_csp`, `hsection_iff_csp`, `pol_iff_commute`, `pol_gamma_iff`, `group_maltsev`, `hard_family_csp`; monotone transports on finite chains: `chain_pol`, `ac_exact`, `ac_needs_mono`; off the chain: `diamond_join_fails`, `median_family` | [Static consistency as a CSP](docs/non-invertible.md#static-consistency-as-a-csp-transportcspv) |
 | `SignedCycles.v` | Loops versus merges: `invertible_merge_is_holonomy`, `holonomy_free_section`, `section_transport`, `fundamental_cycles_holonomy`, `obstruction_loop_vs_merge`; Harary balance proved at Z/2: `harary_balance`, `balanced_no_positive_acyclic` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
 | `SignedResolver.v` | The signed-cycle to E bridge (sufficient certificates, reading B): `switched_monotone`, `resp_reads_in_neighbors`, `signed_settlement`, `signed_settlement_harary`, `signed_fidelity`, `signed_fidelity_harary`; breaks `neg2_no_fixed_point`, `copyback_ghost`, `toggle_ghost`, `ring_needs_low_start`, `ring_low_start_E`, `unbalanced_unique_oscillates`, `flip_needs_top`, `flip_needs_top_resolver`, `xor_no_certificate`, `cyc3_unsignable`; `unique_pos_cycle_every_certificate` | [Signed cycles](docs/non-invertible.md#signed-cycles-loops-versus-merges-and-the-signed-cycle-bridge-to-e-signedcyclesv-signedresolverv) |
 | `LocalSigned.v` | Local interaction graphs (Boolean, every `n`): local fidelity `rrt_sub`, `local_fidelity`, `local_fidelity_canon`, `local_signed_fidelity`, `global_to_local`; local settlement `richard_t3` (non-expansive), `outdeg_nonexpansive`, `richard_t4`, `shih_dong_E`; counterexamples `local_weaker_than_global`, `local_neg_free_no_fixed_point`, `shih_dong_not_fair`, `ring_local_conditions` | [Local interaction graphs](docs/non-invertible.md#local-interaction-graphs-local-fidelity-and-local-settlement-localsignedv) |
@@ -266,7 +267,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4112
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4176
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).
