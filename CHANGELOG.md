@@ -1105,6 +1105,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   `coq/docs/non-invertible.md` say that the global-sections/CSP identification is known in general
   and that `section_iff_csp` is its form for transport networks. No theorem added, removed or
   renamed.
+- `docs/LANDSCAPE.md`, "Related work for the constraint layer": a paragraph on prior work for the
+  monotone and poset cells of `TransportCSPHard.v`. A pinned network over a family is a system of
+  equations over a unary algebra (Larose and Zádori 2006, Theorem 2.2; Mayr 2023); for
+  three-element posets the chain/non-chain boundary follows from Broniek's classification of unary
+  algebras on at most three elements (2006, Theorem 4.4); `dfam` is the two-element bounded lattice
+  written as unary maps on its square, so the diamond cell's hardness also follows from Larose and
+  Zádori 2006, Corollary 3.4; centralizers of monoids (Machida and Rosenberg 2003, 2004); the poset
+  polymorphism line (Larose and Zádori 1997, 2003, 2004; Szabó and Zádori 2001) concerns the order
+  relation, a different template. No statement of the boundary for all non-chain posets was found;
+  the rest of the search table follows by retraction and up-set arguments stated there, not
+  mechanized. Wording made to match: `coq/docs/non-invertible.md` (the family of all monotone
+  transports, not every monotone family, is hard off the chain, mechanized on the diamond and
+  computational elsewhere; prior work added to "Cited, not mechanized"), `docs/THEORY.md` (one
+  sentence), `REGIME-AUDIT.md` section 12 (summary and the fixed-family row), and the atlas tile
+  "Monotone transports off the chain" renamed "Monotone transports on the diamond". No theorem
+  added, removed or renamed.
 - `README.md`: the status list follows #125 and #126 (reconfiguration exact under declared, causal and at-least-once delivery; versioned channels exact on single-source networks at any depth; gaps 20 and 21 restated). No theorem added, removed or renamed.
 - `docs/atlas/check.py` also checks gap status against `REGIME-AUDIT.md` (no closed gap shown open; every open convergence gap has a tile), and a new CI workflow (`.github/workflows/atlas.yml`) runs it on every PR, so the poster cannot drift from the audit. No theorem added, removed or renamed.
 - Gate count 3603 (after #118) in `README.md`, `coq/README.md` and the atlas poster, which `docs/atlas/check.py` requires to match `verify.sh`. No theorem added, removed or renamed.

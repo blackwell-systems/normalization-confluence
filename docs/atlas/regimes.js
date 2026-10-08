@@ -701,7 +701,7 @@ window.ATLAS = {
   {
     "kind": "hard",
     "mark": "NP",
-    "name": "Monotone transports off the chain",
+    "name": "Monotone transports on the diamond",
     "thm": "dnet_iff_sat",
     "setting": "A fixed family of monotone transport maps on the diamond (two flags, the Boolean lattice 2 x 2), any graph, pinned vertices allowed: does a consistent state exist.",
     "condition": "NP-complete, as the algebra predicts: six monotone maps (read one flag, the AND or the OR of the two flags, or a constant) carry a mechanized linear 3-SAT reduction with an NP certificate, and every polymorphism of their template, at every arity, is a projection, so there is no Siggers, majority or Mal'tsev polymorphism. Any family containing them, such as all monotone maps of the diamond, is hard too.",

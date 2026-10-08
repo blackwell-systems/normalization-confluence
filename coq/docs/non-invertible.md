@@ -900,8 +900,9 @@ a Siggers polymorphism.
   without `dc1` the constant `dz` state is.
 - `semilattice_pol`: for any idempotent binary operation `j`, a family of `j`-homomorphisms has `j`
   as a polymorphism with any pins; `joinhom_pol`, `meethom_pol` on the diamond. So transports that
-  preserve join (the CRDT shape) are on the tractable side, while monotone transports off the chain
-  are not.
+  preserve join (the CRDT shape) are on the tractable side, while the family of all monotone
+  transports is not: on the diamond by the results above, on the other non-chain posets of the
+  search table computationally.
 
 **Instances.** `dnet_fsat`, `dnet_fsat_check` (one satisfiable clause: a section, checked by
 computation), `dnet_funsat` (the unsatisfiable 8-clause formula of `LossyHardness.v`: no section),
@@ -914,4 +915,12 @@ Comput. 34(3), 2005); the Siggers term (Siggers, Algebra Universalis 64, 2010, 6
 used by the search is Kearnes, Markovic and McKenzie, Algebra Universalis 72, 2014); semilattice
 tractability (Jeavons, Cohen and Gyssens, J. ACM 44(4), 1997). For `dfam` both sides are
 mechanized: the hardness by the reduction, and the absence of Taylor-type polymorphisms by
-`pol_dfam_iff`; the dichotomy only links the two.
+`pol_dfam_iff`; the dichotomy only links the two. Prior work on this cell: `dfam` is the
+two-element bounded lattice written as unary maps on its square, so its hardness also follows from
+Larose and Zádori (Internat. J. Algebra Comput. 16(3), 2006, Corollary 3.4: solving equations over
+a non-trivial finite lattice is NP-complete), and for three-element posets the chain/non-chain
+boundary follows from Broniek's classification of unary algebras on at most three elements (DMTCS
+Proceedings AF, 2006, Theorem 4.4). `dnet_iff_sat` mechanizes the first consequence, and
+`pol_dfam_iff` the elementary fact behind it (the bounded lattice homomorphisms from `2^n` to `2`
+are the coordinates); a statement for all non-chain posets was not found. Details:
+[LANDSCAPE.md](../../docs/LANDSCAPE.md#related-work-for-the-constraint-layer).

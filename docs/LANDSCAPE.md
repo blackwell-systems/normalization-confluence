@@ -550,14 +550,108 @@ operations fixing the pins.
   92-110) settle the undirected binary case (polynomial if `H` is bipartite or has a loop,
   NP-complete otherwise); graphs of maps are directed, so their theorem does not classify Gamma_F.
 - Feder, Madelaine and Stewart ("Dichotomies for classes of homomorphism problems involving unary
-  functions," *Theoret. Comput. Sci.* 314(1-2), 2004, 1-43; abstract read, full text not) study
+  functions," *Theoret. Comput. Sci.* 314(1-2), 2004, 1-43; abstract and introduction read) study
   templates given by unary functions: one function gives a problem that is L-complete or trivial,
   two functions already reflect the full computational significance of CSPs on relational
   structures, and a pair of mutually inverse functions gives a P versus NP-complete dichotomy. So
   restricting templates to maps does not, in general, make classification easier than the general
   dichotomy, and the per-family question for Gamma_F is decided only by the cited dichotomy (Bulatov
   2017; Zhuk 2017, 2020). `hard_family_csp` is one explicit NP-complete family of this kind,
-  extracted from the 3-SAT reduction; it is a concrete instance, not a new kind of hardness.
+  extracted from the 3-SAT reduction; it is a concrete instance, not a new kind of hardness. Their
+  instances are themselves structures with total functions (homomorphisms of unary algebras),
+  while an instance of CSP(Gamma_F) puts a graph constraint on chosen pairs of variables only.
+
+**Monotone transports off the chain: unary algebras, lattices and posets.** `TransportCSPHard.v`
+proves section existence NP-complete for six monotone maps `dfam` of the diamond `2 x 2`
+(`dnet_iff_sat`), with only projections as polymorphisms of their template at every arity
+(`pol_dfam_iff`); the search in `research/predicted-hard-cell` finds a Siggers polymorphism for
+the family of all monotone maps of every chain it tries and none for any non-chain poset of three
+or more elements it tries. The question here is whether that boundary was known. Read at theorem
+level: Larose and Zádori 2006, Broniek 2006, Mayr 2023 and the Machida and Rosenberg survey of
+2003; at abstract and introduction level: Larose and Zádori 1997, 2003 and 2004, Szabó and Zádori
+2001, Machida and Rosenberg 2004, and Broniek's 2015 book (its table of contents and Mayr's account
+of it).
+
+- **The per-family question is solving equations over a unary algebra.** A pinned transport
+  network over `F` is a system of equations `x_v = f(x_u)` and `x_v = c` over the unary algebra
+  `(D; F)`. Larose and Zádori ("Taylor terms, constraint satisfaction and the complexity of
+  polynomial equations over finite algebras," *Internat. J. Algebra Comput.* 16(3), 2006, 563-581,
+  Theorem 2.2) show that solving systems of polynomial equations over a finite algebra (SysPol) is
+  logspace-equivalent to the CSP of the graphs of its basic operations, equality and the
+  constants, which for a unary algebra is Gamma_F with every pin; they note that an operation
+  preserves the graph of `f` iff it commutes with `f` (the fact `pol_iff_commute` mechanizes), and
+  (Theorem 2.4) that SysPol is NP-complete when no Taylor operation commutes with the basic
+  operations. Mayr ("On the complexity dichotomy for the satisfiability of systems of term
+  equations over finite algebras," MFCS 2023, LIPIcs 272, 66:1-66:12, Lemmas 4 and 5) states the
+  same correspondence for term equations, which is Gamma_F without pins.
+- **Three-element fibers: the boundary is a consequence of Broniek's classification.** Broniek
+  ("Solving equations over small unary algebras," *Computational Logic and Applications (CLA
+  '05)*, DMTCS Proceedings AF, 2006, 49-60, Definition 2.3 and Theorem 4.4) classifies SysPol for
+  every unary algebra on at most three elements by the width of the preorder `f <= g` iff
+  `ker f ⊆ ker g` on its term monoid: polynomial (a reduction to 2-SAT) at width at most 2,
+  NP-complete (a reduction from positive 1-in-3-SAT) at width 3. For the family of all monotone
+  maps of a three-element poset, the kernels on the chain `0 < 1 < 2` are the discrete partition,
+  `{0, 1 | 2}`, `{0 | 1, 2}` and the full one (width 2), while on the antichain, V, Lambda and
+  `1 + 2` each of the three two-block partitions is the kernel of a monotone map (width 3). That
+  computation is ours (by hand and by script), not stated in the paper; with it, the chain/non-chain
+  boundary at size three is Broniek's Theorem 4.4, and the search's four three-element rows agree
+  with it.
+- **The diamond family encodes the two-element lattice.** Larose and Zádori (2006, Lemma 3.2 and
+  Corollary 3.4) prove that no Taylor operation commutes with a majority operation, so SysPol over
+  every non-trivial finite lattice is NP-complete. The six maps of `dfam` are the two-element
+  bounded lattice written as unary maps on its square: each sends `(x1, x2)` to `(g, g)` for `g`
+  the first coordinate, the second, their meet, their join, or a constant. A `dp1` self-loop
+  confines a vertex to `{dz, du}`, a copy of `{0, 1}`, and a hidden vertex `W` with `dp1 W = x`,
+  `dp2 W = y` and `dfl W = z` (or `dor W = z`) is the equation `z = x and y` (or `z = x or y`), so
+  the NP-completeness of the diamond cell also follows from their Corollary 3.4. `dnet_iff_sat` is a
+  direct 3-SAT reduction built from the same gadgets. `pol_dfam_iff` is stronger than the absence
+  of a Taylor polymorphism, since it determines the whole clone, but its proof is the elementary
+  fact that the bounded lattice homomorphisms from `2^n` to `2` are the coordinates.
+- **Centralizers of monoids.** Pol(Gamma_F) is the centralizer of the monoid generated by `F`, cut
+  to the operations fixing the pins, so `pol_dfam_iff` says that this monoid's centralizer is the
+  least clone, the property studied by Machida and Rosenberg ("Monoids whose centralizer is the
+  least clone," Proc. 34th ISMVL, IEEE, 2004, 102-108; abstract read: a sufficient condition and
+  examples). Their survey ("Centralizers and monoids in mathematical clone theory," *RIMS
+  Kôkyûroku* 1325, 2003, 146-151, Proposition 2.5, proof omitted there) states it for the monoid of
+  all unary operations (the surrounding results take at least three elements; on two, the majority
+  operation commutes with every unary map), which covers the search's rows for all maps and for the
+  three-element antichain. We did not check their sufficient condition against `dfam` or the
+  monotone monoids of the search.
+- **Polymorphisms of posets are a different template.** The poset line (Larose and Zádori,
+  "Algebraic properties and dismantlability of finite posets," *Discrete Math.* 163, 1997, 89-99;
+  Szabó and Zádori, "Idempotent totally symmetric operations on finite posets," *Order* 18, 2001,
+  39-47; Larose and Zádori, "The complexity of the extendibility problem for finite posets," *SIAM
+  J. Discrete Math.* 17(1), 2003, 114-121, which extends Pratt and Tiuryn's NP-completeness for
+  crowns; Larose and Zádori, "Finite posets and topological spaces in locally finite varieties,"
+  *Algebra Universalis* 52, 2004, 119-136) studies the template of the order relation with the
+  constants, whose polymorphisms are the monotone idempotent operations. There every lattice is
+  tractable (its meet is a semilattice polymorphism), while for the graphs of the monotone maps the
+  diamond is hard, so these results do not give the boundary here.
+- **What we did not find.** A statement that the graphs of all monotone maps of a finite poset give
+  a tractable CSP exactly when the poset is a chain. Beyond size three the boundary is, as far as we
+  found, not stated; for the rest of the search's table it follows from the results above by two
+  short arguments of ours, not mechanized. First, if `r` is a monotone retraction of `P` onto `Q`,
+  every monotone map `h` of `Q` gives the monotone map `h r` of `P`, and an `r` self-loop confines a
+  vertex to `Q`, so hardness for `Q` passes to `P`; 2 + 2, the four-element fence and Y retract
+  onto 1 + 2, Lambda and V. Second, on a bounded non-chain poset (the diamond, N5, M3), commuting
+  with the up-set indicators `x |-> (top if x in U, else bottom)` makes an operation act on the
+  membership pattern of every up-set `U` by one Boolean function, which the up-sets `↑c` and `↑d`
+  of two incomparable elements force to be a bounded lattice homomorphism, hence a coordinate, so
+  only projections remain (NP-complete by the cited hardness of templates without a Taylor
+  polymorphism): the argument of `pol_dfam_iff`, with up-sets in place of flags. For an arbitrary
+  finite non-chain poset we have neither a statement in the literature nor a proof.
+
+How close, and what is ours. The chain side is Jeavons and Cooper 1995 (above). On the non-chain
+side the closest prior work is Broniek 2006, which settles every three-element fiber, and Larose and
+Zádori 2006, whose lattice result gives the diamond cell through the square encoding;
+`dnet_iff_sat` and `pol_dfam_iff` are mechanized instances of these known consequences, not a new
+hardness class. What `TransportCSPHard.v` adds is the mechanization (a linear reduction with an NP
+certificate, the full polymorphism clone at every arity, the minimality of the six maps,
+`dfam_minimal`, and the join-homomorphic contrast, `joinhom_pol`) against the repository's own
+transport definitions, and the reading of this cell as the line between monotone and
+join-preserving transports. The search table is computational evidence for the posets it lists;
+the general chain/non-chain statement for all finite posets is neither proved here nor found in the
+literature.
 
 **Consistency of networks of models and replicated state.**
 
@@ -586,9 +680,12 @@ operations fixing the pins.
 Search scope (October 2026): the papers named above, read as stated; web and arXiv searches for
 sheaves, cellular sheaves or presheaves with constraint satisfaction, polymorphisms or clones;
 contextuality with polymorphisms; max-closed, semilattice and functional constraints with arc
-consistency; equations over groups; unary-function templates; and replicated or federated
-consistency (CRDT, eventual consistency, invariant confluence, bidirectional transformations) with
-constraint satisfaction. A search result, not a proof of absence.
+consistency; equations over groups; unary-function templates; systems of equations over finite and
+unary algebras (SysPol, SysTerm); centralizers of monoids of unary and of monotone maps;
+polymorphisms and Taylor operations of posets and lattices; CSPs of graphs of monotone or
+order-preserving maps; and replicated or federated consistency (CRDT, eventual consistency,
+invariant confluence, bidirectional transformations) with constraint satisfaction, plus the
+publication lists of Zádori and of Feder. A search result, not a proof of absence.
 
 **What the constraint layer contributes, given this literature.** The identification of global
 sections with CSP solutions is Abramsky's line (2011 to 2017; the closest statement is Abramsky,
@@ -609,7 +706,10 @@ with mechanized counterexamples marking where the chain and monotonicity hypothe
 hardness result for any constraint language, a mechanization of the dichotomy, of Mal'tsev
 tractability or of bounded width, or a general sheaf-theoretic treatment of CSP. The application of
 the algebraic CSP theory to replicated or federated state was not found in the searches above; that
-is the extent of the claim.
+is the extent of the claim. The same holds for `TransportCSPHard.v` (the diamond cell): its
+hardness follows from Larose and Zádori 2006 through the square encoding, its projection-only
+clone from the elementary fact about lattice homomorphisms behind it, and the boundary at size
+three is Broniek 2006 (the paragraph on monotone transports above).
 
 ## Related work for canonical execution
 
