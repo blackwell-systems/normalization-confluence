@@ -1071,6 +1071,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Citations from the layer-interfaces work (#134) checked against primary or authoritative
+  sources (Crossref and DOI records, the authors' published texts). Newman 1942, Huet 1980,
+  Burris and Sankappanavar 1981, Mac Lane 1971, Lehmann, Pnueli and Stavi 1981, and Francez 1986
+  were correct as cited; `coq/docs/interfaces.md` now gives their full bibliographic details and
+  section pointers (Burris and Sankappanavar II.5; Mac Lane I.4 and II.7). The four-point
+  counterexample to Newman's lemma without termination was attributed to Baader and Nipkow 1998,
+  which could not be checked against the text; it now cites Klop, ICALP 1990, LNCS 443, 350-369,
+  Figure 3, in `coq/docs/interfaces.md` and in a comment of `coq/LayerInterfaces.v`. The fairness
+  sentence now says that Lehmann, Pnueli and Stavi call the condition justice. Docs and comments
+  only. No theorem added, removed or renamed.
 - `docs/LANDSCAPE.md`: a section "Related work for the constraint layer" (after the cohomological
   layer) replaces "Related work for static consistency (constraint satisfaction)" and places
   `TransportCSP.v` against prior work: the identification of global sections with CSP solutions in
