@@ -885,7 +885,12 @@ that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-th
   containing them as well (`mono_family_hard`). Each of the six is needed (`dfam_minimal`), and
   what separates the cells is join preservation: transports that preserve join, the CRDT shape,
   keep join as a semilattice polymorphism on any lattice (`semilattice_pol`, `joinhom_pol`), while
-  monotonicity alone is not enough off the chain.
+  monotonicity alone is not enough off the chain. The reduction and the clone are mechanized
+  instances of known results: the six maps encode the two-element lattice, whose equation
+  problem is NP-complete (Larose and Zádori 2006), and for three-element posets the boundary
+  follows from Broniek's classification of unary algebras on at most three elements (2006); a
+  statement for all non-chain posets was not found
+  ([LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)).
 - **Majority off the chain.** A family on `bool * bool` with a lossy map commutes with the
   coordinatewise median and not with meet or join (`median_family`,
   `median_family_not_lattice`); tractability then follows from the bounded-width results cited
