@@ -27,11 +27,11 @@ descent. `descends_word`: if every map of a word descends and keeps `P`, the wor
 
 This is the textbook condition for an operation to be compatible with an equivalence relation (a
 congruence, so the operation passes to the quotient; Burris and Sankappanavar, *A Course in
-Universal Algebra*, 1981, on congruences and quotient algebras). Nothing in Part 1 is claimed as
-new. "Descends along `N`" is used in the sense the repository already uses for state descent and
-history descent (`CanonicalExecution.v`): factors through the quotient. No Grothendieck or sheaf
-descent is involved. The content below is not the shape; it is, for each layer, which `N`, which
-`P`, and the fact that the condition is exact there.
+Universal Algebra*, Springer GTM 78, 1981, Chapter II, §5, "Congruences and Quotient Algebras").
+Nothing in Part 1 is claimed as new. "Descends along `N`" is used in the sense the repository
+already uses for state descent and history descent (`CanonicalExecution.v`): factors through the
+quotient. No Grothendieck or sheaf descent is involved. The content below is not the shape; it
+is, for each layer, which `N`, which `P`, and the fact that the condition is exact there.
 
 ## Hypothesis A-C: Newman as the bridge
 
@@ -56,7 +56,8 @@ Can C's fair eventual behavior (C2, every fair run eventually stays settled) rep
 
 - **No, in general.** `four_point_fair_not_confluent`, on the standard four-point system
   `ka <- kb <-> kc -> kd` (the textbook counterexample to Newman without termination; for example
-  Baader and Nipkow, *Term Rewriting and All That*, 1998), in C's form: label 0 sends `kb` to `ka`
+  Klop, "Term rewriting systems from Church-Rosser to Knuth-Bendix and beyond," ICALP 1990, LNCS
+  443, 350-369, Figure 3), in C's form: label 0 sends `kb` to `ka`
   and `kc` to `kd`, label 1 swaps `kb` and `kc`. Every peak joins (`k_lc`), every fair run settles
   (C2, `k_fair_settles`: a fair run names 0, and label 0 sends every state to a settled one), the
   run under label 1 alone is an infinite reduction and is not fair, `SN` fails, and both confluence
@@ -151,8 +152,9 @@ about fibers, not about solutions.
 (1) Strict. A per-vertex family `e_v` is natural for `G` (`NatSq`) when `f (e_a x) = e_b (f x)` on
 every edge `(a, b, f)` and every `x`. This is a natural transformation from the diagram the network
 defines (the functor from the free category on the graph that sends each edge to its map) to
-itself (Mac Lane, *Categories for the Working Mathematician*, 1971); naturality on the generating
-edges suffices, and nothing beyond that reading is used.
+itself (Mac Lane, *Categories for the Working Mathematician*, Springer GTM 5, 1971: natural
+transformations in I.4, free categories on graphs in II.7); naturality on the generating edges
+suffices, and nothing beyond that reading is used.
 
 - `natural_maps_sections`: a natural family maps sections to sections componentwise.
 - `preserves_exact`: for one fixed network, a family preserves sections iff each square commutes
@@ -232,11 +234,16 @@ What descent gives C is a reduction: under it, C on `X` is fair settlement of th
   B-C settlement theorems; the lens laws and `TargetsIn` / `EndsIn` / `Realize` in the store
   theorems; no self-loops in `natural_iff_edgewise`; `Common` in `candidate_implies_xu` and the
   federation descent equivalences.
-- What is not claimed: nothing here is new mathematics in isolation. Newman's lemma (Newman 1942;
-  Huet 1980), the four-point counterexample, compatibility of operations with an equivalence, and
-  naturality are classical. Weak fairness (justice) as the condition that a continuously enabled
-  transition is eventually taken is standard (Lehmann, Pnueli and Stavi 1981; Francez,
-  *Fairness*, 1986). The content is the exact form each takes at this development's interfaces.
+- What is not claimed: nothing here is new mathematics in isolation. Newman's lemma (Newman, "On
+  theories with a combinatorial definition of 'equivalence'," *Ann. of Math.* 43(2), 1942,
+  223-243; Huet, "Confluent reductions: abstract properties and applications to term rewriting
+  systems," *J. ACM* 27(4), 1980, 797-821, for the proof by noetherian induction), the four-point
+  counterexample (Klop, ICALP 1990, cited above), compatibility of operations with an equivalence,
+  and naturality are classical. Weak fairness as the condition that a continuously enabled
+  transition is eventually taken is standard: Lehmann, Pnueli and Stavi ("Impartiality, justice
+  and fairness: the ethics of concurrent termination," ICALP 1981, LNCS 115, 264-277), where it is
+  called justice; Francez (*Fairness*, Springer, 1986), a book-length treatment of fairness notions
+  and fair termination. The content is the exact form each takes at this development's interfaces.
 
 ## Leaks
 

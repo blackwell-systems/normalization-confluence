@@ -760,7 +760,8 @@ End Labeled.
 (* ----- Part 4b. Instances of the A-C bridge ----- *)
 
 (* The counterexample: the standard four-point system showing that Newman's lemma needs
-   termination (textbook treatments, for example Baader and Nipkow 1998), in layer C's form. Label 0 sends kb to ka and
+   termination (for example Klop, "Term rewriting systems from Church-Rosser to Knuth-Bendix
+   and beyond," ICALP 1990, LNCS 443, Figure 3), in layer C's form. Label 0 sends kb to ka and
    kc to kd; label 1 swaps kb and kc. Every peak joins, every fair run settles (C2), yet the
    system is not confluent: from kb both ka and kd are normal forms. The infinite run kb, kc, kb,
    ... under label 1 alone is unfair, and its loop starves label 0, which moves both loop
