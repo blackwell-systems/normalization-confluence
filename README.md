@@ -2,7 +2,7 @@
 
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 
-Research on coordination-free convergence in distributed systems through normalization confluence - a third structural regime alongside operation commutativity (CRDTs) and invariant confluence.
+Research on coordination-free convergence in distributed systems through normalization confluence - a third structural regime alongside operation commutativity (CRDTs) and invariant confluence. The spine of the theory is descent: convergence is descent through a canonical semantics, a map `N` that says what the system may forget, respected at single steps, finite histories and infinite runs ([THEORY.md, the spine](docs/THEORY.md#the-spine)).
 
 **An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a checker for the practical ones.**
 

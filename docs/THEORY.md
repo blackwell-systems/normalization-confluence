@@ -1,15 +1,426 @@
 # Theory overview
 
-The theory in one page: the regime it adds, what is new and what is not, the key concepts, how
-the three convergence regimes nest, the decomposition through which six exact convergence results
-are rederived ([Canonical execution](#canonical-execution)), and where the theory sits in pure
-mathematics ([Mathematical structure](#mathematical-structure)). "What's new here" marks each item
-mechanized, paper or implemented. For the
-headline and its precision paragraph see the [front page](../README.md); for what is proved in each
-regime see [REGIME-AUDIT.md](../REGIME-AUDIT.md); for the full statements see the papers and
+The question: when processors apply the same events in different orders, do they all reach one
+result, and exactly when? This page states the theory's answer in one place. For the headline and
+its precision paragraph see the [front page](../README.md); for what is proved in each regime see
+[REGIME-AUDIT.md](../REGIME-AUDIT.md); for the full statements see the papers and
 [coq/README.md](../coq/README.md).
 
-## Overview
+## The spine
+
+Convergence is descent through a canonical semantics. A map `N` says what the system is allowed to
+forget. A system converges when its behavior respects `N` at every scale: single steps, finite
+histories, and infinite runs. Layer B says which states count as consistent in the first place, and
+composition says when all of this can be checked one part at a time.
+
+The condition is elementary. An operation `e` descends along `N` when `N (e (N x)) = N (e x)`
+(`DescendsOn` in `LayerInterfaces.v`): the textbook condition for an operation to respect a
+quotient, so that it passes to it. The content is which `N` and which states each regime uses, that
+the condition is exact there, and the interfaces between the layers that use it.
+
+Convergence by compensation, the third regime alongside CRDTs and invariant confluence, is the
+concrete case that motivates the whole: operations may conflict and break invariants, a registry
+repairs each state, and replicas still converge
+([below](#convergence-by-compensation-the-third-regime)). Compensation is the repair, and `N` is what
+the repair produces: with `N := rho*`, descent at one transition is CC2 (`state_descent_iff_cc2`).
+
+The map of this page:
+
+- [Descent at three scales](#descent-at-three-scales): the one condition at a transition, over
+  finite histories and over infinite runs, and how the three relate.
+- The layers: [A, execution algebra](#layer-a-execution-algebra);
+  [B, constraint algebra](#layer-b-constraint-algebra);
+  [C, settlement dynamics](#layer-c-settlement-dynamics); and the
+  [interfaces between them](#interfaces-between-the-layers).
+- [Composition](#composition): when the obligations of a composite can be checked on its parts.
+- [Convergence by compensation](#convergence-by-compensation-the-third-regime): the regime, what it
+  claims and what is prior work, and how the three regimes nest.
+- [The earlier decomposition](#canonical-execution) (E, S, H and P) and where each part now sits;
+  then [mathematical structure](#mathematical-structure), [scope](#scope),
+  [qualifiers](#qualifiers), [quotients for checking](#quotients-for-checking),
+  [what it is not yet](#what-it-is-not-yet) and [calibration](#calibration).
+
+## Descent at three scales
+
+One condition, read at three scales. At a transition it is a statement about one event and two
+states; over finite histories it is a statement about equivalent executions; over infinite runs it
+is a statement about where the trajectory ends up. Each scale has its own layer and its own exact
+theorem; the hierarchy between them is [the last subsection](#across-the-scales).
+
+### One transition: state descent
+
+**The shape, stated first.** For `N : X -> X` and states `P`, `e` *descends along* `N` on `P` when
+`N (e (N x)) = N (e x)` for `x` in `P` (`DescendsOn`). When `P` is closed under `N` and `N` is
+idempotent on `P`, this is equivalent to `e` respecting the kernel of `N` and to `N o e` factoring
+through `N` (`descends_iff_respects`, `descends_iff_factors`): the textbook condition for an
+operation to be compatible with an equivalence, so that it passes to the quotient (congruences in
+universal algebra). "Descends" is used in the sense of the existing state and history descent,
+not Grothendieck descent. The shape is elementary; the content is which `N` and which `P` each
+layer uses, and that the condition is exact there.
+
+**State descent (S, state coherence).** For an idempotent canonicalizer `N`, an event's canonical
+outcome does not depend on whether it acts on a raw state or on its canonical form:
+`N (act e s) = N (act e (N s))`. Equivalently, every event respects `N x = N y`
+(`state_descent_iff_respects_canon`), and then a raw run and the governed run agree after
+canonicalization (`normalization_descent`). With `N := rho*` from WFC, state descent is CC2 in its
+all-events form (`state_descent_iff_cc2`).
+
+At this level one definition covers state descent S
+(`state_descent_is_descends`), CC2 (`cc2_is_descends`), and the federation's XU and C1 with `N` the
+registry's repair (`xu_is_descends`, `c1_is_descends`); the strict commutation `Candidate` is its
+strong form ([the A-B interface](#interfaces-between-the-layers)). CC1 is not of this shape: its
+ambiguity is a peak, which the [A-C interface](#interfaces-between-the-layers) handles through
+Newman's lemma. As a checking device, state descent is a quotient on states
+([symmetry and state descent](#symmetry-and-state-descent)).
+
+### Finite histories: history descent
+
+**History descent (H, history coherence).** The canonical semantics is constant on the semantic
+equivalence classes of admissible executions. Under presentation adequacy (the semantic
+equivalence is generated by a set of edges between admissible executions), this holds iff it holds
+across each generator edge (`history_descent_exact`). This proves the history ambiguity
+semantically irrelevant. [Layer A](#layer-a-execution-algebra) below states the execution algebra
+behind it as a presented admissible path system, with the local principle (P1) and the
+continuation-closure principle (P2).
+
+### Infinite runs: canonical recurrence
+
+**Effective canonicalization (E).** The dynamics settles (Settlement), and the settled
+configurations it reaches are the canonical ones designated by an idempotent canonicalizer `N`
+(canonical fidelity). This eliminates the settling ambiguity by canonicalization.
+
+At this scale `N` is used differently: it is an observation of the trajectory, not a map the steps
+pass through. Whether runs settle at all is [layer C](#layer-c-settlement-dynamics); which settled
+state they pick, and the ghosts (settled states in the wrong fiber), is the
+[B-C interface](#interfaces-between-the-layers).
+
+### Across the scales
+
+**What unifies, and what does not.** At the transition level one definition covers state descent
+S, CC2, XU and C1, with Candidate as its strict form ([above](#one-transition-state-descent)).
+Across scales the uses form a hierarchy: one transition (`N o e o N = N o e`); finite
+histories (history descent, `h ~ k` gives `N (run h) = N (run k)`), reached from descent by
+`history_from_descent` and independent of it (`descent_not_history`, `history_not_descent`,
+and the existing `copy_xu_esh`, `fm_conv_esh`); infinite histories, where C's `N` is an observation
+and canonical settlement asks the trajectory `N (x_t)` to become constant. C's use is of a
+different kind: it reads `N` only through one fiber (`canon_settles_fiber`); descent gives it a
+reduction, the `N`-trajectory depends only on the `N`-image of the dynamics
+(`canon_settles_quotient_invariant`), and without descent it does not
+(`trajectory_needs_descent`). Descent neither implies canonical settlement nor is implied by it.
+
+### The three layers
+
+The theory has three layers. **(A) Execution algebra:** events, traces and merges, and when their
+order matters (repair and event confluence, the canonical-execution decomposition). **(B)
+Constraint algebra:** which states are consistent, a static question about the network's
+equations. **(C) Dynamics:** whether runs reach a consistent state and which one (settlement,
+fidelity, fair schedules). Descent at finite histories is layer A's question and descent over
+infinite runs is layer C's; layer B is not a descent condition but fixes the states the other two
+range over. Existence of a section is a layer-B question; settlement is layer C;
+`SignedResolver.v` and the local-graph modules (under [the lossy side](#beyond-groups-the-lossy-side))
+are layer-C results that presuppose layer-B answers.
+
+## Layer A: execution algebra
+
+<a id="layer-a-the-execution-algebra-as-a-presented-admissible-path-system"></a>
+
+Layer A is the execution algebra as a presented admissible path system. In the earlier
+decomposition it is H, history descent.
+
+H asks which executions count as the same. `PresentedExecution.v` states that question once, in
+the form every regime uses, and proves the two principles that answer it (axiom-free, in the
+gate).
+
+**The structure.** Executions are not a free monoid: only admissible words are executions (causal
+consistency, typed phases, legal duplicate landings). So the data is an admissible path system:
+
+- paths are words from the start, `Adm` the admissible ones (closed under prefixes where a theorem
+  needs it, `AdmPrefix`);
+- generator pairs `Gen p u v`: at the point `p`, the fragments `u` and `v` are interchangeable
+  (a swap of independent events `[a; b] ~ [b; a]`, a legal duplicate landing `[a; a] ~ [a]`, a
+  switch square `[a; sw] ~ [sw; tau a]` between typed phases);
+- the generated equivalence `PEq`: the equivalence closure, every vertex admissible, of the
+  whiskered pairs `p ++ u ++ w ~ p ++ v ++ w` (pre-composition is the choice of the point,
+  post-composition the continuation). It is `AC` of the kernel on the whiskered generators.
+
+Free delivery is the degenerate case: with every word admissible and the generators independent
+of the point, `PEq` is the monoid congruence the pairs generate (`free_congruence`), and for the
+adjacent swaps it is `Permutation` (`swap_peq_perm`). This is the quotient a string rewriting
+presentation defines (Cartier and Foata 1969 and Mazurkiewicz 1977 for the commutation case;
+the view of generators as 2-cells closed under whiskering is that of Burroni 1993 and Squier,
+Otto and Kobayashi 1994). Only the generated relation is used here, not the 2-cells or their
+coherence.
+
+**The two principles.** For a semantics `sem` on words compared by an equivalence `eqv` (for a
+state machine, `sem t = obs (run t s0)`), invariance `PInv` says `sem` is constant up to `eqv` on
+`PEq` classes. The continuation closure `PPC` is the least relation containing the seeds
+`(p ++ u, p ++ v)` with both sides admissible and closed under appending one event to both sides
+while both stay admissible (`ppc_least`); under prefix closure it is exactly the whiskered pairs
+with both sides admissible (`ppc_iff_whisk`).
+
+- **P2**, `closure_exact`: `AdmPrefix -> (PInv <-> sem agrees on PPC)`. Invariance always
+  implies the seed condition (`seeds_necessary`), but the seeds alone are not enough:
+  `hw_seeds_insufficient` writes a hidden register and reveals it later, so every swap seed is
+  observationally equal at every point and invariance fails; the separating pair is a seed
+  continued by the reveal (`hw_closure_witness`).
+- **P1**, `local_exact`: if a predicate `Q` holds on both sides of every seed, is kept by
+  admissible extension, and the semantics respects the future on `Q` (eqv-related `Q`-paths stay
+  related after the same admissible event, `RespOn`), then `PInv <-> PSeedOK`: every generator
+  pair is observationally equal at its point. `local_exact_all` is `Q` everywhere;
+  `resp_of_compat` derives `RespOn` from compatibility of `obs` with the steps. In the hidden
+  register `RespOn` is what fails (`hw_not_resp`).
+
+**State descent is the other direction.** CC2-style state descent `N (e s) = N (e (N s))` runs
+one word from two states, `s` and `N s`: it is a relation on states, not a pair of parallel paths
+from one point, so it is not a generator. It enters through the semantics: under it the
+normalized raw semantics and the governed semantics from `N s0` are the same function on words,
+so they pose the same invariance question for every presentation (`state_side_transfer`). Paths
+quotient H; states quotient S.
+
+**Instances.** Each recovered statement is proved from P1 or P2 in `PresentedExecution.v`.
+
+| Existing result | Recovered as | Principle | Admissibility | Generators |
+|---|---|---|---|---|
+| `history_descent_exact` (kernel H) | `history_descent_recovered` | P1, `RespOn` vacuous | one-step executions (the executions as one-letter words) | the kernel's edges at the start |
+| `amodm_closure_exact`, `amodm_swap_exact` (barrier, A modulo M) | `amodm_closure_recovered`, `amodm_swap_recovered` | P2 (M is not compatible with A's steps) | every word | adjacent swaps; `ReconfigurationClosure.PC` is `PPC` (`fs_closure_iff`) |
+| `causal_exact` (causal delivery) | `causal_exact_recovered` | P1 | causal consistency | adjacent concurrent swaps at a causal point |
+| `tconv_exact` (declared pairs) | `tconv_exact_recovered` | P1 | causal histories over `Ev` | declared pairs at a deliverable point (the trace monoid of `I`) |
+| `causal_alo_exact_idem`, `alo_exact` (at-least-once) | `causal_alo_idem_recovered`, `alo_exact_recovered` | P1 | causal at-least-once deliveries | concurrent swaps and the duplicate landing `[a; a] ~ [a]` after a first delivery |
+| `det_live_exact` (live switch, deterministic model) | `det_live_recovered` | P1 with `Q` = past the switch | typed phases: A-events, the switch, then post-switch labels | switch squares `[LA a; LS] ~ [LS; LT a]` and post-switch swaps |
+
+The live switch is the case where `Q` matters: the migration does not respect A's future, but
+every seed ends past the switch, where B's steps respect `eqvB`. The seed condition there is DS1
+(the switch squares) plus the swaps after every switch, which reduce to `PermB` at the migrated
+start under DS1 (`lv_seeds_live`). Not recovered: `cc_exact`'s CC1 part, whose ambiguity is a
+peak of a rewrite system with compensation steps (`classified_peak_exact`, criterion A), not a
+pair of event words; the declared-pairs row covers the trace-monoid case.
+
+## Layer B: constraint algebra
+
+<a id="static-consistency-as-csp"></a>
+
+Layer B asks which states are consistent: static consistency, a question about the network's
+equations and not about any run. It has no counterpart in the earlier decomposition.
+
+Layer B is a finite-domain constraint satisfaction problem, and `TransportCSP.v` makes the
+correspondence precise. Fix a finite family `F` of transport maps on a fiber `D`. The template
+Gamma_F is the set of graphs `{(x, f x)}` of the maps in `F`, plus unary relations `{c}` for
+pinned values; a network labeled by `F` with pinned vertices is an instance of CSP(Gamma_F), and
+its sections are exactly the instance's solutions (`section_iff_csp`; merges of reading B are the
+graphs of `k`-ary maps, `hsection_iff_csp`). An operation is a polymorphism of the graph of `f`
+iff it commutes with `f` (`pol_iff_commute`), so Pol(Gamma_F) is the centralizer of `F`, cut down
+to the operations fixing the pinned values (`pol_gamma_iff`; a classical fact of clone theory,
+mechanized here). By the CSP dichotomy (Bulatov 2017; Zhuk 2017, 2020), cited and not mechanized,
+section existence for each fixed finite family is either polynomial or NP-complete, and the
+polymorphisms decide which. The identification of global sections with CSP solutions is known in
+general (Abramsky and coauthors' sheaf-theoretic contextuality, 2011 to 2017); what is proved here
+is its form for these transport networks. The development's own results sit at known points of
+that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)):
+
+- **Groups.** For group labels acting by translation, `x y^-1 z` is a Mal'tsev polymorphism
+  (`group_maltsev`, `group_pol`), the tractable case of Bulatov and Dalmau 2006; the mechanized
+  polynomial criterion is the coboundary test `section_iff_coboundary`.
+- **The reduction's family.** The 3-SAT networks of `LossyHardness.v` use one fixed family of 26
+  maps (`prj_signs`, `net_in_hard_family`), so CSP(Gamma) for that one template is NP-complete
+  (`hard_family_csp`, by the existing reduction).
+- **Monotone maps on a chain.** A monotone map commutes with `min`, `max` and the median
+  (`chain_pol`): semilattice and majority polymorphisms. For pinned networks of monotone maps on a
+  finite chain, arc consistency decides section existence, and the minimum of each arc-consistent
+  domain is a section (`ac_exact`, mechanized with its exactness proof; the pass bound is
+  `ac_pass_bound`). This is the binary, min-closed case of a classical result, not a new
+  tractability class: max-closed constraints (Jeavons and Cooper 1995), and more generally any
+  semilattice polymorphism (Jeavons, Cohen and Gyssens 1997, Theorem 5.13), make arc consistency
+  decide the instance. The chain matters: on the four-element diamond a monotone lossy map need not
+  commute with join (`diamond_join_fails`, `diamond_g_fails`), and without monotonicity arc
+  consistency accepts an instance with no section (`ac_needs_mono`).
+- **Monotone maps off the chain: the predicted hard cell.** The algebra predicts the other
+  direction too. A computational search over small posets
+  ([research/predicted-hard-cell](../research/predicted-hard-cell/search.py)) finds no Siggers
+  polymorphism for the monotone maps of any non-chain poset of three or more elements it tries,
+  and `TransportCSPHard.v` confirms the prediction for the diamond, read as two flags. Six of its
+  monotone maps (read one flag, the AND or the OR of the two, or a constant) have only projections
+  as polymorphisms, at every arity (`pol_dfam_iff`; so no Siggers, majority or Mal'tsev
+  polymorphism, `dfam_no_siggers`), and a mechanized linear 3-SAT reduction to them shows section
+  existence NP-complete (`dnet_iff_sat`, `dnet_size`, `dnet_np_certificate`), for every family
+  containing them as well (`mono_family_hard`). Each of the six is needed (`dfam_minimal`), and
+  what separates the cells is join preservation: transports that preserve join, the CRDT shape,
+  keep join as a semilattice polymorphism on any lattice (`semilattice_pol`, `joinhom_pol`), while
+  monotonicity alone is not enough off the chain. The reduction and the clone are mechanized
+  instances of known results: the six maps encode the two-element lattice, whose equation
+  problem is NP-complete (Larose and Zádori 2006), and for three-element posets the boundary
+  follows from Broniek's classification of unary algebras on at most three elements (2006); a
+  statement for all non-chain posets was not found
+  ([LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)).
+- **Majority off the chain.** A family on `bool * bool` with a lossy map commutes with the
+  coordinatewise median and not with meet or join (`median_family`,
+  `median_family_not_lattice`); tractability then follows from the bounded-width results cited
+  (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
+
+## Layer C: settlement dynamics
+
+<a id="layer-c-settlement-dynamics-as-fair-recurrence"></a>
+
+Layer C is settlement dynamics as fair recurrence: descent over infinite runs. In the earlier
+decomposition it is E's Settlement; which settled state is picked (E's canonical fidelity) is the
+B-C interface below.
+
+Layer C asks whether runs reach a consistent state and which one. `CanonicalRecurrence.v` is a
+preregistered experiment on it, run like layer A: one generic kernel, then the existing settlement
+results as short bridges through it, with every leak reported (axiom-free, in the gate; details,
+bridge sizes and the statement review in [coq/docs/recurrence.md](../coq/docs/recurrence.md)). The
+hypothesis: fair convergence is exactly the absence of a bad fair recurrent behavior, made concrete
+as a finite lasso.
+
+**The kernel.** States `X` with decidable equality, labels `js`, an asynchronous update `u`, runs
+and fairness exactly as in `DistributedCycles.v` (`prs`, `Fair`: every label named infinitely
+often). A fair lasso from `s0` is a word `p` reaching `x` and a nonempty word `q` returning `x` to
+`x` that names every label; its loop states are the states `q` visits. For a canonical observation
+`N : X -> C` and a target `c`:
+
+- **C1** (`C1_closed`, `C1_nn`, `C1_classical`): on a finite `X`, every fair run is eventually
+  always in `N^-1(c)` iff no fair lasso from `s0` has a loop state outside `N^-1(c)`. Axiom-free in
+  the strong form when the fiber is closed under the steps, and for every fiber in the
+  double-negated form; for every fiber in the strong form with excluded middle as a premise. The
+  refutation direction needs no finiteness (`C1_refutes`).
+- **C2** (`C2`, `C2_loops`): on a finite `X`, every fair run eventually stays settled (fixed by
+  every label) iff every fair recurrent loop is a singleton fixed point.
+
+This is the classical fair-cycle characterization (Clarke, Emerson and Sistla 1986; Emerson and
+Lei 1986; Vardi and Wolper 1986, nonemptiness as a reachable accepting cycle); it is not claimed as
+new. The experiment is whether it compresses this development's settlement results.
+
+**Recoveries.** Each bridge proves that no bad fair lasso exists and reads settlement off C1 or C2,
+over a shared regime-independent toolkit (pigeonhole, inflationary loops, `loop_floor`).
+
+| Existing result | Recovered as | Why no bad lasso | Leak |
+|---|---|---|---|
+| `chaotic_reaches_lfp` | `chaotic_reaches_lfp_lasso` | a fair loop at a reachable state is inflationary, so a singleton normal form, which `normal_is_lfp` identifies | `L` listed; finite component list |
+| `signed_settlement` | `signed_settlement_lasso` | the bottom run under the loop word stabilizes at a fixed point below the loop (C1); from sound starts every fair loop is a singleton fixed point (C2) | `Sh` listed |
+| `signed_fidelity` | `signed_fidelity_lasso` | the top run bounds every loop by a fixed point, unique, so every recurrent class is `{slfp}` | `Sh` listed |
+| `FairFlushAt`, `FairFlushR` | `fairflush_lasso`, `fairflushR_lasso` | they are C2 | `Sh` listed |
+| `flip2_fair_livelock` | `flip2_fair_lasso` | the explicit bad fair lasso `fa -0-> fb -1-> fb -0-> fa` | none |
+| `copyback_ghost` | `copyback_ghost_lasso` | a settled singleton loop in the wrong fiber: C2 holds, C1 fails | none |
+
+A merely non-fair cycle does not refute C1 or C2 (`nonfair_cycle_not_refuting`: a bad cycle that
+never names one label, in a network where every fair run settles).
+
+**Classification** (`lasso_classification`): the negation cycle is a bad non-singleton fair lasso,
+bad for every target; flip2 is a bad fair lasso although the repair has one fixed point; the
+copyback ghost is a wrong singleton; a good monotone resolver has no bad fair lasso from any start;
+several fixed points are several reachable singleton classes (C2 holds, every target fails). A new
+example separates the two: a fair raw oscillation `a -> b -> a` with `N a = N b`, where C2 fails and
+C1 holds (`semantic_oscillation`).
+
+**Outcome: PASS, qualified by a finiteness leak.** One kernel recovers all five preregistered
+targets, every long-run obstruction met is a fair lasso, and the no-bad-lasso arguments are 5 to 11
+lines each. Leaks: every recovery assumes a finite state type that the original does not (the
+originals assume finite height, which allows infinitely many states), so the recoveries are of the
+finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and the strong form of
+C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
+settlement implies LPO), which the recoveries avoid because their targets are fixed points.
+
+## Interfaces between the layers
+
+The objection to a three-layer framework is that A (executions), B (constraints) and C (settlement)
+are three classical theories stapled together. `LayerInterfaces.v` attacks the three interfaces
+without changing A, B or C (axiom-free, in the gate; statements, instances and the statement
+review in [coq/docs/interfaces.md](../coq/docs/interfaces.md)).
+
+The shape all three share, descent along `N`, and its hierarchy across scales are stated earlier, in
+[One transition](#one-transition-state-descent) and [Across the scales](#across-the-scales).
+**A-C, Newman as the bridge** (the peaks of the earlier decomposition). Under termination from the start and decidable normality, local
+joinability at reachable peaks, confluence and unique normal forms coincide (`newman_bridge`, from
+`peak_exact`); the converses need no termination (`cr_peaks`, `cr_unf`). In layer C's form the
+reduction is a moving step of some label, and its normal forms are the settled states
+(`nf_iff_stable`). Fair settlement does not replace termination: in the standard four-point system
+`ka <- kb <-> kc -> kd`, every peak joins and every fair run settles, but the run under the swap
+alone is an unfair infinite reduction, and `ka`, `kd` are two normal forms below `kb`
+(`four_point_fair_not_confluent`). The exact replacement: under C2, every reachable moving loop
+starves a label (a label it never names moves every loop state, `fair_starves`), so on a finite
+state type termination is exactly the absence of a reachable starved loop (`fair_sn_exact`), and
+then Newman applies (`fair_newman`). Fair settlement replaces termination exactly when reductions
+cannot be hidden forever. The condition is exact for termination, not for confluence: the drop
+network has a starved loop and is confluent (`drop_starved_confluent`). `cc_exact` is the
+single-registry instance, with WFC supplying termination and CC2 being descent at [one transition](#one-transition-state-descent).
+
+**B-C, the fixed points are the B-solutions** (which solution is picked: E's canonical fidelity).
+On a store with the lens laws, a state is fixed by every edge repair `s[v := f (s_u)]` iff it is a section iff it solves the network's CSP
+(`edge_fixed_iff_section`, `edge_fixed_iff_csp`), and fixed by every resolver repair
+`s[j := F_j s]` iff it solves the merge network's CSP (`rupd_fixed_iff_csp`). In C's vocabulary:
+no B-solution gives no raw settlement (`no_solution_no_settlement`); C2's singleton fair recurrent
+classes are exactly the reachable B-solutions (`singleton_iff_solution`); under C2, canonical
+settlement at `c` holds iff every reachable B-solution lies in the fiber of `c`
+(`settled_canon_exact`), so a ghost is a reachable B-solution outside it (`ghost_refutes`) and two
+with different images refute every target (`multistable`). A unique B-solution does not give
+settlement: flip2 is a one-vertex reading-A network with the unique section `fz` and a fair
+livelock (`flip2_unique_solution_livelock`). Leak: no B-solution does not refute canonical
+settlement (`no_solution_canon_settles`, the semantic oscillation).
+
+**A-B, naturality.** Strict: a per-vertex family commuting with every edge map maps sections to
+sections (`natural_maps_sections`); for one network the exact condition is commutation on the
+values sections take (`preserves_exact`), and the squares themselves are necessary edge by edge
+for edges that are not self-loops (`square_necessary`, `natural_iff_edgewise`), with
+counterexamples to the naive converse (`natural_converse_fails`, `selfloop_square_not_necessary`).
+The uniform case is a unary polymorphism (`uniform_natural_is_unary_pol`). Canonicalized:
+`FederationEvents.Candidate` is strict commutation, `XU` and `C1` are descent on the valid and the
+consistent states with `N` the registry's repair (`xu_is_descends`, `c1_is_descends`), so
+Candidate implies XU (`candidate_implies_xu`), and XU says exactly that the event passes to the
+quotient by the repair (`xu_iff_respects`). On the supply federation XU holds, Candidate fails and
+every order converges (`strict_not_necessary`).
+
+## Composition
+
+Composition says when the obligations of a composite can be checked on its parts. Read across the
+layers, its two halves have shapes already met: the interface ambiguities of a composition are
+S-shaped (state descent of a target's local canonicalizer, at one transition), and state gluing is
+B-shaped (consistent states on a cover). In the earlier decomposition this is P. Two theorems, kept
+separate:
+
+- Interaction locality, `factor_exact`: global ambiguities decompose into local ambiguities
+  (inside one component) and interface ambiguities (across the composition boundary). Under
+  locality completeness `LC` (components of an exposed global ambiguity are exposed, and an
+  exposed global ambiguity whose components are resolved is resolved) and `Realizable` (every
+  exposed local or interface ambiguity is forced by an exposed global one), global resolution
+  holds iff local and interface resolution hold. Each of the three premises is needed
+  (`factor_needs_sound`, `factor_needs_exposed`, `factor_needs_realizable`). In the acyclic
+  federation the interface ambiguities have the S shape (C1R1: pointwise state descent of a
+  target's local canonicalizer) and the local ambiguities the H shape (C2R: the one-swap
+  condition of a local governed run); `LC` is the model's locality and topological-solving
+  argument (`fed_lc_sound`, `fed_reflects`), and `fed_factor_supply` discharges every premise on
+  the supply chain.
+- State gluing, `SheafGluing.v`: local canonical states glue on a cover, for every federation
+  satisfying R1, iff the cover refines the constraints (`sheaf_iff_refines`, `gluing`).
+- The shared hypothesis: the locality behind `LC` in the federation (a repair reads only its
+  sources, `c_local`) is equivalent to R1 at fixed target values (`c_local_iff_r1`; `common_r1`
+  is the direction from the federation's hypotheses). On an acyclic federation the two halves
+  hold together as a conjunction, `fed_state_and_interaction`; neither is used to prove the
+  other.
+- An observation, not a theorem: state gluing reads as descent of objects (canonical states
+  along a cover) and interaction locality as descent of morphisms (commutation of steps along a
+  composition boundary). No combined descent statement is formalized.
+
+### The missing compositional ingredient
+
+The first validation run rederived the history layer of `fed_exact` (`fed_exact_kernel`, 7 lines)
+and then stopped: splitting a cross-registry swap into a state-descent obligation (C1R1) and a
+history obligation (C2R) needed locality (an event on registry `j` changes nothing outside `j` and
+its downstream registries) and topological solving (the re-normalized state is the unique solution
+of the component equations). Neither is expressible in E, S or H; both say how a global
+canonicalizer decomposes into local canonicalizers along a dependency order. That diagnosis named
+P, and `factor_exact` supplied it with `LC` as a named obligation, after which D passes. The same
+diagnosis locates the cyclic frontier: on a cycle an event's own write comes back through its
+sources, so the environment of a local canonicalizer is not fixed by the event's registry, and that
+is where `LC` fails (`cyclic_lc_sound_fails`).
+
+## Convergence by compensation: the third regime
+
+The concrete case behind the spine: a registry repairs each state, `N` is what the repair produces,
+and the conditions become WFC (the repair terminates) and CC (CC2 is descent at one transition,
+CC1 a peak condition). This section states the regime, what it claims and what is prior work
+(each item marked mechanized, paper or implemented), the key concepts, and how the three
+convergence regimes nest.
+
+### Overview
 
 Traditional approaches to coordination-free convergence require either:
 1. **Operation commutativity** (CRDTs) - operations must be designed to commute
@@ -19,7 +430,7 @@ This research identifies a third regime: **normalization confluence**, where ope
 
 This repository contains theoretical foundations, proofs, and companion verification tools.
 
-## What's new here
+### What's new here
 
 Each item is marked **[mechanized]** (axiom-free in [`coq/`](../coq)), **[paper]** (proved in the
 papers, not mechanized), or **[implemented]** (in [gsm](https://github.com/blackwell-systems/gsm)).
@@ -110,9 +521,9 @@ Zaslavsky), and group-feedback-edge-set complexity. These are the tools; the con
 theorems built with them are new. See [LANDSCAPE.md](LANDSCAPE.md) for the placement against prior
 work.
 
-## Key Concepts
+### Key Concepts
 
-### Normalization Confluence
+#### Normalization Confluence
 
 A coordination-free convergence regime where:
 - **Operations may violate invariants** (unlike invariant confluence)
@@ -122,7 +533,7 @@ A coordination-free convergence regime where:
 
 Under two conditions - well-founded compensation (WFC) and compensation commutativity (CC) - all processors consuming the same events converge to the same valid state regardless of application order.
 
-### Registry-Governed Streams
+#### Registry-Governed Streams
 
 A **registry** is any authoritative definition of validity external to the stream processor: policy engines, constraint services, schema validators, compliance controllers. The registry provides:
 - **Invariant predicates** defining valid states
@@ -130,7 +541,7 @@ A **registry** is any authoritative definition of validity external to the strea
 
 Events are applied in any order; the registry normalizes states after each event. The governance rewrite system interleaves event application with compensation.
 
-### Federated Registries
+#### Federated Registries
 
 Multiple registries connected by **morphisms** encoding cross-organizational constraints. A manufacturer's specifications constrain supplier capabilities; a regulator's rules constrain bank behavior.
 
@@ -147,7 +558,7 @@ Finally, when shared domains are ordered (lattices) and repair is **monotone**, 
 
 Monotonicity and acyclicity are orthogonal: either alone suffices. Validity preservation is required in both. State-based CRDTs are the compensation-free special case of the monotone regime.
 
-## Three Regimes of Coordination-Free Convergence
+### Three Regimes of Coordination-Free Convergence
 
 | Regime | Requirement | Guarantees | Design Space |
 |--------|-------------|------------|--------------|
@@ -159,7 +570,25 @@ Normalization confluence occupies the gap between CRDTs (requires commutativity)
 
 These regimes are **nested, not merely adjacent**. CRDTs are the *compensation-free* corner: operations designed so repair is never needed. Drop that restriction, keep the convergence guarantee, and you have normalization confluence, so every CRDT is a governed machine whose max repair depth is zero, and the inclusion is **strict** on the same transition representation (there are convergent governed machines whose raw transitions, without compensation, satisfy no CRDT convergence condition; the claim is about representations, since such a machine's governed behavior can itself be a CRDT). This is not informal: it is machine-checked, axiom-free, in [`coq/CRDT.v`](../coq/CRDT.v) (`cmrdt_SEC`, `cvrdt_SEC`) and [`coq/CRDTBoundary.v`](../coq/CRDTBoundary.v) (the boundary theorem `crdt_boundary`, the witnesses `witness_ops_not_commute`, `witness_not_cvrdt_order`, `witness_not_cvrdt_exact`, and the qualifier `witness_governed_constant`), and stated in full in [SUBSUMPTION.md](SUBSUMPTION.md). The relationship also holds under causal delivery, where only concurrent operations must commute: standard op-based CRDTs converge as an instance, and the compensation-free fragment is *exactly* the op-based CRDTs ([`coq/CausalReplay.v`](../coq/CausalReplay.v): `causal_cmrdt_SEC`, `compensation_free_exact`), with the full rewrite-system theorem in [`coq/GovernanceCausal.v`](../coq/GovernanceCausal.v). So "a third regime alongside CRDTs" is the entry framing; the sharper claim the proofs support is that normalization confluence is the general regime and CRDTs are its compensation-free fragment.
 
-## Canonical execution
+<a id="canonical-execution"></a>
+
+## The earlier decomposition: E, S, H and P
+
+Earlier versions of this page, [coq/docs/canonical-execution.md](../coq/docs/canonical-execution.md),
+and several other documents state the framework as four obligations, E, S, H and P, with peaks as a
+fifth device. The links to "canonical execution" land here. Each part now sits in the descent
+structure as follows; no theorem changed.
+
+| Earlier part | Where it sits now | Results |
+|---|---|---|
+| S, state descent | [Descent at one transition](#one-transition-state-descent), the shared core; CC2, C1 and XU are instances | `state_descent_is_descends`, `cc2_is_descends`, `xu_is_descends`, `c1_is_descends` |
+| H, history descent | [Layer A](#layer-a-execution-algebra), the execution algebra | P1 `local_exact`, P2 `closure_exact`, eight recovered theorems |
+| Peaks (Newman's lemma localized) | The [A-C interface](#interfaces-between-the-layers) | `newman_bridge`, `fair_starves`, `fair_sn_exact` |
+| E, effective canonicalization (Settlement and canonical fidelity) | [Layer C](#layer-c-settlement-dynamics) for Settlement (`CanonicalRecurrence.v`), plus the [B-C interface](#interfaces-between-the-layers) for which solution is picked (ghosts) | `C1_closed`, `C2`, `settled_canon_exact`, `ghost_refutes` |
+| (no counterpart) | [Layer B](#layer-b-constraint-algebra), the constraint algebra | `TransportCSP.v`, `TransportCSPHard.v` |
+| P, composition (interaction locality and state gluing) | [Composition](#composition) across the layers: interface ambiguities are S-shaped, state gluing is B-shaped | `factor_exact`, `sheaf_iff_refines` |
+
+The framework's original statement, which the kernel theorems below still prove:
 
 > A system is canonical exactly when every ambiguity its execution model can expose is either
 > eliminated by canonicalization or proved semantically irrelevant; in acyclic compositions, those
@@ -175,28 +604,17 @@ per-theorem qualifiers and the statement review are in
 gives a decomposition that cuts across the rewriting, trace and federation areas. Status per
 regime stays in [REGIME-AUDIT.md](../REGIME-AUDIT.md); nothing here changes a row there.
 
-### The decomposition: E, S, H and P
-
 An execution model can expose three kinds of ambiguity: which configuration the dynamics settles
 in, which representative of a state an event acts on, and which of several equivalent histories
-was run. Each layer below is the obligation that removes one of them; P says when the obligations
+was run. Each of E, S and H is the obligation that removes one of them; P says when the obligations
 of a composite can be checked on its parts.
 
-- **E, effective canonicalization.** The dynamics settles (Settlement), and the settled
-  configurations it reaches are the canonical ones designated by an idempotent canonicalizer `N`
-  (canonical fidelity). This eliminates the settling ambiguity by canonicalization.
-- **S, state descent (state coherence).** An event's canonical outcome does not depend on whether
-  it acts on a raw state or on its canonical form: `N (act e s) = N (act e (N s))`. Equivalently,
-  every event respects `N x = N y` (`state_descent_iff_respects_canon`), and then a raw run and the
-  governed run agree after canonicalization (`normalization_descent`). With `N := rho*` from WFC,
-  state descent is CC2 in its all-events form (`state_descent_iff_cc2`).
-- **H, history descent (history coherence).** The canonical semantics is constant on the semantic
-  equivalence classes of admissible executions. Under presentation adequacy (the semantic
-  equivalence is generated by a set of edges between admissible executions), this holds iff it
-  holds across each generator edge (`history_descent_exact`). This proves the history ambiguity
-  semantically irrelevant. [Layer A](#layer-a-the-execution-algebra-as-a-presented-admissible-path-system)
-  below states the execution algebra behind it as a presented admissible path system, with the
-  local principle (P1) and the continuation-closure principle (P2).
+- **E, S and H, one at a time.** Their definitions now sit at the scale each one lives at:
+  S (state descent, state coherence) at [one transition](#one-transition-state-descent), H
+  (history descent, history coherence) at [finite histories](#finite-histories-history-descent),
+  and E (effective canonicalization: Settlement plus canonical fidelity) at
+  [infinite runs](#infinite-runs-canonical-recurrence). E eliminates the settling ambiguity by
+  canonicalization; S removes the representative ambiguity and H the history ambiguity.
 - **Peaks.** For a rewrite presentation, under termination from the start, confluence is
   joinability of the peaks at reachable configurations (`peak_exact`, Newman's lemma localized),
   split by any complete classifier into state peaks and history peaks (`classified_peak_exact`).
@@ -205,317 +623,8 @@ of a composite can be checked on its parts.
   reachable configuration and history descent hold (`canonical_execution_exact`). `esh_exact` is
   the same statement with Settlement carried on both sides; `esh_sufficient` is the backward
   direction, with no Settlement.
-- **P, composition.** Two theorems, kept separate.
-  - Interaction locality, `factor_exact`: global ambiguities decompose into local ambiguities
-    (inside one component) and interface ambiguities (across the composition boundary). Under
-    locality completeness `LC` (components of an exposed global ambiguity are exposed, and an
-    exposed global ambiguity whose components are resolved is resolved) and `Realizable` (every
-    exposed local or interface ambiguity is forced by an exposed global one), global resolution
-    holds iff local and interface resolution hold. Each of the three premises is needed
-    (`factor_needs_sound`, `factor_needs_exposed`, `factor_needs_realizable`). In the acyclic
-    federation the interface ambiguities have the S shape (C1R1: pointwise state descent of a
-    target's local canonicalizer) and the local ambiguities the H shape (C2R: the one-swap
-    condition of a local governed run); `LC` is the model's locality and topological-solving
-    argument (`fed_lc_sound`, `fed_reflects`), and `fed_factor_supply` discharges every premise on
-    the supply chain.
-  - State gluing, `SheafGluing.v`: local canonical states glue on a cover, for every federation
-    satisfying R1, iff the cover refines the constraints (`sheaf_iff_refines`, `gluing`).
-  - The shared hypothesis: the locality behind `LC` in the federation (a repair reads only its
-    sources, `c_local`) is equivalent to R1 at fixed target values (`c_local_iff_r1`; `common_r1`
-    is the direction from the federation's hypotheses). On an acyclic federation the two halves
-    hold together as a conjunction, `fed_state_and_interaction`; neither is used to prove the
-    other.
-  - An observation, not a theorem: state gluing reads as descent of objects (canonical states
-    along a cover) and interaction locality as descent of morphisms (commutation of steps along a
-    composition boundary). No combined descent statement is formalized.
-
-### Layer A: the execution algebra as a presented admissible path system
-
-H asks which executions count as the same. `PresentedExecution.v` states that question once, in
-the form every regime uses, and proves the two principles that answer it (axiom-free, in the
-gate).
-
-**The structure.** Executions are not a free monoid: only admissible words are executions (causal
-consistency, typed phases, legal duplicate landings). So the data is an admissible path system:
-
-- paths are words from the start, `Adm` the admissible ones (closed under prefixes where a theorem
-  needs it, `AdmPrefix`);
-- generator pairs `Gen p u v`: at the point `p`, the fragments `u` and `v` are interchangeable
-  (a swap of independent events `[a; b] ~ [b; a]`, a legal duplicate landing `[a; a] ~ [a]`, a
-  switch square `[a; sw] ~ [sw; tau a]` between typed phases);
-- the generated equivalence `PEq`: the equivalence closure, every vertex admissible, of the
-  whiskered pairs `p ++ u ++ w ~ p ++ v ++ w` (pre-composition is the choice of the point,
-  post-composition the continuation). It is `AC` of the kernel on the whiskered generators.
-
-Free delivery is the degenerate case: with every word admissible and the generators independent
-of the point, `PEq` is the monoid congruence the pairs generate (`free_congruence`), and for the
-adjacent swaps it is `Permutation` (`swap_peq_perm`). This is the quotient a string rewriting
-presentation defines (Cartier and Foata 1969 and Mazurkiewicz 1977 for the commutation case;
-the view of generators as 2-cells closed under whiskering is that of Burroni 1993 and Squier,
-Otto and Kobayashi 1994). Only the generated relation is used here, not the 2-cells or their
-coherence.
-
-**The two principles.** For a semantics `sem` on words compared by an equivalence `eqv` (for a
-state machine, `sem t = obs (run t s0)`), invariance `PInv` says `sem` is constant up to `eqv` on
-`PEq` classes. The continuation closure `PPC` is the least relation containing the seeds
-`(p ++ u, p ++ v)` with both sides admissible and closed under appending one event to both sides
-while both stay admissible (`ppc_least`); under prefix closure it is exactly the whiskered pairs
-with both sides admissible (`ppc_iff_whisk`).
-
-- **P2**, `closure_exact`: `AdmPrefix -> (PInv <-> sem agrees on PPC)`. Invariance always
-  implies the seed condition (`seeds_necessary`), but the seeds alone are not enough:
-  `hw_seeds_insufficient` writes a hidden register and reveals it later, so every swap seed is
-  observationally equal at every point and invariance fails; the separating pair is a seed
-  continued by the reveal (`hw_closure_witness`).
-- **P1**, `local_exact`: if a predicate `Q` holds on both sides of every seed, is kept by
-  admissible extension, and the semantics respects the future on `Q` (eqv-related `Q`-paths stay
-  related after the same admissible event, `RespOn`), then `PInv <-> PSeedOK`: every generator
-  pair is observationally equal at its point. `local_exact_all` is `Q` everywhere;
-  `resp_of_compat` derives `RespOn` from compatibility of `obs` with the steps. In the hidden
-  register `RespOn` is what fails (`hw_not_resp`).
-
-**State descent is the other direction.** CC2-style state descent `N (e s) = N (e (N s))` runs
-one word from two states, `s` and `N s`: it is a relation on states, not a pair of parallel paths
-from one point, so it is not a generator. It enters through the semantics: under it the
-normalized raw semantics and the governed semantics from `N s0` are the same function on words,
-so they pose the same invariance question for every presentation (`state_side_transfer`). Paths
-quotient H; states quotient S.
-
-**Instances.** Each recovered statement is proved from P1 or P2 in `PresentedExecution.v`.
-
-| Existing result | Recovered as | Principle | Admissibility | Generators |
-|---|---|---|---|---|
-| `history_descent_exact` (kernel H) | `history_descent_recovered` | P1, `RespOn` vacuous | one-step executions (the executions as one-letter words) | the kernel's edges at the start |
-| `amodm_closure_exact`, `amodm_swap_exact` (barrier, A modulo M) | `amodm_closure_recovered`, `amodm_swap_recovered` | P2 (M is not compatible with A's steps) | every word | adjacent swaps; `ReconfigurationClosure.PC` is `PPC` (`fs_closure_iff`) |
-| `causal_exact` (causal delivery) | `causal_exact_recovered` | P1 | causal consistency | adjacent concurrent swaps at a causal point |
-| `tconv_exact` (declared pairs) | `tconv_exact_recovered` | P1 | causal histories over `Ev` | declared pairs at a deliverable point (the trace monoid of `I`) |
-| `causal_alo_exact_idem`, `alo_exact` (at-least-once) | `causal_alo_idem_recovered`, `alo_exact_recovered` | P1 | causal at-least-once deliveries | concurrent swaps and the duplicate landing `[a; a] ~ [a]` after a first delivery |
-| `det_live_exact` (live switch, deterministic model) | `det_live_recovered` | P1 with `Q` = past the switch | typed phases: A-events, the switch, then post-switch labels | switch squares `[LA a; LS] ~ [LS; LT a]` and post-switch swaps |
-
-The live switch is the case where `Q` matters: the migration does not respect A's future, but
-every seed ends past the switch, where B's steps respect `eqvB`. The seed condition there is DS1
-(the switch squares) plus the swaps after every switch, which reduce to `PermB` at the migrated
-start under DS1 (`lv_seeds_live`). Not recovered: `cc_exact`'s CC1 part, whose ambiguity is a
-peak of a rewrite system with compensation steps (`classified_peak_exact`, criterion A), not a
-pair of event words; the declared-pairs row covers the trace-monoid case.
-
-### Layer C: settlement dynamics as fair recurrence
-
-Layer C asks whether runs reach a consistent state and which one. `CanonicalRecurrence.v` is a
-preregistered experiment on it, run like layer A: one generic kernel, then the existing settlement
-results as short bridges through it, with every leak reported (axiom-free, in the gate; details,
-bridge sizes and the statement review in [coq/docs/recurrence.md](../coq/docs/recurrence.md)). The
-hypothesis: fair convergence is exactly the absence of a bad fair recurrent behavior, made concrete
-as a finite lasso.
-
-**The kernel.** States `X` with decidable equality, labels `js`, an asynchronous update `u`, runs
-and fairness exactly as in `DistributedCycles.v` (`prs`, `Fair`: every label named infinitely
-often). A fair lasso from `s0` is a word `p` reaching `x` and a nonempty word `q` returning `x` to
-`x` that names every label; its loop states are the states `q` visits. For a canonical observation
-`N : X -> C` and a target `c`:
-
-- **C1** (`C1_closed`, `C1_nn`, `C1_classical`): on a finite `X`, every fair run is eventually
-  always in `N^-1(c)` iff no fair lasso from `s0` has a loop state outside `N^-1(c)`. Axiom-free in
-  the strong form when the fiber is closed under the steps, and for every fiber in the
-  double-negated form; for every fiber in the strong form with excluded middle as a premise. The
-  refutation direction needs no finiteness (`C1_refutes`).
-- **C2** (`C2`, `C2_loops`): on a finite `X`, every fair run eventually stays settled (fixed by
-  every label) iff every fair recurrent loop is a singleton fixed point.
-
-This is the classical fair-cycle characterization (Clarke, Emerson and Sistla 1986; Emerson and
-Lei 1986; Vardi and Wolper 1986, nonemptiness as a reachable accepting cycle); it is not claimed as
-new. The experiment is whether it compresses this development's settlement results.
-
-**Recoveries.** Each bridge proves that no bad fair lasso exists and reads settlement off C1 or C2,
-over a shared regime-independent toolkit (pigeonhole, inflationary loops, `loop_floor`).
-
-| Existing result | Recovered as | Why no bad lasso | Leak |
-|---|---|---|---|
-| `chaotic_reaches_lfp` | `chaotic_reaches_lfp_lasso` | a fair loop at a reachable state is inflationary, so a singleton normal form, which `normal_is_lfp` identifies | `L` listed; finite component list |
-| `signed_settlement` | `signed_settlement_lasso` | the bottom run under the loop word stabilizes at a fixed point below the loop (C1); from sound starts every fair loop is a singleton fixed point (C2) | `Sh` listed |
-| `signed_fidelity` | `signed_fidelity_lasso` | the top run bounds every loop by a fixed point, unique, so every recurrent class is `{slfp}` | `Sh` listed |
-| `FairFlushAt`, `FairFlushR` | `fairflush_lasso`, `fairflushR_lasso` | they are C2 | `Sh` listed |
-| `flip2_fair_livelock` | `flip2_fair_lasso` | the explicit bad fair lasso `fa -0-> fb -1-> fb -0-> fa` | none |
-| `copyback_ghost` | `copyback_ghost_lasso` | a settled singleton loop in the wrong fiber: C2 holds, C1 fails | none |
-
-A merely non-fair cycle does not refute C1 or C2 (`nonfair_cycle_not_refuting`: a bad cycle that
-never names one label, in a network where every fair run settles).
-
-**Classification** (`lasso_classification`): the negation cycle is a bad non-singleton fair lasso,
-bad for every target; flip2 is a bad fair lasso although the repair has one fixed point; the
-copyback ghost is a wrong singleton; a good monotone resolver has no bad fair lasso from any start;
-several fixed points are several reachable singleton classes (C2 holds, every target fails). A new
-example separates the two: a fair raw oscillation `a -> b -> a` with `N a = N b`, where C2 fails and
-C1 holds (`semantic_oscillation`).
-
-**Outcome: PASS, qualified by a finiteness leak.** One kernel recovers all five preregistered
-targets, every long-run obstruction met is a fair lasso, and the no-bad-lasso arguments are 5 to 11
-lines each. Leaks: every recovery assumes a finite state type that the original does not (the
-originals assume finite height, which allows infinitely many states), so the recoveries are of the
-finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and the strong form of
-C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
-settlement implies LPO), which the recoveries avoid because their targets are fixed points.
-
-### Interfaces between the layers
-
-The objection to a three-layer framework is that A (executions), B (constraints) and C (settlement)
-are three classical theories stapled together. `LayerInterfaces.v` attacks the three interfaces
-without changing A, B or C (axiom-free, in the gate; statements, instances and the statement
-review in [coq/docs/interfaces.md](../coq/docs/interfaces.md)).
-
-**The shape, stated first.** For `N : X -> X` and states `P`, `e` *descends along* `N` on `P` when
-`N (e (N x)) = N (e x)` for `x` in `P` (`DescendsOn`). When `P` is closed under `N` and `N` is
-idempotent on `P`, this is equivalent to `e` respecting the kernel of `N` and to `N o e` factoring
-through `N` (`descends_iff_respects`, `descends_iff_factors`): the textbook condition for an
-operation to be compatible with an equivalence, so that it passes to the quotient (congruences in
-universal algebra). "Descends" is used in the sense of the existing state and history descent,
-not Grothendieck descent. The shape is elementary; the content is which `N` and which `P` each
-layer uses, and that the condition is exact there.
-
-**A-C, Newman as the bridge.** Under termination from the start and decidable normality, local
-joinability at reachable peaks, confluence and unique normal forms coincide (`newman_bridge`, from
-`peak_exact`); the converses need no termination (`cr_peaks`, `cr_unf`). In layer C's form the
-reduction is a moving step of some label, and its normal forms are the settled states
-(`nf_iff_stable`). Fair settlement does not replace termination: in the standard four-point system
-`ka <- kb <-> kc -> kd`, every peak joins and every fair run settles, but the run under the swap
-alone is an unfair infinite reduction, and `ka`, `kd` are two normal forms below `kb`
-(`four_point_fair_not_confluent`). The exact replacement: under C2, every reachable moving loop
-starves a label (a label it never names moves every loop state, `fair_starves`), so on a finite
-state type termination is exactly the absence of a reachable starved loop (`fair_sn_exact`), and
-then Newman applies (`fair_newman`). Fair settlement replaces termination exactly when reductions
-cannot be hidden forever. The condition is exact for termination, not for confluence: the drop
-network has a starved loop and is confluent (`drop_starved_confluent`). `cc_exact` is the
-single-registry instance, with WFC supplying termination and CC2 being the descent below.
-
-**B-C, the fixed points are the B-solutions.** On a store with the lens laws, a state is fixed by
-every edge repair `s[v := f (s_u)]` iff it is a section iff it solves the network's CSP
-(`edge_fixed_iff_section`, `edge_fixed_iff_csp`), and fixed by every resolver repair
-`s[j := F_j s]` iff it solves the merge network's CSP (`rupd_fixed_iff_csp`). In C's vocabulary:
-no B-solution gives no raw settlement (`no_solution_no_settlement`); C2's singleton fair recurrent
-classes are exactly the reachable B-solutions (`singleton_iff_solution`); under C2, canonical
-settlement at `c` holds iff every reachable B-solution lies in the fiber of `c`
-(`settled_canon_exact`), so a ghost is a reachable B-solution outside it (`ghost_refutes`) and two
-with different images refute every target (`multistable`). A unique B-solution does not give
-settlement: flip2 is a one-vertex reading-A network with the unique section `fz` and a fair
-livelock (`flip2_unique_solution_livelock`). Leak: no B-solution does not refute canonical
-settlement (`no_solution_canon_settles`, the semantic oscillation).
-
-**A-B, naturality.** Strict: a per-vertex family commuting with every edge map maps sections to
-sections (`natural_maps_sections`); for one network the exact condition is commutation on the
-values sections take (`preserves_exact`), and the squares themselves are necessary edge by edge
-for edges that are not self-loops (`square_necessary`, `natural_iff_edgewise`), with
-counterexamples to the naive converse (`natural_converse_fails`, `selfloop_square_not_necessary`).
-The uniform case is a unary polymorphism (`uniform_natural_is_unary_pol`). Canonicalized:
-`FederationEvents.Candidate` is strict commutation, `XU` and `C1` are descent on the valid and the
-consistent states with `N` the registry's repair (`xu_is_descends`, `c1_is_descends`), so
-Candidate implies XU (`candidate_implies_xu`), and XU says exactly that the event passes to the
-quotient by the repair (`xu_iff_respects`). On the supply federation XU holds, Candidate fails and
-every order converges (`strict_not_necessary`).
-
-**What unifies, and what does not.** At the transition level one definition covers A's state
-descent S (`state_descent_is_descends`), CC2 (`cc2_is_descends`), XU and C1, with Candidate as its
-strict form. Across scales the uses form a hierarchy: one transition (`N o e o N = N o e`); finite
-histories (history descent, `h ~ k` gives `N (run h) = N (run k)`), reached from descent by
-`history_from_descent` and independent of it (`descent_not_history`, `history_not_descent`,
-and the existing `copy_xu_esh`, `fm_conv_esh`); infinite histories, where C's `N` is an observation
-and canonical settlement asks the trajectory `N (x_t)` to become constant. C's use is of a
-different kind: it reads `N` only through one fiber (`canon_settles_fiber`); descent gives it a
-reduction, the `N`-trajectory depends only on the `N`-image of the dynamics
-(`canon_settles_quotient_invariant`), and without descent it does not
-(`trajectory_needs_descent`). Descent neither implies canonical settlement nor is implied by it.
-
-### Symmetry and state descent
-
-The symmetry reduction (`SymmetryCutoff.v`, [ROADMAP.md](ROADMAP.md) item 8) is a small instance
-of the decomposition. In a collection of independent, identically governed items, a peak between
-two events on the same item is a peak of the one-item registry (`same_item_reduces`). A peak
-between events on different items is two S obligations, one per item, `N (e (N s)) = N (e s)` with
-`N = rho*` (`cross_item_reduces`): no condition relates the two items. State descent of the item
-(its CC2) discharges them (`cc2_star`), and at valid states they hold with no hypothesis
-(`cross_valid_commute`). Invariance under permutations of the keys makes every item the same check,
-so unique normal forms have a cutoff of one item (`un_cutoff`), while CC1 taken without CC2 needs
-two (`cc1_cutoff`, `cc1_cutoff_tight`): its cross-item peaks are exactly the S obligation it leaves
-out. An aggregate invariant breaks the decomposition at S: its repair must change items that are
-valid on their own, so the canonicalizer is not a product of item canonicalizers, and the
-collection diverges while the single item converges (`aggregate_diverges`).
-
-Abstraction (`AbstractionCutoff.v`) is the same move on value relations instead of item keys.
-For rules that compare and copy values and declared constants, two states with the same order
-type relative to the constants are related by an order isomorphism that the rules commute with
-(`OrdInv`), so every condition gives them the same answer (`cc1_order_type`, `cc2_order_type`). The
-quotient by order type is a state descent the checker can use: each condition over all integers
-is decided over a finite set of representatives (`cc1_abs`, `un_abs`). The equivalence fails for
-additive rules, where states of one order type can differ on `x + y < z` (`triangle_diverges`).
-There the reduction is to the validity of one formula per condition (`lin_exact`), not to a finite
-quotient.
-
-For difference constraints (`DifferenceAbstraction.v`) a finite quotient returns, with a finer
-equivalence: region equivalence, as for difference-bound matrices and timed automata. Two states,
-with the constants as fixed anchors, are equivalent at threshold `W` when every pairwise
-difference is equal in both or beyond `W` on the same side in both. Guards `x - y op c` with
-`|c| <= W` cannot tell them apart, and a write `x := y + c` keeps them equivalent at threshold
-`W - |c|` (`near_shift`). A saturating write is a comparison with a bound first, so the bounds are
-anchors like any constant (`clamp_near`). The threshold is therefore a budget spent by the offsets
-along a check: CC1 runs both orders of two governed steps as one joint relation and needs
-`gam + 4(K + 1) mu` (`cc1_pair`). The budget is necessary in kind: two increments by 3 separate
-states that agree at threshold 5 (`granularity_needs_chain`). Every class has a member within
-`n(W + 1)` of an anchor (`compress_d`), so each condition over the declared ranges is decided over
-a set whose size does not depend on their widths (`dcc1v_abs`, `dgsm_exact`). At threshold 0
-the equivalence is the order type (`rel0_oiso`), which is how the comparison fragment sits inside
-it. A sum of two variables leaves the quotient: it moves a value to a place no difference relation
-predicts (`sum_diverges`).
-
-Event parameters (`DifferenceParams.v`) enter the same quotient as extra coordinates of a joint
-state, the variables followed by the arguments of the events a check composes. A parameter that
-only meets difference guards and copies is just another coordinate, so its range can be as wide as
-any variable's. A parameter added to a value is a sum of two coordinates, and leaves the quotient
-at every threshold (`addw_no_threshold`). It returns in another way: the relation pins every
-coordinate whose range is narrower than twice the threshold (`exact_eq`), so a narrow parameter
-is the same in a state and its representative, and can be read as a constant offset, one value
-at a time. Arithmetic on arguments thus splits the parameters into abstract ones, free at any
-width, and exact ones, whose magnitude the threshold pays (`exact_needs_width`).
-
-Compositional checking (`CompositionalCheck.v`) uses locality, or independence, for checking. If
-every rule reads and writes only variables of one footprint component, then a repair step of the
-registry is a repair step of exactly one component (`rho_step`). The registry's canonicalizer is
-then the product of the components' canonicalizers, and an event moves only its own factor. Two
-consequences follow:
-
-- A peak between events of different components closes at every valid state with no check
-  (`cc1_cross`).
-- A peak inside a component is a peak of the component's registry on its own subspace
-  (`cc1_same_iff`).
-
-So WFC and the eager-compensation guarantee hold for the registry iff they hold for every
-component (`wfc_iff`, `compositional_exact`). The check's cost is the sum of the components'
-subspaces, not their product (`enum_length`). Reads belong in the footprint: a guard that reads
-another component's variable is an interaction that a write-set footprint misses
-(`ws_diverges`). Repair must stay inside its component (`rc_diverges`). This is the locality that
-P names for composition (an event changes nothing outside its own part), in the case where the
-parts do not depend on each other, used inside one registry.
-
-### Scope
-
-- **Exact for single systems:** E, S and H.
-- **Exact for acyclic composition:** P, through `factor_exact` and its federation instance.
-- **On cycles, P has the soundness direction only.** On the monotone-cycle model, local and
-  interface resolution give commutation of every independent pair at every normal form
-  (`cyc_factor_sound`) and the global condition GC from every normal form
-  (`cyc_factor_sound_gc`), through a static decomposition whose realizability is not proved.
-  Locality itself fails without acyclicity: on a two-registry copy cycle every exposed local and
-  interface ambiguity is resolved, yet two declared-independent events diverge, so `LCSound`, and
-  hence `LC`, fails (`cyclic_lc_sound_fails`; the divergence alone is `cyclic_lc_fails`). The
-  cyclic open convergence problems are the question this leaves: what additional structure makes P exact
-  on cycles ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier)).
-- **A canonicalizer chosen by the dynamics.** E does not have to use the least fixed point. In the
-  no-reset distributed model on monotone cycles, convergence among quiescent interleavings alone is
-  exact with the quiescent state propagation settles in as the canonical state, a ghost allowed
-  (`conv_quiet_exact`, `DistributedConvergenceExact.v`): fidelity becomes "every reachable state
-  flushes to at most one quiescent state", and S and H are state descent and history descent for
-  that flush. `flush_fed_iff` is the case where the flush is `Lfp` (`agree_conv_noghost`: agreement
-  with the FedMachine is convergence plus `NoGhostR`). The flush is a relation, not a function, so
-  this is proved directly rather than as an instance of `esh_exact`, whose canonicalizer is a
-  function; an axiom-free choice of a flush for every state is not available.
+- **P, composition.** Interaction locality (`factor_exact`) and state gluing (`SheafGluing.v`),
+  with their shared hypothesis: see [Composition](#composition).
 
 ### Evidence: six exact results as short corollaries
 
@@ -552,70 +661,14 @@ The framework also says why some laws are absent from the published exact condit
   not reproduce the published condition: its edge condition is idempotence at prefixes that
   already contain duplicates.
 
-### The missing compositional ingredient
-
-The first validation run rederived the history layer of `fed_exact` (`fed_exact_kernel`, 7 lines)
-and then stopped: splitting a cross-registry swap into a state-descent obligation (C1R1) and a
-history obligation (C2R) needed locality (an event on registry `j` changes nothing outside `j` and
-its downstream registries) and topological solving (the re-normalized state is the unique solution
-of the component equations). Neither is expressible in E, S or H; both say how a global
-canonicalizer decomposes into local canonicalizers along a dependency order. That diagnosis named
-P, and `factor_exact` supplied it with `LC` as a named obligation, after which D passes. The same
-diagnosis locates the cyclic frontier: on a cycle an event's own write comes back through its
-sources, so the environment of a local canonicalizer is not fixed by the event's registry, and that
-is where `LC` fails (`cyclic_lc_sound_fails`).
-
-### Qualifiers
-
-- `esh_exact` (with `canonical_execution_exact` and `esh_sufficient`) assumes every event is
-  admissible after every admissible word, so its reachability is under unrestricted event
-  delivery. Regimes that restrict event order (B, C) go through `history_descent_exact`, whose
-  admissibility predicate expresses causal delivery; of the six results only F instantiates
-  `esh_exact`.
-- `state_descent_iff_cc2` is the all-events form of CC2 (every event at every invalid state), not
-  the paper's Axiom CC2, which asks it only for enabled events.
-- C1R1 is pointwise state descent with a point-dependent canonicalizer (`c1r1_state_descent`): the
-  canonicalizer `f j z` depends on the environment `z` after the other event, and it is idempotent
-  only on valid target values. It is not state descent at every reachable configuration for one
-  fixed `N`.
-- `stream_free_hd_iff_pcc` is the kernel rederivation of `stream_exact_free`'s history half.
-  `stream_free_history` rewrites by `stream_exact_free` itself, so it is a restatement, not a
-  rederivation.
-- `factor_exact` is logically thin by design: `LCSound` and `Realizable` are its two directions
-  stated per ambiguity, so its content is its premises. The composition argument lives in each
-  instance's proof of `LC`.
-
-### Quotients for checking
-
-Every proved semantic quotient is also a potential verification quotient. State descent (S) says
-which states an event's canonical outcome cannot tell apart; the same equivalence lets a checker
-visit one representative instead of every state, which is what the symmetry and abstraction
-reductions of [ROADMAP.md](ROADMAP.md) item 8 do. History descent (H) says which histories reach the
-same canonical state; the same equivalence lets a checker follow one order per class, which is
-partial-order reduction. "Potential" carries the qualification: a quotient is usable for a check
-only when that check's condition respects it, and each reduction is to be stated with a soundness
-theorem for the condition it serves. Partial-order reduction itself is classical (Mazurkiewicz
-traces; persistent, stubborn and ample sets); the point here is that the reduction relation is the
-one the convergence proofs already establish.
-
-### What it is not yet
-
-The framework has rederived the six existing exact results and explained the absent laws above.
-Its decomposition shaped one new exact result: gap 14, convergence alone in the no-reset cyclic
-distributed model, is E, S and H relative to the quiescent state propagation settles in
-(`conv_quiet_exact`, above under Scope). Read through it, `conv_ghost_esh`'s "H without E" becomes
-all three layers for the dynamics' canonicalizer (`conv_ghost_instance`). That result needed a
-different canonicalizer, not P. The open test is still the cyclic frontier: a structure that makes
-P exact on cycles would settle the remaining open gaps.
-
 ## Mathematical structure
 
 In one line: a local-to-global theory of canonical forms, built from convergent rewriting,
 fixed-point theory, categorical descent and cohomological obstruction, with the boundary of each
 stated exactly. This section places the theory in pure mathematics and says, area by area, what is
-mechanized and what is classical or paper-only. The decomposition that rederives six exact
-convergence results (E, S, H and P) is the previous section,
-[Canonical execution](#canonical-execution). A name in backticks is a Coq theorem in
+mechanized and what is classical or paper-only. The descent spine and its layers are the sections
+above; the decomposition that rederives six exact convergence results (E, S, H and P) is
+[the earlier decomposition](#canonical-execution). A name in backticks is a Coq theorem in
 [`coq/`](../coq), checked by the axiom-free gate in `coq/verify.sh` unless the text says otherwise.
 Status per regime is in [REGIME-AUDIT.md](../REGIME-AUDIT.md); where the two differ, the audit
 wins.
@@ -832,70 +885,6 @@ condition. The research note on lossy networks,
 [LOSSY-NETWORKS.md](LOSSY-NETWORKS.md), develops this side: the constraint and resolver
 readings, root sets, and signed-cycle (Thomas-type) conditions.
 
-### Static consistency as CSP
-
-The theory has three layers. **(A) Execution algebra:** events, traces and merges, and when their
-order matters (repair and event confluence, the canonical-execution decomposition). **(B)
-Constraint algebra:** which states are consistent, a static question about the network's
-equations. **(C) Dynamics:** whether runs reach a consistent state and which one (settlement,
-fidelity, fair schedules; [layer C as fair recurrence](#layer-c-settlement-dynamics-as-fair-recurrence)). Existence of a section is a layer-B question; settlement is layer C;
-`SignedResolver.v` and the local-graph modules above are layer-C results that presuppose layer-B
-answers.
-
-Layer B is a finite-domain constraint satisfaction problem, and `TransportCSP.v` makes the
-correspondence precise. Fix a finite family `F` of transport maps on a fiber `D`. The template
-Gamma_F is the set of graphs `{(x, f x)}` of the maps in `F`, plus unary relations `{c}` for
-pinned values; a network labeled by `F` with pinned vertices is an instance of CSP(Gamma_F), and
-its sections are exactly the instance's solutions (`section_iff_csp`; merges of reading B are the
-graphs of `k`-ary maps, `hsection_iff_csp`). An operation is a polymorphism of the graph of `f`
-iff it commutes with `f` (`pol_iff_commute`), so Pol(Gamma_F) is the centralizer of `F`, cut down
-to the operations fixing the pinned values (`pol_gamma_iff`; a classical fact of clone theory,
-mechanized here). By the CSP dichotomy (Bulatov 2017; Zhuk 2017, 2020), cited and not mechanized,
-section existence for each fixed finite family is either polynomial or NP-complete, and the
-polymorphisms decide which. The identification of global sections with CSP solutions is known in
-general (Abramsky and coauthors' sheaf-theoretic contextuality, 2011 to 2017); what is proved here
-is its form for these transport networks. The development's own results sit at known points of
-that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)):
-
-- **Groups.** For group labels acting by translation, `x y^-1 z` is a Mal'tsev polymorphism
-  (`group_maltsev`, `group_pol`), the tractable case of Bulatov and Dalmau 2006; the mechanized
-  polynomial criterion is the coboundary test `section_iff_coboundary`.
-- **The reduction's family.** The 3-SAT networks of `LossyHardness.v` use one fixed family of 26
-  maps (`prj_signs`, `net_in_hard_family`), so CSP(Gamma) for that one template is NP-complete
-  (`hard_family_csp`, by the existing reduction).
-- **Monotone maps on a chain.** A monotone map commutes with `min`, `max` and the median
-  (`chain_pol`): semilattice and majority polymorphisms. For pinned networks of monotone maps on a
-  finite chain, arc consistency decides section existence, and the minimum of each arc-consistent
-  domain is a section (`ac_exact`, mechanized with its exactness proof; the pass bound is
-  `ac_pass_bound`). This is the binary, min-closed case of a classical result, not a new
-  tractability class: max-closed constraints (Jeavons and Cooper 1995), and more generally any
-  semilattice polymorphism (Jeavons, Cohen and Gyssens 1997, Theorem 5.13), make arc consistency
-  decide the instance. The chain matters: on the four-element diamond a monotone lossy map need not
-  commute with join (`diamond_join_fails`, `diamond_g_fails`), and without monotonicity arc
-  consistency accepts an instance with no section (`ac_needs_mono`).
-- **Monotone maps off the chain: the predicted hard cell.** The algebra predicts the other
-  direction too. A computational search over small posets
-  ([research/predicted-hard-cell](../research/predicted-hard-cell/search.py)) finds no Siggers
-  polymorphism for the monotone maps of any non-chain poset of three or more elements it tries,
-  and `TransportCSPHard.v` confirms the prediction for the diamond, read as two flags. Six of its
-  monotone maps (read one flag, the AND or the OR of the two, or a constant) have only projections
-  as polymorphisms, at every arity (`pol_dfam_iff`; so no Siggers, majority or Mal'tsev
-  polymorphism, `dfam_no_siggers`), and a mechanized linear 3-SAT reduction to them shows section
-  existence NP-complete (`dnet_iff_sat`, `dnet_size`, `dnet_np_certificate`), for every family
-  containing them as well (`mono_family_hard`). Each of the six is needed (`dfam_minimal`), and
-  what separates the cells is join preservation: transports that preserve join, the CRDT shape,
-  keep join as a semilattice polymorphism on any lattice (`semilattice_pol`, `joinhom_pol`), while
-  monotonicity alone is not enough off the chain. The reduction and the clone are mechanized
-  instances of known results: the six maps encode the two-element lattice, whose equation
-  problem is NP-complete (Larose and Zádori 2006), and for three-element posets the boundary
-  follows from Broniek's classification of unary algebras on at most three elements (2006); a
-  statement for all non-chain posets was not found
-  ([LANDSCAPE.md](LANDSCAPE.md#related-work-for-the-constraint-layer)).
-- **Majority off the chain.** A family on `bool * bool` with a lossy map commutes with the
-  coordinatewise median and not with meet or join (`median_family`,
-  `median_family_not_lattice`); tractability then follows from the bounded-width results cited
-  (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
-
 ### Monoids and traces
 
 Event sequences are words in the free monoid `E*`, and running them is an action of `E*` on states.
@@ -942,7 +931,145 @@ order, so the question is structurally the same, but the answers are different t
 different branches of mathematics, not one theorem with two instances. Nothing continuous is
 proved here; [LYAPUNOV-EXTENSION.md](LYAPUNOV-EXTENSION.md) maps the direction.
 
-### Calibration
+## Scope
+
+Stated in the terms of the [earlier decomposition](#canonical-execution).
+
+- **Exact for single systems:** E, S and H.
+- **Exact for acyclic composition:** P, through `factor_exact` and its federation instance.
+- **On cycles, P has the soundness direction only.** On the monotone-cycle model, local and
+  interface resolution give commutation of every independent pair at every normal form
+  (`cyc_factor_sound`) and the global condition GC from every normal form
+  (`cyc_factor_sound_gc`), through a static decomposition whose realizability is not proved.
+  Locality itself fails without acyclicity: on a two-registry copy cycle every exposed local and
+  interface ambiguity is resolved, yet two declared-independent events diverge, so `LCSound`, and
+  hence `LC`, fails (`cyclic_lc_sound_fails`; the divergence alone is `cyclic_lc_fails`). The
+  cyclic open convergence problems are the question this leaves: what additional structure makes P exact
+  on cycles ([REGIME-AUDIT.md, the cyclic frontier](../REGIME-AUDIT.md#the-cyclic-frontier)).
+- **A canonicalizer chosen by the dynamics.** E does not have to use the least fixed point. In the
+  no-reset distributed model on monotone cycles, convergence among quiescent interleavings alone is
+  exact with the quiescent state propagation settles in as the canonical state, a ghost allowed
+  (`conv_quiet_exact`, `DistributedConvergenceExact.v`): fidelity becomes "every reachable state
+  flushes to at most one quiescent state", and S and H are state descent and history descent for
+  that flush. `flush_fed_iff` is the case where the flush is `Lfp` (`agree_conv_noghost`: agreement
+  with the FedMachine is convergence plus `NoGhostR`). The flush is a relation, not a function, so
+  this is proved directly rather than as an instance of `esh_exact`, whose canonicalizer is a
+  function; an axiom-free choice of a flush for every state is not available.
+
+## Qualifiers
+
+- `esh_exact` (with `canonical_execution_exact` and `esh_sufficient`) assumes every event is
+  admissible after every admissible word, so its reachability is under unrestricted event
+  delivery. Regimes that restrict event order (B, C) go through `history_descent_exact`, whose
+  admissibility predicate expresses causal delivery; of the six results only F instantiates
+  `esh_exact`.
+- `state_descent_iff_cc2` is the all-events form of CC2 (every event at every invalid state), not
+  the paper's Axiom CC2, which asks it only for enabled events.
+- C1R1 is pointwise state descent with a point-dependent canonicalizer (`c1r1_state_descent`): the
+  canonicalizer `f j z` depends on the environment `z` after the other event, and it is idempotent
+  only on valid target values. It is not state descent at every reachable configuration for one
+  fixed `N`.
+- `stream_free_hd_iff_pcc` is the kernel rederivation of `stream_exact_free`'s history half.
+  `stream_free_history` rewrites by `stream_exact_free` itself, so it is a restatement, not a
+  rederivation.
+- `factor_exact` is logically thin by design: `LCSound` and `Realizable` are its two directions
+  stated per ambiguity, so its content is its premises. The composition argument lives in each
+  instance's proof of `LC`.
+
+## Quotients for checking
+
+Every proved semantic quotient is also a potential verification quotient. State descent (S) says
+which states an event's canonical outcome cannot tell apart; the same equivalence lets a checker
+visit one representative instead of every state, which is what the symmetry and abstraction
+reductions of [ROADMAP.md](ROADMAP.md) item 8 do. History descent (H) says which histories reach the
+same canonical state; the same equivalence lets a checker follow one order per class, which is
+partial-order reduction. "Potential" carries the qualification: a quotient is usable for a check
+only when that check's condition respects it, and each reduction is to be stated with a soundness
+theorem for the condition it serves. Partial-order reduction itself is classical (Mazurkiewicz
+traces; persistent, stubborn and ample sets); the point here is that the reduction relation is the
+one the convergence proofs already establish.
+
+### Symmetry and state descent
+
+The symmetry reduction (`SymmetryCutoff.v`, [ROADMAP.md](ROADMAP.md) item 8) is a small instance
+of the decomposition. In a collection of independent, identically governed items, a peak between
+two events on the same item is a peak of the one-item registry (`same_item_reduces`). A peak
+between events on different items is two S obligations, one per item, `N (e (N s)) = N (e s)` with
+`N = rho*` (`cross_item_reduces`): no condition relates the two items. State descent of the item
+(its CC2) discharges them (`cc2_star`), and at valid states they hold with no hypothesis
+(`cross_valid_commute`). Invariance under permutations of the keys makes every item the same check,
+so unique normal forms have a cutoff of one item (`un_cutoff`), while CC1 taken without CC2 needs
+two (`cc1_cutoff`, `cc1_cutoff_tight`): its cross-item peaks are exactly the S obligation it leaves
+out. An aggregate invariant breaks the decomposition at S: its repair must change items that are
+valid on their own, so the canonicalizer is not a product of item canonicalizers, and the
+collection diverges while the single item converges (`aggregate_diverges`).
+
+Abstraction (`AbstractionCutoff.v`) is the same move on value relations instead of item keys.
+For rules that compare and copy values and declared constants, two states with the same order
+type relative to the constants are related by an order isomorphism that the rules commute with
+(`OrdInv`), so every condition gives them the same answer (`cc1_order_type`, `cc2_order_type`). The
+quotient by order type is a state descent the checker can use: each condition over all integers
+is decided over a finite set of representatives (`cc1_abs`, `un_abs`). The equivalence fails for
+additive rules, where states of one order type can differ on `x + y < z` (`triangle_diverges`).
+There the reduction is to the validity of one formula per condition (`lin_exact`), not to a finite
+quotient.
+
+For difference constraints (`DifferenceAbstraction.v`) a finite quotient returns, with a finer
+equivalence: region equivalence, as for difference-bound matrices and timed automata. Two states,
+with the constants as fixed anchors, are equivalent at threshold `W` when every pairwise
+difference is equal in both or beyond `W` on the same side in both. Guards `x - y op c` with
+`|c| <= W` cannot tell them apart, and a write `x := y + c` keeps them equivalent at threshold
+`W - |c|` (`near_shift`). A saturating write is a comparison with a bound first, so the bounds are
+anchors like any constant (`clamp_near`). The threshold is therefore a budget spent by the offsets
+along a check: CC1 runs both orders of two governed steps as one joint relation and needs
+`gam + 4(K + 1) mu` (`cc1_pair`). The budget is necessary in kind: two increments by 3 separate
+states that agree at threshold 5 (`granularity_needs_chain`). Every class has a member within
+`n(W + 1)` of an anchor (`compress_d`), so each condition over the declared ranges is decided over
+a set whose size does not depend on their widths (`dcc1v_abs`, `dgsm_exact`). At threshold 0
+the equivalence is the order type (`rel0_oiso`), which is how the comparison fragment sits inside
+it. A sum of two variables leaves the quotient: it moves a value to a place no difference relation
+predicts (`sum_diverges`).
+
+Event parameters (`DifferenceParams.v`) enter the same quotient as extra coordinates of a joint
+state, the variables followed by the arguments of the events a check composes. A parameter that
+only meets difference guards and copies is just another coordinate, so its range can be as wide as
+any variable's. A parameter added to a value is a sum of two coordinates, and leaves the quotient
+at every threshold (`addw_no_threshold`). It returns in another way: the relation pins every
+coordinate whose range is narrower than twice the threshold (`exact_eq`), so a narrow parameter
+is the same in a state and its representative, and can be read as a constant offset, one value
+at a time. Arithmetic on arguments thus splits the parameters into abstract ones, free at any
+width, and exact ones, whose magnitude the threshold pays (`exact_needs_width`).
+
+Compositional checking (`CompositionalCheck.v`) uses locality, or independence, for checking. If
+every rule reads and writes only variables of one footprint component, then a repair step of the
+registry is a repair step of exactly one component (`rho_step`). The registry's canonicalizer is
+then the product of the components' canonicalizers, and an event moves only its own factor. Two
+consequences follow:
+
+- A peak between events of different components closes at every valid state with no check
+  (`cc1_cross`).
+- A peak inside a component is a peak of the component's registry on its own subspace
+  (`cc1_same_iff`).
+
+So WFC and the eager-compensation guarantee hold for the registry iff they hold for every
+component (`wfc_iff`, `compositional_exact`). The check's cost is the sum of the components'
+subspaces, not their product (`enum_length`). Reads belong in the footprint: a guard that reads
+another component's variable is an interaction that a write-set footprint misses
+(`ws_diverges`). Repair must stay inside its component (`rc_diverges`). This is the locality that
+P names for composition (an event changes nothing outside its own part), in the case where the
+parts do not depend on each other, used inside one registry.
+
+## What it is not yet
+
+The framework has rederived the six existing exact results and explained the absent laws above.
+Its decomposition shaped one new exact result: gap 14, convergence alone in the no-reset cyclic
+distributed model, is E, S and H relative to the quiescent state propagation settles in
+(`conv_quiet_exact`, above under Scope). Read through it, `conv_ghost_esh`'s "H without E" becomes
+all three layers for the dynamics' canonicalizer (`conv_ghost_instance`). That result needed a
+different canonicalizer, not P. The open test is still the cyclic frontier: a structure that makes
+P exact on cycles would settle the remaining open gaps.
+
+## Calibration
 
 Each area is classical: Newman's lemma, Knaster-Tarski and chaotic iteration, equalizers and
 retractions, sheaves, graph cohomology and gain-graph balance (Harary's theorem is proved here at
