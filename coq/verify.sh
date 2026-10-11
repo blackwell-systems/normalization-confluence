@@ -4830,6 +4830,25 @@ Print Assumptions NC.SelfStabilization.ring4_bad_lasso.
 Print Assumptions NC.SelfStabilization.ring_bound_matters.
 Print Assumptions NC.SelfStabilization.ring3_nonvacuous.
 Print Assumptions NC.SelfStabilization.RX_eq_dec.
+Require NC.StableMatchingP2.
+Print Assumptions NC.StableMatchingP2.marry_wife.
+Print Assumptions NC.StableMatchingP2.label_pair.
+Print Assumptions NC.StableMatchingP2.label_bounds.
+Print Assumptions NC.StableMatchingP2.stable_iff_no_blocking.
+Print Assumptions NC.StableMatchingP2.stableb_spec.
+Print Assumptions NC.StableMatchingP2.p2_wellformed.
+Print Assumptions NC.StableMatchingP2.p2_mu_star_matching.
+Print Assumptions NC.StableMatchingP2.p2_unique_stable.
+Print Assumptions NC.StableMatchingP2.p2_mu_star_stable.
+Print Assumptions NC.StableMatchingP2.p2_not_stable.
+Print Assumptions NC.StableMatchingP2.p2_loop_unstable.
+Print Assumptions NC.StableMatchingP2.p2_all_labels.
+Print Assumptions NC.StableMatchingP2.p2_path.
+Print Assumptions NC.StableMatchingP2.p2_bad_lasso.
+Print Assumptions NC.StableMatchingP2.p2_refutes_settlement.
+Print Assumptions NC.StableMatchingP2.p2_round_robin.
+Print Assumptions NC.StableMatchingP2.p2_start_matching.
+Print Assumptions NC.StableMatchingP2.p2_pass.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4840,8 +4859,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4748 ]; then
-  echo "FAIL: expected 4748 axiom-free results, got $N"
+if [ "$N" -lt 4766 ]; then
+  echo "FAIL: expected 4766 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
