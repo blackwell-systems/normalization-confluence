@@ -1,0 +1,359 @@
+{
+ "scenario": "resurrect",
+ "note": "",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=1000"
+  },
+  {
+   "step": 2,
+   "action": "create C revs_limit=1000"
+  },
+  {
+   "step": 3,
+   "action": "create T1 revs_limit=3"
+  },
+  {
+   "step": 4,
+   "action": "create T2 revs_limit=3 with accept-all validate_doc_update"
+  },
+  {
+   "step": 5,
+   "action": "create U1 revs_limit=3"
+  },
+  {
+   "step": 6,
+   "action": "create U2 revs_limit=3 with accept-all validate_doc_update"
+  },
+  {
+   "step": 7,
+   "action": "create E revs_limit=1000"
+  },
+  {
+   "step": 8,
+   "action": "A: edit X -> 1-a",
+   "rev": "1-cd6dcd82d939d5b6220025fbc573b36a"
+  },
+  {
+   "step": 9,
+   "action": "replicate A -> C",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 10,
+   "action": "A: edit X -> 2-b",
+   "rev": "2-16bf9c855621538994066f28b131099f"
+  },
+  {
+   "step": 11,
+   "action": "A: edit X -> 3-c",
+   "rev": "3-26bd26a01283de66410d052983a93c8e"
+  },
+  {
+   "step": 12,
+   "action": "A: delete X -> 4-d",
+   "rev": "4-f5a85ee7f5957388bf9406507a17f86d"
+  },
+  {
+   "step": 13,
+   "action": "replicate A -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 14,
+   "action": "replicate C -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 15,
+   "action": "replicate A -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 16,
+   "action": "replicate C -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 17,
+   "action": "replicate C -> U1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 18,
+   "action": "replicate A -> U1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 19,
+   "action": "replicate C -> U2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 20,
+   "action": "replicate A -> U2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 21,
+   "action": "replicate T1 -> A",
+   "stats": {
+    "missing_checked": 2,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 22,
+   "action": "replicate A -> T1",
+   "stats": {
+    "missing_checked": 0,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 23,
+   "action": "replicate T1 -> E",
+   "stats": {
+    "missing_checked": 2,
+    "missing_found": 2,
+    "docs_read": 2,
+    "docs_written": 2,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 24,
+   "action": "replicate A -> E",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  }
+ ],
+ "final": [
+  {
+   "db": "T1",
+   "GET_status": 200,
+   "live": true,
+   "winner": "1-a",
+   "_conflicts": [],
+   "_deleted_conflicts": [
+    "4-d"
+   ],
+   "leaves": [
+    {
+     "leaf": "1-a",
+     "deleted": false,
+     "path_root_to_leaf": [
+      "1-a"
+     ]
+    },
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "T2",
+   "GET_status": 200,
+   "live": true,
+   "winner": "1-a",
+   "_conflicts": [],
+   "_deleted_conflicts": [
+    "4-d"
+   ],
+   "leaves": [
+    {
+     "leaf": "1-a",
+     "deleted": false,
+     "path_root_to_leaf": [
+      "1-a"
+     ]
+    },
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "U1",
+   "GET_status": 404,
+   "live": false,
+   "winner": null,
+   "_conflicts": null,
+   "_deleted_conflicts": null,
+   "leaves": [
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "U2",
+   "GET_status": 404,
+   "live": false,
+   "winner": null,
+   "_conflicts": null,
+   "_deleted_conflicts": null,
+   "leaves": [
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "A",
+   "GET_status": 404,
+   "live": false,
+   "winner": null,
+   "_conflicts": null,
+   "_deleted_conflicts": null,
+   "leaves": [
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "1-a",
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "C",
+   "GET_status": 200,
+   "live": true,
+   "winner": "1-a",
+   "_conflicts": [],
+   "_deleted_conflicts": [],
+   "leaves": [
+    {
+     "leaf": "1-a",
+     "deleted": false,
+     "path_root_to_leaf": [
+      "1-a"
+     ]
+    }
+   ]
+  },
+  {
+   "db": "E",
+   "GET_status": 200,
+   "live": true,
+   "winner": "1-a",
+   "_conflicts": [],
+   "_deleted_conflicts": [
+    "4-d"
+   ],
+   "leaves": [
+    {
+     "leaf": "1-a",
+     "deleted": false,
+     "path_root_to_leaf": [
+      "1-a"
+     ]
+    },
+    {
+     "leaf": "4-d",
+     "deleted": true,
+     "path_root_to_leaf": [
+      "2-b",
+      "3-c",
+      "4-d"
+     ]
+    }
+   ]
+  }
+ ]
+}
