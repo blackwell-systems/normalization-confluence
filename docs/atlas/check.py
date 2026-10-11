@@ -14,7 +14,8 @@ Fails (exit 1) if:
     gate threshold, or the front page's open-problem count differs from the audit's;
   - the front page's open-problem list differs from the audit's open gaps, or a theorem link on the
     front page (class="thm") does not point at the line declaring that name in coq/, or names an
-    ungated theorem;
+    ungated theorem, or an atlas count on the front page (tiles, families, tiles by kind) differs
+    from docs/atlas/regimes.js;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
 """
@@ -173,6 +174,16 @@ def main():
         mo = re.search(r'id="open-count">(\d+)<', page)
         if not mo or int(mo.group(1)) != len(current):
             errors.append(f"docs/site/index.html: open-problem count {mo.group(1) if mo else None} differs from REGIME-AUDIT.md's {len(current)}")
+        kinds = {}
+        for fam in atlas["families"]:
+            for t in fam["tiles"]:
+                kinds[t["kind"]] = kinds.get(t["kind"], 0) + 1
+        want = {"atlas-tiles": tiles, "atlas-families": len(atlas["families"]), "atlas-exact": kinds.get("exact", 0),
+                "atlas-hard": kinds.get("hard", 0), "atlas-open": kinds.get("open", 0), "atlas-excl": kinds.get("excl", 0)}
+        for key, n in want.items():
+            mk = re.search(r'id="' + key + r'">(\d+)<', page)
+            if not mk or int(mk.group(1)) != n:
+                errors.append(f"docs/site/index.html: {key} is {mk.group(1) if mk else None}, the atlas has {n}")
         ol = re.search(r'id="open-list">(.*?)</ol>', page, re.S)
         listed = {int(g) for g in re.findall(r'class="g">Gap (\d+)<', ol.group(1))} if ol else set()
         if listed != current:
