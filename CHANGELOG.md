@@ -22,6 +22,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - Testing the framework, summarized in README.md, docs/OVERVIEW.md and docs/THEORY.md ("Testing the
   framework"); research/paper-argument.md's A7 and A9 updated; docs/SUBSUMPTION.md records Gomes et al., the
   invariant-confluence results and the frozen-framework recovery of the CRDT theorems. No theorem added, removed or renamed.
+
+- `coq/CRDTRecovery.v`: CRDT strong eventual consistency, a theorem from outside the repository,
+  recovered with the kernels frozen (a preregistered test). Op-based SEC (Shapiro et al., SSS 2011,
+  Theorem 2; Gomes et al., OOPSLA 2017, `convergence`) through layer A with `N = id`:
+  `opsec_exact`, `opsec_global_exact`, `shapiro_cmrdt_sec`, `gomes_convergence`. State-based SEC
+  (Shapiro Theorem 1) in Shapiro's replica model: `cvrdt_sec`, with the kernel step `payload_sec`
+  (`alo_exact_recovered`) and the binary merge reduced outside the kernels by `cv_invariant` (the
+  leak). `causal_descent_exact`, `sec_is_nid_instance` (SEC is the `N = id` instance),
+  `crdt_sec_strict`; non-vacuity `opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous`.
+  Outcome against the preregistered criterion: PARTIAL. Axiom-free. No REGIME-AUDIT status changes.
+  Gate: 4588 to 4623.
+
+- `coq/InvariantConfluence.v`: a preregistered external-recovery experiment. Invariant confluence
+  (Bailis et al., PVLDB 8(3), 2014) recovered with every existing `.v` file frozen. Axiom-free. A
+  polymorphism of the invariant's template gives I-confluence (`pol_iconfluent`,
+  `network_iconfluent`, via `pol_solutions` and `pol_gamma_iff`); the converse fails (`uq_not_pol`);
+  exact form: I-confluent iff the merge is a polymorphism of the I-T-reachable relation
+  (`iconf_iff_pol_reach`); Theorem 1 in a replica model, both directions (`replica_valid`,
+  `replica_converge` via `perm_swap_recovered`, `replica_exact`); repair beyond I-confluence
+  (`repair_enlarges`). Leak: necessity for an arbitrary system needs a protocol and partition model
+  the repository does not have. No REGIME-AUDIT status changes. Gate raised from 4588 to 4641.
 - `coq/NormalizationDerived.v`: the headline normalization-confluence theorem derived from the
   framework kernels, with the kernels and every existing file unchanged. A derivation, not a
   prediction: the framework was built after `cc_exact`. Axiom-free. No REGIME-AUDIT status changes.

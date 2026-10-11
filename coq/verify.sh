@@ -4667,6 +4667,96 @@ Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
 Print Assumptions NC.NormalizationDerived.nd_q_wfc.
 Print Assumptions NC.NormalizationDerived.nd_q_reach.
 Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
+Require NC.CRDTRecovery.
+Print Assumptions NC.CRDTRecovery.nid_state_descent.
+Print Assumptions NC.CRDTRecovery.grun_nid.
+Print Assumptions NC.CRDTRecovery.opsec_state_side.
+Print Assumptions NC.CRDTRecovery.opsec_history_descent.
+Print Assumptions NC.CRDTRecovery.opsec_seeds.
+Print Assumptions NC.CRDTRecovery.seeds_concurrent.
+Print Assumptions NC.CRDTRecovery.opsec_exact.
+Print Assumptions NC.CRDTRecovery.opsec_global_exact.
+Print Assumptions NC.CRDTRecovery.shapiro_cmrdt_sec.
+Print Assumptions NC.CRDTRecovery.apply_operations_runT.
+Print Assumptions NC.CRDTRecovery.prec_snoc_l.
+Print Assumptions NC.CRDTRecovery.prec_snoc_r.
+Print Assumptions NC.CRDTRecovery.hbc_prec.
+Print Assumptions NC.CRDTRecovery.prec_in_l.
+Print Assumptions NC.CRDTRecovery.prec_map_inv.
+Print Assumptions NC.CRDTRecovery.attach.
+Print Assumptions NC.CRDTRecovery.runT_map.
+Print Assumptions NC.CRDTRecovery.gomes_convergence.
+Print Assumptions NC.CRDTRecovery.merge_delivery_exact.
+Print Assumptions NC.CRDTRecovery.join_aloconv.
+Print Assumptions NC.CRDTRecovery.payload_sec.
+Print Assumptions NC.CRDTRecovery.run_join.
+Print Assumptions NC.CRDTRecovery.run_above.
+Print Assumptions NC.CRDTRecovery.run_merge.
+Print Assumptions NC.CRDTRecovery.run_agree.
+Print Assumptions NC.CRDTRecovery.upds_app.
+Print Assumptions NC.CRDTRecovery.cv_invariant.
+Print Assumptions NC.CRDTRecovery.cvrdt_sec.
+Print Assumptions NC.CRDTRecovery.causal_descent_exact.
+Print Assumptions NC.CRDTRecovery.sec_is_nid_instance.
+Print Assumptions NC.CRDTRecovery.wN_state_descent.
+Print Assumptions NC.CRDTRecovery.crdt_sec_strict.
+Print Assumptions NC.CRDTRecovery.opsec_nonvacuous.
+Print Assumptions NC.CRDTRecovery.gomes_nonvacuous.
+Print Assumptions NC.CRDTRecovery.cvrdt_nonvacuous.
+Require NC.InvariantConfluence.
+Print Assumptions NC.InvariantConfluence.common_ancestor_free.
+Print Assumptions NC.InvariantConfluence.iconfb_iff.
+Print Assumptions NC.InvariantConfluence.itr_from_valid.
+Print Assumptions NC.InvariantConfluence.itr_valid.
+Print Assumptions NC.InvariantConfluence.iconf_iff_wconf.
+Print Assumptions NC.InvariantConfluence.iclosed_iconf.
+Print Assumptions NC.InvariantConfluence.iconf_iff_reach_closed.
+Print Assumptions NC.InvariantConfluence.iconf_iff_iclosed_all_reachable.
+Print Assumptions NC.InvariantConfluence.pol_iclosed.
+Print Assumptions NC.InvariantConfluence.pol_iconfluent.
+Print Assumptions NC.InvariantConfluence.network_iconfluent.
+Print Assumptions NC.InvariantConfluence.map_eq_seq.
+Print Assumptions NC.InvariantConfluence.preserves_prel.
+Print Assumptions NC.InvariantConfluence.iclosed_iff_pol.
+Print Assumptions NC.InvariantConfluence.iconf_iff_pol_reach.
+Print Assumptions NC.InvariantConfluence.max_iconfluent.
+Print Assumptions NC.InvariantConfluence.max_nonvacuous.
+Print Assumptions NC.InvariantConfluence.uq_local.
+Print Assumptions NC.InvariantConfluence.uq_reach_no_b.
+Print Assumptions NC.InvariantConfluence.uq_iconf.
+Print Assumptions NC.InvariantConfluence.uq_not_iclosed.
+Print Assumptions NC.InvariantConfluence.uq_not_pol.
+Print Assumptions NC.InvariantConfluence.uq_pol_reach.
+Print Assumptions NC.InvariantConfluence.uq2_not_iconf.
+Print Assumptions NC.InvariantConfluence.tx_available.
+Print Assumptions NC.InvariantConfluence.rstep_itr.
+Print Assumptions NC.InvariantConfluence.replica_valid.
+Print Assumptions NC.InvariantConfluence.deliver_perm.
+Print Assumptions NC.InvariantConfluence.deliver_swap.
+Print Assumptions NC.InvariantConfluence.deliver_multiset.
+Print Assumptions NC.InvariantConfluence.deliver_itr.
+Print Assumptions NC.InvariantConfluence.replica_converge.
+Print Assumptions NC.InvariantConfluence.rstep_ren.
+Print Assumptions NC.InvariantConfluence.run_ren.
+Print Assumptions NC.InvariantConfluence.run_ren_out.
+Print Assumptions NC.InvariantConfluence.okE_ren.
+Print Assumptions NC.InvariantConfluence.replay_merge.
+Print Assumptions NC.InvariantConfluence.replay.
+Print Assumptions NC.InvariantConfluence.replica_necessity.
+Print Assumptions NC.InvariantConfluence.replica_exact.
+Print Assumptions NC.InvariantConfluence.bm_comm.
+Print Assumptions NC.InvariantConfluence.bm_assoc.
+Print Assumptions NC.InvariantConfluence.b1_reach.
+Print Assumptions NC.InvariantConfluence.b1_iconf.
+Print Assumptions NC.InvariantConfluence.b2_not_iconf.
+Print Assumptions NC.InvariantConfluence.replica_nonvacuous.
+Print Assumptions NC.InvariantConfluence.bN_idem.
+Print Assumptions NC.InvariantConfluence.bN_valid.
+Print Assumptions NC.InvariantConfluence.b_state_descent.
+Print Assumptions NC.InvariantConfluence.bN_merge.
+Print Assumptions NC.InvariantConfluence.b_raw_join.
+Print Assumptions NC.InvariantConfluence.b_history_descent.
+Print Assumptions NC.InvariantConfluence.repair_enlarges.
 Require NC.SelfStabilization.
 Print Assumptions NC.SelfStabilization.wrun_firstn_S.
 Print Assumptions NC.SelfStabilization.wrun_skipn.
@@ -4750,8 +4840,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4660 ]; then
-  echo "FAIL: expected 4660 axiom-free results, got $N"
+if [ "$N" -lt 4748 ]; then
+  echo "FAIL: expected 4748 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

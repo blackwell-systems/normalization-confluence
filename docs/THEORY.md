@@ -280,6 +280,66 @@ axioms in a scratch copy: every other theorem of the file stays closed under the
 Criterion A had already rederived the joinability form `jc_exact` through `classified_peak_exact`;
 this file goes from there to the CC1 and CC2 form, with each condition named as a framework layer.
 
+### An outside theorem: CRDT strong eventual consistency
+
+`CRDTRecovery.v` is a preregistered test: do the kernels prove a convergence theorem from outside
+this repository, with that theorem's own definitions, while every existing `.v` file stays frozen?
+The theorem is strong eventual consistency (SEC) of CRDTs: Shapiro, Preguiça, Baquero and Zawirski,
+"Conflict-free Replicated Data Types" (SSS 2011, LNCS 6976, pp. 386-400; proofs in INRIA Research
+Report RR-7687), Theorem 1 (state-based, CvRDT) and Theorem 2 (op-based, CmRDT); and Gomes,
+Kleppmann, Mulligan and Beresford, "Verifying strong eventual consistency in distributed systems"
+(OOPSLA 2017), theorem `convergence` in Section 4.3. Only strong convergence is recovered (replicas
+with the same delivered updates have the same state); eventual delivery and termination are liveness
+assumptions of Shapiro's theorems and are not modeled.
+
+- **Op-based, `N = id`.** Delivery model: a replica applies a duplicate-free order of the events
+  that respects a happens-before relation `hb` (`CausalReplay.causal`). State descent along the
+  identity is reflexivity (`nid_state_descent`; `opsec_state_side` through `state_side_transfer`).
+  History descent is the causal presentation: SEC from `s0` is `PInv` of the governed semantics
+  (`opsec_history_descent`, by `causal_adequate` and `cg_peq`); P1 (`local_exact_all`) reduces it to
+  the seeds (`opsec_seeds`); a seed is raw commutation of a concurrent pair after a prefix where the
+  pair is causally deliverable (`seeds_concurrent`). Result: SEC from `s0` iff that commutation
+  holds (`opsec_exact`); from every start, with `hb` irreflexive, iff concurrent operations commute
+  at every state (`opsec_global_exact`). Shapiro's condition (his Definition 6: concurrent updates
+  commute at every reachable state) is a sufficient corollary (`shapiro_cmrdt_sec`) and is not
+  necessary (`naive_causal_converse_fails`). The iff is a sharper form of Shapiro's theorem and is
+  already in the repository: it is `causal_exact`, recovered as `causal_exact_recovered`.
+- **Gomes et al.'s statement, with their definitions** (`gomes_convergence`): partial operations
+  (`interp : op -> state -> state option`) composed by the Kleisli arrow, `hb-consistent` lists,
+  `distinct`, equal sets, `concurrent-ops-commute`. It goes through `opsec_exact` on option states;
+  the events are the operations of the history (a subtype), so commutation is needed only on the
+  history's own operations, as in their statement. It uses irreflexivity of `hb`, not transitivity.
+- **State-based.** Shapiro's model (Section 2.1 and Definition 1): replicas run updates and merge
+  each other's states; a replica's causal history gains an update when it runs it and the other
+  replica's history at a merge; updates are unique. `cvrdt_sec`: with states a join-semilattice,
+  merge the join and updates inflationary, replicas with the same causal history (as a set) have
+  the same state, in every execution. The kernel step is `payload_sec`, through
+  `alo_exact_recovered` (P1 on at-least-once delivery) applied to unary merges of fixed payloads;
+  `merge_delivery_exact` states that kernel as an iff (every order and duplication converges iff the
+  payload merges commute and are idempotent at reachable states).
+- **Leak.** The binary merge, one replica's state merged into another's, is not a kernel event: the
+  kernels' executions are words of events from one start. `cv_invariant` reduces it to unary
+  merges (each replica's state is the run of payload merges over its causal history), using only the
+  semilattice laws, inflation of updates and uniqueness of updates, and no kernel. The smallest
+  missing generic piece is a presentation whose executions are multi-replica configurations with a
+  binary merge that unions histories.
+- **The `N = id` instance.** `causal_descent_exact`: for any `N` with state descent, the repaired
+  results of causal orders of the same events agree iff the governed steps of concurrent pairs
+  commute at causally deliverable points from `N s0` (`normalization_descent`, then `opsec_exact`).
+  `sec_is_nid_instance`: with `N = id` this is op-based SEC word for word. `crdt_sec_strict`: the
+  witness of `crdt_boundary` (raw `settrue` and `flip`, repair to `false`) converges after repair for
+  every `hb`, while its raw operations are not SEC once the two events are concurrent, and no
+  partial order makes both inflationary. As `witness_governed_constant` records, the strictness is
+  about the raw transition representation, not observable behavior.
+
+Against the preregistered criterion: target 1 passes (83 lines of Coq, 36 for the kernel chain, no
+added generic concept, no kernel change); target 2 is recovered but only partly through the kernels
+(21 lines for the kernel step, 24 for the semilattice facts, 73 for the replica model and the
+reduction of binary merges), so the outcome is PARTIAL, with the binary merge as the leak. Gomes et
+al.'s statement takes 114 lines, most of them their definitions and list facts. Non-vacuity:
+`opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous` (two replicas on `max`, with a duplicate
+delivery).
+
 ## Layer B: constraint algebra
 
 <a id="static-consistency-as-csp"></a>
@@ -340,6 +400,56 @@ that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-th
   coordinatewise median and not with meet or join (`median_family`,
   `median_family_not_lattice`); tractability then follows from the bounded-width results cited
   (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
+
+### An outside theorem: invariant confluence
+
+`InvariantConfluence.v` is a preregistered external-recovery experiment: recover a published
+theorem from outside this repository, with its own definitions, with every existing `.v` file
+frozen. The theorem is invariant confluence (Bailis, Fekete, Franklin, Ghodsi, Hellerstein and
+Stoica, "Coordination Avoidance in Database Systems", PVLDB 8(3), 2014), with the reachable-state
+reading of Whittaker and Hellerstein ("Interactive checks for coordination avoidance", PVLDB 12(1),
+2018). The definitions are transcribed in the new file: I-T-reachable states (every intermediate
+state of a transaction or merge is I-valid), I-confluence with the common-ancestor clause
+(`IConfB`; the clause is always met, since D0 is a common ancestor, `iconfb_iff`), Whittaker and
+Hellerstein's inductive form (`iconf_iff_wconf`), and invariant closure.
+
+- **Merge as a polymorphism (target 1).** With states as assignments of items and the merge acting
+  item by item through a binary operation `p` (Bailis et al.'s set union is `orb` on membership
+  vectors), a polymorphism of the invariant's template closes the I-valid states under merge, so
+  every transaction set is I-confluent (`pol_iconfluent`, by `pol_solutions`). For an invariant that
+  is a pinned transport network the condition is that `p` commutes with every map and fixes the
+  pins (`network_iconfluent`, by `pol_gamma_iff` and `section_solution`); pointwise max on monotone
+  networks is an instance (`max_iconfluent`, by `chain_pol`).
+- **The converse fails, and the exact form (target 2).** For an invariant on `n` items, invariant
+  closure is exactly "the merge is a polymorphism of I" in the kernel's sense
+  (`iclosed_iff_pol`, through `preserves_prel`). That is sufficient and not necessary: two versions
+  a and b, set union, I = "not both", T = {add a} is I-confluent while union is not a polymorphism
+  of I (`uq_not_pol`; a finite form of Whittaker and Hellerstein's Example 2). The exact statement
+  is relative to reachability: T is I-confluent iff the merge is a polymorphism of the relation of
+  I-T-reachable states (`iconf_iff_pol_reach`; on states, `iconf_iff_reach_closed`). The kernel's
+  `preserves` takes that relation unchanged; the reachable set itself is defined in the new file.
+- **Theorem 1 (target 3).** In a replica model (unboundedly many servers at D0; a transaction runs
+  on one server's state and commits iff its result is I-valid; merges are never refused; any
+  schedule), I-confluence keeps every server I-T-reachable and so I-valid (`replica_valid`), the
+  merged state depends only on the multiset of merged states (`deliver_perm`, from
+  `perm_swap_recovered` with `N` the identity), and two servers that exchange converge to an I-valid
+  state (`replica_converge`). Necessity holds in the same model: every I-T-reachable state can be
+  replayed on servers isolated by the schedule (`replay`, Bailis et al.'s Lemma 1), so global
+  validity of every execution forces I-confluence (`replica_exact`).
+- **Repair (target 4).** With T = {add a, add b} the system is not I-confluent (`uq2_not_iconf`,
+  `b2_not_iconf`). The deterministic repair "keep a, drop b" has state descent for every merge
+  event and history descent (`normalization_descent` with `perm_swap_recovered`), every repaired
+  state is I-valid, and two replicas that exchange repaired states agree with the repaired run of
+  the joint history (`repair_enlarges`). The contract differs from Bailis et al.'s: a committed
+  write can be compensated, which their model excludes.
+
+What leaked. No kernel was edited and no generic concept was added. Necessity of Theorem 1 for an
+arbitrary system (Bailis et al.'s Appendix B quantifies over every system M and argues by
+indistinguishability under partitions) needs a model of arbitrary protocols that the repository
+does not have; it is proved only for the check-locally-and-merge replica model in the new file.
+The convergence step assumes the merge commutative and associative (Bailis et al. also assume
+idempotence). `ac_exact` was not used: it decides section existence, which I-confluence does not
+ask.
 
 ## Layer C: settlement dynamics
 
