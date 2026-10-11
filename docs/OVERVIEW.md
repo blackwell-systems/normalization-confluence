@@ -21,8 +21,9 @@ Here events may conflict and may break invariants, and a deterministic repair (c
 restores the invariants. The question is when every delivery order still ends in the same repaired
 state, with no coordination between replicas.
 
-CRDTs design operations so that order never matters; they are the case where repair never has
-anything to do, and the inclusion is strict (some systems converge only because of their repair).
+CRDTs design operations so that order never matters; they are the case where repair never has anything to do. With repair, operations that do not
+commute can still converge, some only because of the repair, although the resulting behavior is
+itself a CRDT on the repaired steps.
 Invariant confluence lets replicas merge without coordination when no merge of valid states can
 break an invariant; it forbids violations, while convergence by compensation allows them and
 repairs them.
@@ -72,6 +73,16 @@ NP-complete, by reduction from 3-SAT.
 
 All of it is machine-checked in Coq (Rocq) with no axioms. The gate in `coq/verify.sh` checks 4748
 theorems, and CI runs it on every pull request.
+
+## Has the framework been tested?
+
+The framework that organizes these results was built from them, so re-deriving them proves little.
+The stricter test is to freeze it and recover theorems from outside the repository. Dijkstra's
+self-stabilization (1974) and invariant confluence (Bailis and others, 2015) both came through with
+no framework file edited. CRDT convergence came through for operation-based CRDTs; state-based CRDTs
+need a merge of two replica states, which the framework cannot express. The framework stays frozen
+until one prediction, written down before anyone tries to prove it, has been tested
+([research/predictions](../research/predictions/README.md)).
 
 ## What is still open
 

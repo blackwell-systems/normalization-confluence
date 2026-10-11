@@ -27,6 +27,8 @@ a single event, for a sequence of events, and for an infinite run, linked by a p
 
 ## Start here
 
+- **Website:** the front page and the Convergence Atlas, every regime on one map:
+  [blackwell-systems.github.io/normalization-confluence](https://blackwell-systems.github.io/normalization-confluence/) ([atlas](https://blackwell-systems.github.io/normalization-confluence/atlas/)).
 - **Overview, five minutes:** [docs/OVERVIEW.md](docs/OVERVIEW.md).
 - **Practitioners, does my system converge?** [docs/REGIMES.md](docs/REGIMES.md), the field guide:
   find your situation and read off whether it converges and which theorem says so.
@@ -72,6 +74,26 @@ Every page, with its role in one line: [docs/README.md](docs/README.md).
 Gaps 15 to 21 came from a coverage pass that derived the regime space from the model's axes
 ([docs/COVERAGE.md](docs/COVERAGE.md)). [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's
 status with its Coq theorem.
+
+## Testing the framework
+
+The three-layer framework ([THEORY.md](docs/THEORY.md#the-three-layers)) was built from this
+repository's results, so recovering them shows compression, not reach. Two stricter tests:
+
+- **Outside theorems, framework frozen.** Classical theorems from outside the repository, recovered
+  without editing any framework file, against a pass criterion fixed in advance. Every leak is
+  recorded as a boundary, not repaired.
+
+  | Theorem | Layer | Result |
+  |---|---|---|
+  | Dijkstra's self-stabilization (1974) | C | Passed: `SelfStabilization.v` |
+  | Invariant confluence (Bailis et al., VLDB 2015) | B | Passed: `InvariantConfluence.v` |
+  | CRDT strong eventual consistency (Shapiro et al. 2011; Gomes et al. 2017) | A | Partial: operation-based passed; state-based needs a merge of two replica states, which the framework lacks |
+
+- **A prediction.** The framework files are frozen (their hashes are checked in CI) until one
+  prediction, committed before anyone tries to prove it, is tested
+  ([research/predictions](research/predictions/README.md)). Every test so far recovers a known
+  result.
 
 ## Scope
 

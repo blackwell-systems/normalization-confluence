@@ -12,9 +12,10 @@ Normalization confluence gives an exact theory of when repair can replace raw co
 
 Replicas apply the same events in different orders, and after each event a repair function restores
 the invariants. The question is whether every order ends in the same state. Raw states may differ
-along the way; what has to agree is the result after repair. Repair therefore enlarges the class of
-systems that converge: some converge only because of it, which no CRDT on the same operations can
-match (`crdt_boundary`, `witness_governed_constant`).
+along the way; what has to agree is the result after repair. Repair therefore enlarges which operations can be used: some converge only with repair, and no CRDT
+built from the same operations converges. The resulting behavior is itself a CRDT on the repaired
+steps; what repair adds is a way to build it (`crdt_boundary`, `witness_governed_constant`,
+[SUBSUMPTION.md](SUBSUMPTION.md#two-readings-of-strictly-generalizes)).
 
 The repository asks the question at three scales and proves an exact condition at each. Let `N` send
 a state to its repaired form.
@@ -136,6 +137,26 @@ infinite runs is layer C's; layer B is not a descent condition but fixes the sta
 range over. Existence of a section is a layer-B question; settlement is layer C;
 `SignedResolver.v` and the local-graph modules (under [the lossy side](#beyond-groups-the-lossy-side))
 are layer-C results that presuppose layer-B answers.
+
+### Testing the framework
+
+The kernels were written after the repository's results were known, so their recoveries (and
+[normalization confluence as the base case](#normalization-confluence-as-the-base-case)) show
+compression. Outside theorems test reach: each was recovered with every existing file frozen and a
+pass criterion fixed in advance, and each leak is recorded, not repaired.
+
+| Theorem | Layer | Result |
+|---|---|---|
+| Dijkstra's self-stabilization | C | Passed ([below](#an-outside-theorem-self-stabilization)) |
+| Invariant confluence | B | Passed ([below](#an-outside-theorem-invariant-confluence)) |
+| CRDT strong eventual consistency | A | Partial: operation-based passed; state-based needs a binary merge ([below](#an-outside-theorem-crdt-strong-eventual-consistency)) |
+
+The leaks share one shape: the kernels follow one state through time and cannot combine two
+concurrent states or steps (merge of two replica states; simultaneous moves), and the A to C
+interface speaks of settled states, so a system that never quiesces needs an adapter. The kernels
+are now frozen (hashes in [research/predictions/frozen.sha256](../research/predictions/frozen.sha256),
+checked by `docs/atlas/check.py`) until one prediction, committed before its proof, is tested
+([research/predictions](../research/predictions/README.md)).
 
 ## Layer A: execution algebra
 

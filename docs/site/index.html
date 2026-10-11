@@ -162,7 +162,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <li><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L317">history_from_descent</a>: given state descent, history descent of the raw runs is the same question about the repaired runs.</li>
 <li><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/NormalizationDerived.v#L454">nd_derived_from</a>: with terminating repair, every run from a start has one result exactly when history descent and state descent both hold there.</li>
 </ul>
-<p style="margin-top:16px">Every condition is exact: necessary and sufficient, with a counterexample for each hypothesis. Repair strictly enlarges what can converge. CRDTs are the case where repair never runs, and some systems converge only because of their repair, which no CRDT on the same operations can match.</p>
+<p style="margin-top:16px">Every condition is exact: necessary and sufficient, with a counterexample for each hypothesis. CRDTs are the case where repair never runs. Repair enlarges which operations can be used: some converge only with repair, and no CRDT built from the same operations converges. The resulting behavior is itself a CRDT on the repaired steps; what repair adds is a way to build it from operations that do not commute.</p>
 </section>
 
 <section>
@@ -201,6 +201,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="card"><div class="status pass">Passed</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): a set of transactions is invariant confluent exactly when the merge is a polymorphism of the reachable valid states, one short step from layer B. A polymorphism of the whole invariant is enough but not needed: two versions under set union with "not both present" is invariant confluent for "add a" while union breaks the invariant. Necessity of their Theorem 1 holds in a replica model; for an arbitrary system it needs a partition model the framework lacks, stated as a leak.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/150">#150</a></div></div>
 </div>
 
+<p style="margin-top:16px">The CRDT test is the weakest: the repository proved CRDT convergence directly before the framework existed. The framework is now frozen, its files hash-checked in CI, until one prediction, written down before anyone tries to prove it, has been tested (<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">how</a>).</p>
 <h3 class="sub">Prior work and contributions</h3>
 <div class="grid3 claims">
 <div class="card"><div class="label">From prior work</div><ul><li>Newman's lemma</li><li>Trace theory for reorderings</li><li>Constraint-satisfaction algebra: polymorphisms and sections</li><li>Fair cycles and fair termination</li></ul></div>
@@ -249,6 +250,7 @@ _, report, err := r.Build()</pre></div>
     add_3→remove_1: {stock=2}
     remove_1→add_3: {stock=3}</pre></div>
 <p>The build refuses the machine. The first divergence it reports is on an empty shelf, where removing first does nothing: "add 3" then "remove 1" gives 2, the other order gives 3. Output from gsm v0.16.0, abridged.</p>
+<p>A system that converges behaves like a CRDT on its repaired steps. What gsm adds is a way to build one: write the operations you want and the rules they must keep, and the build either proves every order converges or names the order that fails. Large systems are checked in pieces (groups of variables that change together, one item of a collection, one link of a network of registries), so the cost depends on the largest piece, not the whole system.</p>
 </section>
 
 <section>

@@ -7,6 +7,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- The website's front page (`docs/site/index.html`, published by `.github/workflows/pages.yml` with
+  the atlas at `/atlas/`): the question with the shelf example and the condition it fails, the three
+  conditions and how they relate, the three layers and their interfaces, each linked to its Coq
+  theorem, the outside-theorem tests, what comes from prior work and what is contributed, the open
+  problems by name, the shelf in gsm with its build output, and citations; the atlas featured under
+  the headline; a link-preview image and a light palette (#148, #149, #151, #153, #154).
+  `docs/atlas/check.py` checks the front page's counts, open-problem list and theorem links. No
+  theorem added, removed or renamed.
+- The framework freeze (#155): the eight kernel files are hashed in
+  `research/predictions/frozen.sha256` and `docs/atlas/check.py` fails if one changes, until one
+  prediction is scored. `research/predictions/README.md` records the boundaries the outside tests
+  found and the prediction protocol. No theorem added, removed or renamed.
+- Testing the framework, summarized in README.md, docs/OVERVIEW.md and docs/THEORY.md ("Testing the
+  framework"); research/paper-argument.md's A7 and A9 updated; docs/SUBSUMPTION.md records Gomes et al., the
+  invariant-confluence results and the frozen-framework recovery of the CRDT theorems. No theorem added, removed or renamed.
+
 - `coq/CRDTRecovery.v`: CRDT strong eventual consistency, a theorem from outside the repository,
   recovered with the kernels frozen (a preregistered test). Op-based SEC (Shapiro et al., SSS 2011,
   Theorem 2; Gomes et al., OOPSLA 2017, `convergence`) through layer A with `N = id`:

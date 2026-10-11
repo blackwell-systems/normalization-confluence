@@ -23,6 +23,9 @@ Every page in this repository, with its role in one line. The front page is
 | [../coq/PAPER-MAP.md](../coq/PAPER-MAP.md) | Map from every numbered result in the three papers to its Coq theorem (its status columns predate later merges; current status is in REGIME-AUDIT.md). |
 | [../coq/extraction/README.md](../coq/extraction/README.md), [../coq/goextract/README.md](../coq/goextract/README.md) | The two verified oracles: the extracted OCaml checkers, and the Go generated from them that gsm runs in process. |
 | [../CHANGELOG.md](../CHANGELOG.md) | Notable changes to the papers, the proofs and these pages. |
+| [site/index.html](site/index.html), [atlas/](atlas/README.md) | The website (https://blackwell-systems.github.io/normalization-confluence/): the front page and the Convergence Atlas poster, every regime on one map. `atlas/check.py` checks both against the Coq gate and the audit. |
+| [../research/paper-argument.md](../research/paper-argument.md) | The adversarial review: twelve objections to the framework, each answered or conceded, what the paper can and cannot claim, and the open questions. |
+| [../research/predictions/README.md](../research/predictions/README.md) | The framework freeze (kernel hashes checked in CI), the boundaries the outside tests found, and the protocol for the first prediction. |
 
 The pages that used to sit at the repository root (REGIMES, ROADMAP, LANDSCAPE, SUBSUMPTION,
 CATEGORICAL-STRUCTURE, LYAPUNOV-EXTENSION, COMPANION-OUTLINE) keep a stub there that points here,
