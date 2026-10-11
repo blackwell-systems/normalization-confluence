@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Prediction P2 tested: PASS. A 3-by-3 marriage market with a unique stable matching whose
+  blocking-pair dynamics cycle under a round-robin schedule naming every pair
+  (`research/predictions/P2.md`, Outcome). `coq/StableMatchingP2.v` mechanizes it with the kernels
+  frozen: `p2_unique_stable`, `p2_bad_lasso`, `p2_refutes_settlement` (via `bad_lasso_refutes`),
+  `p2_pass`. Exhaustive search in `research/predictions/p2/`: 3,240 of 34,080 unique-stable `n = 3`
+  profiles and 17,655,840,000 of 65,867,261,184 unique-stable `n = 4` profiles have a pair-fair
+  cycle. Axiom-free. Gate: 4748 to 4766.
 - The website's front page (`docs/site/index.html`, published by `.github/workflows/pages.yml` with
   the atlas at `/atlas/`): the question with the shelf example and the condition it fails, the three
   conditions and how they relate, the three layers and their interfaces, each linked to its Coq

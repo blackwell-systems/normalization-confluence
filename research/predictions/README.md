@@ -16,7 +16,7 @@ hashes in [frozen.sha256](frozen.sha256).
   `NormalizationDerived.v`, `PresentedExecution.v`, `TransportCSP.v`, `TransportCSPHard.v`.
 - `python3 docs/atlas/check.py` fails if any of them changes, so CI enforces the freeze. To check by
   hand: `shasum -a 256 -c research/predictions/frozen.sha256`.
-- The freeze holds until the prediction below is scored. Regime work in new files continues; it
+- The freeze holds while the predictions below are being tested; P2 is scored (passed). Regime work in new files continues; it
   cannot change the kernels.
 
 ## Recorded boundaries
@@ -52,6 +52,6 @@ were not used to design it, not on these.
 
 | File | Claim | Committed | Outcome |
 |---|---|---|---|
-| [P2.md](P2.md) | A unique stable matching does not stop fair blocking-pair dynamics (some market with at most 4 men and 4 women cycles under a pair-fair schedule) | 2026-10-11 | Not yet tested |
+| [P2.md](P2.md) | A unique stable matching does not stop fair blocking-pair dynamics (some market with at most 4 men and 4 women cycles under a pair-fair schedule) | 2026-10-11 | PASS at `n = 3`: a unique stable matching and a round-robin fair cycle ([outcome](P2.md#outcome), [coq/StableMatchingP2.v](../../coq/StableMatchingP2.v), [search](p2/)) |
 
 P1 is reserved for the routing candidate, reshaped after the literature check; not committed.

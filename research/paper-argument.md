@@ -27,7 +27,7 @@ Outcomes in brief:
 | O6 | The "predictions" are known results | Conceded |
 | O7 | Recovering the repository's own theorems is circular | Partly answered; since answered in part by outside recoveries (A7, update) |
 | O8 | The finiteness and LPO leaks remove the cases that matter | Partly conceded |
-| O9 | The framework has predicted nothing not already known | Conceded; a prediction protocol is in place (A9, update) |
+| O9 | The framework has predicted nothing not already known | Conceded in part: one preregistered prediction (P2) passed, as a bet rather than a derivation (A9, updates) |
 | O10 | The distributed application is a change of vocabulary | Partly answered |
 | O11 | "One principle at three scales" is not a theorem | Conceded in part; the paper must restate it |
 | O12 | "Exact" is cheap: the author picks the model and quantifies over reachable states | Partly answered |
@@ -430,6 +430,16 @@ outside prediction as an open question (Part 4).
 before its proof, is tested; the protocol and the recorded boundaries are in
 [research/predictions/README.md](predictions/README.md).
 
+**Update (2026-10-11, P2 scored).** Conceded in part. One prediction, committed before any test
+([P2.md](predictions/P2.md)), passed: in the marriage market, a unique stable matching does not
+stop blocking-pair dynamics from cycling under a pair-fair schedule (`p2_pass`, a 3 by 3 instance;
+about 27% of 4 by 4 markets with a unique stable matching cycle). The framework supplied the
+question (the B to C distinction between `q1_unique_iff` and `flip2_unique_solution_livelock`), the
+reason for the bet (the update is not monotone) and the refutation tool (`bad_lasso_refutes`); the
+answer came from an exhaustive search and a proof of one instance. So the paper may say that the
+framework made one correct preregistered prediction, a bet on which side of a proved distinction
+a new system falls, and must not say that the framework computed the answer.
+
 ### A10. The distributed application is a change of vocabulary: partly answered
 
 **Conceded.** The mathematical form of each condition is classical (A1 to A4). Read as mathematics,
@@ -604,7 +614,7 @@ These are questions the repository cannot answer now. None is a proposal to star
 1. **An outside prediction.** Is there a regime not yet studied here for which the framework states
    a condition before it is proved, and the condition then turns out exact? Nothing in the
    repository is of that kind (A9). Since: the kernels are frozen and a prediction protocol is in place
-   ([research/predictions](predictions/README.md)); no prediction has been scored yet.
+   ([research/predictions](predictions/README.md)); one prediction, P2, has been scored and passed, as a bet rather than a derivation (A9); a prediction the framework computes is still open.
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
    definitions, has not been tried.

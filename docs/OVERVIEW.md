@@ -81,8 +81,9 @@ The stricter test is to freeze it and recover theorems from outside the reposito
 self-stabilization (1974) and invariant confluence (Bailis and others, 2015) both came through with
 no framework file edited. CRDT convergence came through for operation-based CRDTs; state-based CRDTs
 need a merge of two replica states, which the framework cannot express. The framework stays frozen
-until one prediction, written down before anyone tries to prove it, has been tested
-([research/predictions](../research/predictions/README.md)).
+while predictions, written down before anyone tries to prove them, are tested. The first passed: a
+matching market with exactly one stable matching can still cycle forever when every pair gets its
+turn ([research/predictions](../research/predictions/README.md)).
 
 ## What is still open
 

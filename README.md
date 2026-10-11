@@ -90,10 +90,12 @@ repository's results, so recovering them shows compression, not reach. Two stric
   | Invariant confluence (Bailis et al., VLDB 2015) | B | Passed: `InvariantConfluence.v` |
   | CRDT strong eventual consistency (Shapiro et al. 2011; Gomes et al. 2017) | A | Partial: operation-based passed; state-based needs a merge of two replica states, which the framework lacks |
 
-- **A prediction.** The framework files are frozen (their hashes are checked in CI) until one
-  prediction, committed before anyone tries to prove it, is tested
-  ([research/predictions](research/predictions/README.md)). Every test so far recovers a known
-  result.
+- **Predictions.** The framework files are frozen (their hashes are checked in CI) while
+  predictions, each committed before anyone tries to prove it, are tested
+  ([research/predictions](research/predictions/README.md)). The first, P2, passed: a matching
+  market with exactly one stable matching can still cycle forever when every pair gets its turn
+  (`StableMatchingP2.v`). It was a bet on which side of a proved distinction a new system falls,
+  not an answer the framework computed.
 
 ## Scope
 
