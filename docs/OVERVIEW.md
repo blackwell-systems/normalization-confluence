@@ -70,7 +70,7 @@ per pair of events, per edge) are proved to imply them. Where no efficient exact
 exist, there is a hardness proof instead: consistency of a lossy network with no root is
 NP-complete, by reduction from 3-SAT.
 
-All of it is machine-checked in Coq (Rocq) with no axioms. The gate in `coq/verify.sh` checks 4713
+All of it is machine-checked in Coq (Rocq) with no axioms. The gate in `coq/verify.sh` checks 4748
 theorems, and CI runs it on every pull request.
 
 ## What is still open
