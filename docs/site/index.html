@@ -187,7 +187,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <section>
 <h2>What's proved</h2>
 <div class="stats">
-<div class="stat"><div class="n" id="gate-count">4,588</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
+<div class="stat"><div class="n" id="gate-count">4,641</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
 <div class="stat"><div class="n">Exact</div><div class="t">conditions with a counterexample for each hypothesis, across dozens of regimes</div></div>
 <div class="stat"><div class="n" id="open-count">7</div><div class="t"><a href="#open-problems">open problems</a> listed in the audit, most on networks with cycles</div></div>
 <div class="stat"><div class="n">NP-complete</div><div class="t">where no efficient exact condition can exist, with machine-checked reductions</div></div>
@@ -198,7 +198,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="grid3 rec">
 <div class="card"><div class="status pass">Passed</div><h3>Dijkstra's self-stabilization (1974)</h3><p>A finite system stabilizes under fair schedules exactly when no fair loop leaves the legitimate states: one line from layer C. Dijkstra's K-state token ring follows for every ring size with K at least the number of machines, under fair and arbitrary schedules. Three leaks, all stated.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/146">#146</a></div></div>
 <div class="card"><div class="status wait">In progress</div><h3>CRDT strong eventual consistency</h3><p>Shapiro, Preguiça, Baquero and Zawirski (2011): replicas that deliver the same operations converge when concurrent operations commute. The test is layer A with a repair that does nothing.</p></div>
-<div class="card"><div class="status wait">In progress</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): which transactions preserve an invariant without coordination. The test is layer B, with merge as a polymorphism of the invariant.</p></div>
+<div class="card"><div class="status pass">Passed</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): a set of transactions is invariant confluent exactly when the merge is a polymorphism of the reachable valid states, one short step from layer B. A polymorphism of the whole invariant is enough but not needed: two versions under set union with "not both present" is invariant confluent for "add a" while union breaks the invariant. Necessity of their Theorem 1 holds in a replica model; for an arbitrary system it needs a partition model the framework lacks, stated as a leak.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/150">#150</a></div></div>
 </div>
 
 <h3 class="sub">Prior work and contributions</h3>
