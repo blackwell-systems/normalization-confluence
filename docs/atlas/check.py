@@ -15,7 +15,8 @@ Fails (exit 1) if:
   - the front page's open-problem list differs from the audit's open gaps, or a theorem link on the
     front page (class="thm") does not point at the line declaring that name in coq/, or names an
     ungated theorem, or an atlas count on the front page (tiles, families, tiles by kind) differs
-    from docs/atlas/regimes.js;
+    from docs/atlas/regimes.js, or the front page's prediction counts differ from the committed
+    predictions table in research/predictions/README.md;
   - a frozen kernel file listed in research/predictions/frozen.sha256 changed;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
@@ -185,6 +186,17 @@ def main():
             mk = re.search(r'id="' + key + r'">(\d+)<', page)
             if not mk or int(mk.group(1)) != n:
                 errors.append(f"docs/site/index.html: {key} is {mk.group(1) if mk else None}, the atlas has {n}")
+        preds = ROOT / "research" / "predictions" / "README.md"
+        if preds.exists():
+            ptxt = preds.read_text(encoding="utf-8")
+            pstart = ptxt.find("## Committed predictions")
+            prow = [l for l in ptxt[pstart:].splitlines() if l.startswith("| [")] if pstart >= 0 else []
+            pout = [l.rstrip(" |").rsplit("|", 1)[-1].strip() for l in prow]
+            want_p = {"pred-total": len(prow), "pred-confirmed": sum(1 for o in pout if o.startswith("PASS"))}
+            for key, n in want_p.items():
+                mk = re.search(r'id="' + key + r'">(\d+)<', page)
+                if mk and int(mk.group(1)) != n:
+                    errors.append(f"docs/site/index.html: {key} is {mk.group(1)}, research/predictions/README.md has {n}")
         ol = re.search(r'id="open-list">(.*?)</ol>', page, re.S)
         listed = {int(g) for g in re.findall(r'class="g">Gap (\d+)<', ol.group(1))} if ol else set()
         if listed != current:
