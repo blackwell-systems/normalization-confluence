@@ -191,6 +191,35 @@ the states S1 reaches, one more `stem` does not change the leaf set.
 The mechanism (stemmed trees no longer overlap old paths) is known to CouchDB developers. What is
 computed here is the exact consequence per order, and the parts nobody states.
 
+### Prior art found after the survey
+
+A separate check of the issue trackers, JIRA, the mailing lists and Stack Overflow (made before P3
+was committed; nothing was run) found more than the paragraphs above record. The resurrection
+itself is known and treated as intended:
+
+- COUCHDB-1649 (2013, closed Won't Fix in 2018 with the 1.x line): "the document can be deleted but
+  will then reappear as undeleted", with `revs_limit` 3, through a history gap.
+- COUCHDB-988 (2010, Paul Davis): stemming "may introduce a conflict by accident ... This is
+  generally considered an acceptable tradeoff. You just need to make sure you replicate more often
+  than the N rev_stemming edits." The same view in the PouchDB docs and in a maintainer comment on
+  apache/couchdb#4034 (2022). PouchDB #8311 (2021) reports a resurrection with `revs_limit: 1`.
+- COUCHDB-1163 (2011): disconnected branches made a deleted document look live; the fix sorts paths
+  before merging, and the maintainers state that mergeable branches should always be merged. This
+  is the origin of the full-stem cleanup that became `repair_tree`.
+- apache/couchdb PR 958 review (2017): merge results inside one batch depend on the order paths are
+  merged, and full stem "automatically cleans up broken revision trees due to bad merges"; its
+  checklist calls the stemming change "an optimization not a behavior change".
+- COUCHDB-3193 (2016): one documented side effect of `stem_interactive_updates = false` in clusters,
+  unrelated to whether the document ends deleted.
+
+Not found in any source: the dependence on delivery order with full histories, the rule for which
+orders resurrect, the healing of a stray `1-a` by a later `2-b` or `3-c`, that
+`stem_interactive_updates = false` changes the outcome, and any difference between CouchDB and
+PouchDB. The claimed novelty is those parts only; the resurrection itself is not new and is not
+presented as a bug. Two harness requirements follow from the code: one revision per request (the
+updater stems once per batch for a document), and direct injection through `_bulk_docs` with
+`new_edits=false` (the replicator fetches with `latest`, so a source holding `4-d` sends `4-d`).
+
 ### Test plan against the real software
 
 - **Software:** the official `couchdb:3.5.3` image, single node, admin user, `[cluster] q=1, n=1`.
