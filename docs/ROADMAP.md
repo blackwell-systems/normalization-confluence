@@ -680,50 +680,71 @@ Poster draft: [docs/atlas/](atlas/README.md) (`poster.html`: one tile per regime
 
 <a id="planned-paper-the-regime-map"></a>
 
-## Planned paper: convergence as descent
+<a id="planned-paper-convergence-as-descent"></a>
 
-The paper argues one thing: across execution, consistent states and long-run behavior, the exact
-convergence condition is the same question, whether behavior depends on anything repair discards
-(the main result in [THEORY.md](THEORY.md#main-result)). The regime map is the evidence base, not the
-main text. The three earlier papers each state part of the theory; none states this.
+## Planned paper: normalization confluence
 
-Working title: *Convergence as descent: an exact, mechanized theory of governed concurrent state*.
+The paper's lead claim: normalization confluence gives an exact theory of when repair can replace
+raw commutativity. Replicas may differ raw but must agree after repair, the conditions are
+necessary and sufficient and mechanized, and repair strictly enlarges the class of convergent systems
+beyond compensation-free ones (`crdt_boundary`, `witness_governed_constant`). The three-layer
+framework is the second claim: a reusable structure for governed convergence, presented with care.
+The regime map is the evidence base, not the main text. The adversarial review
+([research/paper-argument.md](../research/paper-argument.md)) shaped the tiers and the evidence set
+below.
+
+Working title: *Normalization confluence: an exact, mechanized theory of when repair can replace
+commutativity*.
 
 ### The claim, in three tiers
 
-- **Mechanically established.** Layer A recovers separately proved exact results as instances of one
-  theorem; layer C does the same for finite settlement dynamics; layer B gives one constraint-algebra
-  reading of consistency and recovers a known tractable boundary and a known hard one; the three
-  interfaces are mechanized, each with the counterexample that marks where it stops.
-- **Interpretation the evidence supports.** Descent is a common principle behind convergence
-  problems that look unrelated: event order, delivery, repair, federation, consistency and
-  settlement.
-- **Not claimed.** A universal theory of convergence, that every convergence phenomenon fits A, B
-  and C, or new underlying mathematics. Newman's lemma, CSP polymorphisms, congruences and fair
-  cycles are classical and credited ([LANDSCAPE.md](LANDSCAPE.md)).
+- **Strongly supported.** Normalization confluence is a substantial systems and theory
+  contribution: the governed convergence regime, with violations and compensation first-class;
+  exact conditions with a counterexample for each hypothesis; mechanized end to end; and a strict
+  boundary with compensation-free convergence.
+- **Supported with care.** A reusable structural framework for governed convergence: layer A
+  compresses the history results, including three that are not trace monoids; layer C compresses
+  the settlement results on finite state spaces, with one classification of failures; layer B places
+  consistency in known CSP algebra and ties it to settlement; three interfaces, each with the
+  counterexample that marks where it stops; and a proved hierarchy across the three scales, with
+  independence between levels. The recoveries show compression, not independent confirmation: the
+  kernels were written after the results were known.
+- **Not claimed.** New underlying mathematics; that the three layers are one principle (descent
+  unifies the single-event conditions; across scales the conditions form a hierarchy); predictions of
+  unknown results; that layer C covers infinite state spaces; that gsm's static checks are exact; a
+  universal theory of convergence; "new" or "first". Newman's lemma, CSP polymorphisms, congruences
+  and fair cycles are classical and credited ([LANDSCAPE.md](LANDSCAPE.md)).
 
 ### The core evidence (the main text)
 
-A small set of results carries the argument; everything else is supporting material.
+A small set of results carries the argument; everything else is supporting material. Order:
+descent, layer A, layer C, layer B, interfaces.
 
-1. **Descent at one transition.** `DescendsOn` and its exact instances: CC2, C1 and XU
-   (`cc2_is_descends`, `c1_is_descends`, `xu_is_descends`), with `Candidate` as the strict form that
-   is sufficient but not needed (`candidate_implies_xu`, `strict_not_necessary`).
+1. **Descent at one transition, and its limits.** `DescendsOn` and its exact instances, CC2, C1 and
+   XU (`cc2_is_descends`, `c1_is_descends`, `xu_is_descends`); convergence requires it (`cc_exact`,
+   `state_descent_iff_cc2`); `Candidate` is the strict form, sufficient but not needed
+   (`candidate_implies_xu`, `strict_not_necessary`). The scale limits: `descent_not_history`,
+   `history_not_descent`, `canon_settles_quotient_invariant`, `trajectory_needs_descent`.
 2. **Layer A, finite histories.** `PresentedExecution.v`: P1 and P2 (`local_exact`,
-   `closure_exact`), with three or four recovered results (`causal_exact_recovered`,
-   `tconv_exact_recovered`, `amodm_closure_recovered`, `det_live_recovered`) and the hidden-write
-   counterexample that shows why P2's closure is needed.
-3. **Layer B, consistent states.** Fixed points of repair are sections are CSP solutions
-   (`edge_fixed_iff_csp`, `section_iff_csp`); one tractable and one hard family (`ac_exact`,
-   `dnet_iff_sat`, `pol_dfam_iff`), described as the framework recovering known boundaries
-   (Jeavons and Cooper 1995; Larose and Zadori 2006), not discovering them.
-4. **Layer C, infinite runs.** `CanonicalRecurrence.v`: C1 and C2, with oscillation, livelock
-   (`flip2_fair_lasso`), the ghost (`copyback_ghost_lasso`) and semantic oscillation as one
+   `closure_exact`), with recovered results that include non-trace cases (`causal_exact_recovered`,
+   `alo_exact_recovered`, `amodm_closure_recovered`, `det_live_recovered`), the counterexample that
+   shows where generators stop sufficing (`hw_seeds_insufficient`), and the per-model adequacy cost
+   stated.
+3. **Layer C, infinite runs.** `CanonicalRecurrence.v`: C1 and C2, one positive bridge
+   (`signed_settlement_lasso`), refutation on any state space (`C1_refutes`), and oscillation,
+   livelock (`flip2_fair_lasso`), the ghost (`copyback_ghost_lasso`) and semantic oscillation as one
    classification; the finiteness and constructive (`lpo_leak`) boundaries stated.
+4. **Layer B, consistent states.** Fixed points of repair are sections are CSP solutions
+   (`edge_fixed_iff_csp`, `section_iff_csp`); polymorphisms are the operations commuting with every
+   transport (`pol_gamma_iff`); one tractable and one hard family (`ac_exact`, `dnet_iff_sat`),
+   described as recovering known boundaries (Jeavons and Cooper 1995; Larose and Zadori 2006).
+   `pol_dfam_iff` moves to supporting material.
 5. **The interfaces.** A to B: strict versus canonicalized naturality (`xu_iff_respects`). B to C:
-   fixed points equal solutions, and a unique solution does not give convergence
-   (`flip2_unique_solution_livelock`). A to C: Newman under termination (`newman_bridge`), and the
-   exact place where fairness falls short (`four_point_fair_not_confluent`, `fair_sn_exact`).
+   fixed points equal solutions (`settled_canon_exact`), and a unique solution does not give
+   convergence (`flip2_unique_solution_livelock`). A to C: Newman under termination
+   (`newman_bridge`), where fairness falls short (`four_point_fair_not_confluent`), and why
+   (`fair_starves`, `fair_sn_exact`), with the confluent network that has a starved loop
+   (`drop_starved_confluent`).
 
 ### The central figure
 
@@ -754,7 +775,7 @@ as a statement, every result gated axiom-free on three Coq versions).
   Methods in Computer Science); a conference version at a mechanization venue (CPP, ITP) only after
   checking its current dates.
 
-Status: planned. Next step: the adversarial review. It does not change what is proved.
+Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Next steps: derive `cc_exact` from the frozen kernels (normalization confluence as the base case of the framework), recover an outside theorem (Dijkstra self-stabilization) with the kernels frozen, then one prediction committed before its proof. None changes what is proved.
 
 ## Fundamental limits (stated, not removable)
 

@@ -1071,6 +1071,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/THEORY.md` main result and the `README.md` sentence: normalization confluence stated as an exact theory of when repair can replace raw commutativity; the three scales described as a proved hierarchy, not one equation (`history_from_descent`, `descent_not_history`, `history_not_descent`, `canon_settles_quotient_invariant`), following the adversarial review. `docs/ROADMAP.md`: the planned paper leads with normalization confluence, with the framework as the second, carefully supported claim; claim tiers and core evidence set updated from the review. No theorem added, removed or renamed.
 - `research/paper-argument.md`: the adversarial review the roadmap lists before drafting the paper.
   Twelve objections a skeptical reviewer would raise (descent is a congruence condition; layers A,
   B and C are trace theory with Newman, CSP algebra and fair cycles; the interfaces are definitional;
