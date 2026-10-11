@@ -597,6 +597,10 @@ These are questions the repository cannot answer now. None is a proposal to star
    Tried since for invariant confluence (Bailis et al. 2014), kernels frozen: the polymorphism
    direction, the exact reachable form and Theorem 1 in a replica model are recovered; necessity
    for an arbitrary system leaks (`coq/InvariantConfluence.v`, THEORY.md).
+
+   definitions, has not been tried. Since tried: Dijkstra's self-stabilization, recovered with the
+   kernels frozen (PASS on its preregistered criterion; the unfair daemon needs a generic adapter
+   outside the kernels): `coq/SelfStabilization.v`, [THEORY.md](../docs/THEORY.md#an-outside-theorem-self-stabilization).
 3. **Fair termination.** Is `fair_sn_exact` (under fair settlement on a finite state type,
    termination iff no reachable loop starves a label) stated in the fair-termination literature
    (Lehmann, Pnueli and Stavi 1981; Francez 1986)? Not checked at theorem level.

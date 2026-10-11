@@ -433,6 +433,61 @@ finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and 
 C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
 settlement implies LPO), which the recoveries avoid because their targets are fixed points.
 
+### An outside theorem: self-stabilization
+
+Every recovery above is of a result proved in this repository. `SelfStabilization.v` tests layer C
+on a theorem from outside it, with every existing `.v` file frozen: Dijkstra's self-stabilization
+(Dijkstra, "Self-stabilizing systems in spite of distributed control", CACM 17(11), 1974), with
+the textbook definitions (Dolev, "Self-Stabilization", MIT Press, 2000, ch. 2): a system is
+self-stabilizing for a legitimate set `L` if every step from `L` stays in `L` (closure) and every
+execution from every state reaches `L` (convergence). The kernel's runs move one machine per step,
+so every statement is for the central daemon. The criterion was fixed before the proofs: PASS if
+the generic statement is a short bridge from `C1_closed` with no new generic concept, and the ring
+follows through it with the protocol-specific work confined to the ring.
+
+- **Fair central daemon** (fairness as in `DistributedCycles.Fair`: every machine named infinitely
+  often, naming an unprivileged machine is a no-op step). `stab_fair_from`: for a finite system and
+  `L` closed under every step, every fair run from `s0` eventually stays in `L` iff no fair lasso
+  from `s0` has a loop state outside `L`. It is `C1_closed` with the observation `N := Lb : X ->
+  bool` and the target `true`, one line. `stab_fair_exact` is the same over all starts, stated on
+  fair loops.
+- **Dijkstra's K-state ring**, for every `n >= 2` machines and `K >= n` values (legitimate:
+  exactly one privilege). Closure is `ring_closed`. Lasso-freedom (`ring_no_bad_lasso`) is
+  Dijkstra's fresh-value argument on a returning run: `fair_fires` (in a fair loop the bottom
+  machine moves) and `core_leg` (if the bottom moves in a run that returns to its start, the start
+  is legitimate; `K >= n` gives a value absent from the other machines). `ring_fair_selfstab`
+  then reads stabilization off `stab_fair_from`.
+- **Unfair central daemon** ("regardless of which enabled move is chosen"). Convergence is strong
+  normalization of the moves made outside `L`, stated on the `L`-frozen system `uL`.
+  `unfair_no_loop` (`sn_iff_no_loop`): convergence iff no reachable moving loop outside `L`. The
+  ring stabilizes under this daemon too (`ring_unfair_selfstab`, through `unfair_no_loop`;
+  `unfair_fires` replaces `fair_fires`), which is the setting of Dijkstra's paper. A consequence
+  of `fair_sn_exact`, not a separate headline result: `unfair_exact` (for `L` closed and no
+  deadlock outside `L`, convergence iff fair convergence and no reachable loop outside `L` that
+  starves a machine), with `ring_no_starved_loop` as its ring instance. It is a precise
+  mechanized form of the standard fairness and cycle picture: on a finite state space an infinite
+  run is either fair or starves some machine forever (Lehmann, Pnueli and Stavi, ICALP 1981;
+  Francez, Fairness, 1986). Its exact provenance in that literature is the open question already
+  listed in [research/paper-argument.md](../research/paper-argument.md).
+- **The bound matters.** For `n = 4`, `K = 2` the loop at `0010` under the machine word
+  `0 3 2 1 0 3 2 1` is a bad fair lasso, so neither daemon stabilizes (`ring_bound_matters`). An
+  exhaustive search for `n <= 6`, outside Coq, finds bad fair loops exactly when `K <= n - 2`.
+  #146 proves the `K >= n` condition (`n` = number of machines). Dijkstra's 1974 paper also notes
+  that `K >= n - 1` suffices under a central daemon; Fokkink, Hoepman and Pang later gave a formal
+  proof and showed that bound is sharp (see [LANDSCAPE.md](LANDSCAPE.md#self-stabilization)).
+
+**Outcome: PASS on the preregistered criterion; target 3 recovered with a leak.** The generic fair
+statement is one line from `C1_closed`; the ring's fair result goes through it, with closure
+(about 55 lines), the lasso-freedom argument (about 220 lines, most of it shared with the unfair daemon) and
+a finite packaging of the ring's states as the protocol-specific work. Leaks: (1) the kernels need
+a listed finite state type, so the ring's lists are packaged as one (`RX`, `rxs`, about 100 lines;
+not a loss of content, since the ring is finite); (2) the A-C interface states termination at
+settled states, and the ring has no settled state (`ring_no_deadlock`), so the unfair daemon needs
+a generic adapter that is not in the kernels: the `L`-frozen system `uL` and `bad_lasso_cycle`
+(about 110 lines); (3) the distributed daemon cannot be stated, since `prs` moves one label per
+step. Not covered: Dijkstra's further conditions on `L` (every privilege occurs in some
+legitimate state; legitimate states are mutually reachable). No kernel was edited.
+
 ## Interfaces between the layers
 
 The objection to a three-layer framework is that A (executions), B (constraints) and C (settlement)
