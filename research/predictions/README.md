@@ -47,3 +47,11 @@ were not used to design it, not on these.
    frozen.
 4. **Score.** The outcome is scored against the committed criteria and recorded in `P1.md`, whatever
    it is.
+
+## Committed predictions
+
+| File | Claim | Committed | Outcome |
+|---|---|---|---|
+| [P2.md](P2.md) | A unique stable matching does not stop fair blocking-pair dynamics (some market with at most 4 men and 4 women cycles under a pair-fair schedule) | 2026-10-11 | Not yet tested |
+
+P1 is reserved for the routing candidate, reshaped after the literature check; not committed.
