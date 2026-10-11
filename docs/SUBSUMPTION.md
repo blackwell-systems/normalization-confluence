@@ -14,7 +14,37 @@ scoped:
 > representation.
 
 Put shortly: remove compensation and CRDT algebra is exactly the convergence condition that
-remains; restore it and the class becomes strictly larger.
+remains; restore it and the class of usable operations becomes strictly larger. The class of
+convergent behaviors does not ([Two readings](#two-readings-of-strictly-generalizes)).
+
+## The case where repair does nothing
+
+In the main result's terms ([THEORY.md](THEORY.md#main-result)), a CRDT is a system whose repair
+`N` is the identity. State descent, `N(e(N x)) = N(e x)`, then holds for every event, so
+convergence comes down to history descent alone: every reordering the delivery model allows must
+give the same state. Under causal delivery that means concurrent operations commute wherever they
+can be delivered (`crdt_boundary` (a); `sec_is_nid_instance` in `CRDTRecovery.v` gives Shapiro et
+al.'s definition of strong eventual consistency word for word). With a repair that does something,
+state descent becomes a real condition, and history descent is read after repair.
+
+## Two readings of "strictly generalizes"
+
+- **Operations: strict.** Some raw operations converge only with repair. No compensation-free
+  system built from them meets any CRDT convergence condition, while the repaired system converges
+  (`crdt_boundary` (c), and [the witness](#strictness-what-the-witness-shows)).
+- **Behavior: not strict.** The exact theorems below hold for any step function, so they apply to
+  the governed step `normalize (act e s)` as well as to raw operations. Read that way,
+  `causal_exact` says a governed system converges under causal delivery exactly when its governed
+  steps commute wherever a concurrent pair can be delivered, which is Shapiro et al.'s op-based
+  condition on the governed steps; `merge_action_exact` gives the same for unordered at-least-once
+  delivery (commutative and idempotent governed steps). So every convergent governed system is a
+  CRDT on its own governed steps, at the states it reaches. The witness is an example: its governed
+  behavior is the constant `false` (`witness_governed_constant`).
+
+So normalization confluence does not reach convergent behaviors that CRDTs cannot. What it adds is
+a way to build them: write raw operations that need not commute and a repair that restores the
+invariants, and the exact conditions (state descent and history descent, checked at build time by
+gsm) decide whether the combination converges, that is, whether its governed steps form a CRDT.
 
 The whole statement is one theorem, `crdt_boundary` in `coq/CRDTBoundary.v`, assembled from the
 exact theorems of `coq/GovernanceConverse.v` and `coq/CvRDTExact.v` and a sharpened strictness
@@ -70,7 +100,7 @@ governed composite `gstep wraw fixb` is itself the constant map to `false`, so i
 CvRDT on `bool` (`witness_governed_constant`). The theorem says that no compensation-free system
 using these raw transitions satisfies the CRDT convergence conditions; it does not say that the
 observable governed behavior escapes every CRDT. Read the strictness claim as a statement about
-representations, not about observable behavior.
+representations, not about observable behavior ([Two readings](#two-readings-of-strictly-generalizes)).
 
 Non-vacuity (`boundary_nonvacuous`): the hypotheses of (a), (b) and (b') hold for the witness's
 events (irreflexive `hb`, a finite range, decidable equality on events and states); with the raw
@@ -263,5 +293,5 @@ is neither claimed nor needed.
 - `coq/Checker.v`: `run_perm_invariant`.
 - `coq/CRDTRecovery.v`: Shapiro et al.'s and Gomes et al.'s theorems through the frozen framework.
 - `coq/InvariantConfluence.v`: invariant confluence as a polymorphism, and `repair_enlarges`.
-- `coq/verify.sh`: gates all of the above on being `Closed under the global context` (3749
-  theorems at the time of writing; `verify.sh` is the source of truth).
+- `coq/verify.sh`: gates all of the above on being `Closed under the global context`
+  (`verify.sh` is the source of truth for the count).
