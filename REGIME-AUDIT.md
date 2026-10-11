@@ -6,171 +6,25 @@ The claim this audit certifies (the README's headline):
 > condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
 > checker for the practical ones.**
 
-This page checks that sentence against the development, regime by regime and question by question.
-It adds no proofs. Current at `main` `226ef2d` with #92 and #93 (gate: `coq/verify.sh`, 2241 axiom-free
-results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were
-read at `dc610a9`, the rows #83 changed at `69ef03a`, the rows #90 changed at `a0d4713`, and the
-rows #91 changed against #91's `RootlessNetworks.v`, the rows #92 changed against #92's
-`LocalFairSettlement.v`, and the rows #93 changed against #93's `LocalTwoToken.v`, and the rows the closing of gap 15 changed against `StreamAtLeastOnce.v`,
-`DistributedDelivery.v` and `FederatedGuards.v`, gate 2467, the rows the closing of gap 16 (d)
-changed against `RobertFair.v`, gate 2569, and the rows the narrowing of gap 20 changed against
-`Reconfiguration.v`, gate 2693, and the gap 20 rows the closing of its residue (c) changed against
-`ReconfigurationClosure.v`, gate 3243, and the rows the closing of gap 5 and the narrowing of
-gap 19 changed against `CompositionBlocks.v`, gate 3513, and the gap 20 rows the closing of its
-residue (b) changed against `ReconfigurationDelivery.v`, gate 3947, and the rows the narrowing of
-gap 21's residue (a) changed against `ProjectionChains.v`, gate 4037, and the section 12 rows the
-CSP reading of lossy consistency changed against `TransportCSP.v`, gate 4101, and the section 12
-row the predicted hard cell changed against `TransportCSPHard.v`, gate 4335) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
-since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
-matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
+The audit checks that sentence against the development, regime by regime and question by question.
+Each row gives one question's exact condition with its Coq theorem, a hardness result, or a numbered
+open gap, together with the cheap sufficient condition and what gsm checks. It adds no proofs.
 
-Current state. Open convergence gaps: 3, and 16 to 21; gaps 8 and 9 are design exclusions.
-Gaps 15 to 21 came from a systematic coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md)): the
-regime space was derived from the model's axes, every meaningful combination was mapped to this
-audit, and the combinations no row covered (gaps 15 to 19) and two dimensions the model does not
-represent at all (gaps 20 and 21, new axes) are now listed; the same pass states five new design
-exclusions (X1 to X5). Gap 15 (delivery and enabledness off the replay model) is closed in all
-four parts: (a), at-least-once delivery under declared independence, by `AtLeastOnceDeclared.v`
-(`dalo_exact`); (b), at-least-once stream processors, by `StreamAtLeastOnce.v`
-(`stream_alo_exact_free`; any enabledness `stream_alo_exact`); (c), causal and at-least-once event
-delivery in the distributed model, by `DistributedDelivery.v` (`dist_delivery_exact` for any
-prefix-closed delivery class: `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`);
-(d), buffered guards in federations, by `FederatedGuards.v` (`fed_buffered_exact`; any
-enabledness `fed_jcg_exact`). Gap 21 (propagation
-over channels) is narrowed by `ProjectionChannels.v`: on acyclic networks the exact condition over
-channels is stated in either merge mode (`chan_exact`), versioned merging converges at drain exactly
-when it does after a flush (`vsettle_exact_cond`), plain merging cannot be settled by its channels
-(`plain_settle_iff`, `plain_stale_counterexample`), and on nested networks (every two-level network and every
-single-source network, the class gsm certifies) the versioned condition is `dist_exact`'s own
-(`vchan_nested_exact`, `vchan_single_exact`; `vchan_twolevel_exact`), while beyond them it is
-strictly stronger (`vchan_skip_counterexample`, `ProjectionChains.v`); open: the exact network
-class between nested networks and that counterexample, and cycles. Gap 20 (reconfiguration inside a run) is narrowed by `Reconfiguration.v`: for a
-single registry under free delivery, a switch at a quiescent barrier is exact (`barrier_exact`;
-each side's own condition when the migration is faithful, `barrier_exact_faithful`), and so is a
-live switch with events in flight (`live_exact`: B's condition from every migrated reachable state
-plus two cross-configuration critical pairs; A's own condition is not necessary,
-`forgetful_migration`), with the outcome (online, behind a barrier only, unsafe) decidable on finite
-instances (`classify_finite`); federation topology changes are exact under FedMachine semantics
-(`fed_live_exact`, `fed_barrier_exact`). Its residue (c) is closed in the deterministic model (gsm's
-runtime) by `ReconfigurationClosure.v`: A converges modulo the migration iff every pair of the
-closure of adjacent swaps under common continuations has equal images (`amodm_closure_exact`), a
-finite search on finite instances, so the outcome is decided with no faithfulness hypothesis
-(`det_classify_complete`). Its residue (b) is closed in the same model by
-`ReconfigurationDelivery.v`: under any prefix-closed delivery class (declared independence, causal,
-at-least-once), a live switch converges iff B's class condition holds over the combined alphabet
-(in-flight A-events translated) from the migrated start and S1 holds at every A-prefix the class
-admits (`live_delivery_exact`), and a barrier switch iff B's class condition holds at every migrated
-reachable state and A converges under the class modulo the migration (`barrier_delivery_exact`);
-under at-least-once delivery a redelivery straddling the barrier is a conjunct of its own
-(`barrier_alo_exact`), and each class is decided on finite instances (`classify_declared_complete`,
-`classify_causal_complete`, `classify_alo_complete`). Open: a live switch while propagation is in
-flight (the distributed model). Gap 14
-(convergence alone in the no-reset cyclic distributed model) is closed by #90
-(`conv_quiet_exact`), and gap 2 (rootless invertible networks beyond a single coherently oriented
-cycle) is closed by #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`). Gap 5
-(a cyclic monotone `J` under collapse) is closed in the FedMachine model by `CompositionBlocks.v`:
-the repair is triangular across the condensation, blockwise least fixed points are the least fixed
-point (`bekic_lfp`), so `N'` and `N` have the same normal form (`mono_collapse_nf`) and converge
-together, exactly under GC (`mono_collapse_exact`). Gap 19 is narrowed by the same module: (a) is
-closed for blocks of any engines (`compose_exact`: the composite converges iff the upstream
-converges, the block settles at every quiet input, and its settled states are not separated by its
-steps at the transient inputs; each block converging in isolation is not enough,
-`compose_isolated_refuted`, and with real engines `mixed_ghost_refuted`), with the rootless and
-monotone engines plugged in (`mixed_rootless_exact`, `mixed_mono_iff`) and the black-box interface
-closed under composition (`interface_closed`); (b) is closed for an acyclic `J`: `N` converges iff
-`N'` (`J` propagating as one atom) converges and XU holds at every state `N` reaches
-(`dist_collapse_iff`), `collapse_c`'s plain statement fails (`dist_collapse_refuted`), and static XU
-restores it (`dist_collapse_xu`). Open: a cyclic `J` in the distributed model. The
-optimization and counting gaps 10, 11 and 12 are closed with exact theorems and mechanized hardness
-reductions, and gap 13 is closed on the registry-level site with two residues at paper level (the
-variable-level and monotone-overlap site, and a sheaf condition for relative certificates on covers
-not closed under sources). Gap 3 has progress, not closure: sufficient signed certificates for E on
-the global interaction graph (`signed_settlement`, `signed_fidelity`), with Harary's balance
-theorem proved for finite signed graphs (`harary_balance`) and the loop-versus-merge separation
-(`obstruction_loop_vs_merge`); and, for Boolean networks of every size, sufficient certificates on
-the local (state-dependent) interaction graphs (#83, `LocalSigned.v`): CanonicalFidelity from no
-local positive cycle (`local_fidelity_canon`), E's Settlement from Richard's Theorems 3 and 4
-(`richard_t3`, `richard_t4`), and all of E from no local cycle (`shih_dong_E`). Settlement here is
-E's existential (flush) form, some update word reaching a fixed point from every reachable state.
-Fair-schedule settlement, the analogue of `FairFlushR`, fails under each of these local conditions
-(`shih_dong_not_fair`, `ring_local_conditions`). #92 (`LocalFairSettlement.v`) adds progress on it
-under no local cycle (A) plus out-degree at most one (B): the synchronous form (`sync_simple`, the
-conclusion of Shih and Ho 1999, Theorem 3.1, with (A) needed only at one orbit state:
-`sync_orbit_fixed`), and fair settlement from every start with at most one unstable vertex
-(`one_token_fair_settlement`); #93 (`LocalTwoToken.v`) extends this to every start with at most two
-unstable vertices (`two_token_closed`, `two_token_fair_settlement`). Runs whose states all have three
-or more unstable vertices are the open part. Gap 3 is cyclic, and
-[the cyclic frontier](#the-cyclic-frontier) states it, with gap 13's monotone-overlap part, as one
-question: what additional structure makes P, the composition layer of the canonical-execution
-framework, exact on cycles. Of the gaps
-the coverage pass added, 17 and 18 are cyclic and 16, 19 and 21 are in part; 15 (closed) and 20 are not (the
-frontier table classifies each). The lossy consistency cell of section 12 is refined per transport
-family: for a fixed finite family `F` of transport maps, section existence is the constraint
-satisfaction problem CSP(Gamma_F) (`section_iff_csp`, `TransportCSP.v`), whose complexity is
-classified by the polymorphisms of Gamma_F, the operations commuting with every map of `F`
-(`pol_gamma_iff`; the dichotomy is cited, Bulatov 2017, Zhuk 2017 and 2020, not mechanized); the
-reduction's family is NP-complete (`hard_family_csp`), monotone families on finite chains are
-decided by arc consistency (`ac_exact`, a mechanized instance of the max-closed tractability of
-Jeavons and Cooper 1995), and off the chain the algebra's prediction of hardness is confirmed: six
-monotone maps of the diamond have only projections as polymorphisms (`pol_dfam_iff`) and carry a
-3-SAT reduction (`dnet_iff_sat`, `TransportCSPHard.v`), mechanized instances of known results (the
-two-element lattice, Larose and Zádori 2006; the boundary at three elements, Broniek 2006).
+Current at `main` `8a61fbe` (gate: `coq/verify.sh`, 4541 axiom-free theorems). The last change to
+a row was #132 (`TransportCSPHard.v`, gate 4335); #133 and #134 added `CanonicalRecurrence.v` and
+`LayerInterfaces.v`, which no row cites. The gsm column was read at gsm `main` `a4c18e4`; gsm has
+merged code since (for example `CheckMigration`, gsm #56), and the column has not been re-read
+against it. Method: every Coq name cited was read as a statement in `coq/*.v`, not matched by name,
+against the module that changed its row; a name in an "exact" cell is an `<->` theorem (or a
+conjunction containing one).
 
-History. The first version of this audit (at `bb8ea95`, gate 729) checked the earlier headline,
-which called the map "complete" with "exact conditions in every regime", and found both words
-inaccurate; its conclusion listed the convergence regimes that had a sufficient condition only, or none. Since then seven mechanization PRs
-closed most of those gaps: #47 (`CoordinatedExact.v`), #48 (`RootlessCycles.v`), #49
-(`GovernanceWFConverse.v`), #50 (`MonotoneExact.v`), #51 (`StreamExact.v`), #54 (`RootSet.v`) and
-#55 (`AtLeastOnceExact.v`). The second revision (at the 989 gate) listed gaps 1 to 13 below; a second
-wave closed gaps 4, 6 and 7 (#59 `RootSetEvents.v`, #56 `EnabledAfterComp.v`, #58 `CvRDTExact.v`)
-and mechanized the 3-SAT reduction behind the lossy-network hardness result (#57 `LossyHardness.v`).
-A third wave settled most of gap 1: the acyclic distributed model is exact (#60
-`DistributedExact.v`), and on monotone cycles the distributed model is exact under reset epochs and
-under `LowR` (#62 `DistributedCycles.v`); gap 1 was restated as the residual. A fourth step closed
-that residual: without reset epochs the model is exact with no reachable hypothesis left outside
-the iff (#64 `DistributedCyclesExact.v`). The distributed model is now exact in every form the
-development covers (acyclic; monotone cycles with reset epochs; monotone cycles without resets),
-for convergence together with agreement with the FedMachine. #64 also showed that convergence among
-quiescent interleavings alone, without that agreement, is not characterized; that is recorded as
-gap 14. A fifth wave took up the optimization and counting gaps, 10 to 13. Minimum coordination on
-invertible networks is tied to the plan model exactly, with a mechanized Max-Cut reduction (#72
-`CoordinationMinimum.v`, gap 10 closed); minimum coordination on lossy networks has an exact
-characterization, a decision procedure, a mechanized 3-SAT reduction and an NP certificate (#70
-`LossyMinimum.v`, gap 11 closed); `H^1` on the nerve as a 2-complex is classified for any group and
-counted over Z/2 (#71 `CohomologyNerve.v`, gap 12 closed); and sheaf gluing is exact on the
-registry-level site for consistent states, with certificates gluing on covers closed under sources
-(#73 `SheafGluing.v`, gap 13 narrowed to the paper's variable-level and monotone-overlap site). The
-research note on lossy networks (#52) is now [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md). Since
-then #80 (`SignedCycles.v`, `SignedResolver.v`) and its statement review (#81) brought the gate to
-1968: section 12 gains a loops-versus-merges row and sufficient signed certificates for E on the
-rootless resolver row, and gap 3 records them as progress; no gap closes and no status changes.
-Then #83 (`LocalSigned.v`) brought the gate to 2012: the rootless resolver row gains sufficient
-certificates on local interaction graphs, with counterexamples marking what they do not give, and
-gap 3 records them as progress; again no gap closes and no status changes. Then #90
-(`DistributedConvergenceExact.v`) brought the gate to 2067 and closed gap 14: convergence among
-quiescent interleavings alone is exact (`conv_quiet_exact`), with the quiescent state propagation
-settles in, ghost allowed, as the canonical state in place of the FedMachine's least fixed point.
-Then #91 (`RootlessNetworks.v`) brought the gate to 2160 and closed gap 2: rootless propagation on
-any finite invertible network is exact, for the reachable set, existence from every start,
-uniqueness, and the two together, with the single-cycle theorems of #48 recovered as corollaries.
-Then #92 (`LocalFairSettlement.v`) brought the gate to 2189: the rootless resolver row gains
-fair-schedule settlement under no local cycle plus out-degree at most one, in the synchronous form
-and from starts with at most one unstable vertex, and gap 3 records it as progress; no gap closes
-and no status changes.
-Then #93 (`LocalTwoToken.v`) brought the gate to 2241: under the same two conditions no closed
-asynchronous run with two unstable vertices changes the state, so fair schedules from starts with
-at most two unstable vertices settle; gap 3 records it as progress; no gap closes and no status
-changes.
-Then a coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md)) checked the audit from the other side:
-completeness here had been relative to the rows listed. It derived thirteen axes from the Coq
-premises and the audit's vocabulary, pruned the product by ten axis dependences, and mapped 179
-cells: 58 covered, 12 excluded, 19 open under existing gaps, 55 degenerate, 14 ill-formed, and 21
-with no row at all (12 distinct questions). Those became gaps 15 to 19; two dimensions the model
-does not represent (reconfiguration inside a run, propagation over channels) became gaps 20 and
-21, and five became design exclusions X1 to X5. It adds no proofs; no existing gap's status
-changes. Since then gap 15 has closed: part (a) with `AtLeastOnceDeclared.v` (#97), parts (b) to (d)
-with `StreamAtLeastOnce.v`, `DistributedDelivery.v` and `FederatedGuards.v` (gate 2467); gap 21 is
-narrowed (#98); gap 16 is narrowed, (d) closed with `RobertFair.v` (gate 2569); gap 20 is narrowed (`Reconfiguration.v`, gate 2693), and its residue (c) is closed in the deterministic model (`ReconfigurationClosure.v`, gate 3243); gap 5 is closed and gap 19 narrowed (`CompositionBlocks.v`, gate 3513); residue (b) of gap 20 is closed in the deterministic model (`ReconfigurationDelivery.v`, gate 3947); gap 21's residue (a) is narrowed (`ProjectionChains.v`, gate 4037); the lossy consistency cell of section 12 is refined per transport family, with the CSP bridge and a tractable monotone-chain cell (`TransportCSP.v`, gate 4101), and a predicted hard cell, monotone transports on the diamond (`TransportCSPHard.v`, gate 4335).
+Open convergence gaps: 3, and 16 to 21; gaps 8 and 9 are design exclusions, and so are X1 to X5.
+Gaps 1, 2, 4 to 7, 14 and 15 are closed; of the optimization and counting gaps, 10 to 12 are closed
+and 13 is narrowed. [The open gaps](#the-open-gaps) lists each one, and
+[the cyclic frontier](#the-cyclic-frontier) states the cyclic ones as one question: what makes
+composition exact on cycles. The commit and gate each PR's rows were read at, and the history of
+the audit since `bb8ea95` (gate 729), are in the [revision log](#revision-log).
+
 The tables below are the current state; the conclusion re-answers the old questions and confirms
 the wording.
 
@@ -833,3 +687,174 @@ Found in the seventh revision (at the 2012 gate), fixed in the same PR:
   and Ruet's restatements; it is now checked against the primary text (HAL hal-00692086, Theorems
   3.2 and 4.4). Shih and Dong 2005 is marked as checked through its abstract and restatements,
   since its full text was not accessible.
+
+## Revision log
+
+The opening paragraphs of earlier revisions, unchanged: the commit and gate against which each
+PR's rows were read, the state paragraph as of gate 4335, and the history of the audit since
+`bb8ea95` (gate 729).
+
+Current at `main` `226ef2d` with #92 and #93 (gate: `coq/verify.sh`, 2241 axiom-free
+results; the fifth revision was audited at `70646f6`, gate 1783, the rows #80 and #81 changed were
+read at `dc610a9`, the rows #83 changed at `69ef03a`, the rows #90 changed at `a0d4713`, and the
+rows #91 changed against #91's `RootlessNetworks.v`, the rows #92 changed against #92's
+`LocalFairSettlement.v`, and the rows #93 changed against #93's `LocalTwoToken.v`, and the rows the closing of gap 15 changed against `StreamAtLeastOnce.v`,
+`DistributedDelivery.v` and `FederatedGuards.v`, gate 2467, the rows the closing of gap 16 (d)
+changed against `RobertFair.v`, gate 2569, and the rows the narrowing of gap 20 changed against
+`Reconfiguration.v`, gate 2693, and the gap 20 rows the closing of its residue (c) changed against
+`ReconfigurationClosure.v`, gate 3243, and the rows the closing of gap 5 and the narrowing of
+gap 19 changed against `CompositionBlocks.v`, gate 3513, and the gap 20 rows the closing of its
+residue (b) changed against `ReconfigurationDelivery.v`, gate 3947, and the rows the narrowing of
+gap 21's residue (a) changed against `ProjectionChains.v`, gate 4037, and the section 12 rows the
+CSP reading of lossy consistency changed against `TransportCSP.v`, gate 4101, and the section 12
+row the predicted hard cell changed against `TransportCSPHard.v`, gate 4335) and gsm `main` `a4c18e4` (gsm #34 adds the XU check read in section 8; gsm #36 to #39
+since then are documentation only). Every Coq name cited was read as a statement in `coq/*.v`, not
+matched by name; a name in an "exact" cell is an `<->` theorem (or a conjunction containing one).
+
+Current state. Open convergence gaps: 3, and 16 to 21; gaps 8 and 9 are design exclusions.
+Gaps 15 to 21 came from a systematic coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md)): the
+regime space was derived from the model's axes, every meaningful combination was mapped to this
+audit, and the combinations no row covered (gaps 15 to 19) and two dimensions the model does not
+represent at all (gaps 20 and 21, new axes) are now listed; the same pass states five new design
+exclusions (X1 to X5). Gap 15 (delivery and enabledness off the replay model) is closed in all
+four parts: (a), at-least-once delivery under declared independence, by `AtLeastOnceDeclared.v`
+(`dalo_exact`); (b), at-least-once stream processors, by `StreamAtLeastOnce.v`
+(`stream_alo_exact_free`; any enabledness `stream_alo_exact`); (c), causal and at-least-once event
+delivery in the distributed model, by `DistributedDelivery.v` (`dist_delivery_exact` for any
+prefix-closed delivery class: `dist_causal_exact`, `dist_alo_exact`, `dist_causal_alo_exact`);
+(d), buffered guards in federations, by `FederatedGuards.v` (`fed_buffered_exact`; any
+enabledness `fed_jcg_exact`). Gap 21 (propagation
+over channels) is narrowed by `ProjectionChannels.v`: on acyclic networks the exact condition over
+channels is stated in either merge mode (`chan_exact`), versioned merging converges at drain exactly
+when it does after a flush (`vsettle_exact_cond`), plain merging cannot be settled by its channels
+(`plain_settle_iff`, `plain_stale_counterexample`), and on nested networks (every two-level network and every
+single-source network, the class gsm certifies) the versioned condition is `dist_exact`'s own
+(`vchan_nested_exact`, `vchan_single_exact`; `vchan_twolevel_exact`), while beyond them it is
+strictly stronger (`vchan_skip_counterexample`, `ProjectionChains.v`); open: the exact network
+class between nested networks and that counterexample, and cycles. Gap 20 (reconfiguration inside a run) is narrowed by `Reconfiguration.v`: for a
+single registry under free delivery, a switch at a quiescent barrier is exact (`barrier_exact`;
+each side's own condition when the migration is faithful, `barrier_exact_faithful`), and so is a
+live switch with events in flight (`live_exact`: B's condition from every migrated reachable state
+plus two cross-configuration critical pairs; A's own condition is not necessary,
+`forgetful_migration`), with the outcome (online, behind a barrier only, unsafe) decidable on finite
+instances (`classify_finite`); federation topology changes are exact under FedMachine semantics
+(`fed_live_exact`, `fed_barrier_exact`). Its residue (c) is closed in the deterministic model (gsm's
+runtime) by `ReconfigurationClosure.v`: A converges modulo the migration iff every pair of the
+closure of adjacent swaps under common continuations has equal images (`amodm_closure_exact`), a
+finite search on finite instances, so the outcome is decided with no faithfulness hypothesis
+(`det_classify_complete`). Its residue (b) is closed in the same model by
+`ReconfigurationDelivery.v`: under any prefix-closed delivery class (declared independence, causal,
+at-least-once), a live switch converges iff B's class condition holds over the combined alphabet
+(in-flight A-events translated) from the migrated start and S1 holds at every A-prefix the class
+admits (`live_delivery_exact`), and a barrier switch iff B's class condition holds at every migrated
+reachable state and A converges under the class modulo the migration (`barrier_delivery_exact`);
+under at-least-once delivery a redelivery straddling the barrier is a conjunct of its own
+(`barrier_alo_exact`), and each class is decided on finite instances (`classify_declared_complete`,
+`classify_causal_complete`, `classify_alo_complete`). Open: a live switch while propagation is in
+flight (the distributed model). Gap 14
+(convergence alone in the no-reset cyclic distributed model) is closed by #90
+(`conv_quiet_exact`), and gap 2 (rootless invertible networks beyond a single coherently oriented
+cycle) is closed by #91 (`net_nf_exists_iff`, `net_unique_iff`, `net_unique_normal_form_iff`). Gap 5
+(a cyclic monotone `J` under collapse) is closed in the FedMachine model by `CompositionBlocks.v`:
+the repair is triangular across the condensation, blockwise least fixed points are the least fixed
+point (`bekic_lfp`), so `N'` and `N` have the same normal form (`mono_collapse_nf`) and converge
+together, exactly under GC (`mono_collapse_exact`). Gap 19 is narrowed by the same module: (a) is
+closed for blocks of any engines (`compose_exact`: the composite converges iff the upstream
+converges, the block settles at every quiet input, and its settled states are not separated by its
+steps at the transient inputs; each block converging in isolation is not enough,
+`compose_isolated_refuted`, and with real engines `mixed_ghost_refuted`), with the rootless and
+monotone engines plugged in (`mixed_rootless_exact`, `mixed_mono_iff`) and the black-box interface
+closed under composition (`interface_closed`); (b) is closed for an acyclic `J`: `N` converges iff
+`N'` (`J` propagating as one atom) converges and XU holds at every state `N` reaches
+(`dist_collapse_iff`), `collapse_c`'s plain statement fails (`dist_collapse_refuted`), and static XU
+restores it (`dist_collapse_xu`). Open: a cyclic `J` in the distributed model. The
+optimization and counting gaps 10, 11 and 12 are closed with exact theorems and mechanized hardness
+reductions, and gap 13 is closed on the registry-level site with two residues at paper level (the
+variable-level and monotone-overlap site, and a sheaf condition for relative certificates on covers
+not closed under sources). Gap 3 has progress, not closure: sufficient signed certificates for E on
+the global interaction graph (`signed_settlement`, `signed_fidelity`), with Harary's balance
+theorem proved for finite signed graphs (`harary_balance`) and the loop-versus-merge separation
+(`obstruction_loop_vs_merge`); and, for Boolean networks of every size, sufficient certificates on
+the local (state-dependent) interaction graphs (#83, `LocalSigned.v`): CanonicalFidelity from no
+local positive cycle (`local_fidelity_canon`), E's Settlement from Richard's Theorems 3 and 4
+(`richard_t3`, `richard_t4`), and all of E from no local cycle (`shih_dong_E`). Settlement here is
+E's existential (flush) form, some update word reaching a fixed point from every reachable state.
+Fair-schedule settlement, the analogue of `FairFlushR`, fails under each of these local conditions
+(`shih_dong_not_fair`, `ring_local_conditions`). #92 (`LocalFairSettlement.v`) adds progress on it
+under no local cycle (A) plus out-degree at most one (B): the synchronous form (`sync_simple`, the
+conclusion of Shih and Ho 1999, Theorem 3.1, with (A) needed only at one orbit state:
+`sync_orbit_fixed`), and fair settlement from every start with at most one unstable vertex
+(`one_token_fair_settlement`); #93 (`LocalTwoToken.v`) extends this to every start with at most two
+unstable vertices (`two_token_closed`, `two_token_fair_settlement`). Runs whose states all have three
+or more unstable vertices are the open part. Gap 3 is cyclic, and
+[the cyclic frontier](#the-cyclic-frontier) states it, with gap 13's monotone-overlap part, as one
+question: what additional structure makes P, the composition layer of the canonical-execution
+framework, exact on cycles. Of the gaps
+the coverage pass added, 17 and 18 are cyclic and 16, 19 and 21 are in part; 15 (closed) and 20 are not (the
+frontier table classifies each). The lossy consistency cell of section 12 is refined per transport
+family: for a fixed finite family `F` of transport maps, section existence is the constraint
+satisfaction problem CSP(Gamma_F) (`section_iff_csp`, `TransportCSP.v`), whose complexity is
+classified by the polymorphisms of Gamma_F, the operations commuting with every map of `F`
+(`pol_gamma_iff`; the dichotomy is cited, Bulatov 2017, Zhuk 2017 and 2020, not mechanized); the
+reduction's family is NP-complete (`hard_family_csp`), monotone families on finite chains are
+decided by arc consistency (`ac_exact`, a mechanized instance of the max-closed tractability of
+Jeavons and Cooper 1995), and off the chain the algebra's prediction of hardness is confirmed: six
+monotone maps of the diamond have only projections as polymorphisms (`pol_dfam_iff`) and carry a
+3-SAT reduction (`dnet_iff_sat`, `TransportCSPHard.v`), mechanized instances of known results (the
+two-element lattice, Larose and Zádori 2006; the boundary at three elements, Broniek 2006).
+
+History. The first version of this audit (at `bb8ea95`, gate 729) checked the earlier headline,
+which called the map "complete" with "exact conditions in every regime", and found both words
+inaccurate; its conclusion listed the convergence regimes that had a sufficient condition only, or none. Since then seven mechanization PRs
+closed most of those gaps: #47 (`CoordinatedExact.v`), #48 (`RootlessCycles.v`), #49
+(`GovernanceWFConverse.v`), #50 (`MonotoneExact.v`), #51 (`StreamExact.v`), #54 (`RootSet.v`) and
+#55 (`AtLeastOnceExact.v`). The second revision (at the 989 gate) listed gaps 1 to 13 below; a second
+wave closed gaps 4, 6 and 7 (#59 `RootSetEvents.v`, #56 `EnabledAfterComp.v`, #58 `CvRDTExact.v`)
+and mechanized the 3-SAT reduction behind the lossy-network hardness result (#57 `LossyHardness.v`).
+A third wave settled most of gap 1: the acyclic distributed model is exact (#60
+`DistributedExact.v`), and on monotone cycles the distributed model is exact under reset epochs and
+under `LowR` (#62 `DistributedCycles.v`); gap 1 was restated as the residual. A fourth step closed
+that residual: without reset epochs the model is exact with no reachable hypothesis left outside
+the iff (#64 `DistributedCyclesExact.v`). The distributed model is now exact in every form the
+development covers (acyclic; monotone cycles with reset epochs; monotone cycles without resets),
+for convergence together with agreement with the FedMachine. #64 also showed that convergence among
+quiescent interleavings alone, without that agreement, is not characterized; that is recorded as
+gap 14. A fifth wave took up the optimization and counting gaps, 10 to 13. Minimum coordination on
+invertible networks is tied to the plan model exactly, with a mechanized Max-Cut reduction (#72
+`CoordinationMinimum.v`, gap 10 closed); minimum coordination on lossy networks has an exact
+characterization, a decision procedure, a mechanized 3-SAT reduction and an NP certificate (#70
+`LossyMinimum.v`, gap 11 closed); `H^1` on the nerve as a 2-complex is classified for any group and
+counted over Z/2 (#71 `CohomologyNerve.v`, gap 12 closed); and sheaf gluing is exact on the
+registry-level site for consistent states, with certificates gluing on covers closed under sources
+(#73 `SheafGluing.v`, gap 13 narrowed to the paper's variable-level and monotone-overlap site). The
+research note on lossy networks (#52) is now [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md). Since
+then #80 (`SignedCycles.v`, `SignedResolver.v`) and its statement review (#81) brought the gate to
+1968: section 12 gains a loops-versus-merges row and sufficient signed certificates for E on the
+rootless resolver row, and gap 3 records them as progress; no gap closes and no status changes.
+Then #83 (`LocalSigned.v`) brought the gate to 2012: the rootless resolver row gains sufficient
+certificates on local interaction graphs, with counterexamples marking what they do not give, and
+gap 3 records them as progress; again no gap closes and no status changes. Then #90
+(`DistributedConvergenceExact.v`) brought the gate to 2067 and closed gap 14: convergence among
+quiescent interleavings alone is exact (`conv_quiet_exact`), with the quiescent state propagation
+settles in, ghost allowed, as the canonical state in place of the FedMachine's least fixed point.
+Then #91 (`RootlessNetworks.v`) brought the gate to 2160 and closed gap 2: rootless propagation on
+any finite invertible network is exact, for the reachable set, existence from every start,
+uniqueness, and the two together, with the single-cycle theorems of #48 recovered as corollaries.
+Then #92 (`LocalFairSettlement.v`) brought the gate to 2189: the rootless resolver row gains
+fair-schedule settlement under no local cycle plus out-degree at most one, in the synchronous form
+and from starts with at most one unstable vertex, and gap 3 records it as progress; no gap closes
+and no status changes.
+Then #93 (`LocalTwoToken.v`) brought the gate to 2241: under the same two conditions no closed
+asynchronous run with two unstable vertices changes the state, so fair schedules from starts with
+at most two unstable vertices settle; gap 3 records it as progress; no gap closes and no status
+changes.
+Then a coverage pass ([docs/COVERAGE.md](docs/COVERAGE.md)) checked the audit from the other side:
+completeness here had been relative to the rows listed. It derived thirteen axes from the Coq
+premises and the audit's vocabulary, pruned the product by ten axis dependences, and mapped 179
+cells: 58 covered, 12 excluded, 19 open under existing gaps, 55 degenerate, 14 ill-formed, and 21
+with no row at all (12 distinct questions). Those became gaps 15 to 19; two dimensions the model
+does not represent (reconfiguration inside a run, propagation over channels) became gaps 20 and
+21, and five became design exclusions X1 to X5. It adds no proofs; no existing gap's status
+changes. Since then gap 15 has closed: part (a) with `AtLeastOnceDeclared.v` (#97), parts (b) to (d)
+with `StreamAtLeastOnce.v`, `DistributedDelivery.v` and `FederatedGuards.v` (gate 2467); gap 21 is
+narrowed (#98); gap 16 is narrowed, (d) closed with `RobertFair.v` (gate 2569); gap 20 is narrowed (`Reconfiguration.v`, gate 2693), and its residue (c) is closed in the deterministic model (`ReconfigurationClosure.v`, gate 3243); gap 5 is closed and gap 19 narrowed (`CompositionBlocks.v`, gate 3513); residue (b) of gap 20 is closed in the deterministic model (`ReconfigurationDelivery.v`, gate 3947); gap 21's residue (a) is narrowed (`ProjectionChains.v`, gate 4037); the lossy consistency cell of section 12 is refined per transport family, with the CSP bridge and a tractable monotone-chain cell (`TransportCSP.v`, gate 4101), and a predicted hard cell, monotone transports on the diamond (`TransportCSPHard.v`, gate 4335).
