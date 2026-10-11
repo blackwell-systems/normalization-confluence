@@ -25,7 +25,7 @@ the regime map and the full recovery tables in appendices.
    organize the results across the regimes, with normalization confluence derived from them without
    circularity.
 4. The framework was tested where it could fail: frozen, it recovers classical theorems from outside
-   the repository, and it made a prediction committed before its test.
+   the repository, and it made a prediction committed before its test, which passed.
 
 ## Abstract (sketch, to be written last)
 
@@ -166,9 +166,12 @@ of regimes in the map, the outside theorems recovered, the prediction's outcome.
   boundaries, not repaired.
 - **10.3 A preregistered prediction.** The freeze (hashes checked in CI), the protocol, the
   candidates considered, P2 as committed (claim, criteria, timestamp), the literature check made
-  before commitment, and the outcome. Outcome and theorem names to be filled in when the test is
-  merged (`research/predictions/P2.md`).
-- **What this section may claim** depends on the outcome; the wording is fixed after it is known.
+  before commitment, and the outcome: passed. A 3 by 3 market with exactly one stable matching and a
+  pair-fair cycle (`p2_unique_stable`, `p2_bad_lasso`, `p2_refutes_settlement`, `p2_pass`); the
+  exhaustive counts (2 by 2: none; 3 by 3: 3,240 of 34,080; 4 by 4: 17,655,840,000 of
+  65,867,261,184); the independent check; and, outside the scored claim, the same result under
+  strong fairness.
+- **What this section may claim:** one correct preregistered prediction, a bet on which side of a proved distinction (`q1_unique_iff` against `flip2_unique_solution_livelock`) a new system falls; not that the framework computed the answer. A computed prediction about real software (P3) is in preparation.
 - Source: THEORY.md (Testing the framework and the outside-theorem subsections),
   research/predictions/.
 

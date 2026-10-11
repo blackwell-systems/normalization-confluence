@@ -155,8 +155,14 @@ The leaks share one shape: the kernels follow one state through time and cannot 
 concurrent states or steps (merge of two replica states; simultaneous moves), and the A to C
 interface speaks of settled states, so a system that never quiesces needs an adapter. The kernels
 are now frozen (hashes in [research/predictions/frozen.sha256](../research/predictions/frozen.sha256),
-checked by `docs/atlas/check.py`) until one prediction, committed before its proof, is tested
-([research/predictions](../research/predictions/README.md)).
+checked by `docs/atlas/check.py`) while predictions, each committed before its proof, are tested
+([research/predictions](../research/predictions/README.md)). The first, P2, passed
+(`StableMatchingP2.v`, `p2_pass`): the B to C interface separates systems where one consistent
+state guarantees settling (`q1_unique_iff`, monotone repair) from systems where it does not
+(`flip2_unique_solution_livelock`), and P2 bet that stable matching, whose update is not monotone,
+falls on the second side. A market with exactly one stable matching cycles under a pair-fair
+schedule at 3 by 3. The framework posed the question and made the bet; the answer came from an
+exhaustive search and a proof of one instance.
 
 ## Layer A: execution algebra
 

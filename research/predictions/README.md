@@ -16,7 +16,7 @@ hashes in [frozen.sha256](frozen.sha256).
   `NormalizationDerived.v`, `PresentedExecution.v`, `TransportCSP.v`, `TransportCSPHard.v`.
 - `python3 docs/atlas/check.py` fails if any of them changes, so CI enforces the freeze. To check by
   hand: `shasum -a 256 -c research/predictions/frozen.sha256`.
-- The freeze holds until the prediction below is scored. Regime work in new files continues; it
+- The freeze holds while the predictions below are being tested; P2 is scored (passed). Regime work in new files continues; it
   cannot change the kernels.
 
 ## Recorded boundaries
