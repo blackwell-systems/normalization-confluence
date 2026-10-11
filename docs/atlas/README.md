@@ -43,3 +43,10 @@ tile should cite) updates the affected entries in `regimes.js` from its audit ro
 and runs `check.py`. A closed gap's tile becomes an exact tile with its theorem and card; a narrowed
 gap keeps its open tile with the card's open part restated. The merge script keeps the theorem
 count in step.
+
+## Published copy
+
+The poster is published to GitHub Pages at
+<https://blackwell-systems.github.io/normalization-confluence/> by `.github/workflows/pages.yml`
+on every push to main that touches the atlas, the audit or the gate. The workflow runs `check.py`
+first, so a poster that disagrees with the audit or the gate is not published.
