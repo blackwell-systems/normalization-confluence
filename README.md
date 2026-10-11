@@ -60,6 +60,9 @@ status with its Coq theorem.
 
 ## Start here
 
+**Overview:** [docs/OVERVIEW.md](docs/OVERVIEW.md) explains the problem and the main result in
+five minutes.
+
 **Practitioners: does my system converge?** Start with the field guide,
 [docs/REGIMES.md](docs/REGIMES.md): find your situation (one registry, causal or at-least-once
 delivery, a network of registries, cycles, a distributed deployment) and read off whether it
