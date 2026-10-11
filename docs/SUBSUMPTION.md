@@ -196,9 +196,40 @@ causal.
   Parallel and Distributed Computing 111, 2018, [arXiv:1603.01529](https://arxiv.org/abs/1603.01529))
   ship join-decompositions of state changes rather than whole states, but deltas are still joined
   into a join-semilattice; they stay in the semilattice regime of (b'), with smaller messages.
+- Gomes, Kleppmann, Mulligan and Beresford, "Verifying strong eventual consistency in distributed
+  systems" (OOPSLA 2017), mechanized the op-based convergence theorem in Isabelle. Their theorem,
+  with their own definitions (partial operations, hb-consistent lists of distinct operations), is
+  `gomes_convergence` in `CRDTRecovery.v`; the proof there uses only that happens-before is
+  irreflexive.
 - Invariant confluence (Bailis et al., [arXiv:1402.2237](https://arxiv.org/abs/1402.2237)) asks
-  whether invariants survive coordination-free merging; it is orthogonal to the convergence
-  mechanism this note classifies (see [LANDSCAPE.md](LANDSCAPE.md) for the placement).
+  whether invariants survive coordination-free merging. It is a different question from the
+  convergence mechanism this note classifies: the invariant is checked, never repaired.
+  `InvariantConfluence.v` states it as the merge being a polymorphism of the reachable valid
+  states (`iconf_iff_pol_reach`; `uq_not_pol` shows why reachability matters), and
+  `repair_enlarges` gives transactions that are not invariant confluent but reach valid states once
+  a repair runs. That instance compensates a committed write, which Bailis et al.'s model does not
+  allow, so it is not a like-for-like comparison. See [LANDSCAPE.md](LANDSCAPE.md) for the placement.
+
+## Recovered with the framework frozen
+
+The CRDT theorems in `CRDT.v` (`cmrdt_SEC`, `cvrdt_SEC`) were proved directly. `CRDTRecovery.v`
+proves Shapiro et al.'s two theorems again through the three-layer framework, with every existing
+file unchanged, as a test of the framework ([THEORY.md](THEORY.md#testing-the-framework)). The
+repository had these regimes before the framework was written, so this is the weakest of its
+outside tests.
+
+- **Op-based:** `opsec_exact`, with the repair `N` the identity: strong eventual consistency holds
+  exactly when concurrent operations commute wherever they can be delivered causally. This is
+  `causal_exact` read through the framework; Shapiro et al.'s condition is the sufficient corollary
+  `shapiro_cmrdt_sec`, and `sec_is_nid_instance` shows the identity repair gives their definition
+  word for word.
+- **State-based:** `cvrdt_sec`, in Shapiro et al.'s replica model. The merge of one replica's state
+  into another is not something the framework can express (it follows one state through time), so
+  that step is reduced to single-payload merges outside the framework. This is a recorded
+  boundary ([research/predictions](../research/predictions/README.md)).
+- **Strictness:** `crdt_sec_strict` reuses the witness above: it converges after repair for every
+  happens-before relation, while its raw operations are not strongly eventually consistent once
+  the two events are concurrent.
 
 ## What this claim does not say
 
@@ -230,5 +261,7 @@ is neither claimed nor needed.
 - `coq/GovernanceCausal.v`: the co-enabled-events Convergence Theorem for the rewrite system.
 - `coq/AtLeastOnce.v`, `coq/AtLeastOnceExact.v`: duplicate delivery for governed machines.
 - `coq/Checker.v`: `run_perm_invariant`.
+- `coq/CRDTRecovery.v`: Shapiro et al.'s and Gomes et al.'s theorems through the frozen framework.
+- `coq/InvariantConfluence.v`: invariant confluence as a polymorphism, and `repair_enlarges`.
 - `coq/verify.sh`: gates all of the above on being `Closed under the global context` (3749
   theorems at the time of writing; `verify.sh` is the source of truth).

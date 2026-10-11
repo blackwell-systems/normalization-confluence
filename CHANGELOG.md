@@ -20,7 +20,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   prediction is scored. `research/predictions/README.md` records the boundaries the outside tests
   found and the prediction protocol. No theorem added, removed or renamed.
 - Testing the framework, summarized in README.md, docs/OVERVIEW.md and docs/THEORY.md ("Testing the
-  framework"); research/paper-argument.md's A7 and A9 updated. No theorem added, removed or renamed.
+  framework"); research/paper-argument.md's A7 and A9 updated; docs/SUBSUMPTION.md records Gomes et al., the
+  invariant-confluence results and the frozen-framework recovery of the CRDT theorems. No theorem added, removed or renamed.
 - `coq/NormalizationDerived.v`: the headline normalization-confluence theorem derived from the
   framework kernels, with the kernels and every existing file unchanged. A derivation, not a
   prediction: the framework was built after `cc_exact`. Axiom-free. No REGIME-AUDIT status changes.
