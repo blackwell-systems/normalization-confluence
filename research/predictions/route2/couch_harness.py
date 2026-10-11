@@ -74,8 +74,18 @@ def observe(db, doc_id):
     return tuple(sorted(leaves)), live, winner
 
 
+def fmt_winner(w):
+    return "-" if w is None else "%d-%s" % (w[0], w[1][0])
+
+
+def predicted_winner(leaves):
+    """Non-deleted before deleted, then the higher position, then the higher id."""
+    live = [l for l in leaves if not l[2]]
+    return max(live, key=lambda l: (l[0], l[1])) if live else None
+
+
 def fmt_leaves(ls):
-    return "{" + ", ".join("%d-%s%s" % (p, r[0], "(del)" if d else "") for p, r, d in ls) + "}"
+    return "{" + " ".join("%d-%s%s" % (p, r[0], "(del)" if d else "") for p, r, d in ls) + "}"
 
 
 def main():
@@ -86,8 +96,10 @@ def main():
     title, hist, dl, sel, k = C.SCENARIOS[scen]
     events = C.events_for(hist, dl, sel)
     orders = list(itertools.permutations(range(len(events))))
+    cfg = "/_node/_local/_config/couchdb/stem_interactive_updates"
     if raw:
-        req("PUT", "/_node/_local/_config/couchdb/stem_interactive_updates", "false")
+        prev_st, prev = req("GET", cfg)
+        req("PUT", cfg, "false")
     try:
         for rep in range(reps):
             db = "p3_%s%s%s_rep%d_%d" % (scen.lower(), "_raw" if raw else "",
@@ -107,9 +119,11 @@ def main():
                 while req("GET", "/%s" % db)[1].get("compact_running"):
                     time.sleep(1)
             bad = 0
+            bad_leaves = 0
             with open("results_%s%s%s_rep%d.csv" % (scen, "_raw" if raw else "",
                                                    "_dup" if dup else "", rep), "w") as f:
-                f.write("order,predicted_live,observed_live,predicted_leaves,observed_leaves,match\n")
+                f.write("order,predicted_live,observed_live,predicted_winner,observed_winner,"
+                        "predicted_leaves,observed_leaves,scored_match,leaves_match\n")
                 for n, order in enumerate(orders):
                     T = ()
                     for i in order:
@@ -117,17 +131,26 @@ def main():
                     if raw:
                         T = cm.compact(T, k)
                     pl, pls = cm.obs_live(T), cm.obs_leaves(T)
-                    ol, olive, _ = observe(db, "o%06d" % n)
-                    ok = (pl == olive) and (pls == ol)
+                    ol, olive, ow = observe(db, "o%06d" % n)
+                    pw = predicted_winner(pls)
+                    # P3 scores live or deleted and the winner; the leaf set is reported.
+                    ok = (pl == olive) and (pw == ow)
+                    lok = pls == ol
                     bad += not ok
-                    f.write("%s,%s,%s,%s,%s,%s\n" % (
+                    bad_leaves += not lok
+                    f.write("%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (
                         " ".join(events[i][0] for i in order), pl, olive,
-                        fmt_leaves(pls), fmt_leaves(ol), ok))
-            print("%s%s rep %d: %d of %d orders differ from the model"
-                  % (scen, " (raw)" if raw else "", rep, bad, len(orders)))
+                        fmt_winner(pw), fmt_winner(ow),
+                        fmt_leaves(pls), fmt_leaves(ol), ok, lok))
+            print("%s%s rep %d: %d of %d orders differ from the model on live/deleted or "
+                  "winner; %d on the leaf set"
+                  % (scen, " (raw)" if raw else "", rep, bad, len(orders), bad_leaves))
     finally:
         if raw:
-            req("PUT", "/_node/_local/_config/couchdb/stem_interactive_updates", "true")
+            if prev_st == 200:
+                req("PUT", cfg, prev)
+            else:
+                req("DELETE", cfg)
 
 
 if __name__ == "__main__":
