@@ -7,6 +7,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/InvariantConfluence.v`: a preregistered external-recovery experiment. Invariant confluence
+  (Bailis et al., PVLDB 8(3), 2014) recovered with every existing `.v` file frozen. Axiom-free. A
+  polymorphism of the invariant's template gives I-confluence (`pol_iconfluent`,
+  `network_iconfluent`, via `pol_solutions` and `pol_gamma_iff`); the converse fails (`uq_not_pol`);
+  exact form: I-confluent iff the merge is a polymorphism of the I-T-reachable relation
+  (`iconf_iff_pol_reach`); Theorem 1 in a replica model, both directions (`replica_valid`,
+  `replica_converge` via `perm_swap_recovered`, `replica_exact`); repair beyond I-confluence
+  (`repair_enlarges`). Leak: necessity for an arbitrary system needs a protocol and partition model
+  the repository does not have. No REGIME-AUDIT status changes. Gate raised from 4588 to 4641.
 - `coq/NormalizationDerived.v`: the headline normalization-confluence theorem derived from the
   framework kernels, with the kernels and every existing file unchanged. A derivation, not a
   prediction: the framework was built after `cc_exact`. Axiom-free. No REGIME-AUDIT status changes.

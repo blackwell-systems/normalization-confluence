@@ -320,6 +320,56 @@ that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-th
   `median_family_not_lattice`); tractability then follows from the bounded-width results cited
   (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
 
+### An outside theorem: invariant confluence
+
+`InvariantConfluence.v` is a preregistered external-recovery experiment: recover a published
+theorem from outside this repository, with its own definitions, with every existing `.v` file
+frozen. The theorem is invariant confluence (Bailis, Fekete, Franklin, Ghodsi, Hellerstein and
+Stoica, "Coordination Avoidance in Database Systems", PVLDB 8(3), 2014), with the reachable-state
+reading of Whittaker and Hellerstein ("Interactive checks for coordination avoidance", PVLDB 12(1),
+2018). The definitions are transcribed in the new file: I-T-reachable states (every intermediate
+state of a transaction or merge is I-valid), I-confluence with the common-ancestor clause
+(`IConfB`; the clause is always met, since D0 is a common ancestor, `iconfb_iff`), Whittaker and
+Hellerstein's inductive form (`iconf_iff_wconf`), and invariant closure.
+
+- **Merge as a polymorphism (target 1).** With states as assignments of items and the merge acting
+  item by item through a binary operation `p` (Bailis et al.'s set union is `orb` on membership
+  vectors), a polymorphism of the invariant's template closes the I-valid states under merge, so
+  every transaction set is I-confluent (`pol_iconfluent`, by `pol_solutions`). For an invariant that
+  is a pinned transport network the condition is that `p` commutes with every map and fixes the
+  pins (`network_iconfluent`, by `pol_gamma_iff` and `section_solution`); pointwise max on monotone
+  networks is an instance (`max_iconfluent`, by `chain_pol`).
+- **The converse fails, and the exact form (target 2).** For an invariant on `n` items, invariant
+  closure is exactly "the merge is a polymorphism of I" in the kernel's sense
+  (`iclosed_iff_pol`, through `preserves_prel`). That is sufficient and not necessary: two versions
+  a and b, set union, I = "not both", T = {add a} is I-confluent while union is not a polymorphism
+  of I (`uq_not_pol`; a finite form of Whittaker and Hellerstein's Example 2). The exact statement
+  is relative to reachability: T is I-confluent iff the merge is a polymorphism of the relation of
+  I-T-reachable states (`iconf_iff_pol_reach`; on states, `iconf_iff_reach_closed`). The kernel's
+  `preserves` takes that relation unchanged; the reachable set itself is defined in the new file.
+- **Theorem 1 (target 3).** In a replica model (unboundedly many servers at D0; a transaction runs
+  on one server's state and commits iff its result is I-valid; merges are never refused; any
+  schedule), I-confluence keeps every server I-T-reachable and so I-valid (`replica_valid`), the
+  merged state depends only on the multiset of merged states (`deliver_perm`, from
+  `perm_swap_recovered` with `N` the identity), and two servers that exchange converge to an I-valid
+  state (`replica_converge`). Necessity holds in the same model: every I-T-reachable state can be
+  replayed on servers isolated by the schedule (`replay`, Bailis et al.'s Lemma 1), so global
+  validity of every execution forces I-confluence (`replica_exact`).
+- **Repair (target 4).** With T = {add a, add b} the system is not I-confluent (`uq2_not_iconf`,
+  `b2_not_iconf`). The deterministic repair "keep a, drop b" has state descent for every merge
+  event and history descent (`normalization_descent` with `perm_swap_recovered`), every repaired
+  state is I-valid, and two replicas that exchange repaired states agree with the repaired run of
+  the joint history (`repair_enlarges`). The contract differs from Bailis et al.'s: a committed
+  write can be compensated, which their model excludes.
+
+What leaked. No kernel was edited and no generic concept was added. Necessity of Theorem 1 for an
+arbitrary system (Bailis et al.'s Appendix B quantifies over every system M and argues by
+indistinguishability under partitions) needs a model of arbitrary protocols that the repository
+does not have; it is proved only for the check-locally-and-merge replica model in the new file.
+The convergence step assumes the merge commutative and associative (Bailis et al. also assume
+idempotence). `ac_exact` was not used: it decides section existence, which I-confluence does not
+ask.
+
 ## Layer C: settlement dynamics
 
 <a id="layer-c-settlement-dynamics-as-fair-recurrence"></a>

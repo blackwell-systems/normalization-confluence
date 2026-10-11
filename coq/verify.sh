@@ -4667,6 +4667,59 @@ Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
 Print Assumptions NC.NormalizationDerived.nd_q_wfc.
 Print Assumptions NC.NormalizationDerived.nd_q_reach.
 Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
+Print Assumptions NC.InvariantConfluence.common_ancestor_free.
+Print Assumptions NC.InvariantConfluence.iconfb_iff.
+Print Assumptions NC.InvariantConfluence.itr_from_valid.
+Print Assumptions NC.InvariantConfluence.itr_valid.
+Print Assumptions NC.InvariantConfluence.iconf_iff_wconf.
+Print Assumptions NC.InvariantConfluence.iclosed_iconf.
+Print Assumptions NC.InvariantConfluence.iconf_iff_reach_closed.
+Print Assumptions NC.InvariantConfluence.iconf_iff_iclosed_all_reachable.
+Print Assumptions NC.InvariantConfluence.pol_iclosed.
+Print Assumptions NC.InvariantConfluence.pol_iconfluent.
+Print Assumptions NC.InvariantConfluence.network_iconfluent.
+Print Assumptions NC.InvariantConfluence.map_eq_seq.
+Print Assumptions NC.InvariantConfluence.preserves_prel.
+Print Assumptions NC.InvariantConfluence.iclosed_iff_pol.
+Print Assumptions NC.InvariantConfluence.iconf_iff_pol_reach.
+Print Assumptions NC.InvariantConfluence.max_iconfluent.
+Print Assumptions NC.InvariantConfluence.max_nonvacuous.
+Print Assumptions NC.InvariantConfluence.uq_local.
+Print Assumptions NC.InvariantConfluence.uq_reach_no_b.
+Print Assumptions NC.InvariantConfluence.uq_iconf.
+Print Assumptions NC.InvariantConfluence.uq_not_iclosed.
+Print Assumptions NC.InvariantConfluence.uq_not_pol.
+Print Assumptions NC.InvariantConfluence.uq_pol_reach.
+Print Assumptions NC.InvariantConfluence.uq2_not_iconf.
+Print Assumptions NC.InvariantConfluence.tx_available.
+Print Assumptions NC.InvariantConfluence.rstep_itr.
+Print Assumptions NC.InvariantConfluence.replica_valid.
+Print Assumptions NC.InvariantConfluence.deliver_perm.
+Print Assumptions NC.InvariantConfluence.deliver_swap.
+Print Assumptions NC.InvariantConfluence.deliver_multiset.
+Print Assumptions NC.InvariantConfluence.deliver_itr.
+Print Assumptions NC.InvariantConfluence.replica_converge.
+Print Assumptions NC.InvariantConfluence.rstep_ren.
+Print Assumptions NC.InvariantConfluence.run_ren.
+Print Assumptions NC.InvariantConfluence.run_ren_out.
+Print Assumptions NC.InvariantConfluence.okE_ren.
+Print Assumptions NC.InvariantConfluence.replay_merge.
+Print Assumptions NC.InvariantConfluence.replay.
+Print Assumptions NC.InvariantConfluence.replica_necessity.
+Print Assumptions NC.InvariantConfluence.replica_exact.
+Print Assumptions NC.InvariantConfluence.bm_comm.
+Print Assumptions NC.InvariantConfluence.bm_assoc.
+Print Assumptions NC.InvariantConfluence.b1_reach.
+Print Assumptions NC.InvariantConfluence.b1_iconf.
+Print Assumptions NC.InvariantConfluence.b2_not_iconf.
+Print Assumptions NC.InvariantConfluence.replica_nonvacuous.
+Print Assumptions NC.InvariantConfluence.bN_idem.
+Print Assumptions NC.InvariantConfluence.bN_valid.
+Print Assumptions NC.InvariantConfluence.b_state_descent.
+Print Assumptions NC.InvariantConfluence.bN_merge.
+Print Assumptions NC.InvariantConfluence.b_raw_join.
+Print Assumptions NC.InvariantConfluence.b_history_descent.
+Print Assumptions NC.InvariantConfluence.repair_enlarges.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4677,8 +4730,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4588 ]; then
-  echo "FAIL: expected 4588 axiom-free results, got $N"
+if [ "$N" -lt 4641 ]; then
+  echo "FAIL: expected 4641 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
