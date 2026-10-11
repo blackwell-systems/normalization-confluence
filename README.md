@@ -2,35 +2,53 @@
 
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 
-Research on coordination-free convergence in distributed systems through normalization confluence - a third structural regime alongside operation commutativity (CRDTs) and invariant confluence. The main result: the system converges exactly when its behavior does not depend on what repair discards, for single events, sequences of events, and infinite runs ([THEORY.md, main result](docs/THEORY.md#main-result)).
+Papers and machine-checked proofs on when replicas converge without coordination, when events may
+break invariants and a repair restores them.
+
+The main result: replicas apply the same events in different orders and repair after each one, and
+they converge exactly when their behavior does not depend on what repair discards. That condition
+reads three ways: for a single event, for a sequence of events, and for an infinite run
+([THEORY.md, main result](docs/THEORY.md#main-result)).
 
 **An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a checker for the practical ones.**
 
-The idea is **convergence by compensation**: operations may conflict and break invariants, and
-replicas still converge because repair is well-founded and commutes with events. CRDTs are the
-special case with no compensation, and under causal delivery they are exactly that fragment.
+- **One registry:** replicas converge exactly when repair terminates and commutes with events at
+  the states they can reach. CRDTs are the case where repair never runs.
+- **Networks of registries:** on acyclic networks, convergence under every event order costs two
+  local checks per edge (C1 and C2). They are exact at reachable states and also suffice on
+  monotone cycles.
+- **Retries and change:** exact conditions under causal and at-least-once delivery, and for
+  reconfiguring a registry or a federation (rules or topology) at a barrier or live.
 
-For networks of registries the map separates two properties. **Repair confluence**, a unique
-federated normal form, composes freely on acyclic networks and on monotone cycles. **Event
-confluence**, the same result for every event order, costs two local checks per edge (C1 and C2),
-which are exact at reachable states and also suffice on monotone cycles. Non-monotone cycles
-converge under a computed coordination, to a normal form that is unique given the authority root.
+**Dayna Blackwell** | dayna@blackwell-systems.com
 
-Scope: discrete, deterministic governed state (continuous state is out of scope; see
-[LYAPUNOV-EXTENSION.md](docs/LYAPUNOV-EXTENSION.md)). The exact conditions (JC for a single registry,
-CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable
-states, so checking them means exploring the reachable state space. The cheap sufficient
-conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-cyclic) imply them,
-and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
-is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
-[ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
-mechanized axiom-free in [`coq/`](coq) (4541 theorems at the time of writing; `coq/verify.sh` is
-the source of truth).
+---
 
-"Machine-checked" in the headline applies to the exact conditions. Each hardness result is a
-machine-checked reduction from a problem whose NP-completeness is cited (3-SAT, Max-Cut).
+## Start here
 
-Where the map stands:
+- **Overview, five minutes:** [docs/OVERVIEW.md](docs/OVERVIEW.md).
+- **Practitioners, does my system converge?** [docs/REGIMES.md](docs/REGIMES.md), the field guide:
+  find your situation and read off whether it converges and which theorem says so.
+  [gsm](https://github.com/blackwell-systems/gsm) checks the cheap conditions at build time
+  ([Companion Tools](#companion-tools)).
+- **Researchers:** the [papers](#publications), [docs/THEORY.md](docs/THEORY.md) (main result,
+  layers, composition, [canonical execution](docs/THEORY.md#canonical-execution),
+  [mathematical structure](docs/THEORY.md#mathematical-structure)),
+  [docs/LANDSCAPE.md](docs/LANDSCAPE.md) (prior work), [docs/SUBSUMPTION.md](docs/SUBSUMPTION.md)
+  (CRDTs as the compensation-free fragment),
+  [docs/CATEGORICAL-STRUCTURE.md](docs/CATEGORICAL-STRUCTURE.md) (notes for the companion paper) and
+  [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md) (lossy networks without a spanning root).
+- **Proof readers:** [coq/README.md](coq/README.md), the module index by regime;
+  `cd coq && bash verify.sh` reruns the axiom-free gate that CI runs. The same proofs generate the
+  checkers gsm runs in process before it returns a machine ([coq/extraction/](coq/extraction)).
+- **Auditors, is the headline accurate?** [REGIME-AUDIT.md](REGIME-AUDIT.md): each regime's exact
+  condition, hardness result or open gap, with its theorem and what gsm checks.
+  [docs/ROADMAP.md](docs/ROADMAP.md) says what is next; [CHANGELOG.md](CHANGELOG.md) records each
+  change.
+
+Every page, with its role in one line: [docs/README.md](docs/README.md).
+
+## Where the map stands
 
 - **Exact:** single registries; causal and at-least-once delivery; CRDTs; stream processors;
   acyclic federations; the distributed propagation model (acyclic, and monotone cycles with or
@@ -54,48 +72,31 @@ Gaps 15 to 21 came from a coverage pass that derived the regime space from the m
 ([docs/COVERAGE.md](docs/COVERAGE.md)). [REGIME-AUDIT.md](REGIME-AUDIT.md) gives each regime's
 status with its Coq theorem.
 
-**Dayna Blackwell** | dayna@blackwell-systems.com
+## Scope
 
----
+The idea is **convergence by compensation**: operations may conflict and break invariants, and
+replicas still converge because repair is well-founded and commutes with events. CRDTs are the
+special case with no compensation, and under causal delivery they are exactly that fragment.
 
-## Start here
+For networks of registries the map separates two properties. **Repair confluence**, a unique
+federated normal form, composes freely on acyclic networks and on monotone cycles. **Event
+confluence**, the same result for every event order, costs two local checks per edge (C1 and C2),
+which are exact at reachable states and also suffice on monotone cycles. Non-monotone cycles
+converge under a computed coordination, to a normal form that is unique given the authority root.
 
-**Overview:** [docs/OVERVIEW.md](docs/OVERVIEW.md) explains the problem and the main result in
-five minutes.
+The model covers discrete, deterministic governed state (continuous state is out of scope; see
+[LYAPUNOV-EXTENSION.md](docs/LYAPUNOV-EXTENSION.md)). The exact conditions (JC for a single registry,
+CCR under causal delivery, GC for event interleavings in a federation) quantify over reachable
+states, so checking them means exploring the reachable state space. The cheap sufficient
+conditions (CC for a registry, C1 and C2 for a federation, acyclic or monotone-cyclic) imply them,
+and they are what [gsm](https://github.com/blackwell-systems/gsm) checks (its single-registry check
+is re-certified by an oracle extracted from the proof; the federation-level checks are not yet, see
+[ROADMAP.md](docs/ROADMAP.md) item 5). These conditions, and the implications between them, are
+mechanized axiom-free in [`coq/`](coq) (4541 theorems at the time of writing; `coq/verify.sh` is
+the source of truth).
 
-**Practitioners: does my system converge?** Start with the field guide,
-[docs/REGIMES.md](docs/REGIMES.md): find your situation (one registry, causal or at-least-once
-delivery, a network of registries, cycles, a distributed deployment) and read off whether it
-converges and which theorem says so. [gsm](https://github.com/blackwell-systems/gsm) checks the
-cheap sufficient conditions at build time (see [Companion Tools](#companion-tools)).
-
-**Researchers: what is new, and against what?** The [papers](#publications), then
-[docs/THEORY.md](docs/THEORY.md) (the theory overview: the third regime, what is new and what is
-not, each item marked mechanized, paper or implemented, the key concepts, a
-[canonical execution](docs/THEORY.md#canonical-execution) section that rederives six exact results
-through one decomposition and states its scope, and a
-[mathematical structure](docs/THEORY.md#mathematical-structure) section placing the theory in pure
-mathematics),
-[docs/LANDSCAPE.md](docs/LANDSCAPE.md) (placement against prior work),
-[docs/SUBSUMPTION.md](docs/SUBSUMPTION.md) (CRDTs as the compensation-free fragment),
-[docs/CATEGORICAL-STRUCTURE.md](docs/CATEGORICAL-STRUCTURE.md) (working notes for the companion
-paper) and [docs/LOSSY-NETWORKS.md](docs/LOSSY-NETWORKS.md) (research note on lossy networks
-without a spanning root: root sets, NP-completeness, signed cycles).
-
-**Proof readers: what exactly is machine-checked?** [coq/](coq): the machine-checked, axiom-free
-proof (CI-gated; reproduce it in one command). It is also the source of the verified checkers gsm
-runs as an in-process, fail-closed gate: a checker over emitted step tables and a checker over the
-rules themselves, the latter also certifying the compensation-free (CRDT-fragment) classification.
-See [coq/extraction/](coq/extraction). Start at [coq/README.md](coq/README.md), the module index
-grouped by regime with each module's headline theorems and a page of full results per regime;
-`cd coq && bash verify.sh` reproduces the axiom-free gate that CI runs.
-
-**Auditors: is the headline accurate?** [REGIME-AUDIT.md](REGIME-AUDIT.md) checks it regime by
-regime: for each question, the exact condition with its Coq theorem, the hardness result, or the
-open gap, and what gsm checks. [docs/ROADMAP.md](docs/ROADMAP.md) says what is next, and
-[CHANGELOG.md](CHANGELOG.md) records each change.
-
-Every page, with its role in one line: [docs/README.md](docs/README.md).
+"Machine-checked" in the headline applies to the exact conditions. Each hardness result is a
+machine-checked reduction from a problem whose NP-completeness is cited (3-SAT, Max-Cut).
 
 ---
 
