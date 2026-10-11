@@ -4667,6 +4667,42 @@ Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
 Print Assumptions NC.NormalizationDerived.nd_q_wfc.
 Print Assumptions NC.NormalizationDerived.nd_q_reach.
 Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
+Require NC.CRDTRecovery.
+Print Assumptions NC.CRDTRecovery.nid_state_descent.
+Print Assumptions NC.CRDTRecovery.grun_nid.
+Print Assumptions NC.CRDTRecovery.opsec_state_side.
+Print Assumptions NC.CRDTRecovery.opsec_history_descent.
+Print Assumptions NC.CRDTRecovery.opsec_seeds.
+Print Assumptions NC.CRDTRecovery.seeds_concurrent.
+Print Assumptions NC.CRDTRecovery.opsec_exact.
+Print Assumptions NC.CRDTRecovery.opsec_global_exact.
+Print Assumptions NC.CRDTRecovery.shapiro_cmrdt_sec.
+Print Assumptions NC.CRDTRecovery.apply_operations_runT.
+Print Assumptions NC.CRDTRecovery.prec_snoc_l.
+Print Assumptions NC.CRDTRecovery.prec_snoc_r.
+Print Assumptions NC.CRDTRecovery.hbc_prec.
+Print Assumptions NC.CRDTRecovery.prec_in_l.
+Print Assumptions NC.CRDTRecovery.prec_map_inv.
+Print Assumptions NC.CRDTRecovery.attach.
+Print Assumptions NC.CRDTRecovery.runT_map.
+Print Assumptions NC.CRDTRecovery.gomes_convergence.
+Print Assumptions NC.CRDTRecovery.merge_delivery_exact.
+Print Assumptions NC.CRDTRecovery.join_aloconv.
+Print Assumptions NC.CRDTRecovery.payload_sec.
+Print Assumptions NC.CRDTRecovery.run_join.
+Print Assumptions NC.CRDTRecovery.run_above.
+Print Assumptions NC.CRDTRecovery.run_merge.
+Print Assumptions NC.CRDTRecovery.run_agree.
+Print Assumptions NC.CRDTRecovery.upds_app.
+Print Assumptions NC.CRDTRecovery.cv_invariant.
+Print Assumptions NC.CRDTRecovery.cvrdt_sec.
+Print Assumptions NC.CRDTRecovery.causal_descent_exact.
+Print Assumptions NC.CRDTRecovery.sec_is_nid_instance.
+Print Assumptions NC.CRDTRecovery.wN_state_descent.
+Print Assumptions NC.CRDTRecovery.crdt_sec_strict.
+Print Assumptions NC.CRDTRecovery.opsec_nonvacuous.
+Print Assumptions NC.CRDTRecovery.gomes_nonvacuous.
+Print Assumptions NC.CRDTRecovery.cvrdt_nonvacuous.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4677,8 +4713,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4588 ]; then
-  echo "FAIL: expected 4588 axiom-free results, got $N"
+if [ "$N" -lt 4623 ]; then
+  echo "FAIL: expected 4623 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

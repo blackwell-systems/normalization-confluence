@@ -594,6 +594,9 @@ These are questions the repository cannot answer now. None is a proposal to star
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
    definitions, has not been tried.
+   Since tried for CRDT strong eventual consistency with the kernels frozen (`CRDTRecovery.v`): op-based
+   SEC (Shapiro et al. 2011, Gomes et al. 2017) is a short bridge with `N = id`; state-based SEC is
+   recovered, but the binary merge of two replica states leaks out of the kernels (PARTIAL).
 3. **Fair termination.** Is `fair_sn_exact` (under fair settlement on a finite state type,
    termination iff no reachable loop starves a label) stated in the fair-termination literature
    (Lehmann, Pnueli and Stavi 1981; Francez 1986)? Not checked at theorem level.

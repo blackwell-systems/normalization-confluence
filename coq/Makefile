@@ -556,3 +556,10 @@ all: NormalizationDerived.vo
 
 NormalizationDerived.vo: NormalizationDerived.v Newman.vo Governance.vo CanonicalExecution.vo PresentedExecution.vo GovernanceConverse.vo LayerInterfaces.vo RhoStar.vo
 	coqc -Q . NC NormalizationDerived.v
+
+# CRDT strong eventual consistency recovered with the kernels frozen: op-based SEC (Shapiro
+# Theorem 2, Gomes et al. convergence) with N = id, state-based SEC (Shapiro Theorem 1) (CRDTRecovery.v).
+all: CRDTRecovery.vo
+
+CRDTRecovery.vo: CRDTRecovery.v Newman.vo Trace.vo CanonicalExecution.vo PresentedExecution.vo CausalReplay.vo GovernanceConverse.vo CanonicalInstances.vo AtLeastOnceExact.vo CRDT.vo CRDTBoundary.vo
+	coqc -Q . NC CRDTRecovery.v

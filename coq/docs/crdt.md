@@ -161,3 +161,34 @@ representation, not about observable behavior.
 **Non-vacuity.** `boundary_nonvacuous`: the hypotheses of (a), (b) and (b') hold for the witness's
 events; with the raw witness operations both sides are false, with the constant action both sides
 are true. See [`docs/SUBSUMPTION.md`](../../docs/SUBSUMPTION.md) for the statement in prose.
+
+## CRDT strong eventual consistency, recovered (`CRDTRecovery.v`)
+
+A preregistered test: strong eventual consistency (SEC), a theorem from outside this repository,
+proved from the layer A kernels with every existing file frozen. Sources: Shapiro, Preguiça,
+Baquero and Zawirski, "Conflict-free Replicated Data Types" (SSS 2011; proofs in INRIA RR-7687),
+Theorems 1 and 2; Gomes, Kleppmann, Mulligan and Beresford, "Verifying strong eventual consistency
+in distributed systems" (OOPSLA 2017), theorem `convergence`. Strong convergence only; eventual
+delivery and termination are not modeled.
+
+- **Op-based** (causal delivery: duplicate-free orders that respect `hb`). With `N = id`:
+  `nid_state_descent` (state descent is reflexivity), `opsec_history_descent` (SEC is `PInv` of the
+  causal presentation, via `causal_adequate`), `opsec_seeds` (P1, `local_exact_all`),
+  `seeds_concurrent`, so `opsec_exact`: SEC from `s0` iff concurrent pairs commute after every
+  prefix where they are causally deliverable. `opsec_global_exact`: from every start, with `hb`
+  irreflexive, iff concurrent operations commute at every state. `shapiro_cmrdt_sec`: Shapiro's
+  sufficient condition.
+- **Gomes et al.** `gomes_convergence`, with their definitions (partial operations, Kleisli
+  composition, `hb_consistent`, `concurrent_ops_commute`), through `opsec_exact` on option states.
+- **State-based** (Shapiro's replica model: updates, binary merges, causal histories, unique
+  updates). `cvrdt_sec`: a join-semilattice, merge the join, inflationary updates; replicas with the
+  same history set have the same state. Kernel step `payload_sec` (`alo_exact_recovered`), as an
+  iff `merge_delivery_exact`. The leak: the binary merge is not a kernel event; `cv_invariant`
+  reduces it to unary payload merges using the semilattice laws (`run_join`, `run_above`,
+  `run_merge`, `run_agree`), inflation and uniqueness of updates.
+- **`N = id`** `causal_descent_exact` (any `N` with state descent), `sec_is_nid_instance`;
+  strictness `crdt_sec_strict` on the witness of `crdt_boundary`.
+- **Non-vacuity.** `opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous`.
+
+Outcome against the preregistered criterion: PARTIAL (op-based passes; state-based leaks the binary
+merge). See [THEORY.md](../../docs/THEORY.md#an-outside-theorem-crdt-strong-eventual-consistency).
