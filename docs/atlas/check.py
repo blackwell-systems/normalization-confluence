@@ -16,6 +16,7 @@ Fails (exit 1) if:
     front page (class="thm") does not point at the line declaring that name in coq/, or names an
     ungated theorem, or an atlas count on the front page (tiles, families, tiles by kind) differs
     from docs/atlas/regimes.js;
+  - a frozen kernel file listed in research/predictions/frozen.sha256 changed;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
 """
@@ -205,6 +206,18 @@ def main():
         errors.append("verify.sh: gate threshold not found")
     elif shown != threshold:
         errors.append(f"poster.html: theorem count {shown} differs from verify.sh's gate {threshold}")
+
+    frozen = ROOT / "research" / "predictions" / "frozen.sha256"
+    if frozen.exists():
+        import hashlib
+        for line in frozen.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            digest, rel = line.split(None, 1)
+            f = ROOT / rel.strip()
+            got = hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else None
+            if got != digest:
+                errors.append(f"{rel.strip()}: frozen kernel file changed or missing (research/predictions/frozen.sha256)")
 
     print(f"{tiles} tiles, {len(plates)} plates, {len(names)} distinct theorem names, gate {threshold}")
     if errors:

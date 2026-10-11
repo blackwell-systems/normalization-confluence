@@ -380,6 +380,56 @@ that classification (prior work: [LANDSCAPE.md](LANDSCAPE.md#related-work-for-th
   `median_family_not_lattice`); tractability then follows from the bounded-width results cited
   (Jeavons, Cohen and Gyssens 1997; Feder and Vardi 1998), not from a mechanized algorithm.
 
+### An outside theorem: invariant confluence
+
+`InvariantConfluence.v` is a preregistered external-recovery experiment: recover a published
+theorem from outside this repository, with its own definitions, with every existing `.v` file
+frozen. The theorem is invariant confluence (Bailis, Fekete, Franklin, Ghodsi, Hellerstein and
+Stoica, "Coordination Avoidance in Database Systems", PVLDB 8(3), 2014), with the reachable-state
+reading of Whittaker and Hellerstein ("Interactive checks for coordination avoidance", PVLDB 12(1),
+2018). The definitions are transcribed in the new file: I-T-reachable states (every intermediate
+state of a transaction or merge is I-valid), I-confluence with the common-ancestor clause
+(`IConfB`; the clause is always met, since D0 is a common ancestor, `iconfb_iff`), Whittaker and
+Hellerstein's inductive form (`iconf_iff_wconf`), and invariant closure.
+
+- **Merge as a polymorphism (target 1).** With states as assignments of items and the merge acting
+  item by item through a binary operation `p` (Bailis et al.'s set union is `orb` on membership
+  vectors), a polymorphism of the invariant's template closes the I-valid states under merge, so
+  every transaction set is I-confluent (`pol_iconfluent`, by `pol_solutions`). For an invariant that
+  is a pinned transport network the condition is that `p` commutes with every map and fixes the
+  pins (`network_iconfluent`, by `pol_gamma_iff` and `section_solution`); pointwise max on monotone
+  networks is an instance (`max_iconfluent`, by `chain_pol`).
+- **The converse fails, and the exact form (target 2).** For an invariant on `n` items, invariant
+  closure is exactly "the merge is a polymorphism of I" in the kernel's sense
+  (`iclosed_iff_pol`, through `preserves_prel`). That is sufficient and not necessary: two versions
+  a and b, set union, I = "not both", T = {add a} is I-confluent while union is not a polymorphism
+  of I (`uq_not_pol`; a finite form of Whittaker and Hellerstein's Example 2). The exact statement
+  is relative to reachability: T is I-confluent iff the merge is a polymorphism of the relation of
+  I-T-reachable states (`iconf_iff_pol_reach`; on states, `iconf_iff_reach_closed`). The kernel's
+  `preserves` takes that relation unchanged; the reachable set itself is defined in the new file.
+- **Theorem 1 (target 3).** In a replica model (unboundedly many servers at D0; a transaction runs
+  on one server's state and commits iff its result is I-valid; merges are never refused; any
+  schedule), I-confluence keeps every server I-T-reachable and so I-valid (`replica_valid`), the
+  merged state depends only on the multiset of merged states (`deliver_perm`, from
+  `perm_swap_recovered` with `N` the identity), and two servers that exchange converge to an I-valid
+  state (`replica_converge`). Necessity holds in the same model: every I-T-reachable state can be
+  replayed on servers isolated by the schedule (`replay`, Bailis et al.'s Lemma 1), so global
+  validity of every execution forces I-confluence (`replica_exact`).
+- **Repair (target 4).** With T = {add a, add b} the system is not I-confluent (`uq2_not_iconf`,
+  `b2_not_iconf`). The deterministic repair "keep a, drop b" has state descent for every merge
+  event and history descent (`normalization_descent` with `perm_swap_recovered`), every repaired
+  state is I-valid, and two replicas that exchange repaired states agree with the repaired run of
+  the joint history (`repair_enlarges`). The contract differs from Bailis et al.'s: a committed
+  write can be compensated, which their model excludes.
+
+What leaked. No kernel was edited and no generic concept was added. Necessity of Theorem 1 for an
+arbitrary system (Bailis et al.'s Appendix B quantifies over every system M and argues by
+indistinguishability under partitions) needs a model of arbitrary protocols that the repository
+does not have; it is proved only for the check-locally-and-merge replica model in the new file.
+The convergence step assumes the merge commutative and associative (Bailis et al. also assume
+idempotence). `ac_exact` was not used: it decides section existence, which I-confluence does not
+ask.
+
 ## Layer C: settlement dynamics
 
 <a id="layer-c-settlement-dynamics-as-fair-recurrence"></a>
@@ -442,6 +492,61 @@ originals assume finite height, which allows infinitely many states), so the rec
 finite fragments; `chaotic_reaches_lfp` also needs a finite component list; and the strong form of
 C1 is classical in general (`lpo_leak`: on a four-state instance with no bad fair lasso, strong
 settlement implies LPO), which the recoveries avoid because their targets are fixed points.
+
+### An outside theorem: self-stabilization
+
+Every recovery above is of a result proved in this repository. `SelfStabilization.v` tests layer C
+on a theorem from outside it, with every existing `.v` file frozen: Dijkstra's self-stabilization
+(Dijkstra, "Self-stabilizing systems in spite of distributed control", CACM 17(11), 1974), with
+the textbook definitions (Dolev, "Self-Stabilization", MIT Press, 2000, ch. 2): a system is
+self-stabilizing for a legitimate set `L` if every step from `L` stays in `L` (closure) and every
+execution from every state reaches `L` (convergence). The kernel's runs move one machine per step,
+so every statement is for the central daemon. The criterion was fixed before the proofs: PASS if
+the generic statement is a short bridge from `C1_closed` with no new generic concept, and the ring
+follows through it with the protocol-specific work confined to the ring.
+
+- **Fair central daemon** (fairness as in `DistributedCycles.Fair`: every machine named infinitely
+  often, naming an unprivileged machine is a no-op step). `stab_fair_from`: for a finite system and
+  `L` closed under every step, every fair run from `s0` eventually stays in `L` iff no fair lasso
+  from `s0` has a loop state outside `L`. It is `C1_closed` with the observation `N := Lb : X ->
+  bool` and the target `true`, one line. `stab_fair_exact` is the same over all starts, stated on
+  fair loops.
+- **Dijkstra's K-state ring**, for every `n >= 2` machines and `K >= n` values (legitimate:
+  exactly one privilege). Closure is `ring_closed`. Lasso-freedom (`ring_no_bad_lasso`) is
+  Dijkstra's fresh-value argument on a returning run: `fair_fires` (in a fair loop the bottom
+  machine moves) and `core_leg` (if the bottom moves in a run that returns to its start, the start
+  is legitimate; `K >= n` gives a value absent from the other machines). `ring_fair_selfstab`
+  then reads stabilization off `stab_fair_from`.
+- **Unfair central daemon** ("regardless of which enabled move is chosen"). Convergence is strong
+  normalization of the moves made outside `L`, stated on the `L`-frozen system `uL`.
+  `unfair_no_loop` (`sn_iff_no_loop`): convergence iff no reachable moving loop outside `L`. The
+  ring stabilizes under this daemon too (`ring_unfair_selfstab`, through `unfair_no_loop`;
+  `unfair_fires` replaces `fair_fires`), which is the setting of Dijkstra's paper. A consequence
+  of `fair_sn_exact`, not a separate headline result: `unfair_exact` (for `L` closed and no
+  deadlock outside `L`, convergence iff fair convergence and no reachable loop outside `L` that
+  starves a machine), with `ring_no_starved_loop` as its ring instance. It is a precise
+  mechanized form of the standard fairness and cycle picture: on a finite state space an infinite
+  run is either fair or starves some machine forever (Lehmann, Pnueli and Stavi, ICALP 1981;
+  Francez, Fairness, 1986). Its exact provenance in that literature is the open question already
+  listed in [research/paper-argument.md](../research/paper-argument.md).
+- **The bound matters.** For `n = 4`, `K = 2` the loop at `0010` under the machine word
+  `0 3 2 1 0 3 2 1` is a bad fair lasso, so neither daemon stabilizes (`ring_bound_matters`). An
+  exhaustive search for `n <= 6`, outside Coq, finds bad fair loops exactly when `K <= n - 2`.
+  #146 proves the `K >= n` condition (`n` = number of machines). Dijkstra's 1974 paper also notes
+  that `K >= n - 1` suffices under a central daemon; Fokkink, Hoepman and Pang later gave a formal
+  proof and showed that bound is sharp (see [LANDSCAPE.md](LANDSCAPE.md#self-stabilization)).
+
+**Outcome: PASS on the preregistered criterion; target 3 recovered with a leak.** The generic fair
+statement is one line from `C1_closed`; the ring's fair result goes through it, with closure
+(about 55 lines), the lasso-freedom argument (about 220 lines, most of it shared with the unfair daemon) and
+a finite packaging of the ring's states as the protocol-specific work. Leaks: (1) the kernels need
+a listed finite state type, so the ring's lists are packaged as one (`RX`, `rxs`, about 100 lines;
+not a loss of content, since the ring is finite); (2) the A-C interface states termination at
+settled states, and the ring has no settled state (`ring_no_deadlock`), so the unfair daemon needs
+a generic adapter that is not in the kernels: the `L`-frozen system `uL` and `bad_lasso_cycle`
+(about 110 lines); (3) the distributed daemon cannot be stated, since `prs` moves one label per
+step. Not covered: Dijkstra's further conditions on `L` (every privilege occurs in some
+legitimate state; legitimate states are mutually reachable). No kernel was edited.
 
 ## Interfaces between the layers
 

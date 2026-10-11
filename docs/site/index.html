@@ -125,7 +125,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 </section>
 
 <section>
-<h2>The question</h2>
+<h2>Same events, different results</h2>
 <p>Replicas apply the same events in different orders, because networks delay, reorder and retry messages. After each event, every replica runs the same repair to restore its invariants. Do replicas that have seen the same events end in the same state?</p>
 <div class="example">
 <p>Not always. A shelf holds 5 items and has 4 in stock. Two events arrive, "add 3" and "remove 1", and repair caps the stock at 5.</p>
@@ -136,7 +136,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 </section>
 
 <section>
-<h2>The main result</h2>
+<h2>Three conditions</h2>
 <p>Raw states may differ along the way; what has to agree is the result after repair. Write <code>N</code> for the repair. The theory proves an exact condition at three scales:</p>
 <div class="grid3">
 <div class="card"><div class="label">One event</div><h3>State descent</h3><p>Applying an event to a state or to its repaired form gives the same result after repair: <code>N(e(N x)) = N(e x)</code>. Convergence requires it.</p>
@@ -147,7 +147,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="thms"><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CanonicalRecurrence.v#L486">C1_closed</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L400">canon_settles_quotient_invariant</a></div></div>
 </div>
 
-<h3 class="sub">A proved hierarchy, not one equation</h3>
+<h3 class="sub">How the conditions relate</h3>
 <div class="hier" role="img" aria-label="State descent and history descent do not imply each other. Together, with terminating repair, they are exactly normalization confluence on one registry. Terminating repair links them to long-run settlement.">
 <div class="node"><span class="label">One event</span><b>State descent</b></div>
 <div class="edge"><span class="sym">&#8655; &#8653;</span>neither implies the other</div>
@@ -166,7 +166,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 </section>
 
 <section>
-<h2>The framework</h2>
+<h2>Three layers</h2>
 <p>The same structure organizes the results across regimes. Three layers, and three proved interfaces between them:</p>
 <div class="layers">
 <div class="layer"><div class="label">Layer A</div><h3>Execution</h3><p>Which executions count as the same. One theorem recovers the exact results for causal, at-least-once and declared-independence delivery, and for reconfiguration.</p>
@@ -185,27 +185,27 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 </section>
 
 <section>
-<h2>The evidence</h2>
+<h2>What's proved</h2>
 <div class="stats">
-<div class="stat"><div class="n" id="gate-count">4,623</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
+<div class="stat"><div class="n" id="gate-count">4,713</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
 <div class="stat"><div class="n">Exact</div><div class="t">conditions with a counterexample for each hypothesis, across dozens of regimes</div></div>
 <div class="stat"><div class="n" id="open-count">7</div><div class="t"><a href="#open-problems">open problems</a> listed in the audit, most on networks with cycles</div></div>
 <div class="stat"><div class="n">NP-complete</div><div class="t">where no efficient exact condition can exist, with machine-checked reductions</div></div>
 </div>
 
-<h3 class="sub">Outside theorems, with the framework frozen</h3>
+<h3 class="sub">Tests on outside theorems</h3>
 <p>Recovering results the framework was built from shows organization, not reach. So the test is stricter: freeze every existing proof file, fix the pass criterion in advance, and recover a classical theorem from outside the repository. Whatever the frozen framework cannot express is reported as a leak.</p>
 <div class="grid3 rec">
 <div class="card"><div class="status pass">Passed</div><h3>Dijkstra's self-stabilization (1974)</h3><p>A finite system stabilizes under fair schedules exactly when no fair loop leaves the legitimate states: one line from layer C. Dijkstra's K-state token ring follows for every ring size with K at least the number of machines, under fair and arbitrary schedules. Three leaks, all stated.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/146">#146</a></div></div>
 <div class="card"><div class="status wait">Partial</div><h3>CRDT strong eventual consistency</h3><p>Shapiro, Preguiça, Baquero and Zawirski (2011), and Gomes and others (2017). Op-based: passed, a short bridge from layer A with a repair that does nothing; replicas converge exactly when concurrent operations commute where they can be delivered. State-based: proved, but the merge of two replica states is not a kernel event, so that step leaked out of the frozen framework.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/152">#152</a></div></div>
-<div class="card"><div class="status wait">In progress</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): which transactions preserve an invariant without coordination. The test is layer B, with merge as a polymorphism of the invariant.</p></div>
+<div class="card"><div class="status pass">Passed</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): a set of transactions is invariant confluent exactly when the merge is a polymorphism of the reachable valid states, one short step from layer B. A polymorphism of the whole invariant is enough but not needed: two versions under set union with "not both present" is invariant confluent for "add a" while union breaks the invariant. Necessity of their Theorem 1 holds in a replica model; for an arbitrary system it needs a partition model the framework lacks, stated as a leak.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/150">#150</a></div></div>
 </div>
 
-<h3 class="sub">What is classical, what is claimed</h3>
+<h3 class="sub">Prior work and contributions</h3>
 <div class="grid3 claims">
-<div class="card"><div class="label">Classical, and credited</div><ul><li>Newman's lemma</li><li>Trace theory for reorderings</li><li>Constraint-satisfaction algebra: polymorphisms and sections</li><li>Fair cycles and fair termination</li></ul></div>
-<div class="card"><div class="label">Claimed</div><ul><li>Exact conditions for governed convergence across the regimes, each hypothesis shown needed</li><li>The regime map: exact, provably hard, or listed as open</li><li>All of it mechanized, axiom-free</li><li>The framework, tested on outside theorems with its proofs frozen</li></ul></div>
-<div class="card"><div class="label">Not claimed</div><ul><li>New mathematics in the tools</li><li>A prediction confirmed in advance, yet</li><li>Exact long-run results beyond finite state spaces</li></ul></div>
+<div class="card"><div class="label">From prior work</div><ul><li>Newman's lemma</li><li>Trace theory for reorderings</li><li>Constraint-satisfaction algebra: polymorphisms and sections</li><li>Fair cycles and fair termination</li></ul></div>
+<div class="card"><div class="label">Contributed here</div><ul><li>Exact conditions for governed convergence across the regimes, each hypothesis shown needed</li><li>The regime map: exact, provably hard, or listed as open</li><li>All of it mechanized, axiom-free</li><li>The framework, tested on outside theorems with its proofs frozen</li><li>Normalization confluence derived from the framework's kernels, without circularity</li></ul></div>
+<div class="card"><div class="label">Not claimed</div><ul><li>New mathematics in the tools</li><li>A confirmed prediction. Every test so far recovers a known result.</li><li>Exact long-run results beyond finite state spaces</li></ul></div>
 </div>
 </section>
 
@@ -224,7 +224,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 </section>
 
 <section id="use-it">
-<h2>Use it</h2>
+<h2>Checking a system with gsm</h2>
 <p><a href="https://github.com/blackwell-systems/gsm">gsm</a> checks these conditions at build time: a team declares its business rules and repairs, and the build verifies that concurrent updates converge to one valid state, or names the order that diverges. It also checks a rules change before deployment, under the delivery the system actually has. Here is the shelf:</p>
 <div class="codewrap"><pre>r := gsm.NewRegistry("shelf")
 stock := r.Int("stock", 0, 8)
@@ -252,7 +252,7 @@ _, report, err := r.Build()</pre></div>
 </section>
 
 <section>
-<h2>Explore</h2>
+<h2>Read more</h2>
 <div class="links">
 <a class="primary" href="atlas/">The Convergence Atlas<span>Every regime on one page. Hover or tap a tile for its exact condition, counterexamples and theorems.</span></a>
 <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/OVERVIEW.md">Plain overview<span>The problem and the result, in five minutes.</span></a>

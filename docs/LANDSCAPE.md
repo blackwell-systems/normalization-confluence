@@ -94,7 +94,10 @@ operations also commute is therefore in that fragment. One whose operations do n
 by *merging* divergent states, a different mechanism that NC's replay model does not use. So the
 floor is "repair never needed" (which `compensationFree` decides), its replay-convergent part is
 exactly the op-based CRDTs, and I-confluence reaches the rest of it through merge rather than
-replay.
+replay. Invariant confluence itself, with Bailis et al.'s definitions, is recovered through the
+frozen framework kernels in `coq/InvariantConfluence.v` (merge as a polymorphism, the exact
+reachable form, Theorem 1 in a replica model; see
+[THEORY.md](THEORY.md#an-outside-theorem-invariant-confluence)).
 
 **Where compensation adds reach.** NC's own contribution is the region *above* that floor:
 operations that DO violate the invariant, made convergent by a repair that terminates (WFC) and
@@ -242,6 +245,22 @@ are the paper's necessity counterexamples for acyclicity and M1 (`prop_cycle_nec
 reductions (`plan_min_exact`, `maxcut_reduction`; `lmin_root_set`, `lmin_reduction`). Cited, not
 mechanized: the NP-completeness of 3-SAT and Max-Cut, and the fixed-parameter and planar results
 for group feedback edge sets.
+
+### Self-stabilization
+
+Dijkstra's K-state token ring (Dijkstra, "Self-stabilizing systems in spite of distributed control",
+Communications of the ACM 17(11), 1974) has been mechanized before. Qadeer and Shankar verified it
+in PVS ("Verifying a self-stabilizing mutual exclusion algorithm", PROCOMET 1998, Springer, doi
+10.1007/978-0-387-35358-6_27). In Coq, the PADEC framework of Altisen, Corbineau and Devismes ("A
+framework for certified self-stabilization", Logical Methods in Computer Science 13(4), 2017)
+carries a development of the token ring with its exact worst-case stabilization time ("Certification
+of an exact worst-case self-stabilization time", ICDCN 2021; also in Theoretical Computer Science,
+volume 941). Fokkink, Hoepman and Pang ("A note on K-state self-stabilization in a ring with K = N",
+Nordic Journal of Computing 12(1), 2005) proved, and checked in PVS, that K = N states suffice
+for N + 1 machines, and gave a counterexample for one state fewer. The contribution of #146
+(`coq/SelfStabilization.v`) is not a new mechanization of the protocol. It is an external transport
+test: a framework developed independently of self-stabilization recovers the stabilization theorem
+with its kernels frozen.
 
 ## Related work for the cohomological layer
 

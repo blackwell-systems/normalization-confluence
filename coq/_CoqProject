@@ -96,3 +96,5 @@ CanonicalRecurrence.v
 LayerInterfaces.v
 NormalizationDerived.v
 CRDTRecovery.v
+InvariantConfluence.v
+SelfStabilization.v

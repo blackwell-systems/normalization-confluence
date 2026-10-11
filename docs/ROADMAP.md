@@ -759,6 +759,24 @@ The regime map ([REGIME-AUDIT.md](../REGIME-AUDIT.md)), the axes and coverage pa
 gsm's scale features, the open gaps and the cyclic frontier, and the method (every cited name read
 as a statement, every result gated axiom-free on three Coq versions).
 
+### The framework freeze and the prediction
+
+Frozen on 2026-10-11 at commit `5be01a7`: the eight kernel files (`CanonicalExecution.v`,
+`CanonicalRecurrence.v`, `DistributedCycles.v`, `LayerInterfaces.v`, `NormalizationDerived.v`,
+`PresentedExecution.v`, `TransportCSP.v`, `TransportCSPHard.v`), hashed in
+[research/predictions/frozen.sha256](../research/predictions/frozen.sha256) and enforced by
+`docs/atlas/check.py`. Nothing in them changes, and no generic concept is added to absorb a leak,
+until the prediction is scored. The leaks the outside tests found (merge of two replica states,
+systems that never quiesce, simultaneous moves, partition semantics, item-by-item merges, listed
+finite types) are recorded as boundaries in
+[research/predictions/README.md](../research/predictions/README.md), not repaired. A later version
+that addresses them is judged on outside theorems not used to design it.
+
+The prediction follows the protocol there: candidates derived from the frozen kernels only, each with
+a literature check and pass and fail criteria; one chosen and committed as `P1.md` before any proof
+attempt; a separate run that tries both to prove and to refute it; the outcome recorded whatever it
+is. Failure has to be possible.
+
 ### Before drafting
 
 - **Adversarial review.** A written case that the work is three familiar theories side by side,
@@ -776,6 +794,10 @@ as a statement, every result gated axiom-free on three Coq versions).
   checking its current dates.
 
 Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Done: `cc_exact` derived from the frozen kernels (normalization confluence as the base case of the framework, `NormalizationDerived.v`; a derivation, not a prediction). Partial: an outside theorem recovered with the kernels frozen, CRDT strong eventual consistency (`CRDTRecovery.v`: op-based SEC of Shapiro et al. and Gomes et al. by a short bridge with `N = id`; state-based SEC recovered with the binary merge as a leak outside the kernels). Next steps: recover a second outside theorem (Dijkstra self-stabilization) with the kernels frozen, then one prediction committed before its proof. None changes what is proved.
+
+Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Done: `cc_exact` derived from the frozen kernels (normalization confluence as the base case of the framework, `NormalizationDerived.v`; a derivation, not a prediction). Next steps: recover an outside theorem (Dijkstra self-stabilization) with the kernels frozen, then one prediction committed before its proof. None changes what is proved. Done: an outside theorem, invariant confluence (Bailis et al. 2014), recovered with the kernels frozen (`InvariantConfluence.v`: the polymorphism direction, the exact reachable form, Theorem 1 in a replica model; necessity for an arbitrary system leaks, see [THEORY.md](THEORY.md#an-outside-theorem-invariant-confluence)).
+
+Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Done: `cc_exact` derived from the frozen kernels (normalization confluence as the base case of the framework, `NormalizationDerived.v`; a derivation, not a prediction); an outside theorem, Dijkstra self-stabilization, recovered with the kernels frozen (`SelfStabilization.v`, PASS on its preregistered criterion; the unfair daemon needs a generic adapter outside the kernels, see [THEORY.md](THEORY.md#an-outside-theorem-self-stabilization)). Next step: one prediction committed before its proof. None changes what is proved.
 
 ## Fundamental limits (stated, not removable)
 

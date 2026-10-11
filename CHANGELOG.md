@@ -17,6 +17,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
   `crdt_sec_strict`; non-vacuity `opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous`.
   Outcome against the preregistered criterion: PARTIAL. Axiom-free. No REGIME-AUDIT status changes.
   Gate: 4588 to 4623.
+
+- `coq/InvariantConfluence.v`: a preregistered external-recovery experiment. Invariant confluence
+  (Bailis et al., PVLDB 8(3), 2014) recovered with every existing `.v` file frozen. Axiom-free. A
+  polymorphism of the invariant's template gives I-confluence (`pol_iconfluent`,
+  `network_iconfluent`, via `pol_solutions` and `pol_gamma_iff`); the converse fails (`uq_not_pol`);
+  exact form: I-confluent iff the merge is a polymorphism of the I-T-reachable relation
+  (`iconf_iff_pol_reach`); Theorem 1 in a replica model, both directions (`replica_valid`,
+  `replica_converge` via `perm_swap_recovered`, `replica_exact`); repair beyond I-confluence
+  (`repair_enlarges`). Leak: necessity for an arbitrary system needs a protocol and partition model
+  the repository does not have. No REGIME-AUDIT status changes. Gate raised from 4588 to 4641.
 - `coq/NormalizationDerived.v`: the headline normalization-confluence theorem derived from the
   framework kernels, with the kernels and every existing file unchanged. A derivation, not a
   prediction: the framework was built after `cc_exact`. Axiom-free. No REGIME-AUDIT status changes.
@@ -37,6 +47,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     the only proof that cites them, shows the derived statements are equivalent to theirs.
     Non-vacuity: `nd_nonvacuous` (the one-boolean system of `GovernanceConverse.v`).
   - **Gate:** raised from 4541 to 4588.
+- `coq/SelfStabilization.v`: a preregistered external-recovery experiment. Dijkstra's
+  self-stabilization (CACM 1974; definitions as in Dolev 2000) recovered with every existing `.v`
+  file frozen. Axiom-free; 72 results; no REGIME-AUDIT status changes. Central daemon throughout.
+  - **Fair daemon:** `stab_fair_from` (for `L` closed, every fair run eventually stays in `L` iff no
+    fair lasso has a loop state outside `L`) is one line from `C1_closed`; `stab_fair_exact`.
+  - **The K-state token ring, every n >= 2 and K >= n:** closure `ring_closed`; Dijkstra's
+    fresh-value argument as `core_leg` with `fair_fires` and `unfair_fires`; `ring_fair_selfstab`
+    (through `stab_fair_from`) and `ring_unfair_selfstab` (through `sn_iff_no_loop`);
+    `ring_bound_matters`: for n = 4, K = 2 a bad fair lasso, so neither daemon stabilizes.
+  - **Unfair daemon:** `unfair_no_loop` (`sn_iff_no_loop`); `unfair_exact`, a consequence of
+    `fair_sn_exact` (convergence iff fair convergence and no reachable starved loop outside `L`).
+  - **The bound:** proves K >= n (n = number of machines). Dijkstra 1974 also notes that
+    K >= n - 1 suffices under a central daemon; Fokkink, Hoepman and Pang (2005) later gave a formal
+    proof and showed that bound is sharp. Prior mechanizations of the ring (Qadeer and Shankar, PVS;
+    PADEC, Coq) are recorded in `docs/LANDSCAPE.md`; this one is an external transport test, not a
+    new mechanization of the protocol.
+  - **Outcome:** PASS on the preregistered criterion. Leaks: the unfair daemon needs a generic
+    adapter outside the kernels (the `L`-frozen system `uL`, `bad_lasso_cycle`); the ring's states
+    are packaged as a listed finite type; the distributed daemon cannot be stated.
 - `coq/LayerInterfaces.v`: the interfaces between the three layers (A executions, B constraints,
   C settlement), tested against the objection that they are unrelated theories stapled together.
   A, B and C unchanged. Axiom-free. No REGIME-AUDIT status changes.

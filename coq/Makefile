@@ -563,3 +563,20 @@ all: CRDTRecovery.vo
 
 CRDTRecovery.vo: CRDTRecovery.v Newman.vo Trace.vo CanonicalExecution.vo PresentedExecution.vo CausalReplay.vo GovernanceConverse.vo CanonicalInstances.vo AtLeastOnceExact.vo CRDT.vo CRDTBoundary.vo
 	coqc -Q . NC CRDTRecovery.v
+
+# An outside theorem recovered with the kernels frozen: invariant confluence (Bailis et al. 2014).
+# A binary polymorphism of the invariant's template gives I-confluence; I-confluence is exactly
+# "the merge is a polymorphism of the I-T-reachable relation"; Theorem 1 in a replica model
+# (InvariantConfluence.v).
+all: InvariantConfluence.vo
+
+InvariantConfluence.vo: InvariantConfluence.v CohomologyGraph.vo CohomologyGeneral.vo Trace.vo TransportCSP.vo PresentedExecution.vo CanonicalExecution.vo
+	coqc -Q . NC InvariantConfluence.v
+
+# An outside theorem with the kernels frozen: Dijkstra's self-stabilization (1974). Fair-daemon
+# stabilization as C1 on the fiber of L; the unfair daemon through the A-C interface; the K-state
+# token ring for every n >= 2 and K >= n under both daemons (SelfStabilization.v).
+all: SelfStabilization.vo
+
+SelfStabilization.vo: SelfStabilization.v Newman.vo DistributedCycles.vo CanonicalRecurrence.vo LayerInterfaces.vo GovernanceWFConverse.vo
+	coqc -Q . NC SelfStabilization.v
