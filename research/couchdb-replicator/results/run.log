@@ -1,0 +1,172 @@
+scenario resurrect
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create T1 revs_limit=3
+   4. create T2 revs_limit=3 with accept-all validate_doc_update
+   5. create U1 revs_limit=3
+   6. create U2 revs_limit=3 with accept-all validate_doc_update
+   7. create E revs_limit=1000
+   8. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   9. replicate A -> C  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  11. A: edit X -> 3-c  {'rev': '3-26bd26a01283de66410d052983a93c8e'}
+  12. A: delete X -> 4-d  {'rev': '4-f5a85ee7f5957388bf9406507a17f86d'}
+  13. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  16. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  17. replicate C -> U1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  18. replicate A -> U1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. replicate C -> U2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate A -> U2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate T1 -> A  {'stats': {'missing_checked': 2, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  22. replicate A -> T1  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  23. replicate T1 -> E  {'stats': {'missing_checked': 2, 'missing_found': 2, 'docs_read': 2, 'docs_written': 2, 'doc_write_failures': 0}}
+  24. replicate A -> E  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-c/4-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-c/4-d (deleted)
+     U1: DELETED (GET 404)  leaves=2-b/3-c/4-d (deleted)
+     U2: DELETED (GET 404)  leaves=2-b/3-c/4-d (deleted)
+     A: DELETED (GET 404)  leaves=1-a/2-b/3-c/4-d (deleted)
+     C: LIVE winner=1-a conflicts=[]  leaves=1-a
+     E: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-c/4-d (deleted)
+scenario vdu_min
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 with accept-all validate_doc_update
+   7. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   8. replicate A -> C (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  11. replicate A -> B (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2-b conflicts=[]  leaves=1-a/2-b
+     T2 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  18. A: delete X -> 3-d  {'rev': '3-b74027217ccce4c91afd292a569e8d5b'}
+  19. replicate A -> D (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1: DELETED (GET 404)  leaves=1-a/2-b/3-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+scenario vdu_five
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 with accept-all validate_doc_update
+   7. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   8. replicate A -> C (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 5 unrelated filler docs
+  10. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  11. replicate A -> B (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 6, 'missing_found': 5, 'docs_read': 5, 'docs_written': 5, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 6, 'missing_found': 5, 'docs_read': 5, 'docs_written': 5, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  18. A: delete X -> 3-d  {'rev': '3-b74027217ccce4c91afd292a569e8d5b'}
+  19. replicate A -> D (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+scenario vdu_control
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 with accept-all validate_doc_update
+   7. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   8. replicate A -> C (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  10. A: write 6 unrelated filler docs
+  11. replicate A -> B (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 6, 'docs_read': 6, 'docs_written': 6, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 6, 'docs_read': 6, 'docs_written': 6, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  18. A: delete X -> 3-d  {'rev': '3-b74027217ccce4c91afd292a569e8d5b'}
+  19. replicate A -> D (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+scenario vdu_default
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 with accept-all validate_doc_update
+   7. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   8. replicate A -> C (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 20000 unrelated filler docs
+  10. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  11. replicate A -> B (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  16. replicate A -> T1  {'stats': {'missing_checked': 20001, 'missing_found': 20001, 'docs_read': 20001, 'docs_written': 20001, 'doc_write_failures': 0}}
+  17. replicate A -> T2  {'stats': {'missing_checked': 20001, 'missing_found': 20001, 'docs_read': 20001, 'docs_written': 20001, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2-b conflicts=[]  leaves=1-a/2-b
+     T2 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  18. A: delete X -> 3-d  {'rev': '3-b74027217ccce4c91afd292a569e8d5b'}
+  19. replicate A -> D (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1: DELETED (GET 404)  leaves=1-a/2-b/3-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+scenario vdu_default_control
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 with accept-all validate_doc_update
+   7. A: edit X -> 1-a  {'rev': '1-cd6dcd82d939d5b6220025fbc573b36a'}
+   8. replicate A -> C (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: edit X -> 2-b  {'rev': '2-16bf9c855621538994066f28b131099f'}
+  10. A: write 20000 unrelated filler docs
+  11. replicate A -> B (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after C,B: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  16. replicate A -> T1  {'stats': {'missing_checked': 20001, 'missing_found': 20000, 'docs_read': 20000, 'docs_written': 20000, 'doc_write_failures': 0}}
+  17. replicate A -> T2  {'stats': {'missing_checked': 20001, 'missing_found': 20000, 'docs_read': 20000, 'docs_written': 20000, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+     T2 after A: LIVE winner=2-b conflicts=['1-a']  leaves=1-a; 2-b
+  18. A: delete X -> 3-d  {'rev': '3-b74027217ccce4c91afd292a569e8d5b'}
+  19. replicate A -> D (doc_ids=['X'])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)
+     T2: LIVE winner=1-a conflicts=[]  leaves=1-a; 2-b/3-d (deleted)

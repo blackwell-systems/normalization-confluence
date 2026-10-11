@@ -1,0 +1,335 @@
+{
+ "scenario": "vdu_control",
+ "note": "6 fillers after the 2-b edit; A->T options {'worker_processes': 1, 'worker_batch_size': 1}",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=1000"
+  },
+  {
+   "step": 2,
+   "action": "create C revs_limit=1000"
+  },
+  {
+   "step": 3,
+   "action": "create B revs_limit=1"
+  },
+  {
+   "step": 4,
+   "action": "create D revs_limit=2"
+  },
+  {
+   "step": 5,
+   "action": "create T1 revs_limit=1000"
+  },
+  {
+   "step": 6,
+   "action": "create T2 revs_limit=1000 with accept-all validate_doc_update"
+  },
+  {
+   "step": 7,
+   "action": "A: edit X -> 1-a",
+   "rev": "1-cd6dcd82d939d5b6220025fbc573b36a"
+  },
+  {
+   "step": 8,
+   "action": "replicate A -> C (doc_ids=['X'])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 9,
+   "action": "A: edit X -> 2-b",
+   "rev": "2-16bf9c855621538994066f28b131099f"
+  },
+  {
+   "step": 10,
+   "action": "A: write 6 unrelated filler docs"
+  },
+  {
+   "step": 11,
+   "action": "replicate A -> B (doc_ids=['X'])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 12,
+   "action": "replicate C -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 13,
+   "action": "replicate B -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 14,
+   "action": "replicate C -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 15,
+   "action": "replicate B -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 16,
+   "action": "replicate A -> T1 (worker_processes=1 worker_batch_size=1)",
+   "stats": {
+    "missing_checked": 7,
+    "missing_found": 6,
+    "docs_read": 6,
+    "docs_written": 6,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 17,
+   "action": "replicate A -> T2 (worker_processes=1 worker_batch_size=1)",
+   "stats": {
+    "missing_checked": 7,
+    "missing_found": 6,
+    "docs_read": 6,
+    "docs_written": 6,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 18,
+   "action": "A: delete X -> 3-d",
+   "rev": "3-b74027217ccce4c91afd292a569e8d5b"
+  },
+  {
+   "step": 19,
+   "action": "replicate A -> D (doc_ids=['X'])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 20,
+   "action": "replicate D -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 21,
+   "action": "replicate D -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  }
+ ],
+ "final": {
+  "intermediate": [
+   {
+    "db": "T1 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "2-b",
+    "_conflicts": [
+     "1-a"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "2-b",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "2-b"
+      ]
+     }
+    ]
+   },
+   {
+    "db": "T2 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "2-b",
+    "_conflicts": [
+     "1-a"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "2-b",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "2-b"
+      ]
+     }
+    ]
+   },
+   {
+    "db": "T1 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "2-b",
+    "_conflicts": [
+     "1-a"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "2-b",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "2-b"
+      ]
+     }
+    ]
+   },
+   {
+    "db": "T2 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "2-b",
+    "_conflicts": [
+     "1-a"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "2-b",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "2-b"
+      ]
+     }
+    ]
+   }
+  ],
+  "final": [
+   {
+    "db": "T1",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1-a",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "3-d"
+    ],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "3-d",
+      "deleted": true,
+      "path_root_to_leaf": [
+       "2-b",
+       "3-d"
+      ]
+     }
+    ]
+   },
+   {
+    "db": "T2",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1-a",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "3-d"
+    ],
+    "leaves": [
+     {
+      "leaf": "1-a",
+      "deleted": false,
+      "path_root_to_leaf": [
+       "1-a"
+      ]
+     },
+     {
+      "leaf": "3-d",
+      "deleted": true,
+      "path_root_to_leaf": [
+       "2-b",
+       "3-d"
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}
