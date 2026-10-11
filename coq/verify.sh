@@ -4667,6 +4667,7 @@ Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
 Print Assumptions NC.NormalizationDerived.nd_q_wfc.
 Print Assumptions NC.NormalizationDerived.nd_q_reach.
 Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
+Require NC.InvariantConfluence.
 Print Assumptions NC.InvariantConfluence.common_ancestor_free.
 Print Assumptions NC.InvariantConfluence.iconfb_iff.
 Print Assumptions NC.InvariantConfluence.itr_from_valid.
