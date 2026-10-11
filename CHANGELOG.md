@@ -1071,6 +1071,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Front-door docs. `docs/OVERVIEW.md` (one page, about 900 words): the problem with a shelf and a
+  flight as examples, convergence by compensation against CRDTs and invariant confluence, the main
+  result with an example of each case, what "exact" means with a counterexample per hypothesis, the
+  gate count, the open gaps, what gsm checks, and where to go next; linked from `README.md` and
+  `docs/README.md`. `README.md`: the top is now a one-sentence description, the main result, the
+  headline (verbatim), three headline results and a "Start here" list by audience; "Where the map
+  stands" is a section, and the scope paragraphs moved, unchanged, to a "Scope" section below it.
+  `REGIME-AUDIT.md`: the opening states what the audit checks, the commit and gate it is current
+  at (rows last changed by #132; the gsm column read at gsm `a4c18e4`, not re-read since), the
+  method, and the open gaps; the per-PR provenance, the earlier state paragraph and the history
+  moved, unchanged, to a "Revision log" section at the end. No table or gap row changed.
+  `docs/THEORY.md`: the Composition section gains "Composition of blocks" (`CompositionBlocks.v`,
+  #117: `compose_exact`, `compose_collapse`, `interface_closed`, `compose_isolated_refuted`,
+  `mixed_ghost_refuted`, `bekic_lfp`, `mono_collapse_exact`, `dist_collapse_iff`,
+  `dist_collapse_refuted`). No theorem added, removed or renamed.
 - `docs/THEORY.md` restructured around one main result: the system converges exactly when its
   behavior does not depend on what repair discards, for single events (state descent, CC2),
   sequences of events (history descent, layer A) and infinite runs (canonical recurrence, layer C).

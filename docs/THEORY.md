@@ -404,6 +404,53 @@ separate:
   along a cover) and interaction locality as descent of morphisms (commutation of steps along a
   composition boundary). No combined descent statement is formalized.
 
+### Composition of blocks
+
+`CompositionBlocks.v` (#117, gap 19 and gap 5) composes along the condensation of a network, its
+strongly connected blocks, rather than along single registries. The condensation is acyclic, so
+every finite DAG of blocks is built by adding, again and again, one block `B` that reads the current
+state of an upstream system `A`. The blocks may run different engines: a monotone cycle, a rootless
+invertible network, a non-monotone block. Full statements are in
+[coq/docs/collapse.md](../coq/docs/collapse.md#composition-of-blocks-of-any-engines-compositionblocksv);
+status is in [REGIME-AUDIT.md section 14](../REGIME-AUDIT.md#14-compositional-collapse).
+
+- Exact composition, `compose_exact`: the composite converges iff `A` converges, `B` reaches a
+  quiet state from every start at every quiet input of `A`, and two quiet states of `B` at one quiet
+  input are equal whenever `B`'s steps at the inputs `A` passes through connect them. Each conjunct
+  is necessary (`compose_needs_A`, `compose_needs_wn`, `compose_isolated_refuted`), and `B` is
+  constrained only at quiet inputs (`compose_transient_free`). The normal form is the block-by-block
+  one: `B` started from the original state at `A`'s normal form (`compose_collapse`).
+- Converging in isolation is not enough. In `compose_isolated_refuted`, `A` flips a bit from false
+  to true and `B`, the sticky block, copies a value from its input only while its own value is 0.
+  Each block converges on its own; in the composite, `B` keeps whatever it read first, so it ends
+  at 1 or 2 depending on whether it moved before or after `A`. With real engines,
+  `mixed_ghost_refuted`: a rootless block that converges feeds the flag cycle, a transient alarm
+  lifts the cycle to its ghost, and the composite has two normal forms.
+- An interface that composes, `interface_closed`: each block has an equivalence `K` that its steps
+  preserve (same own inputs, such as locals and root values) and settles (every start reaches a
+  quiet state, and quiet states related by `K` are equal). The interface is closed under
+  composition, so any finite DAG of blocks that meet it converges, whatever their engines
+  (`settles_conv`; `interface_lk` gives `compose_exact`'s third conjunct). Rootless networks plug in
+  through `mixed_rootless_exact`, and a monotone cycle meets the interface iff its repair has one
+  fixed point (`mono_block_interface_iff`, `mixed_mono_iff`).
+- A cyclic monotone `J` (gap 5, closed in the FedMachine model): across the condensation the repair
+  is triangular, and the least fixed point computed block by block is the least fixed point
+  (`bekic_lfp`, Bekic's principle, finite height on the downstream block). Normalizing `J` as one
+  effective registry by its own least fixed point therefore gives the same normal form
+  (`mono_collapse_nf`), and the collapsed network converges iff the original does, iff GC holds
+  (`mono_collapse_exact`).
+- Collapse in the distributed model, where `J`'s internal propagation interleaves with outer events
+  and the collapsed network `N'` runs `J` as one atom: `N` converges iff `N'` converges and XU holds
+  at every state `N` reaches, `J` half-propagated included (`dist_collapse_iff`; each conjunct
+  necessary, `dist_collapse_refuted`, `dist_collapse_needs_c2`). The plain equivalence fails
+  (`dist_collapse_refuted`): on the chain `0 -> 1 -> 2` with `J = {1, 2}`, an event on 1 reaches 2
+  before 1 is repaired, a combination no run of `N'` produces, and `N'` converges while `N` does
+  not. Static XU (gsm's `ProjectionSafe`) restores it (`dist_collapse_xu`).
+
+What stays open is a cyclic `J` in the distributed model, gap 19's residue. Both the block theorem
+and gap 5 are settled on the condensation, which is acyclic, so neither says anything about P on a
+cycle that crosses blocks.
+
 ### The missing compositional ingredient
 
 The first validation run rederived the history layer of `fed_exact` (`fed_exact_kernel`, 7 lines)
