@@ -10,6 +10,17 @@
 
 const PouchDB = require('pouchdb');
 PouchDB.plugin(require('pouchdb-adapter-memory'));
+// ADAPTER=leveldb runs on PouchDB's default Node adapter instead of the memory adapter.
+const ADAPTER = process.env.ADAPTER || 'memory';
+
+// The winning revision the leaves predict: non-deleted before deleted, then the
+// higher position, then the higher revision id (CouchDB and PouchDB both use this rule).
+function predictedWinner(leaves, live) {
+  if (!live) return '';
+  const w = leaves.filter((l) => !l[2]).sort((a, b) =>
+    (b[0] - a[0]) || (a[1] < b[1] ? 1 : a[1] > b[1] ? -1 : 0))[0];
+  return `${w[0]}-${w[1]}`;
+}
 const fs = require('fs');
 
 async function observe(db, id) {
@@ -19,8 +30,9 @@ async function observe(db, id) {
     return [parseInt(p, 10), h, !!r.ok._deleted];
   }).sort((a, b) => (a[0] - b[0]) || (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0));
   let live = true;
-  try { await db.get(id); } catch (e) { live = false; }
-  return {leaves, live};
+  let winner = '';
+  try { winner = (await db.get(id))._rev; } catch (e) { live = false; }
+  return {leaves, live, winner};
 }
 
 async function main() {
@@ -30,10 +42,12 @@ async function main() {
   const P = JSON.parse(fs.readFileSync(`predictions_${scen}.json`, 'utf8'));
   for (let rep = 0; rep < reps; rep++) {
     let bad = 0;
-    const rows = ['order,predicted_live,observed_live,predicted_leaves,observed_leaves,match'];
+    let badLeaves = 0;
+    const rows = ['order,predicted_live,observed_live,predicted_winner,observed_winner,' +
+      'predicted_leaves,observed_leaves,scored_match,leaves_match'];
     for (let n = 0; n < P.orders.length; n++) {
       const o = P.orders[n];
-      const db = new PouchDB(`p3_${scen}_${rep}_${n}`, {adapter: 'memory', revs_limit: P.k});
+      const db = new PouchDB(`p3_${scen}_${rep}_${n}`, {adapter: ADAPTER, revs_limit: P.k});
       for (const i of o.order) {
         const [pos, ids, deleted] = P.events[i].doc;
         const doc = {_id: 'doc', _rev: `${pos}-${ids[0]}`,
@@ -44,15 +58,22 @@ async function main() {
         }
       }
       const got = await observe(db, 'doc');
-      const ok = got.live === o.pouch.live &&
-        JSON.stringify(got.leaves) === JSON.stringify(o.pouch.leaves);
-      if (!ok) bad++;
-      rows.push([o.names, o.pouch.live, got.live, JSON.stringify(o.pouch.leaves),
-        JSON.stringify(got.leaves), ok].join(','));
+      const pw = predictedWinner(o.pouch.leaves, o.pouch.live);
+      // P3 scores live or deleted and the winner; the leaf set is reported.
+      const scored = got.live === o.pouch.live && got.winner === pw;
+      const lok = JSON.stringify(got.leaves) === JSON.stringify(o.pouch.leaves);
+      if (!scored) bad++;
+      if (!lok) badLeaves++;
+      const short = (ls) => '{' + ls.map((l) => `${l[0]}-${l[1][0]}${l[2] ? '(del)' : ''}`).join(' ') + '}';
+      const sw = (w) => (w ? w.slice(0, 3) : '-');
+      rows.push([o.names, o.pouch.live, got.live, sw(pw), sw(got.winner), short(o.pouch.leaves),
+        short(got.leaves), scored, lok].join(','));
       await db.destroy();
     }
-    fs.writeFileSync(`results_pouch_${scen}${dup ? '_dup' : ''}_rep${rep}.csv`, rows.join('\n') + '\n');
-    console.log(`${scen} rep ${rep}: ${bad} of ${P.orders.length} orders differ from the model`);
+    const tag = ADAPTER === 'memory' ? '' : `_${ADAPTER}`;
+    fs.writeFileSync(`results_pouch_${scen}${tag}${dup ? '_dup' : ''}_rep${rep}.csv`, rows.join('\n') + '\n');
+    console.log(`${scen}${tag} rep ${rep}: ${bad} of ${P.orders.length} orders differ from the model ` +
+      `on live/deleted or winner; ${badLeaves} on the leaf set`);
   }
 }
 

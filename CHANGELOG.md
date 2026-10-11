@@ -7,6 +7,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Prediction P3 tested: PASS on all three claims. CouchDB 3.5.3 (Homebrew bottle) and PouchDB
+  9.0.0 matched the computed table on every S1 order in 3 repetitions: CouchDB live with winner
+  `1-a` on the 6 orders with `1-a` last, deleted on all 24 with `stem_interactive_updates = false`
+  and compaction, PouchDB live on the 12 orders with `1-a` after `4-d` (`research/predictions/P3.md`,
+  Outcome; results in `research/predictions/route2/results/`). Unscored S2 runs found an error in the
+  CouchDB model (the replicated-update leaf filter runs only when the database validates), confirmed
+  by a post-hoc model (`route2/couch_model_posthoc.py`, not scored). No theorem added, removed or
+  renamed.
 - Prediction P2 tested: PASS. A 3-by-3 marriage market with a unique stable matching whose
   blocking-pair dynamics cycle under a round-robin schedule naming every pair
   (`research/predictions/P2.md`, Outcome). `coq/StableMatchingP2.v` mechanizes it with the kernels
