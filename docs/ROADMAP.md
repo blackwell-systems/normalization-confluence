@@ -678,78 +678,83 @@ Status: planned, not started. Not a caveat removal; it does not change what is p
 
 Poster draft: [docs/atlas/](atlas/README.md) (`poster.html`: one tile per regime with a detail card, following REGIME-AUDIT.md; `check.py` verifies the theorem names against the gate).
 
-## Planned paper: the regime map
+<a id="planned-paper-the-regime-map"></a>
 
-A fourth paper whose main object is the map itself, not one regime. The three papers each state
-part of the theory (the single registry, federated networks, the categorical structure); none
-states the classification: one question asked in every regime, the axes that generate the regimes,
-and in each cell an exact condition, a hardness result or a gap stated in the open, mechanized and
-audited. The Atlas above is the reference catalog; this paper is the citable argument for it.
+## Planned paper: convergence as descent
 
-Working title: *An exact regime map of governed concurrent state*.
+The paper argues one thing: across execution, consistent states and long-run behavior, the exact
+convergence condition is the same question, whether behavior depends on anything repair discards
+(the main result in [THEORY.md](THEORY.md#main-result)). The regime map is the evidence base, not the
+main text. The three earlier papers each state part of the theory; none states this.
 
-Outline:
+Working title: *Convergence as descent: an exact, mechanized theory of governed concurrent state*.
 
-1. **The question.** Do all event orders reach one normal form, and what condition is necessary
-   and sufficient. The canonical execution layers E, S, H and P, and why the same layers recur in
-   every regime ([THEORY.md](THEORY.md)).
-   Layer A, which executions count as the same, is stated once as a presented admissible path
-   system (`PresentedExecution.v`): invariance iff the semantics agrees on the continuation closure
-   of the generator pairs (P2, `closure_exact`), and iff it agrees on the generator pairs alone when
-   the semantics respects the future past the seeds (P1, `local_exact`); state descent stays on the
-   state side (`state_side_transfer`).
-   Layer C, whether runs settle and where, is stated once as fair recurrence
-   (`CanonicalRecurrence.v`): on a finite state type, every fair run settles in the canonical fiber
-   iff no fair lasso has a loop state outside it (C1), and raw settlement iff every fair recurrent
-   loop is a singleton fixed point (C2); the classical fair-cycle characterization, used here as the
-   third layer next to A (executions) and B (constraints). Recovered through it:
-   `chaotic_reaches_lfp`, `signed_settlement`, `signed_fidelity`, fair flushing and the ghost, on
-   finite fragments (the finiteness leak, [THEORY.md](THEORY.md#layer-c-settlement-dynamics-as-fair-recurrence)).
-   The interfaces between the layers (`LayerInterfaces.v`,
-   [THEORY.md](THEORY.md#interfaces-between-the-layers)): one descent definition (an operation
-   passing to the quotient by `N`, stated as the elementary condition it is) covers state descent,
-   CC2, XU and C1, with Candidate as its strict form; Newman is the A-C bridge, and fair
-   settlement replaces termination exactly when no reachable loop starves a label
-   (`fair_sn_exact`, with the four-point counterexample); C2's settled states are B's solutions
-   (`settled_canon_exact`); C's use of `N` is trajectory-level, linked to descent by quotient
-   invariance rather than an instance of it.
-2. **The axes.** The thirteen axes, the ten axis dependences that prune the product, and how the
-   empty cells were found before any proof ([COVERAGE.md](COVERAGE.md)): gaps 15 to 21 were
-   predicted by the axes, not discovered case by case.
-3. **The map.** One table, one row per regime: the exact condition with its theorem name, the
-   counterexamples showing each conjunct is needed, and the check gsm runs. Generated from
-   [REGIME-AUDIT.md](../REGIME-AUDIT.md), like the Atlas.
-4. **Representative theorems** in plain mathematics: the single-registry iff (`cc_exact`), a
-   composition result (block composition, gap 19, when it lands), and reconfiguration
-   (`live_exact`, `amodm_closure_exact`), each with its boundary counterexample.
-5. **Transfer.** Results in one regime that are instances of another (`cvrdt_on_exact`, the
-   rootless corollaries of `net_unique_normal_form_iff`, engine instances of block composition).
-   Six delivery and reconfiguration results are instances of layer A's P1 or P2, one presentation
-   each (`causal_exact_recovered`, `tconv_exact_recovered`, `causal_alo_idem_recovered`,
-   `alo_exact_recovered`, `det_live_recovered`, `amodm_closure_recovered`; table in
-   [THEORY.md](THEORY.md#layer-a-the-execution-algebra-as-a-presented-admissible-path-system)).
-6. **The open part.** The gaps stated in the open, with the cyclic frontier as the one remaining
-   question, and the design exclusions X1 to X5 with their justifications.
-7. **Quotients for checking.** How the semantic quotients become verification quotients: the
-   symmetry, abstraction, difference and compositional reductions behind gsm's scale features,
-   each with the counterexample that marks its fragment.
-8. **Method.** Every cited name read as a statement, every result gated axiom-free on three Coq
-   versions, and the audit's rule that a cell claims no more than its theorem.
+### The claim, in three tiers
 
-Constraints:
+- **Mechanically established.** Layer A recovers separately proved exact results as instances of one
+  theorem; layer C does the same for finite settlement dynamics; layer B gives one constraint-algebra
+  reading of consistency and recovers a known tractable boundary and a known hard one; the three
+  interfaces are mechanized, each with the counterexample that marks where it stops.
+- **Interpretation the evidence supports.** Descent is a common principle behind convergence
+  problems that look unrelated: event order, delivery, repair, federation, consistency and
+  settlement.
+- **Not claimed.** A universal theory of convergence, that every convergence phenomenon fits A, B
+  and C, or new underlying mathematics. Newman's lemma, CSP polymorphisms, congruences and fair
+  cycles are classical and credited ([LANDSCAPE.md](LANDSCAPE.md)).
 
-- **Scope in the claim.** "Exact" is relative to the model each regime states; the abstract and
-  every table caption say so.
-- **Related work per community.** CRDTs and CALM, invariant confluence, rewriting (Newman, Huet),
-  Boolean and discrete networks (Robert, Thomas, Richard, Shih and Ho), fixed points (Knaster-Tarski,
-  Bekić), using [LANDSCAPE.md](LANDSCAPE.md) and [SUBSUMPTION.md](SUBSUMPTION.md). No "first" or
-  "new" without a literature check recorded there.
+### The core evidence (the main text)
+
+A small set of results carries the argument; everything else is supporting material.
+
+1. **Descent at one transition.** `DescendsOn` and its exact instances: CC2, C1 and XU
+   (`cc2_is_descends`, `c1_is_descends`, `xu_is_descends`), with `Candidate` as the strict form that
+   is sufficient but not needed (`candidate_implies_xu`, `strict_not_necessary`).
+2. **Layer A, finite histories.** `PresentedExecution.v`: P1 and P2 (`local_exact`,
+   `closure_exact`), with three or four recovered results (`causal_exact_recovered`,
+   `tconv_exact_recovered`, `amodm_closure_recovered`, `det_live_recovered`) and the hidden-write
+   counterexample that shows why P2's closure is needed.
+3. **Layer B, consistent states.** Fixed points of repair are sections are CSP solutions
+   (`edge_fixed_iff_csp`, `section_iff_csp`); one tractable and one hard family (`ac_exact`,
+   `dnet_iff_sat`, `pol_dfam_iff`), described as the framework recovering known boundaries
+   (Jeavons and Cooper 1995; Larose and Zadori 2006), not discovering them.
+4. **Layer C, infinite runs.** `CanonicalRecurrence.v`: C1 and C2, with oscillation, livelock
+   (`flip2_fair_lasso`), the ghost (`copyback_ghost_lasso`) and semantic oscillation as one
+   classification; the finiteness and constructive (`lpo_leak`) boundaries stated.
+5. **The interfaces.** A to B: strict versus canonicalized naturality (`xu_iff_respects`). B to C:
+   fixed points equal solutions, and a unique solution does not give convergence
+   (`flip2_unique_solution_livelock`). A to C: Newman under termination (`newman_bridge`), and the
+   exact place where fairness falls short (`four_point_fair_not_confluent`, `fair_sn_exact`).
+
+### The central figure
+
+Layers A (finite execution: descent), B (state space: solutions) and C (infinite execution:
+recurrence), each pointing at the repair map `N`, with the interfaces labeled: A to B, canonicalized
+naturality; B to C, fixed points equal solutions; A to C, Newman and progress.
+
+### Supporting material (appendices and references)
+
+The regime map ([REGIME-AUDIT.md](../REGIME-AUDIT.md)), the axes and coverage pass
+([COVERAGE.md](COVERAGE.md)), the remaining recovered results, the quotients for checking behind
+gsm's scale features, the open gaps and the cyclic frontier, and the method (every cited name read
+as a statement, every result gated axiom-free on three Coq versions).
+
+### Before drafting
+
+- **Adversarial review.** A written case that the work is three familiar theories side by side,
+  answered objection by objection with the smallest set of results from the repository
+  (`research/paper-argument.md`). Objections that cannot be answered are stated carefully in the
+  paper rather than dropped.
+- **Related work per community.** CRDTs and CALM, invariant confluence, rewriting (Newman, Huet,
+  Klop), Boolean and discrete networks (Robert, Thomas, Richard, Shih and Ho), fixed points
+  (Knaster-Tarski, Bekic), CSP algebra (Abramsky, Jeavons, Bulatov, Zhuk, Larose and Zadori), fair
+  cycles (Emerson and Lei, Vardi and Wolper), from [LANDSCAPE.md](LANDSCAPE.md). No "first" or "new"
+  without a literature check recorded there.
+- **Scope in every claim.** "Exact" is relative to the model each result states.
 - **Venue.** arXiv first; then a journal that takes long mechanized work (for example Logical
   Methods in Computer Science); a conference version at a mechanization venue (CPP, ITP) only after
   checking its current dates.
 
-Status: planned, not started. Drafting begins after gap 19 lands, so the map includes block
-composition. Not a caveat removal; it does not change what is proved.
+Status: planned. Next step: the adversarial review. It does not change what is proved.
 
 ## Fundamental limits (stated, not removable)
 

@@ -1071,6 +1071,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `docs/ROADMAP.md`: the planned paper is reframed around the main result (convergence as descent), with the claim in three tiers (established, interpreted, not claimed), a small core evidence set for the main text, the central figure, the regime map as supporting material, and the adversarial review as the next step. No theorem added, removed or renamed.
 - Front-door docs. `docs/OVERVIEW.md` (one page, about 900 words): the problem with a shelf and a
   flight as examples, convergence by compensation against CRDTs and invariant confluence, the main
   result with an example of each case, what "exact" means with a counterexample per hypothesis, the
