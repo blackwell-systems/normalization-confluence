@@ -12,6 +12,9 @@ Fails (exit 1) if:
   - a tile's section anchor (or, for a gap, the open-gaps anchor) is not a heading of REGIME-AUDIT.md;
   - the theorem count on the poster or the front page (docs/site/index.html) differs from verify.sh's
     gate threshold, or the front page's open-problem count differs from the audit's;
+  - the front page's open-problem list differs from the audit's open gaps, or a theorem link on the
+    front page (class="thm") does not point at the line declaring that name in coq/, or names an
+    ungated theorem;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
 """
@@ -170,6 +173,20 @@ def main():
         mo = re.search(r'id="open-count">(\d+)<', page)
         if not mo or int(mo.group(1)) != len(current):
             errors.append(f"docs/site/index.html: open-problem count {mo.group(1) if mo else None} differs from REGIME-AUDIT.md's {len(current)}")
+        ol = re.search(r'id="open-list">(.*?)</ol>', page, re.S)
+        listed = {int(g) for g in re.findall(r'class="g">Gap (\d+)<', ol.group(1))} if ol else set()
+        if listed != current:
+            errors.append(f"docs/site/index.html: open-problem list {sorted(listed)} differs from REGIME-AUDIT.md's {sorted(current)}")
+        decl_pat = r"^\s*(Definition|Theorem|Lemma|Corollary)\s+"
+        for f, line, n in re.findall(r'<a class="thm" href="[^"]*/coq/(\w+\.v)#L(\d+)">(' + NAME + r")</a>", page):
+            src = COQ / f
+            lines = src.read_text(encoding="utf-8").splitlines() if src.exists() else []
+            i = int(line)
+            m2 = re.match(decl_pat + re.escape(n) + r"\b", lines[i - 1]) if 0 < i <= len(lines) else None
+            if not m2:
+                errors.append(f"docs/site/index.html: {n} is not declared at coq/{f} line {line}")
+            elif m2.group(1) != "Definition" and n not in gated:
+                errors.append(f"docs/site/index.html: {n} is not in coq/verify.sh's Print Assumptions list")
 
     m = re.search(r"([\d,]+) axiom-free theorems", poster)
     shown = int(m.group(1).replace(",", "")) if m else None

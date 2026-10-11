@@ -35,6 +35,7 @@ jobs:
         run: |
           mkdir -p _site/atlas
           cp docs/site/index.html _site/index.html
+          cp docs/site/og.png _site/og.png
           cp docs/atlas/poster.html _site/atlas/index.html
           cp docs/atlas/poster.html _site/atlas/poster.html
           cp docs/atlas/regimes.js _site/atlas/regimes.js
