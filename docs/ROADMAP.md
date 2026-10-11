@@ -766,7 +766,7 @@ Frozen on 2026-10-11 at commit `5be01a7`: the eight kernel files (`CanonicalExec
 `PresentedExecution.v`, `TransportCSP.v`, `TransportCSPHard.v`), hashed in
 [research/predictions/frozen.sha256](../research/predictions/frozen.sha256) and enforced by
 `docs/atlas/check.py`. Nothing in them changes, and no generic concept is added to absorb a leak,
-until the prediction is scored. The leaks the outside tests found (merge of two replica states,
+until the predictions in research/predictions are scored (P2 passed on 2026-10-11). The leaks the outside tests found (merge of two replica states,
 systems that never quiesce, simultaneous moves, partition semantics, item-by-item merges, listed
 finite types) are recorded as boundaries in
 [research/predictions/README.md](../research/predictions/README.md), not repaired. A later version
