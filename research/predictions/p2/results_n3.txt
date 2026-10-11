@@ -1,0 +1,5 @@
+# p2search 3
+n 3 shard 0/1 reps_total 10 cpu_seconds 0.0
+k 1 checked 1630 weighted 34080 cyc_checked 614 cyc_weighted 14916 fair_checked 138 fair_weighted 3240
+k 2 checked 492 weighted 11484 cyc_checked 492 cyc_weighted 11484 fair_checked 492 fair_weighted 11484
+k 3 checked 38 weighted 1092 cyc_checked 38 cyc_weighted 1092 fair_checked 38 fair_weighted 1092

@@ -580,3 +580,10 @@ all: SelfStabilization.vo
 
 SelfStabilization.vo: SelfStabilization.v Newman.vo DistributedCycles.vo CanonicalRecurrence.vo LayerInterfaces.vo GovernanceWFConverse.vo
 	coqc -Q . NC SelfStabilization.v
+
+# The test of prediction P2 (research/predictions/P2.md): a 3-by-3 marriage market with a unique
+# stable matching and a bad fair lasso of the blocking-pair dynamics (StableMatchingP2.v).
+all: StableMatchingP2.vo
+
+StableMatchingP2.vo: StableMatchingP2.v DistributedCycles.vo CanonicalRecurrence.vo
+	coqc -Q . NC StableMatchingP2.v
