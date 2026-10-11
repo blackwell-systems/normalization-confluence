@@ -201,6 +201,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="card"><div class="status wait">In progress</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): which transactions preserve an invariant without coordination. The test is layer B, with merge as a polymorphism of the invariant.</p></div>
 </div>
 
+<p style="margin-top:16px">The CRDT test is the weakest: the repository proved CRDT convergence directly before the framework existed. The framework is now frozen, its files hash-checked in CI, until one prediction, written down before anyone tries to prove it, has been tested (<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">how</a>).</p>
 <h3 class="sub">Prior work and contributions</h3>
 <div class="grid3 claims">
 <div class="card"><div class="label">From prior work</div><ul><li>Newman's lemma</li><li>Trace theory for reorderings</li><li>Constraint-satisfaction algebra: polymorphisms and sections</li><li>Fair cycles and fair termination</li></ul></div>
@@ -249,6 +250,7 @@ _, report, err := r.Build()</pre></div>
     add_3→remove_1: {stock=2}
     remove_1→add_3: {stock=3}</pre></div>
 <p>The build refuses the machine. The first divergence it reports is on an empty shelf, where removing first does nothing: "add 3" then "remove 1" gives 2, the other order gives 3. Output from gsm v0.16.0, abridged.</p>
+<p>A system that converges behaves like a CRDT on its repaired steps. What gsm adds is a way to build one: write the operations you want and the rules they must keep, and the build either proves every order converges or names the order that fails. Large systems are checked in pieces (groups of variables that change together, one item of a collection, one link of a network of registries), so the cost depends on the largest piece, not the whole system.</p>
 </section>
 
 <section>
