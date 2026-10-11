@@ -36,8 +36,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
     fresh-value argument as `core_leg` with `fair_fires` and `unfair_fires`; `ring_fair_selfstab`
     (through `stab_fair_from`) and `ring_unfair_selfstab` (through `sn_iff_no_loop`);
     `ring_bound_matters`: for n = 4, K = 2 a bad fair lasso, so neither daemon stabilizes.
-  - **Unfair daemon:** `unfair_no_loop` (`sn_iff_no_loop`) and `unfair_exact` (`fair_sn_exact`:
-    convergence iff fair convergence and no reachable starved loop outside `L`).
+  - **Unfair daemon:** `unfair_no_loop` (`sn_iff_no_loop`); `unfair_exact`, a consequence of
+    `fair_sn_exact` (convergence iff fair convergence and no reachable starved loop outside `L`).
+  - **The bound:** proves K >= n (n = number of machines). Dijkstra 1974 also notes that
+    K >= n - 1 suffices under a central daemon; Fokkink, Hoepman and Pang (2005) later gave a formal
+    proof and showed that bound is sharp. Prior mechanizations of the ring (Qadeer and Shankar, PVS;
+    PADEC, Coq) are recorded in `docs/LANDSCAPE.md`; this one is an external transport test, not a
+    new mechanization of the protocol.
   - **Outcome:** PASS on the preregistered criterion. Leaks: the unfair daemon needs a generic
     adapter outside the kernels (the `L`-frozen system `uL`, `bad_lasso_cycle`); the ring's states
     are packaged as a listed finite type; the distributed daemon cannot be stated.

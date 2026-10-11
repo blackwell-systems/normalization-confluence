@@ -243,6 +243,22 @@ reductions (`plan_min_exact`, `maxcut_reduction`; `lmin_root_set`, `lmin_reducti
 mechanized: the NP-completeness of 3-SAT and Max-Cut, and the fixed-parameter and planar results
 for group feedback edge sets.
 
+### Self-stabilization
+
+Dijkstra's K-state token ring (Dijkstra, "Self-stabilizing systems in spite of distributed control",
+Communications of the ACM 17(11), 1974) has been mechanized before. Qadeer and Shankar verified it
+in PVS ("Verifying a self-stabilizing mutual exclusion algorithm", PROCOMET 1998, Springer, doi
+10.1007/978-0-387-35358-6_27). In Coq, the PADEC framework of Altisen, Corbineau and Devismes ("A
+framework for certified self-stabilization", Logical Methods in Computer Science 13(4), 2017)
+carries a development of the token ring with its exact worst-case stabilization time ("Certification
+of an exact worst-case self-stabilization time", ICDCN 2021; also in Theoretical Computer Science,
+volume 941). Fokkink, Hoepman and Pang ("A note on K-state self-stabilization in a ring with K = N",
+Nordic Journal of Computing 12(1), 2005) proved, and checked in PVS, that K = N states suffice
+for N + 1 machines, and gave a counterexample for one state fewer. The contribution of #146
+(`coq/SelfStabilization.v`) is not a new mechanization of the protocol. It is an external transport
+test: a framework developed independently of self-stabilization recovers the stabilization theorem
+with its kernels frozen.
+
 ## Related work for the cohomological layer
 
 The federated layer ([CATEGORICAL-STRUCTURE.md](CATEGORICAL-STRUCTURE.md), sections 10 and 10.1)

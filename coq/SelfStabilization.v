@@ -28,7 +28,8 @@
    Part 2 (target 3, generic). The unfair central daemon through the frozen A-C interface:
      unfair_no_loop:   (LayerInterfaces.sn_iff_no_loop) unfair convergence from s0 iff no reachable
                        moving loop outside L.
-     unfair_exact:     (LayerInterfaces.fair_sn_exact) for L closed and no deadlock outside L:
+     unfair_exact:     a consequence of LayerInterfaces.fair_sn_exact, for L closed and no
+                       deadlock outside L:
                        unfair convergence from s0 iff fair convergence from s0 and no reachable loop
                        outside L that starves a machine.
      Both are stated on the L-frozen system uL j x := if Lb x then x else u j x, whose moves are
@@ -48,8 +49,13 @@
      ring_no_starved_loop                    the same through unfair_exact (fair_sn_exact).
    Part 6. ring_bound_matters: n = 4, K = 2 has a bad fair lasso, so neither daemon stabilizes.
    ring3_nonvacuous: n = K = 3, an illegitimate start that both results cover.
+   The bound. This file proves the K >= n condition (n = number of machines). Dijkstra's 1974
+   paper (EWD426) numbers the machines 0..N; its condition K > N is K >= n here, and its Note 1
+   says K >= N suffices under a central daemon, which is K >= n - 1 here. Fokkink, Hoepman and
+   Pang (Nordic Journal of Computing 12(1), 2005) later gave a formal proof and showed that bound
+   is sharp. That bound is not proved here.
    Not covered: the distributed daemon; Dijkstra's further conditions on L (every privilege occurs
-   in some legitimate state, legitimate states are mutually reachable); the bound K = n - 1. *)
+   in some legitimate state, legitimate states are mutually reachable). *)
 
 From Coq Require Import List Arith Lia Bool.
 From Coq Require Import Logic.Eqdep_dec.
@@ -923,7 +929,7 @@ End RingResults.
 (* 0 3 2 1 0 3 2 1 names every machine and returns, and 0010 has three privileges (machines 0,   *)
 (* 2, 3). It is a bad fair lasso, so the ring with K = 2 < 4 = n does not stabilize under the    *)
 (* fair daemon, nor under the unfair one. (An exhaustive search for n <= 6, outside Coq, finds   *)
-(* bad fair loops exactly at K <= n - 2; K = n - 1 is not covered by ring_fair_selfstab.)        *)
+(* bad fair loops exactly at K <= n - 2; K = n - 1 is not proved here, see the header.)          *)
 (* ============================================================================================ *)
 
 Definition bad4 : RX 4 2 := exist _ [0; 0; 1; 0] eq_refl.

@@ -409,16 +409,22 @@ follows through it with the protocol-specific work confined to the ring.
   then reads stabilization off `stab_fair_from`.
 - **Unfair central daemon** ("regardless of which enabled move is chosen"). Convergence is strong
   normalization of the moves made outside `L`, stated on the `L`-frozen system `uL`.
-  `unfair_no_loop` (`sn_iff_no_loop`): convergence iff no reachable moving loop outside `L`.
-  `unfair_exact` (`fair_sn_exact`): for `L` closed and no deadlock outside `L`, convergence iff
-  fair convergence and no reachable loop outside `L` that starves a machine. The ring stabilizes
-  under this daemon too (`ring_unfair_selfstab`, through `unfair_no_loop`; `unfair_fires` replaces
-  `fair_fires`), which is the setting of Dijkstra's paper; `ring_no_starved_loop` is the same
-  through `unfair_exact`.
+  `unfair_no_loop` (`sn_iff_no_loop`): convergence iff no reachable moving loop outside `L`. The
+  ring stabilizes under this daemon too (`ring_unfair_selfstab`, through `unfair_no_loop`;
+  `unfair_fires` replaces `fair_fires`), which is the setting of Dijkstra's paper. A consequence
+  of `fair_sn_exact`, not a separate headline result: `unfair_exact` (for `L` closed and no
+  deadlock outside `L`, convergence iff fair convergence and no reachable loop outside `L` that
+  starves a machine), with `ring_no_starved_loop` as its ring instance. It is a precise
+  mechanized form of the standard fairness and cycle picture: on a finite state space an infinite
+  run is either fair or starves some machine forever (Lehmann, Pnueli and Stavi, ICALP 1981;
+  Francez, Fairness, 1986). Its exact provenance in that literature is the open question already
+  listed in [research/paper-argument.md](../research/paper-argument.md).
 - **The bound matters.** For `n = 4`, `K = 2` the loop at `0010` under the machine word
   `0 3 2 1 0 3 2 1` is a bad fair lasso, so neither daemon stabilizes (`ring_bound_matters`). An
-  exhaustive search for `n <= 6`, outside Coq, finds bad fair loops exactly when `K <= n - 2`; the
-  case `K = n - 1` is not mechanized.
+  exhaustive search for `n <= 6`, outside Coq, finds bad fair loops exactly when `K <= n - 2`.
+  #146 proves the `K >= n` condition (`n` = number of machines). Dijkstra's 1974 paper also notes
+  that `K >= n - 1` suffices under a central daemon; Fokkink, Hoepman and Pang later gave a formal
+  proof and showed that bound is sharp (see [LANDSCAPE.md](LANDSCAPE.md#self-stabilization)).
 
 **Outcome: PASS on the preregistered criterion; target 3 recovered with a leak.** The generic fair
 statement is one line from `C1_closed`; the ring's fair result goes through it, with closure
