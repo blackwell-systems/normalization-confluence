@@ -4619,6 +4619,54 @@ Print Assumptions NC.LayerInterfaces.natural_iff_edgewise.
 Print Assumptions NC.LayerInterfaces.uniform_natural_is_unary_pol.
 Print Assumptions NC.LayerInterfaces.natural_converse_fails.
 Print Assumptions NC.LayerInterfaces.selfloop_square_not_necessary.
+Require NC.NormalizationDerived.
+Print Assumptions NC.NormalizationDerived.nd_rm_head.
+Print Assumptions NC.NormalizationDerived.nd_rm_skip.
+Print Assumptions NC.NormalizationDerived.nd_in_rm.
+Print Assumptions NC.NormalizationDerived.nd_nf_valid_empty.
+Print Assumptions NC.NormalizationDerived.nd_gov_run.
+Print Assumptions NC.NormalizationDerived.nd_cr_un.
+Print Assumptions NC.NormalizationDerived.nd_empty_first.
+Print Assumptions NC.NormalizationDerived.nd_empty_det.
+Print Assumptions NC.NormalizationDerived.nd_N_fix.
+Print Assumptions NC.NormalizationDerived.nd_N_idem.
+Print Assumptions NC.NormalizationDerived.nd_N_rho.
+Print Assumptions NC.NormalizationDerived.nd_reach_step.
+Print Assumptions NC.NormalizationDerived.nd_reach_star.
+Print Assumptions NC.NormalizationDerived.nd_reach_N.
+Print Assumptions NC.NormalizationDerived.nd_reach_gov.
+Print Assumptions NC.NormalizationDerived.nd_reach_grun.
+Print Assumptions NC.NormalizationDerived.nd_reach_trans.
+Print Assumptions NC.NormalizationDerived.nd_reach_run.
+Print Assumptions NC.NormalizationDerived.nd_two_orders.
+Print Assumptions NC.NormalizationDerived.nd_event_or_repair.
+Print Assumptions NC.NormalizationDerived.nd_tiny_cc1.
+Print Assumptions NC.NormalizationDerived.nd_tiny_cc2.
+Print Assumptions NC.NormalizationDerived.nd_cc2_chain.
+Print Assumptions NC.NormalizationDerived.nd_descends_cc2.
+Print Assumptions NC.NormalizationDerived.nd_state_descent_cc2.
+Print Assumptions NC.NormalizationDerived.nd_grun_pair.
+Print Assumptions NC.NormalizationDerived.nd_history_seeds.
+Print Assumptions NC.NormalizationDerived.nd_history_perm.
+Print Assumptions NC.NormalizationDerived.nd_reach_canon.
+Print Assumptions NC.NormalizationDerived.nd_history_cc1.
+Print Assumptions NC.NormalizationDerived.nd_cls_complete.
+Print Assumptions NC.NormalizationDerived.nd_state_peaks_join.
+Print Assumptions NC.NormalizationDerived.nd_history_peaks_join.
+Print Assumptions NC.NormalizationDerived.nd_confluent_from.
+Print Assumptions NC.NormalizationDerived.nd_derived_from.
+Print Assumptions NC.NormalizationDerived.nd_dictionary_from.
+Print Assumptions NC.NormalizationDerived.nd_cc_exact_from.
+Print Assumptions NC.NormalizationDerived.nd_cc_exact.
+Print Assumptions NC.NormalizationDerived.nd_derived_reach.
+Print Assumptions NC.NormalizationDerived.nd_cc_exact_global.
+Print Assumptions NC.NormalizationDerived.nd_derived_global.
+Print Assumptions NC.NormalizationDerived.nd_derived_statements.
+Print Assumptions NC.NormalizationDerived.nd_derived_matches_original.
+Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
+Print Assumptions NC.NormalizationDerived.nd_q_wfc.
+Print Assumptions NC.NormalizationDerived.nd_q_reach.
+Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4629,8 +4677,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4541 ]; then
-  echo "FAIL: expected 4541 axiom-free results, got $N"
+if [ "$N" -lt 4588 ]; then
+  echo "FAIL: expected 4588 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

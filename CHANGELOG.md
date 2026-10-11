@@ -7,6 +7,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/NormalizationDerived.v`: the headline normalization-confluence theorem derived from the
+  framework kernels, with the kernels and every existing file unchanged. A derivation, not a
+  prediction: the framework was built after `cc_exact`. Axiom-free. No REGIME-AUDIT status changes.
+  - **The dictionary:** CC2 is state descent (`nd_state_descent_cc2`; from a start, the kernel's
+    relativized `DescendsOn (reach s0) N (apply e)`, `nd_descends_cc2`); CC1 is history descent of
+    the governed semantics from `N s0` under free delivery's adjacent swaps (P1 and
+    `swap_peq_perm`: `nd_history_seeds`, `nd_history_perm`, `nd_history_cc1`, the last given state
+    descent); WFC is termination; `classified_peak_exact` joins them (`nd_cls_complete`,
+    `nd_state_peaks_join`, `nd_history_peaks_join`, `nd_confluent_from`); the converse is by tiny
+    executions (`nd_tiny_cc1`, `nd_tiny_cc2`).
+  - **Headline forms:** `nd_derived_from` (start-relative: every buffer from `s0` has a unique
+    normal form iff free-history descent from `N s0` and state descent on the states reachable
+    from `s0`), `nd_dictionary_from`, `nd_derived_reach`, `nd_derived_global`,
+    `nd_derived_global_constructed` (constructed `rho*`, S is CC2 by `state_descent_iff_cc2`).
+    `nd_cc_exact_from`, `nd_cc_exact`, `nd_cc_exact_global` prove the original statements word for
+    word without the originals (checked by admitting `cc_exact`, `cc_exact_from`,
+    `cc_exact_global` and `wfc_cc_exact_from` in a scratch copy). `nd_derived_matches_original`,
+    the only proof that cites them, shows the derived statements are equivalent to theirs.
+    Non-vacuity: `nd_nonvacuous` (the one-boolean system of `GovernanceConverse.v`).
+  - **Gate:** raised from 4541 to 4588.
 - `coq/LayerInterfaces.v`: the interfaces between the three layers (A executions, B constraints,
   C settlement), tested against the objection that they are unrelated theories stapled together.
   A, B and C unchanged. Axiom-free. No REGIME-AUDIT status changes.
