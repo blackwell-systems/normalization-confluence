@@ -82,6 +82,20 @@ ol.open{margin:8px 0 0;padding-left:0;list-style:none}
 ol.open li{font-size:16px;line-height:1.55;color:var(--muted);padding:9px 0;border-bottom:1px solid var(--line)}
 ol.open li:last-child{border-bottom:none}
 ol.open .g{font-family:var(--mono);font-size:13px;color:var(--gold);display:inline-block;min-width:68px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{display:inline-block;padding:12px 18px;border-radius:8px;font-weight:600;font-size:16px;text-decoration:none;border:1px solid var(--line);color:var(--text);background:var(--panel)}
+.btn:hover{border-color:var(--dim);color:var(--text)}
+.btn.primary{background:var(--layerBg);border-color:var(--layerBg);color:var(--layerText)}
+.btn.primary:hover{color:var(--layerText);filter:brightness(1.12)}
+.atlas{display:block;margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;text-decoration:none;background:var(--panel)}
+.atlas img{display:block;width:100%;height:auto}
+.atlas:hover{border-color:var(--dim)}
+.atlas .bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;padding:14px 16px;color:var(--muted);font-size:15px}
+.atlas .bar b{color:var(--text)}
+.atlas .go{color:var(--link);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.chip b{color:var(--text)}
 footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:var(--dim);font-size:14px;line-height:1.6}
 </style>
 </head>
@@ -92,6 +106,23 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <h1>When can repair replace commutativity?</h1>
 <p class="thesis">Normalization confluence gives an exact theory of when repair can replace raw commutativity: concurrent systems whose events may conflict and break invariants, and whose replicas still converge because a deterministic repair restores them.</p>
 <p class="byline">Dayna Blackwell, Blackwell Systems. Every result machine-checked in Coq.</p>
+<div class="cta">
+<a class="btn primary" href="atlas/">Open the Convergence Atlas &#8594;</a>
+<a class="btn" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/OVERVIEW.md">Five-minute overview</a>
+<a class="btn" href="https://github.com/blackwell-systems/gsm">Use it: gsm</a>
+</div>
+
+<section id="atlas">
+<h2>The Convergence Atlas</h2>
+<p>Every regime the theory covers, on one map: free and causal delivery, CRDTs and streams, federations, networks with cycles, lossy channels, reconfiguration, composition. Each tile is an exact condition, a proof that no efficient one exists, or a numbered open problem, and opens to its theorem and counterexamples.</p>
+<a class="atlas" href="atlas/"><img src="atlas-preview.jpg" width="1200" height="672" alt="The Convergence Atlas: a grid of regime tiles grouped by family, each marked exact, hard, open or excluded, with its Coq theorem."><div class="bar"><span><b id="atlas-tiles">60</b> regimes in <b id="atlas-families">11</b> families</span><span class="go">Open the atlas &#8594;</span></div></a>
+<div class="chips">
+<span class="chip"><b id="atlas-exact">45</b> exact</span>
+<span class="chip"><b id="atlas-hard">4</b> provably hard</span>
+<span class="chip"><b id="atlas-open">9</b> open</span>
+<span class="chip"><b id="atlas-excl">2</b> excluded by design</span>
+</div>
+</section>
 
 <section>
 <h2>The question</h2>
