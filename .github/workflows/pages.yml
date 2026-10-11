@@ -1,14 +1,15 @@
 name: pages
 
-# Publishes the Convergence Atlas poster (docs/atlas) to GitHub Pages on every push to main that
-# touches it. The atlas check runs first, so a poster that disagrees with the audit or the gate
-# is never published.
+# Publishes the front page (docs/site) and the Convergence Atlas poster (docs/atlas, served at
+# /atlas/) to GitHub Pages on every push to main that touches them, the audit or the gate. The
+# atlas check runs first, so a page that disagrees with the audit or the gate is never published.
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'docs/atlas/**'
+      - 'docs/site/**'
       - 'REGIME-AUDIT.md'
       - 'coq/verify.sh'
       - '.github/workflows/pages.yml'
@@ -32,10 +33,11 @@ jobs:
         run: python3 docs/atlas/check.py
       - name: Assemble the site
         run: |
-          mkdir -p _site
-          cp docs/atlas/poster.html _site/index.html
-          cp docs/atlas/poster.html _site/poster.html
-          cp docs/atlas/regimes.js _site/regimes.js
+          mkdir -p _site/atlas
+          cp docs/site/index.html _site/index.html
+          cp docs/atlas/poster.html _site/atlas/index.html
+          cp docs/atlas/poster.html _site/atlas/poster.html
+          cp docs/atlas/regimes.js _site/atlas/regimes.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
