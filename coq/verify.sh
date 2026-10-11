@@ -4804,8 +4804,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4641 ]; then
-  echo "FAIL: expected 4641 axiom-free results, got $N"
+if [ "$N" -lt 4713 ]; then
+  echo "FAIL: expected 4713 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"
