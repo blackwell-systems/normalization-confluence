@@ -1071,18 +1071,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
-- `docs/THEORY.md` restructured around descent as the spine: convergence is descent through a
-  canonical semantics, with `N` saying what the system may forget, at single steps, finite
-  histories and infinite runs. Order now: the spine; descent at three scales (state descent at one
-  transition, history descent over finite histories, canonical recurrence over infinite runs, and
-  the hierarchy between them); layers A, B and C (layer B, formerly "Static consistency as CSP",
-  now sits with the other layers); the interfaces; composition; convergence by compensation as
-  the third regime; the earlier E, S, H and P decomposition with a table mapping each part to its
-  current place; then mathematical structure, scope, qualifiers, quotients for checking, what it is
-  not yet and calibration. Content moved, not removed: every backticked name in the old page is
-  still present, and old anchors (`#canonical-execution`, `#static-consistency-as-csp`, the old
-  layer A and C headings) still resolve through explicit anchors. `README.md` gains one sentence
-  stating the spine. No theorem added, removed or renamed.
+- `docs/THEORY.md` restructured around one main result: the system converges exactly when its
+  behavior does not depend on what repair discards, for single events (state descent, CC2),
+  sequences of events (history descent, layer A) and infinite runs (canonical recurrence, layer C).
+  Order now: main result; descent at three scales; layers A, B (moved up from mathematical
+  structure) and C; interfaces; composition; convergence by compensation; the earlier E, S, H, P
+  decomposition with a mapping table; then mathematical structure and the rest. All theorem names
+  and all incoming links preserved. `README.md` gains one sentence stating the main result.
+  No theorem added, removed or renamed.
 - Citations from the layer-interfaces work (#134) checked against primary or authoritative
   sources (Crossref and DOI records, the authors' published texts). Newman 1942, Huet 1980,
   Burris and Sankappanavar 1981, Mac Lane 1971, Lehmann, Pnueli and Stavi 1981, and Francez 1986

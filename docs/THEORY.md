@@ -6,25 +6,30 @@ its precision paragraph see the [front page](../README.md); for what is proved i
 [REGIME-AUDIT.md](../REGIME-AUDIT.md); for the full statements see the papers and
 [coq/README.md](../coq/README.md).
 
-## The spine
+## Main result
 
-Convergence is descent through a canonical semantics. A map `N` says what the system is allowed to
-forget. A system converges when its behavior respects `N` at every scale: single steps, finite
-histories, and infinite runs. Layer B says which states count as consistent in the first place, and
-composition says when all of this can be checked one part at a time.
+Replicas apply the same events in different orders, and after each event a repair function restores
+the invariants. The question is whether every order ends in the same state.
 
-The condition is elementary. An operation `e` descends along `N` when `N (e (N x)) = N (e x)`
-(`DescendsOn` in `LayerInterfaces.v`): the textbook condition for an operation to respect a
-quotient, so that it passes to it. The content is which `N` and which states each regime uses, that
-the condition is exact there, and the interfaces between the layers that use it.
+In every regime this repository covers, the answer has the same form. Let `N` send a state to its
+repaired form. Then the system converges exactly when its behavior does not depend on anything `N`
+throws away:
 
-Convergence by compensation, the third regime alongside CRDTs and invariant confluence, is the
-concrete case that motivates the whole: operations may conflict and break invariants, a registry
-repairs each state, and replicas still converge
-([below](#convergence-by-compensation-the-third-regime)). Compensation is the repair, and `N` is what
-the repair produces: with `N := rho*`, descent at one transition is CC2 (`state_descent_iff_cc2`).
+- **One event:** applying it to a state or to that state's repaired form gives the same result after
+  repair: `N (e (N x)) = N (e x)`. This is CC2 (`state_descent_iff_cc2`).
+- **A sequence of events:** reordering it, in any way the delivery model allows, gives the same
+  result after repair.
+- **An infinite run:** it eventually stays on one repaired result.
 
-The map of this page:
+What `N` is, which states count, and which reorderings are allowed differ from regime to regime. In
+each one the condition is exact: necessary and sufficient, with the theorem listed in
+[REGIME-AUDIT.md](../REGIME-AUDIT.md).
+
+The condition itself is elementary: it is the standard condition for an operation to respect a
+quotient (`DescendsOn` in `LayerInterfaces.v`). What the repository adds is identifying the right `N`
+in each regime, proving the condition is exact there, and showing how the cases connect.
+
+**Contents**
 
 - [Descent at three scales](#descent-at-three-scales): the one condition at a transition, over
   finite histories and over infinite runs, and how the three relate.
@@ -414,7 +419,7 @@ is where `LC` fails (`cyclic_lc_sound_fails`).
 
 ## Convergence by compensation: the third regime
 
-The concrete case behind the spine: a registry repairs each state, `N` is what the repair produces,
+The concrete case behind the main result: a registry repairs each state, `N` is what the repair produces,
 and the conditions become WFC (the repair terminates) and CC (CC2 is descent at one transition,
 CC1 a peak condition). This section states the regime, what it claims and what is prior work
 (each item marked mechanized, paper or implemented), the key concepts, and how the three
@@ -666,7 +671,7 @@ The framework also says why some laws are absent from the published exact condit
 In one line: a local-to-global theory of canonical forms, built from convergent rewriting,
 fixed-point theory, categorical descent and cohomological obstruction, with the boundary of each
 stated exactly. This section places the theory in pure mathematics and says, area by area, what is
-mechanized and what is classical or paper-only. The descent spine and its layers are the sections
+mechanized and what is classical or paper-only. The main result and its layers are the sections
 above; the decomposition that rederives six exact convergence results (E, S, H and P) is
 [the earlier decomposition](#canonical-execution). A name in backticks is a Coq theorem in
 [`coq/`](../coq), checked by the axiom-free gate in `coq/verify.sh` unless the text says otherwise.
