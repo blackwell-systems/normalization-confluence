@@ -8,26 +8,38 @@ its precision paragraph see the [front page](../README.md); for what is proved i
 
 ## Main result
 
-Replicas apply the same events in different orders, and after each event a repair function restores
-the invariants. The question is whether every order ends in the same state.
+Normalization confluence gives an exact theory of when repair can replace raw commutativity.
 
-In every regime this repository covers, the answer has the same form. Let `N` send a state to its
-repaired form. Then the system converges exactly when its behavior does not depend on anything `N`
-throws away:
+Replicas apply the same events in different orders, and after each event a repair function restores
+the invariants. The question is whether every order ends in the same state. Raw states may differ
+along the way; what has to agree is the result after repair. Repair therefore enlarges the class of
+systems that converge: some converge only because of it, which no CRDT on the same operations can
+match (`crdt_boundary`, `witness_governed_constant`).
+
+The repository asks the question at three scales and proves an exact condition at each. Let `N` send
+a state to its repaired form.
 
 - **One event:** applying it to a state or to that state's repaired form gives the same result after
-  repair: `N (e (N x)) = N (e x)`. This is CC2 (`state_descent_iff_cc2`).
+  repair, `N (e (N x)) = N (e x)`. This is CC2, and convergence requires it (`cc_exact`,
+  `state_descent_iff_cc2`).
 - **A sequence of events:** reordering it, in any way the delivery model allows, gives the same
-  result after repair.
-- **An infinite run:** it eventually stays on one repaired result.
+  result after repair (history descent, [layer A](#layer-a-execution-algebra)).
+- **An infinite run:** it eventually stays on one repaired result (canonical recurrence,
+  [layer C](#layer-c-settlement-dynamics), exact on finite state spaces).
+
+The three conditions are not one equation. They form a proved hierarchy: the single-event condition
+lets the sequence condition be checked on repaired runs instead of raw ones
+(`history_from_descent`); in general neither implies the other (`descent_not_history`,
+`history_not_descent`); and the infinite-run condition uses `N` differently, depending only on the
+repaired dynamics when single events respect `N` (`canon_settles_quotient_invariant`).
 
 What `N` is, which states count, and which reorderings are allowed differ from regime to regime. In
-each one the condition is exact: necessary and sufficient, with the theorem listed in
+each, the condition is exact: necessary and sufficient, with the theorem listed in
 [REGIME-AUDIT.md](../REGIME-AUDIT.md).
 
-The condition itself is elementary: it is the standard condition for an operation to respect a
+The single-event condition is elementary: it is the standard condition for an operation to respect a
 quotient (`DescendsOn` in `LayerInterfaces.v`). What the repository adds is identifying the right `N`
-in each regime, proving the condition is exact there, and showing how the cases connect.
+in each regime, proving the conditions exact there, and showing how the three scales connect.
 
 **Contents**
 

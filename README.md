@@ -5,9 +5,10 @@
 Papers and machine-checked proofs on when replicas converge without coordination, when events may
 break invariants and a repair restores them.
 
-The main result: replicas apply the same events in different orders and repair after each one, and
-they converge exactly when their behavior does not depend on what repair discards. That condition
-reads three ways: for a single event, for a sequence of events, and for an infinite run
+The main result: normalization confluence gives an exact theory of when repair can replace raw
+commutativity. Replicas apply the same events in different orders and repair after each one; raw
+states may differ, but the repaired results must agree. The repository proves an exact condition for
+a single event, for a sequence of events, and for an infinite run, linked by a proved hierarchy
 ([THEORY.md, main result](docs/THEORY.md#main-result)).
 
 **An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a checker for the practical ones.**
