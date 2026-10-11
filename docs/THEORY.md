@@ -208,9 +208,56 @@ quotient H; states quotient S.
 The live switch is the case where `Q` matters: the migration does not respect A's future, but
 every seed ends past the switch, where B's steps respect `eqvB`. The seed condition there is DS1
 (the switch squares) plus the swaps after every switch, which reduce to `PermB` at the migrated
-start under DS1 (`lv_seeds_live`). Not recovered: `cc_exact`'s CC1 part, whose ambiguity is a
-peak of a rewrite system with compensation steps (`classified_peak_exact`, criterion A), not a
-pair of event words; the declared-pairs row covers the trace-monoid case.
+start under DS1 (`lv_seeds_live`). Not a row of this table: `cc_exact`'s CC1 part, whose
+ambiguity is a peak of a rewrite system with compensation steps (`classified_peak_exact`, criterion
+A), not a pair of event words; the declared-pairs row covers the trace-monoid case. The next
+subsection derives `cc_exact` by combining P1 on free delivery with that peak classification.
+
+### Normalization confluence as the base case
+
+`NormalizationDerived.v` derives the headline theorem, `GovernanceConverse.cc_exact_from` (and
+`cc_exact`, `cc_exact_global`), from the framework kernels, with the kernels unchanged. This is a
+derivation, not a prediction: the framework was built after `cc_exact`, with it in view. What it
+shows is that the kernels, used as they are, reproduce the exact statement, so normalization
+confluence is the base case of the framework as a theorem. The setting is `cc_exact`'s: free
+delivery, WFC, and a repair `rho*` that reaches validity by compensation steps; `N := rho*`.
+
+- **CC2 is state descent.** Globally, `StateDescent N apply` is CC2 at every invalid state
+  (`nd_state_descent_cc2`; for the `rho*` constructed in `RhoStar.v` this is
+  `state_descent_iff_cc2`). From a start `s0`, every event descends along `N` on the states
+  reachable from `s0`, in the kernel's relativized form `DescendsOn (reach s0) N (apply e)`, iff
+  CC2 holds on those states (`nd_descends_cc2`).
+- **CC1 is history descent on free delivery's adjacent swaps.** `FreeHistoryDescent s0`: the
+  governed semantics from the canonical start, `t -> grun N apply t (N s0)`, is invariant under
+  the free-delivery presentation (every word admissible, generators the adjacent swaps), whose
+  generated equivalence is `Permutation` (`swap_peq_perm`, `nd_history_perm`). By P1 this holds
+  iff every adjacent swap commutes after every word (`nd_history_seeds`), and given state descent
+  it is CC1 on the states reachable from `s0` (`nd_history_cc1`). The history condition alone is
+  CC1 at the repaired states the governed runs reach; state descent carries it to the raw
+  reachable states, where it is needed because an event can fire before repair.
+- **WFC is the progress side.** Termination is `Governance.terminating`.
+- **Newman joins them.** `classified_peak_exact` with an apply/repair peak as a StatePeak and two
+  distinct applies as a HistoryPeak (no StructuralPeak, `nd_cls_complete`): state peaks join by
+  state descent (`nd_state_peaks_join`), history peaks by CC1 (`nd_history_peaks_join`), so
+  confluence follows (`nd_confluent_from`).
+- **The converse is by tiny executions.** The buffer `[e1; e2]` in both orders forces CC1 at a
+  reachable state, and the buffer `[e]` with the event first versus the repair first forces CC2
+  (`nd_tiny_cc1`, `nd_tiny_cc2`).
+
+The results. `nd_derived_from` (start-relative): for every `s0`, every buffer delivered from `s0`
+has a unique normal form iff `FreeHistoryDescent s0` and state descent on the states reachable from
+`s0`; `nd_dictionary_from` identifies that pair with CC1 and CC2 there. `nd_cc_exact_from`,
+`nd_cc_exact` and `nd_cc_exact_global` are the three original statements word for word, proved
+without them. `nd_derived_global`: unique normal forms from every configuration iff CC1 and CC2 iff
+free-history descent at every canonical start and `StateDescent N apply`; `nd_nonvacuous`
+instantiates it on a one-boolean system where both sides hold. Only
+`nd_derived_matches_original` cites the originals: it shows the derived statements are equivalent
+to theirs by the dictionary alone, and that `cc_exact_from`, `cc_exact` and `cc_exact_global` have
+exactly those statements. The other proofs use none of `cc_exact`, `cc_exact_from`,
+`cc_exact_global` or `RhoStar.wfc_cc_exact_from` (checked by turning those four into admitted
+axioms in a scratch copy: every other theorem of the file stays closed under the global context).
+Criterion A had already rederived the joinability form `jc_exact` through `classified_peak_exact`;
+this file goes from there to the CC1 and CC2 form, with each condition named as a framework layer.
 
 ## Layer B: constraint algebra
 

@@ -549,3 +549,10 @@ all: LayerInterfaces.vo
 
 LayerInterfaces.vo: LayerInterfaces.v Newman.vo DistributedCycles.vo CohomologyGraph.vo CohomologyGeneral.vo CanonicalExecution.vo PresentedExecution.vo TransportCSP.vo SignedResolver.vo DistributedCyclesExact.vo CanonicalRecurrence.vo FederationEvents.vo GovernanceConverse.vo GovernanceWFConverse.vo RhoStar.vo
 	coqc -Q . NC LayerInterfaces.v
+
+# The headline normalization-confluence theorem derived from the framework kernels (cc_exact_from,
+# cc_exact, cc_exact_global as the base case: S is CC2, H is CC1, WFC, Newman) (NormalizationDerived.v).
+all: NormalizationDerived.vo
+
+NormalizationDerived.vo: NormalizationDerived.v Newman.vo Governance.vo CanonicalExecution.vo PresentedExecution.vo GovernanceConverse.vo LayerInterfaces.vo RhoStar.vo
+	coqc -Q . NC NormalizationDerived.v

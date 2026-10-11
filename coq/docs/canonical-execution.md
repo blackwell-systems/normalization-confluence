@@ -353,8 +353,48 @@ Recovered results, each from P1 or P2 with the presentation named:
 
 Adequacy is reused where it already exists (`causal_adequate`, `alo_adequate_idem`); the
 reconfiguration instance proves its own (`lv_post_perm`, `lv_switch_front`, `lv_out_canon`).
-Not recovered: `cc_exact`'s CC1, a peak condition of a rewrite system with compensation steps
-(criterion A's route), not a pair of event words.
+Not a row of this table: `cc_exact`'s CC1, a peak condition of a rewrite system with compensation
+steps (criterion A's route), not a pair of event words. The next section derives it by combining
+the two routes.
+
+## Normalization confluence as the base case (`NormalizationDerived.v`)
+
+A derivation, not a prediction: the kernels were written after `cc_exact`. With the kernels and
+every existing file unchanged, `NormalizationDerived.v` proves the statements of
+`GovernanceConverse.cc_exact_from`, `cc_exact` and `cc_exact_global` word for word
+(`nd_cc_exact_from`, `nd_cc_exact`, `nd_cc_exact_global`) from the kernels, in the setting of
+section `FreeExact` (free delivery, WFC, `rho_star_reach`, `rho_star_valid`; `N := rho_star`).
+
+| Paper condition | Framework condition | Kernel route | Theorem |
+|---|---|---|---|
+| CC2 on the states reachable from `s0` | `DescendsOn (reach s0) N (apply e)` for every `e` (S, relativized) | `LayerInterfaces.DescendsOn`; globally `StateDescent` | `nd_descends_cc2`, `nd_state_descent_cc2` |
+| CC1 on the states reachable from `s0` | `FreeHistoryDescent s0`: `PInv` of `t -> grun N apply t (N s0)` under free delivery's adjacent swaps (H) | P1 (`local_exact_all`), `swap_peq_perm` | `nd_history_seeds`, `nd_history_perm`, `nd_history_cc1` (given S) |
+| WFC | termination | `Governance.terminating` | |
+| local confluence | StatePeaks join by S, HistoryPeaks by CC1, no StructuralPeak | `classified_peak_exact` | `nd_cls_complete`, `nd_state_peaks_join`, `nd_history_peaks_join`, `nd_confluent_from` |
+| necessity | tiny executions: `[e1; e2]` in both orders, `[e]` event first versus repair first | | `nd_tiny_cc1`, `nd_tiny_cc2` |
+
+Headline forms: `nd_derived_from` (for every `s0`: every buffer from `s0` has a unique normal form
+iff `FreeHistoryDescent s0` and S on the states reachable from `s0`), `nd_dictionary_from` (that
+pair iff CC1 and CC2 there), `nd_derived_reach`, `nd_derived_global` (unique normal forms everywhere
+iff CC1 and CC2 iff H at every canonical start and `StateDescent N apply`), and
+`nd_derived_global_constructed` (the same for `RhoStar`'s constructed `rho*`, where S is CC2 by
+`state_descent_iff_cc2`).
+
+Relativization. The start-relative form needed no kernel predicate beyond the existing ones: S is
+`DescendsOn` with `P := reach s0`, and H is the kernel's `PInv` from the single canonical start
+`N s0`. The asymmetry is stated in `nd_history_cc1`: H alone is CC1 at the repaired states the
+governed runs from `N s0` reach; S carries it to the raw reachable states (an event can fire
+before repair), so the pair (H, S) is the pair (CC1, CC2), not each one separately.
+
+Dependency check. Only `nd_derived_matches_original` cites `cc_exact`, `cc_exact_from` and
+`cc_exact_global` (the derived statements are equivalent to theirs, and the originals inhabit them).
+In a scratch copy with those three and `RhoStar.wfc_cc_exact_from` replaced by admitted axioms,
+`Print Assumptions` reports every other theorem of the file closed under the global context and
+`nd_derived_matches_original` depending on exactly the three originals. From `GovernanceConverse.v`
+the derived proofs use the definitions `UN`, `reach` and `free_enabled`, and, through the kernel's
+`peak_exact`, `newman_on` and its helpers (`Ron`, `star_Ron`, `star_of_Ron`, `SN_Ron`); the run
+lemmas (`reach_run`, the tiny executions, `CR_UN`) are reproved.
+Criterion A rederived the joinability form `jc_exact`; this goes on to the CC1 and CC2 form.
 
 ## Statement review
 
