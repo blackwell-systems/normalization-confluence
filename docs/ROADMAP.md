@@ -662,8 +662,8 @@ Information System on Graph Classes (graphclasses.org) and *Counterexamples in T
 title: *The Convergence Atlas: governed concurrent state* (scoped to this theory's regimes, not to
 convergence in general).
 
-- **One entry per regime:** the setting, the exact condition (or the hardness result, or the gap
-  stated in the open), the Coq theorem names, the cheap sufficient check gsm runs, and the prior
+- **One entry per regime:** the setting, the exact condition (or the proof that no efficient one
+  exists, or the open problem), the Coq theorem names, the cheap sufficient check gsm runs, and the prior
   work it relates to.
 - **Plates:** each boundary counterexample drawn as a numbered plate in the style of a scientific
   atlas (for example the flip-flop ghost, the negation loop, `shih_dong_not_fair`'s period-8

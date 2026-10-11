@@ -11,7 +11,7 @@ states may differ, but the repaired results must agree. The repository proves an
 a single event, for a sequence of events, and for an infinite run, linked by a proved hierarchy
 ([THEORY.md, main result](docs/THEORY.md#main-result)).
 
-**An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a checker for the practical ones.**
+**An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a proof that no efficient one exists, or an open problem listed in the audit, with a checker for the practical ones.**
 
 - **One registry:** replicas converge exactly when repair terminates and commutes with events at
   the states they can reach. CRDTs are the case where repair never runs.

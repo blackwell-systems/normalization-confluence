@@ -3,7 +3,7 @@
 The claim this audit certifies (the README's headline):
 
 > **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
-> condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
+> condition, a proof that no efficient one exists, or an open problem listed in the audit, with a
 > checker for the practical ones.**
 
 The audit checks that sentence against the development, regime by regime and question by question.
@@ -223,7 +223,7 @@ edge is an equation and the consistent states are the sections (`msection`).
 ### The open gaps
 
 Every row above is `-` (exact, or unconditional inside its regime), `hardness`, or one of these.
-This is the list the headline's "a gap stated in the open" refers to. Numbering is kept from the
+This is the list of open problems the headline refers to. Numbering is kept from the
 989-gate revision, so closed gaps keep their numbers.
 
 Convergence:
@@ -504,7 +504,7 @@ is an exact but exponential procedure.
 The headline stays as adopted in the README, re-confirmed at this gate:
 
 > **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
-> condition, a hardness result showing no efficient one exists, or a gap stated in the open, with a
+> condition, a proof that no efficient one exists, or an open problem listed in the audit, with a
 > checker for the practical ones.**
 
 The line does not say the hardness results are machine-checked, so #57 does not change it; it
