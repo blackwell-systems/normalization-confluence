@@ -4667,6 +4667,79 @@ Print Assumptions NC.NormalizationDerived.nd_derived_global_constructed.
 Print Assumptions NC.NormalizationDerived.nd_q_wfc.
 Print Assumptions NC.NormalizationDerived.nd_q_reach.
 Print Assumptions NC.NormalizationDerived.nd_nonvacuous.
+Require NC.SelfStabilization.
+Print Assumptions NC.SelfStabilization.wrun_firstn_S.
+Print Assumptions NC.SelfStabilization.wrun_skipn.
+Print Assumptions NC.SelfStabilization.path_skipn.
+Print Assumptions NC.SelfStabilization.path_nth.
+Print Assumptions NC.SelfStabilization.stab_fair_from.
+Print Assumptions NC.SelfStabilization.bad_loop_iff.
+Print Assumptions NC.SelfStabilization.stab_fair_exact.
+Print Assumptions NC.SelfStabilization.uL_in.
+Print Assumptions NC.SelfStabilization.uL_out.
+Print Assumptions NC.SelfStabilization.lstep_uL.
+Print Assumptions NC.SelfStabilization.unfair_no_loop.
+Print Assumptions NC.SelfStabilization.prs_uL.
+Print Assumptions NC.SelfStabilization.fair_uL.
+Print Assumptions NC.SelfStabilization.closed_wrun.
+Print Assumptions NC.SelfStabilization.wrun_uL.
+Print Assumptions NC.SelfStabilization.bad_lasso_cycle.
+Print Assumptions NC.SelfStabilization.unfair_exact.
+Print Assumptions NC.SelfStabilization.nth_map_seq.
+Print Assumptions NC.SelfStabilization.rstep_idle.
+Print Assumptions NC.SelfStabilization.rstep_moves.
+Print Assumptions NC.SelfStabilization.rstep_other.
+Print Assumptions NC.SelfStabilization.rstep_self.
+Print Assumptions NC.SelfStabilization.priv0_iff.
+Print Assumptions NC.SelfStabilization.privS_iff.
+Print Assumptions NC.SelfStabilization.privS_true.
+Print Assumptions NC.SelfStabilization.inc_lt.
+Print Assumptions NC.SelfStabilization.inc_bound.
+Print Assumptions NC.SelfStabilization.inc_ne.
+Print Assumptions NC.SelfStabilization.count0.
+Print Assumptions NC.SelfStabilization.count0_back.
+Print Assumptions NC.SelfStabilization.count1.
+Print Assumptions NC.SelfStabilization.legb_iff.
+Print Assumptions NC.SelfStabilization.all_eq_leg.
+Print Assumptions NC.SelfStabilization.chain_down.
+Print Assumptions NC.SelfStabilization.chain_up.
+Print Assumptions NC.SelfStabilization.ring_closed.
+Print Assumptions NC.SelfStabilization.keep0.
+Print Assumptions NC.SelfStabilization.ok0_step.
+Print Assumptions NC.SelfStabilization.fresh_pre.
+Print Assumptions NC.SelfStabilization.pre_fire.
+Print Assumptions NC.SelfStabilization.pre_step.
+Print Assumptions NC.SelfStabilization.dist_pos.
+Print Assumptions NC.SelfStabilization.dist_inc.
+Print Assumptions NC.SelfStabilization.third_fire.
+Print Assumptions NC.SelfStabilization.third_other.
+Print Assumptions NC.SelfStabilization.good_step.
+Print Assumptions NC.SelfStabilization.good_drop.
+Print Assumptions NC.SelfStabilization.fresh_value.
+Print Assumptions NC.SelfStabilization.trace_fwd.
+Print Assumptions NC.SelfStabilization.tr_closed.
+Print Assumptions NC.SelfStabilization.core_leg.
+Print Assumptions NC.SelfStabilization.fire_dec.
+Print Assumptions NC.SelfStabilization.fair_fires.
+Print Assumptions NC.SelfStabilization.unfair_fires.
+Print Assumptions NC.SelfStabilization.okb_get.
+Print Assumptions NC.SelfStabilization.rstep_ok.
+Print Assumptions NC.SelfStabilization.sig_eq.
+Print Assumptions NC.SelfStabilization.words_full.
+Print Assumptions NC.SelfStabilization.rxs_full.
+Print Assumptions NC.SelfStabilization.wrun_proj.
+Print Assumptions NC.SelfStabilization.ring_closure.
+Print Assumptions NC.SelfStabilization.ring_some_priv.
+Print Assumptions NC.SelfStabilization.ring_no_deadlock.
+Print Assumptions NC.SelfStabilization.ring_no_bad_lasso.
+Print Assumptions NC.SelfStabilization.ring_fair_selfstab.
+Print Assumptions NC.SelfStabilization.rstep_moved.
+Print Assumptions NC.SelfStabilization.ring_unfair_selfstab.
+Print Assumptions NC.SelfStabilization.ring_no_starved_loop.
+Print Assumptions NC.SelfStabilization.ring4_bad_lasso.
+Print Assumptions NC.SelfStabilization.ring_bound_matters.
+Print Assumptions NC.SelfStabilization.ring3_nonvacuous.
+Print Assumptions NC.SelfStabilization.RX_eq_dec.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4677,8 +4750,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4588 ]; then
-  echo "FAIL: expected 4588 axiom-free results, got $N"
+if [ "$N" -lt 4660 ]; then
+  echo "FAIL: expected 4660 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

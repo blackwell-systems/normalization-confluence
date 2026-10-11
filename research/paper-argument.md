@@ -593,7 +593,9 @@ These are questions the repository cannot answer now. None is a proposal to star
    repository is of that kind (A9).
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
-   definitions, has not been tried.
+   definitions, has not been tried. Since tried: Dijkstra's self-stabilization, recovered with the
+   kernels frozen (PASS on its preregistered criterion; the unfair daemon needs a generic adapter
+   outside the kernels): `coq/SelfStabilization.v`, [THEORY.md](../docs/THEORY.md#an-outside-theorem-self-stabilization).
 3. **Fair termination.** Is `fair_sn_exact` (under fair settlement on a finite state type,
    termination iff no reachable loop starves a label) stated in the fair-termination literature
    (Lehmann, Pnueli and Stavi 1981; Francez 1986)? Not checked at theorem level.
