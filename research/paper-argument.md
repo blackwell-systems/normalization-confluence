@@ -593,6 +593,11 @@ These are questions the repository cannot answer now. None is a proposal to star
    repository is of that kind (A9).
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
+   definitions, has not been tried.
+   Tried since for invariant confluence (Bailis et al. 2014), kernels frozen: the polymorphism
+   direction, the exact reachable form and Theorem 1 in a replica model are recovered; necessity
+   for an arbitrary system leaks (`coq/InvariantConfluence.v`, THEORY.md).
+
    definitions, has not been tried. Since tried: Dijkstra's self-stabilization, recovered with the
    kernels frozen (PASS on its preregistered criterion; the unfair daemon needs a generic adapter
    outside the kernels): `coq/SelfStabilization.v`, [THEORY.md](../docs/THEORY.md#an-outside-theorem-self-stabilization).

@@ -94,7 +94,10 @@ operations also commute is therefore in that fragment. One whose operations do n
 by *merging* divergent states, a different mechanism that NC's replay model does not use. So the
 floor is "repair never needed" (which `compensationFree` decides), its replay-convergent part is
 exactly the op-based CRDTs, and I-confluence reaches the rest of it through merge rather than
-replay.
+replay. Invariant confluence itself, with Bailis et al.'s definitions, is recovered through the
+frozen framework kernels in `coq/InvariantConfluence.v` (merge as a polymorphism, the exact
+reachable form, Theorem 1 in a replica model; see
+[THEORY.md](THEORY.md#an-outside-theorem-invariant-confluence)).
 
 **Where compensation adds reach.** NC's own contribution is the region *above* that floor:
 operations that DO violate the invariant, made convergent by a repair that terminates (WFC) and

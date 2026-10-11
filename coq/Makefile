@@ -557,6 +557,15 @@ all: NormalizationDerived.vo
 NormalizationDerived.vo: NormalizationDerived.v Newman.vo Governance.vo CanonicalExecution.vo PresentedExecution.vo GovernanceConverse.vo LayerInterfaces.vo RhoStar.vo
 	coqc -Q . NC NormalizationDerived.v
 
+# An outside theorem recovered with the kernels frozen: invariant confluence (Bailis et al. 2014).
+# A binary polymorphism of the invariant's template gives I-confluence; I-confluence is exactly
+# "the merge is a polymorphism of the I-T-reachable relation"; Theorem 1 in a replica model
+# (InvariantConfluence.v).
+all: InvariantConfluence.vo
+
+InvariantConfluence.vo: InvariantConfluence.v CohomologyGraph.vo CohomologyGeneral.vo Trace.vo TransportCSP.vo PresentedExecution.vo CanonicalExecution.vo
+	coqc -Q . NC InvariantConfluence.v
+
 # An outside theorem with the kernels frozen: Dijkstra's self-stabilization (1974). Fair-daemon
 # stabilization as C1 on the fiber of L; the unfair daemon through the A-C interface; the K-state
 # token ring for every n >= 2 and K >= n under both daemons (SelfStabilization.v).
