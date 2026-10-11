@@ -10,7 +10,8 @@ Fails (exit 1) if:
   - a name in a tile's theorems is not declared in one of the tile's modules, a module is missing,
     or a module declares none of the tile's theorems;
   - a tile's section anchor (or, for a gap, the open-gaps anchor) is not a heading of REGIME-AUDIT.md;
-  - the theorem count on the poster differs from verify.sh's gate threshold;
+  - the theorem count on the poster or the front page (docs/site/index.html) differs from verify.sh's
+    gate threshold, or the front page's open-problem count differs from the audit's;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
 """
@@ -159,6 +160,16 @@ def main():
             errors.append(f"{n}: not declared as Theorem/Lemma/Corollary in coq/*.v ({where[0]})")
         if n not in gated:
             errors.append(f"{n}: not in coq/verify.sh's Print Assumptions list ({where[0]})")
+
+    site = ROOT / "docs" / "site" / "index.html"
+    if site.exists():
+        page = site.read_text(encoding="utf-8")
+        ms = re.search(r'id="gate-count">([\d,]+)<', page)
+        if not ms or threshold is None or int(ms.group(1).replace(",", "")) != threshold:
+            errors.append(f"docs/site/index.html: theorem count {ms.group(1) if ms else None} differs from verify.sh's gate {threshold}")
+        mo = re.search(r'id="open-count">(\d+)<', page)
+        if not mo or int(mo.group(1)) != len(current):
+            errors.append(f"docs/site/index.html: open-problem count {mo.group(1) if mo else None} differs from REGIME-AUDIT.md's {len(current)}")
 
     m = re.search(r"([\d,]+) axiom-free theorems", poster)
     shown = int(m.group(1).replace(",", "")) if m else None

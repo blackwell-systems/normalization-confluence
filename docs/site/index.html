@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Normalization Confluence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Normalization confluence gives an exact theory of when repair can replace raw commutativity in concurrent systems: exact, machine-checked conditions at three scales, with a regime map of when they hold.">
+<meta property="og:title" content="Normalization Confluence">
+<meta property="og:description" content="An exact, machine-checked theory of when repair can replace raw commutativity in concurrent systems. By Dayna Blackwell.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap">
+<style>
+:root{--sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;--cond:'IBM Plex Sans Condensed','Arial Narrow',var(--sans);--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+--bg:#0C0F14;--panel:#11151C;--line:#2A303A;--text:#F2F6FB;--muted:#C9D2DD;--dim:#9AA6B4;--blue:#163A66;--blueText:#9CCBFF;--gold:#F2C14E;--orange:#B4561A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+a{color:#8CC4FF}a:hover{color:#BFDDFF}
+main{max-width:980px;margin:0 auto;padding:64px 24px 48px}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:0.16em;color:var(--dim);text-transform:uppercase}
+h1{font-family:var(--cond);font-weight:700;font-size:clamp(40px,7vw,72px);line-height:1;margin:12px 0 20px}
+.thesis{font-size:clamp(20px,2.6vw,26px);line-height:1.4;color:var(--text);max-width:860px;margin:0}
+.byline{margin-top:16px;color:var(--dim);font-size:15px}
+h2{font-family:var(--cond);font-weight:600;font-size:30px;margin:0 0 14px}
+section{border-top:1px solid var(--line);padding-top:32px;margin-top:40px}
+p{font-size:17px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+code{font-family:var(--mono);font-size:0.9em;color:var(--blueText)}
+.example{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:12px 0 4px}
+.example p{margin:0 0 8px}.example p:last-child{margin:0}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px 18px 16px}
+.card .label{font-family:var(--mono);font-size:12px;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.card h3{font-family:var(--cond);font-size:22px;margin:0 0 8px}
+.card p{font-size:15.5px;margin:0}
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:8px}
+.layer{border-radius:8px;padding:18px;background:var(--blue)}
+.layer .label{font-family:var(--mono);font-size:12px;letter-spacing:0.14em;color:var(--blueText);text-transform:uppercase}
+.layer h3{font-family:var(--cond);font-size:22px;margin:4px 0 8px}
+.layer p{color:#DCE8F5;font-size:15.5px;margin:0}
+ul.plain{list-style:none;padding:0;margin:8px 0 0}
+ul.plain li{font-size:16px;line-height:1.55;color:var(--muted);padding:10px 0;border-bottom:1px solid var(--line)}
+ul.plain li:last-child{border-bottom:none}
+ul.plain b{color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:8px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+.stat .n{font-family:var(--cond);font-size:34px;font-weight:700;color:var(--text)}
+.stat .t{font-size:14px;color:var(--dim);line-height:1.4}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px}
+.links a{display:block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-decoration:none;color:var(--text)}
+.links a span{display:block;color:var(--dim);font-size:14px;margin-top:4px}
+.links a:hover{border-color:#4A5566}
+.primary{background:var(--blue)!important;border-color:var(--blue)!important}
+footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:var(--dim);font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<main>
+
+<div class="kicker">Normalization Confluence</div>
+<h1>When can repair replace commutativity?</h1>
+<p class="thesis">Normalization confluence gives an exact theory of when repair can replace raw commutativity: concurrent systems whose events may conflict and break invariants, and whose replicas still converge because a deterministic repair restores them.</p>
+<p class="byline">Dayna Blackwell, Blackwell Systems. Every result machine-checked in Coq.</p>
+
+<section>
+<h2>The question</h2>
+<p>Replicas apply the same events in different orders, because networks delay, reorder and retry messages. After each event, every replica runs the same repair to restore its invariants. Do replicas that have seen the same events end in the same state?</p>
+<div class="example">
+<p>Not always. A shelf holds 5 items and has 4 in stock. Two events arrive, "add 3" and "remove 1", and repair caps the stock at 5.</p>
+<p>Replica A applies "add 3" (7), repairs (5), then "remove 1": <b>4</b>. Replica B applies "remove 1" (3), then "add 3" (6), repairs: <b>5</b>.</p>
+<p>Same events, same repair, different stock.</p>
+</div>
+</section>
+
+<section>
+<h2>The main result</h2>
+<p>Raw states may differ along the way; what has to agree is the result after repair. Write <code>N</code> for the repair. The theory proves an exact condition at three scales:</p>
+<div class="grid3">
+<div class="card"><div class="label">One event</div><h3>State descent</h3><p>Applying an event to a state or to its repaired form gives the same result after repair: <code>N(e(N x)) = N(e x)</code>. Convergence requires it.</p></div>
+<div class="card"><div class="label">A sequence of events</div><h3>History descent</h3><p>Every reordering the delivery model allows gives the same result after repair: free, causal, at-least-once, or declared independence.</p></div>
+<div class="card"><div class="label">An infinite run</div><h3>Canonical recurrence</h3><p>On networks where repair may never stop, every fair run eventually stays on one repaired result.</p></div>
+</div>
+<p style="margin-top:16px">The three conditions are not one equation. They form a proved hierarchy, each level with counterexamples showing where it stops. Every condition is exact: necessary and sufficient.</p>
+<p>Repair strictly enlarges what can converge. CRDTs are the case where repair never runs, and some systems converge only because of their repair, which no CRDT on the same operations can match.</p>
+</section>
+
+<section>
+<h2>The framework</h2>
+<p>The same structure organizes the results across regimes. Three layers, and three proved interfaces between them:</p>
+<div class="layers">
+<div class="layer"><div class="label">Layer A</div><h3>Execution</h3><p>Which executions count as the same. One theorem recovers the exact results for causal, at-least-once and declared-independence delivery, and for reconfiguration.</p></div>
+<div class="layer"><div class="label">Layer B</div><h3>Consistent states</h3><p>The fixed points of repair are exactly the solutions of a constraint problem, which places consistency in known constraint-satisfaction algebra.</p></div>
+<div class="layer"><div class="label">Layer C</div><h3>Long-run behavior</h3><p>Whether runs settle, and where. Oscillation, livelock and settling on the wrong state are classified in one vocabulary.</p></div>
+</div>
+<ul class="plain">
+<li><b>A to B:</b> an event must respect consistency only after repair, not strictly. Strict commutation is sufficient but not needed, and a real federation shows the difference.</li>
+<li><b>B to C:</b> a system can have exactly one consistent state and still never reach it.</li>
+<li><b>A to C:</b> local conditions plus termination give convergence (Newman's lemma), and fair schedules alone do not, exactly when some action is starved forever.</li>
+<li><b>Normalization confluence is the base case.</b> The single-registry theorem is derived from the framework's kernels, unchanged: the one-event condition is state descent and the commutation condition is history descent. The framework was built after that theorem, so this is a derivation, not a prediction.</li>
+</ul>
+</section>
+
+<section>
+<h2>The evidence</h2>
+<div class="stats">
+<div class="stat"><div class="n" id="gate-count">4,588</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
+<div class="stat"><div class="n">Exact</div><div class="t">conditions with a counterexample for each hypothesis, across dozens of regimes</div></div>
+<div class="stat"><div class="n" id="open-count">7</div><div class="t">open problems listed in the audit, most on networks with cycles</div></div>
+<div class="stat"><div class="n">NP-complete</div><div class="t">where no efficient exact condition can exist, with machine-checked reductions</div></div>
+</div>
+<p style="margin-top:16px">The mathematical tools are classical and credited: Newman's lemma, trace theory, constraint-satisfaction algebra, fair cycles. The contribution is the exact theory of governed convergence built from them, and its proofs.</p>
+</section>
+
+<section>
+<h2>Use it</h2>
+<p><a href="https://github.com/blackwell-systems/gsm">gsm</a> checks these conditions at build time: a team declares its business rules and repairs, and the build verifies that concurrent updates converge to one valid state, or names the order that diverges. It also checks a rules change before deployment, under the delivery the system actually has.</p>
+</section>
+
+<section>
+<h2>Explore</h2>
+<div class="links">
+<a class="primary" href="atlas/">The Convergence Atlas<span>Every regime on one page. Hover or tap a tile for its exact condition, counterexamples and theorems.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/OVERVIEW.md">Plain overview<span>The problem and the result, in five minutes.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/THEORY.md">Theory<span>The main result, the layers, the interfaces, and what is classical.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/REGIME-AUDIT.md">Regime audit<span>Each regime's status with its Coq theorem, and the open problems.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/REGIMES.md">Field guide<span>For engineers: does my system converge, and which theorem says so.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/tree/main/coq">The proofs<span>Coq sources and the axiom-free gate. Reproduce it in one command.</span></a>
+</div>
+</section>
+
+<section>
+<h2>Papers</h2>
+<ul class="plain">
+<li><a href="https://doi.org/10.5281/zenodo.18677400">Normalization Confluence in Federated Registry Networks</a> (2026)</li>
+<li><a href="https://doi.org/10.5281/zenodo.18671870">Normalization Confluence for Registry-Governed Stream Processing</a> (2026)</li>
+<li><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/categorical_structure_of_federated_convergence.pdf">The Categorical Structure of Federated Convergence: Limits, Sheaves, and Minimal Coordination</a> (2026)</li>
+</ul>
+</section>
+
+<footer>
+Dayna Blackwell, <a href="https://github.com/blackwell-systems">Blackwell Systems</a> · dayna@blackwell-systems.com · <a href="https://github.com/blackwell-systems/normalization-confluence">github.com/blackwell-systems/normalization-confluence</a>
+</footer>
+
+</main>
+</body>
+</html>

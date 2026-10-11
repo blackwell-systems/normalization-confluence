@@ -29,8 +29,10 @@ repairs them.
 
 ## The main result
 
-Write `N` for the repair: it takes any state to its repaired form. A system converges exactly when
-its behavior does not depend on anything `N` throws away. That one condition reads three ways.
+Write `N` for the repair: it takes any state to its repaired form. Raw states may differ along the
+way; what has to agree is the result after repair. The theory proves an exact condition at three
+scales. They are not one equation: they form a proved hierarchy, each level with counterexamples
+showing where it stops.
 
 **One event.** Applying an event to a state, or to that state's repaired form, gives the same result
 after repair. The shelf fails: from a raw stock of 7, "remove 1" gives 4 if repair runs before it
