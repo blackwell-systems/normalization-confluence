@@ -139,7 +139,7 @@ of regimes in the map, the outside theorems recovered, the prediction's outcome.
   stopping counterexample.
 - Source: THEORY.md (Interfaces between the layers), `LayerInterfaces.v`.
 
-## 9. Normalization confluence as the base case
+## 9. The compensation-commutativity theorem as the base case
 
 - **Purpose.** The single-registry theorem derived from the framework, without circularity.
 - **Results.** `nd_derived_from`, `nd_cc_exact`; the dictionary: the one-event condition is state
@@ -147,7 +147,7 @@ of regimes in the map, the outside theorems recovered, the prediction's outcome.
 - **The non-circularity check.** 46 of the file's 47 theorems still prove with the original
   theorems admitted as axioms; the one exception only shows the two forms agree.
 - **Stated as a derivation, not a prediction:** the framework was built after the theorem.
-- Source: THEORY.md (Normalization confluence as the base case), `NormalizationDerived.v`.
+- Source: THEORY.md (The compensation-commutativity theorem as the base case), `NormalizationDerived.v`.
 
 ## 10. Testing the framework
 

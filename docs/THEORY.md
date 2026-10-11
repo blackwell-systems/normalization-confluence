@@ -141,7 +141,7 @@ are layer-C results that presuppose layer-B answers.
 ### Testing the framework
 
 The kernels were written after the repository's results were known, so their recoveries (and
-[normalization confluence as the base case](#normalization-confluence-as-the-base-case)) show
+[the compensation-commutativity theorem as the base case](#the-compensation-commutativity-theorem-as-the-base-case)) show
 compression. Outside theorems test reach: each was recovered with every existing file frozen and a
 pass criterion fixed in advance, and each leak is recorded, not repaired.
 
@@ -240,7 +240,7 @@ ambiguity is a peak of a rewrite system with compensation steps (`classified_pea
 A), not a pair of event words; the declared-pairs row covers the trace-monoid case. The next
 subsection derives `cc_exact` by combining P1 on free delivery with that peak classification.
 
-### Normalization confluence as the base case
+### The compensation-commutativity theorem as the base case
 
 `NormalizationDerived.v` derives the headline theorem, `GovernanceConverse.cc_exact_from` (and
 `cc_exact`, `cc_exact_global`), from the framework kernels, with the kernels unchanged. This is a
