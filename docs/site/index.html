@@ -162,7 +162,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <li><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L317">history_from_descent</a>: given state descent, history descent of the raw runs is the same question about the repaired runs.</li>
 <li><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/NormalizationDerived.v#L454">nd_derived_from</a>: with terminating repair, every run from a start has one result exactly when history descent and state descent both hold there.</li>
 </ul>
-<p style="margin-top:16px">Every condition is exact: necessary and sufficient, with a counterexample for each hypothesis. Repair strictly enlarges what can converge. CRDTs are the case where repair never runs, and some systems converge only because of their repair, which no CRDT on the same operations can match.</p>
+<p style="margin-top:16px">Every condition is exact: necessary and sufficient, with a counterexample for each hypothesis. CRDTs are the case where repair never runs. Repair enlarges which operations can be used: some converge only with repair, and no CRDT built from the same operations converges. The resulting behavior is itself a CRDT on the repaired steps; what repair adds is a way to build it from operations that do not commute.</p>
 </section>
 
 <section>

@@ -21,8 +21,9 @@ Here events may conflict and may break invariants, and a deterministic repair (c
 restores the invariants. The question is when every delivery order still ends in the same repaired
 state, with no coordination between replicas.
 
-CRDTs design operations so that order never matters; they are the case where repair never has
-anything to do, and the inclusion is strict (some systems converge only because of their repair).
+CRDTs design operations so that order never matters; they are the case where repair never has anything to do. With repair, operations that do not
+commute can still converge, some only because of the repair, although the resulting behavior is
+itself a CRDT on the repaired steps.
 Invariant confluence lets replicas merge without coordination when no merge of valid states can
 break an invariant; it forbids violations, while convergence by compensation allows them and
 repairs them.

@@ -686,8 +686,8 @@ Poster draft: [docs/atlas/](atlas/README.md) (`poster.html`: one tile per regime
 
 The paper's lead claim: normalization confluence gives an exact theory of when repair can replace
 raw commutativity. Replicas may differ raw but must agree after repair, the conditions are
-necessary and sufficient and mechanized, and repair strictly enlarges the class of convergent systems
-beyond compensation-free ones (`crdt_boundary`, `witness_governed_constant`). The three-layer
+necessary and sufficient and mechanized, and repair strictly enlarges the class of usable operations beyond compensation-free ones, though not
+the class of convergent behaviors (`crdt_boundary`, `witness_governed_constant`). The three-layer
 framework is the second claim: a reusable structure for governed convergence, presented with care.
 The regime map is the evidence base, not the main text. The adversarial review
 ([research/paper-argument.md](../research/paper-argument.md)) shaped the tiers and the evidence set

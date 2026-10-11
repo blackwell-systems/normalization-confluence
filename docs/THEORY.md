@@ -12,9 +12,10 @@ Normalization confluence gives an exact theory of when repair can replace raw co
 
 Replicas apply the same events in different orders, and after each event a repair function restores
 the invariants. The question is whether every order ends in the same state. Raw states may differ
-along the way; what has to agree is the result after repair. Repair therefore enlarges the class of
-systems that converge: some converge only because of it, which no CRDT on the same operations can
-match (`crdt_boundary`, `witness_governed_constant`).
+along the way; what has to agree is the result after repair. Repair therefore enlarges which operations can be used: some converge only with repair, and no CRDT
+built from the same operations converges. The resulting behavior is itself a CRDT on the repaired
+steps; what repair adds is a way to build it (`crdt_boundary`, `witness_governed_constant`,
+[SUBSUMPTION.md](SUBSUMPTION.md#two-readings-of-strictly-generalizes)).
 
 The repository asks the question at three scales and proves an exact condition at each. Let `N` send
 a state to its repaired form.
