@@ -193,7 +193,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="stat"><div class="n">NP-complete</div><div class="t">where no efficient exact condition can exist, with machine-checked reductions</div></div>
 </div>
 
-<h3 class="sub">Tests on outside theorems</h3>
+<h3 class="sub">Tests of the framework</h3>
 <p>Recovering results the framework was built from shows organization, not reach. So the test is stricter: freeze every existing proof file, fix the pass criterion in advance, and recover a classical theorem from outside the repository. Whatever the frozen framework cannot express is reported as a leak.</p>
 <div class="grid3 rec">
 <div class="card"><div class="status pass">Passed</div><h3>Dijkstra's self-stabilization (1974)</h3><p>A finite system stabilizes under fair schedules exactly when no fair loop leaves the legitimate states: one line from layer C. Dijkstra's K-state token ring follows for every ring size with K at least the number of machines, under fair and arbitrary schedules. Three leaks, all stated.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/146">#146</a></div></div>
@@ -206,7 +206,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <h3 class="sub">Prior work and contributions</h3>
 <div class="grid3 claims">
 <div class="card"><div class="label">From prior work</div><ul><li>Newman's lemma</li><li>Trace theory for reorderings</li><li>Constraint-satisfaction algebra: polymorphisms and sections</li><li>Fair cycles and fair termination</li></ul></div>
-<div class="card"><div class="label">Contributed here</div><ul><li>Exact conditions for governed convergence across the regimes, each hypothesis shown needed</li><li>The regime map: exact, provably hard, or listed as open</li><li>All of it mechanized, axiom-free</li><li>The framework, tested on outside theorems with its proofs frozen</li><li>Normalization confluence derived from the framework's kernels, without circularity</li></ul></div>
+<div class="card"><div class="label">Contributed here</div><ul><li>Exact conditions for governed convergence across the regimes, each hypothesis shown needed</li><li>The regime map: exact, provably hard, or listed as open</li><li>All of it mechanized, axiom-free</li><li>The framework, tested on outside theorems with its proofs frozen</li><li>Normalization confluence derived from the framework's kernels, without circularity</li><li>One preregistered prediction confirmed (P2), committed before its test</li></ul></div>
 <div class="card"><div class="label">Not claimed</div><ul><li>New mathematics in the tools</li><li>That the framework computes answers. Its one preregistered prediction (P2) was a bet on which side of a proved distinction a new system falls, and it came out right.</li><li>Exact long-run results beyond finite state spaces</li></ul></div>
 </div>
 </section>
@@ -263,6 +263,8 @@ _, report, err := r.Build()</pre></div>
 <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/REGIME-AUDIT.md">Regime audit<span>Each regime's status with its Coq theorem, and the open problems.</span></a>
 <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/REGIMES.md">Field guide<span>For engineers: does my system converge, and which theorem says so.</span></a>
 <a href="https://github.com/blackwell-systems/normalization-confluence/tree/main/coq">The proofs<span>Coq sources and the axiom-free gate. Reproduce it in one command.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">Predictions<span>The freeze, the protocol, and every prediction with its commit date and outcome.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/paper-argument.md">The adversarial review<span>Twelve objections to the framework, each answered or conceded.</span></a>
 </div>
 </section>
 
