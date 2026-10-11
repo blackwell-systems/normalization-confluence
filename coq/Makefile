@@ -556,3 +556,11 @@ all: NormalizationDerived.vo
 
 NormalizationDerived.vo: NormalizationDerived.v Newman.vo Governance.vo CanonicalExecution.vo PresentedExecution.vo GovernanceConverse.vo LayerInterfaces.vo RhoStar.vo
 	coqc -Q . NC NormalizationDerived.v
+
+# An outside theorem with the kernels frozen: Dijkstra's self-stabilization (1974). Fair-daemon
+# stabilization as C1 on the fiber of L; the unfair daemon through the A-C interface; the K-state
+# token ring for every n >= 2 and K >= n under both daemons (SelfStabilization.v).
+all: SelfStabilization.vo
+
+SelfStabilization.vo: SelfStabilization.v Newman.vo DistributedCycles.vo CanonicalRecurrence.vo LayerInterfaces.vo GovernanceWFConverse.vo
+	coqc -Q . NC SelfStabilization.v

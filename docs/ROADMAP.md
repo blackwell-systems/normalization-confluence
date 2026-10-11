@@ -775,7 +775,7 @@ as a statement, every result gated axiom-free on three Coq versions).
   Methods in Computer Science); a conference version at a mechanization venue (CPP, ITP) only after
   checking its current dates.
 
-Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Done: `cc_exact` derived from the frozen kernels (normalization confluence as the base case of the framework, `NormalizationDerived.v`; a derivation, not a prediction). Next steps: recover an outside theorem (Dijkstra self-stabilization) with the kernels frozen, then one prediction committed before its proof. None changes what is proved.
+Status: planned. The adversarial review is done ([research/paper-argument.md](../research/paper-argument.md)). Done: `cc_exact` derived from the frozen kernels (normalization confluence as the base case of the framework, `NormalizationDerived.v`; a derivation, not a prediction); an outside theorem, Dijkstra self-stabilization, recovered with the kernels frozen (`SelfStabilization.v`, PASS on its preregistered criterion; the unfair daemon needs a generic adapter outside the kernels, see [THEORY.md](THEORY.md#an-outside-theorem-self-stabilization)). Next step: one prediction committed before its proof. None changes what is proved.
 
 ## Fundamental limits (stated, not removable)
 
