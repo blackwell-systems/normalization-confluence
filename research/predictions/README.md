@@ -53,5 +53,6 @@ were not used to design it, not on these.
 | File | Claim | Committed | Outcome |
 |---|---|---|---|
 | [P2.md](P2.md) | A unique stable matching does not stop fair blocking-pair dynamics (some market with at most 4 men and 4 women cycles under a pair-fair schedule) | 2026-10-11 | PASS at `n = 3`: a unique stable matching and a round-robin fair cycle ([outcome](P2.md#outcome), [coq/StableMatchingP2.v](../../coq/StableMatchingP2.v), [search](p2/)) |
+| [P3.md](P3.md) | CouchDB and PouchDB resurrect a deleted document on exactly the computed delivery orders (6 of 24 in CouchDB, none with per-update pruning off, 12 of 24 in PouchDB) | 2026-10-11 | Not yet tested |
 
 P1 is reserved for the routing candidate, reshaped after the literature check; not committed.
