@@ -742,7 +742,7 @@ as a statement, every result gated axiom-free on three Coq versions).
 
 - **Adversarial review.** A written case that the work is three familiar theories side by side,
   answered objection by objection with the smallest set of results from the repository
-  (`research/paper-argument.md`). Objections that cannot be answered are stated carefully in the
+  ([research/paper-argument.md](../research/paper-argument.md)). Objections that cannot be answered are stated carefully in the
   paper rather than dropped.
 - **Related work per community.** CRDTs and CALM, invariant confluence, rewriting (Newman, Huet,
   Klop), Boolean and discrete networks (Robert, Thomas, Richard, Shih and Ho), fixed points

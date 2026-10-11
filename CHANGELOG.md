@@ -1071,6 +1071,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- `research/paper-argument.md`: the adversarial review the roadmap lists before drafting the paper.
+  Twelve objections a skeptical reviewer would raise (descent is a congruence condition; layers A,
+  B and C are trace theory with Newman, CSP algebra and fair cycles; the interfaces are definitional;
+  the predictions are known; the recoveries are circular; the finiteness and LPO leaks; no outside
+  prediction; the distributed reading is vocabulary; one principle across scales; exactness is
+  cheap), each answered from the Coq statements or conceded with the wording the paper should use;
+  the claims that survive and those to drop; recommended changes to the main-text evidence set; and
+  the open questions the review raised. Linked from the roadmap's "Before drafting" bullet. No
+  theorem added, removed or renamed.
 - `docs/ROADMAP.md`: the planned paper is reframed around the main result (convergence as descent), with the claim in three tiers (established, interpreted, not claimed), a small core evidence set for the main text, the central figure, the regime map as supporting material, and the adversarial review as the next step. No theorem added, removed or renamed.
 - Front-door docs. `docs/OVERVIEW.md` (one page, about 900 words): the problem with a shelf and a
   flight as examples, convergence by compensation against CRDTs and invariant confluence, the main
