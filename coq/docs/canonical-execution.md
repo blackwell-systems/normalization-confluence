@@ -357,7 +357,7 @@ Not a row of this table: `cc_exact`'s CC1, a peak condition of a rewrite system 
 steps (criterion A's route), not a pair of event words. The next section derives it by combining
 the two routes.
 
-## Normalization confluence as the base case (`NormalizationDerived.v`)
+## The compensation-commutativity theorem as the base case (`NormalizationDerived.v`)
 
 A derivation, not a prediction: the kernels were written after `cc_exact`. With the kernels and
 every existing file unchanged, `NormalizationDerived.v` proves the statements of
