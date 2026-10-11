@@ -73,6 +73,16 @@ NP-complete, by reduction from 3-SAT.
 All of it is machine-checked in Coq (Rocq) with no axioms. The gate in `coq/verify.sh` checks 4588
 theorems, and CI runs it on every pull request.
 
+## Has the framework been tested?
+
+The framework that organizes these results was built from them, so re-deriving them proves little.
+The stricter test is to freeze it and recover theorems from outside the repository. Dijkstra's
+self-stabilization (1974) and invariant confluence (Bailis and others, 2015) both came through with
+no framework file edited. CRDT convergence came through for operation-based CRDTs; state-based CRDTs
+need a merge of two replica states, which the framework cannot express. The framework stays frozen
+until one prediction, written down before anyone tries to prove it, has been tested
+([research/predictions](../research/predictions/README.md)).
+
 ## What is still open
 
 Seven convergence questions are open, most on cyclic networks: rootless networks with lossy

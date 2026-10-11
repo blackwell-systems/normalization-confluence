@@ -137,6 +137,26 @@ range over. Existence of a section is a layer-B question; settlement is layer C;
 `SignedResolver.v` and the local-graph modules (under [the lossy side](#beyond-groups-the-lossy-side))
 are layer-C results that presuppose layer-B answers.
 
+### Testing the framework
+
+The kernels were written after the repository's results were known, so their recoveries (and
+[normalization confluence as the base case](#normalization-confluence-as-the-base-case)) show
+compression. Outside theorems test reach: each was recovered with every existing file frozen and a
+pass criterion fixed in advance, and each leak is recorded, not repaired.
+
+| Theorem | Layer | Result |
+|---|---|---|
+| Dijkstra's self-stabilization | C | Passed ([below](#an-outside-theorem-self-stabilization)) |
+| Invariant confluence | B | Passed ([below](#an-outside-theorem-invariant-confluence)) |
+| CRDT strong eventual consistency | A | Partial: operation-based passed; state-based needs a binary merge ([below](#an-outside-theorem-crdt-strong-eventual-consistency)) |
+
+The leaks share one shape: the kernels follow one state through time and cannot combine two
+concurrent states or steps (merge of two replica states; simultaneous moves), and the A to C
+interface speaks of settled states, so a system that never quiesces needs an adapter. The kernels
+are now frozen (hashes in [research/predictions/frozen.sha256](../research/predictions/frozen.sha256),
+checked by `docs/atlas/check.py`) until one prediction, committed before its proof, is tested
+([research/predictions](../research/predictions/README.md)).
+
 ## Layer A: execution algebra
 
 <a id="layer-a-the-execution-algebra-as-a-presented-admissible-path-system"></a>

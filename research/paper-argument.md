@@ -25,9 +25,9 @@ Outcomes in brief:
 | O4 | Layer C is Emerson-Lei fair cycles | Conceded for the kernel; compression answered |
 | O5 | The interfaces are definitional | Partly answered |
 | O6 | The "predictions" are known results | Conceded |
-| O7 | Recovering the repository's own theorems is circular | Partly answered |
+| O7 | Recovering the repository's own theorems is circular | Partly answered; since answered in part by outside recoveries (A7, update) |
 | O8 | The finiteness and LPO leaks remove the cases that matter | Partly conceded |
-| O9 | The framework has predicted nothing not already known | Conceded |
+| O9 | The framework has predicted nothing not already known | Conceded; a prediction protocol is in place (A9, update) |
 | O10 | The distributed application is a change of vocabulary | Partly answered |
 | O11 | "One principle at three scales" is not a theorem | Conceded in part; the paper must restate it |
 | O12 | "Exact" is cheap: the author picks the model and quantifies over reachable states | Partly answered |
@@ -374,6 +374,15 @@ cell, as the roadmap's item 3 already does.
 proved directly, with the per-model cost shown." Give bridge sizes and leaks in a table. Do not
 count recoveries as evidence of explanatory power beyond compression, and do not write "explains".
 
+**Update (2026-10-11).** Outside theorems have since been recovered with every existing file frozen
+and a pass criterion fixed in advance: Dijkstra's self-stabilization (layer C, passed,
+`SelfStabilization.v`), invariant confluence (layer B, passed, `InvariantConfluence.v`) and CRDT
+strong eventual consistency (layer A, partial: operation-based passed, state-based needs a merge of
+two replica states, `CRDTRecovery.v`). The CRDT test is the weakest of the three, because the
+repository already had CRDT regimes before the kernels were written. These answer the circularity
+objection in part: some of the structure transports beyond the results it was built from. They are
+still recoveries of known results.
+
 ### A8. The finiteness and LPO leaks remove the cases that matter: partly conceded
 
 **Conceded.** Every layer C recovery assumes a listed state type; the originals assume finite height
@@ -416,6 +425,10 @@ against the fair-termination literature.
 **How the paper should state it.** Make no predictive claim. State the framework as a compression of
 the repository's exact results and a classification of its failures, and list the absence of an
 outside prediction as an open question (Part 4).
+
+**Update (2026-10-11).** Still conceded. The kernels are frozen until one prediction, committed
+before its proof, is tested; the protocol and the recorded boundaries are in
+[research/predictions/README.md](predictions/README.md).
 
 ### A10. The distributed application is a change of vocabulary: partly answered
 
@@ -590,7 +603,8 @@ These are questions the repository cannot answer now. None is a proposal to star
 
 1. **An outside prediction.** Is there a regime not yet studied here for which the framework states
    a condition before it is proved, and the condition then turns out exact? Nothing in the
-   repository is of that kind (A9).
+   repository is of that kind (A9). Since: the kernels are frozen and a prediction protocol is in place
+   ([research/predictions](predictions/README.md)); no prediction has been scored yet.
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
    definitions, has not been tried. Since tried: Dijkstra's self-stabilization, recovered with the
