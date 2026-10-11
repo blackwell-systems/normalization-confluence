@@ -7,6 +7,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/CRDTRecovery.v`: CRDT strong eventual consistency, a theorem from outside the repository,
+  recovered with the kernels frozen (a preregistered test). Op-based SEC (Shapiro et al., SSS 2011,
+  Theorem 2; Gomes et al., OOPSLA 2017, `convergence`) through layer A with `N = id`:
+  `opsec_exact`, `opsec_global_exact`, `shapiro_cmrdt_sec`, `gomes_convergence`. State-based SEC
+  (Shapiro Theorem 1) in Shapiro's replica model: `cvrdt_sec`, with the kernel step `payload_sec`
+  (`alo_exact_recovered`) and the binary merge reduced outside the kernels by `cv_invariant` (the
+  leak). `causal_descent_exact`, `sec_is_nid_instance` (SEC is the `N = id` instance),
+  `crdt_sec_strict`; non-vacuity `opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous`.
+  Outcome against the preregistered criterion: PARTIAL. Axiom-free. No REGIME-AUDIT status changes.
+  Gate: 4588 to 4623.
+
 - `coq/InvariantConfluence.v`: a preregistered external-recovery experiment. Invariant confluence
   (Bailis et al., PVLDB 8(3), 2014) recovered with every existing `.v` file frozen. Axiom-free. A
   polymorphism of the invariant's template gives I-confluence (`pol_iconfluent`,

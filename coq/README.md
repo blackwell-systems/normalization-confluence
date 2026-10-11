@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 4713 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 4713 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4748 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4748 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -102,6 +102,7 @@ what gsm checks) are on the linked page in [`docs/`](docs).
 | `CRDT.v` | `cmrdt_SEC`, `cmrdt_governed_SEC`, `cvrdt_SEC`, `cvrdt_absorbs_duplicates`; strictness `witness_not_cmrdt`, `witness_leaves_valid_space` | [CRDTs as a special case](docs/crdt.md#crdts-as-a-special-case-crdtv) |
 | `CvRDTExact.v` | `merge_action_exact`, `merge_conv_alo_exact`, `cvrdt_on_iff`, `cvrdt_lfp`; `naive_cvrdt_iff_fails`, `clamp_reach_qualifier` | [State-based CRDTs, exact](docs/crdt.md#state-based-crdts-exact-cvrdtexactv) |
 | `CRDTBoundary.v` | The boundary: `crdt_boundary` (`cf_causal_boundary`, `cf_merge_boundary`, `cf_cvrdt_boundary`); strictness `witness_ops_not_commute`, `witness_not_cvrdt_order`, `witness_not_cvrdt_exact`, `witness_raw_not_causal`; qualifier `witness_governed_constant`; `boundary_nonvacuous` | [The CRDT boundary](docs/crdt.md#the-crdt-boundary-crdtboundaryv) |
+| `CRDTRecovery.v` | CRDT strong eventual consistency recovered with the kernels frozen ([THEORY.md](../docs/THEORY.md#an-outside-theorem-crdt-strong-eventual-consistency)): op-based with `N = id` `opsec_exact`, `opsec_global_exact`, `shapiro_cmrdt_sec`; Gomes et al.'s statement `gomes_convergence`; state-based `cvrdt_sec` (kernel step `payload_sec`, `merge_delivery_exact`; the binary merge reduced outside the kernels by `cv_invariant`, the leak); `causal_descent_exact`, `sec_is_nid_instance`, `crdt_sec_strict`; non-vacuity `opsec_nonvacuous`, `gomes_nonvacuous`, `cvrdt_nonvacuous` | [CRDT SEC recovered](docs/crdt.md#crdt-strong-eventual-consistency-recovered-crdtrecoveryv) |
 
 ### 5. Stream processors ([docs/streams.md](docs/streams.md))
 
@@ -275,7 +276,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4713
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4748
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

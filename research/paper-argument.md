@@ -594,6 +594,10 @@ These are questions the repository cannot answer now. None is a proposal to star
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
    definitions, has not been tried.
+   Since tried for CRDT strong eventual consistency with the kernels frozen (`CRDTRecovery.v`): op-based
+   SEC (Shapiro et al. 2011, Gomes et al. 2017) is a short bridge with `N = id`; state-based SEC is
+   recovered, but the binary merge of two replica states leaks out of the kernels (PARTIAL).
+
    Tried since for invariant confluence (Bailis et al. 2014), kernels frozen: the polymorphism
    direction, the exact reachable form and Theorem 1 in a replica model are recovered; necessity
    for an arbitrary system leaks (`coq/InvariantConfluence.v`, THEORY.md).
