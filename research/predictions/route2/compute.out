@@ -1,0 +1,151 @@
+
+## S1: linear a-b-c-d, 4-d deleted, full histories; revs_limit 3; 4 events: 1-a/1, 2-b/2, 3-c/3, 4-d/4
+### CouchDB
+  commutation after every reachable prefix (CCR): FAILS, 11 witnesses
+    smallest observable one: after [], 1-a/1 then 4-d/4 differs from 4-d/4 then 1-a/1 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 2 outcome(s) over 24 orders
+        18  deleted                                  e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+         6  live                                     e.g. 2-b/2 3-c/3 4-d/4 1-a/1
+  winner: 2 outcome(s) over 24 orders
+        18  4-d (deleted)                            e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+         6  1-a                                      e.g. 2-b/2 3-c/3 4-d/4 1-a/1
+  leaves: 2 outcome(s) over 24 orders
+        18  {4-d(del)}                               e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+         6  {1-a, 4-d(del)}                          e.g. 2-b/2 3-c/3 4-d/4 1-a/1
+### CouchDB (stem_interactive_updates=false, then compaction)
+  commutation after every reachable prefix (CCR): holds
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 1 outcome(s) over 24 orders
+        24  deleted                                  e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+  winner: 1 outcome(s) over 24 orders
+        24  4-d (deleted)                            e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+  leaves: 1 outcome(s) over 24 orders
+        24  {4-d(del)}                               e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+### PouchDB
+  commutation after every reachable prefix (CCR): FAILS, 5 witnesses
+    smallest observable one: after [], 1-a/1 then 4-d/4 differs from 4-d/4 then 1-a/1 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 2 outcome(s) over 24 orders
+        12  deleted                                  e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+        12  live                                     e.g. 4-d/4 1-a/1 2-b/2 3-c/3
+  winner: 2 outcome(s) over 24 orders
+        12  4-d (deleted)                            e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+        12  1-a                                      e.g. 4-d/4 1-a/1 2-b/2 3-c/3
+  leaves: 2 outcome(s) over 24 orders
+        12  {4-d(del)}                               e.g. 1-a/1 2-b/2 3-c/3 4-d/4
+        12  {1-a, 4-d(del)}                          e.g. 4-d/4 1-a/1 2-b/2 3-c/3
+  CouchDB vs PouchDB, live: disagree on 6 of 24 orders
+    e.g. 4-d/4 1-a/1 2-b/2 3-c/3: CouchDB deleted, PouchDB live
+  CouchDB vs PouchDB, winner: disagree on 6 of 24 orders
+    e.g. 4-d/4 1-a/1 2-b/2 3-c/3: CouchDB 4-d (deleted), PouchDB 1-a
+  CouchDB vs PouchDB, leaves: disagree on 6 of 24 orders
+    e.g. 4-d/4 1-a/1 2-b/2 3-c/3: CouchDB {4-d(del)}, PouchDB {1-a, 4-d(del)}
+
+## S2: linear a-b-c-d, 4-d deleted, histories of length <= 2; revs_limit 2; 7 events: 1-a/1, 2-b/1, 2-b/2, 3-c/1, 3-c/2, 4-d/1, 4-d/2
+### CouchDB
+  commutation after every reachable prefix (CCR): FAILS, 300 witnesses
+    smallest observable one: after [3-c/1], 4-d/1 then 4-d/2 differs from 4-d/2 then 4-d/1 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 2 outcome(s) over 5040 orders
+      4520  live                                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       520  deleted                                  e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  winner: 4 outcome(s) over 5040 orders
+      2520  3-c                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+      1302  2-b                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+       698  1-a                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+       520  4-d (deleted)                            e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  leaves: 8 outcome(s) over 5040 orders
+       773  {2-b, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/2 4-d/1
+       698  {1-a, 4-d(del)}                          e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+       672  {3-c, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/1 4-d/2
+       630  {1-a, 2-b, 3-c, 4-d(del)}                e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       630  {2-b, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/1 4-d/2
+       588  {1-a, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/1 4-d/2
+       529  {1-a, 2-b, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+       520  {4-d(del)}                               e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+### CouchDB (stem_interactive_updates=false, then compaction)
+  commutation after every reachable prefix (CCR): FAILS, 253 witnesses
+    smallest observable one: after [2-b/1], 3-c/2 then 4-d/2 differs from 4-d/2 then 3-c/2 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 2 outcome(s) over 5040 orders
+      4935  live                                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       105  deleted                                  e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  winner: 4 outcome(s) over 5040 orders
+      3864  3-c                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       840  2-b                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+       231  1-a                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+       105  4-d (deleted)                            e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  leaves: 8 outcome(s) over 5040 orders
+      1386  {2-b, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/1 4-d/2
+       987  {3-c, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/1 4-d/2
+       861  {1-a, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/1 4-d/2
+       630  {1-a, 2-b, 3-c, 4-d(del)}                e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       567  {2-b, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/2 4-d/1
+       273  {1-a, 2-b, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+       231  {1-a, 4-d(del)}                          e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+       105  {4-d(del)}                               e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+### PouchDB
+  commutation after every reachable prefix (CCR): FAILS, 195 witnesses
+    smallest observable one: after [2-b/1], 3-c/2 then 4-d/2 differs from 4-d/2 then 3-c/2 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 2 outcome(s) over 5040 orders
+      5023  live                                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+        17  deleted                                  e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  winner: 4 outcome(s) over 5040 orders
+      2520  3-c                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+      2352  2-b                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+       151  1-a                                      e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+        17  4-d (deleted)                            e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  leaves: 8 outcome(s) over 5040 orders
+      1192  {2-b, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/2 4-d/1
+      1160  {1-a, 2-b, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/2 4-d/1
+      1113  {1-a, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/1 4-d/2
+       630  {1-a, 2-b, 3-c, 4-d(del)}                e.g. 1-a/1 2-b/1 2-b/2 3-c/1 3-c/2 4-d/1 4-d/2
+       630  {2-b, 3-c, 4-d(del)}                     e.g. 1-a/1 2-b/2 2-b/1 3-c/1 3-c/2 4-d/1 4-d/2
+       151  {1-a, 4-d(del)}                          e.g. 1-a/1 2-b/1 2-b/2 3-c/2 3-c/1 4-d/2 4-d/1
+       147  {3-c, 4-d(del)}                          e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/1 4-d/2
+        17  {4-d(del)}                               e.g. 1-a/1 2-b/2 2-b/1 3-c/2 3-c/1 4-d/2 4-d/1
+  CouchDB vs PouchDB, live: disagree on 503 of 5040 orders
+    e.g. 1-a/1 2-b/1 3-c/2 2-b/2 3-c/1 4-d/2 4-d/1: CouchDB deleted, PouchDB live
+  CouchDB vs PouchDB, winner: disagree on 1091 of 5040 orders
+    e.g. 1-a/1 2-b/1 3-c/2 2-b/2 3-c/1 4-d/2 4-d/1: CouchDB 4-d (deleted), PouchDB 1-a
+  CouchDB vs PouchDB, leaves: disagree on 1932 of 5040 orders
+    e.g. 1-a/1 2-b/1 3-c/2 2-b/2 3-c/1 4-d/1 4-d/2: CouchDB {3-c, 4-d(del)}, PouchDB {1-a, 3-c, 4-d(del)}
+
+## S3: a-b-c-d with branch b-e, 4-d deleted, full histories; revs_limit 2; 5 events: 1-a/1, 2-b/2, 3-c/3, 4-d/4, 3-e/3
+### CouchDB
+  commutation after every reachable prefix (CCR): FAILS, 73 witnesses
+    smallest observable one: after [], 1-a/1 then 4-d/4 differs from 4-d/4 then 1-a/1 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 1 outcome(s) over 120 orders
+       120  live                                     e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  winner: 1 outcome(s) over 120 orders
+       120  3-e                                      e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  leaves: 2 outcome(s) over 120 orders
+        96  {3-e, 4-d(del)}                          e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+        24  {1-a, 3-e, 4-d(del)}                     e.g. 2-b/2 3-c/3 4-d/4 3-e/3 1-a/1
+### CouchDB (stem_interactive_updates=false, then compaction)
+  commutation after every reachable prefix (CCR): holds
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 1 outcome(s) over 120 orders
+       120  live                                     e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  winner: 1 outcome(s) over 120 orders
+       120  3-e                                      e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  leaves: 1 outcome(s) over 120 orders
+       120  {3-e, 4-d(del)}                          e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+### PouchDB
+  commutation after every reachable prefix (CCR): FAILS, 35 witnesses
+    smallest observable one: after [], 1-a/1 then 4-d/4 differs from 4-d/4 then 1-a/1 (live)
+  idempotence where first delivered: holds (no event needs deduplication on its own)
+  live: 1 outcome(s) over 120 orders
+       120  live                                     e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  winner: 1 outcome(s) over 120 orders
+       120  3-e                                      e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+  leaves: 2 outcome(s) over 120 orders
+        80  {3-e, 4-d(del)}                          e.g. 1-a/1 2-b/2 3-c/3 4-d/4 3-e/3
+        40  {1-a, 3-e, 4-d(del)}                     e.g. 4-d/4 3-e/3 1-a/1 2-b/2 3-c/3
+  CouchDB vs PouchDB, live: disagree on 0 of 120 orders
+  CouchDB vs PouchDB, winner: disagree on 0 of 120 orders
+  CouchDB vs PouchDB, leaves: disagree on 16 of 120 orders
+    e.g. 4-d/4 3-e/3 1-a/1 2-b/2 3-c/3: CouchDB {3-e, 4-d(del)}, PouchDB {1-a, 3-e, 4-d(del)}

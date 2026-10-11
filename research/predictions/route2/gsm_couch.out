@@ -1,0 +1,16 @@
+Build error: gsm: Compensation Commutativity (CC) check failed
+Machine: couchdb_revtree_S1
+  Variables: 1
+  States: 9
+  Events: 4
+
+  WFC: PASS (max repair depth: 2)
+  CC (Compensation Commutativity): FAIL
+    Events: (replicate_1-a, replicate_2-b)
+    State:  {tree=s5_4dx}
+    replicate_1-a→replicate_2-b: {tree=s5_4dx}
+    replicate_2-b→replicate_1-a: {tree=s6_1a_4dx}
+
+  Checked globally: the whole machine has 9 states, within Build's enumeration limit of 1,048,576, and the global check keeps step tables and both whole-machine oracles
+  Assurance: not certified
+
