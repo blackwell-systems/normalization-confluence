@@ -19,6 +19,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -41,13 +42,21 @@ def call(method, url, body=None, raw=None, auth=True):
         if not TOKEN:
             sys.exit("ZENODO_TOKEN is not set")
         headers["Authorization"] = "Bearer " + TOKEN
-    req = urllib.request.Request(url, data=data, method=method, headers=headers)
-    try:
-        with urllib.request.urlopen(req) as r:
-            text = r.read()
-            return json.loads(text) if text else {}
-    except urllib.error.HTTPError as e:
-        sys.exit(f"{method} {url}: HTTP {e.code}: {e.read().decode(errors='replace')[:500]}")
+    # Retry when Zenodo is rate limiting (429) or its gateway times out (502-504). A POST is
+    # retried only on 429, since a timed-out POST may have taken effect.
+    for attempt in range(6):
+        req = urllib.request.Request(url, data=data, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                text = r.read()
+                return json.loads(text) if text else {}
+        except urllib.error.HTTPError as e:
+            retry = e.code == 429 or (e.code in (502, 503, 504) and method != "POST")
+            if not retry or attempt == 5:
+                sys.exit(f"{method} {url}: HTTP {e.code}: {e.read().decode(errors='replace')[:500]}")
+            wait = min(int(e.headers.get("Retry-After") or 0) or 30 * 2 ** attempt, 300)
+            print(f"{method} {url}: HTTP {e.code}, retrying in {wait}s", file=sys.stderr)
+            time.sleep(wait)
 
 
 def md5(path):
@@ -63,7 +72,8 @@ def papers(names):
 
 
 def latest(concept):
-    return call("GET", f"/api/records/{concept}", auth=False)
+    # Authenticated when a token is set: anonymous requests from shared CI addresses are rate limited.
+    return call("GET", f"/api/records/{concept}", auth=bool(TOKEN))
 
 
 def status(names):
