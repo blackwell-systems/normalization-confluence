@@ -1,0 +1,272 @@
+{
+ "scenario": "het_10_inj",
+ "note": "",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=1000"
+  },
+  {
+   "step": 2,
+   "action": "create C revs_limit=1000"
+  },
+  {
+   "step": 3,
+   "action": "create B revs_limit=10"
+  },
+  {
+   "step": 4,
+   "action": "create D revs_limit=10"
+  },
+  {
+   "step": 5,
+   "action": "create T1 revs_limit=1000"
+  },
+  {
+   "step": 6,
+   "action": "create T2 revs_limit=1000 +accept-all VDU"
+  },
+  {
+   "step": 7,
+   "action": "A: 1 edit(s) of X -> 1..1"
+  },
+  {
+   "step": 8,
+   "action": "replicate A -> C (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 9,
+   "action": "A: 10 edit(s) of X -> 2..11"
+  },
+  {
+   "step": 10,
+   "action": "replicate A -> B (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 11,
+   "action": "inject into T1: leaf 1 with history 1..1",
+   "resp": []
+  },
+  {
+   "step": 12,
+   "action": "inject into T1: leaf 11 with history 2..11",
+   "resp": []
+  },
+  {
+   "step": 13,
+   "action": "inject into T2: leaf 1 with history 1..1",
+   "resp": []
+  },
+  {
+   "step": 14,
+   "action": "inject into T2: leaf 11 with history 2..11",
+   "resp": []
+  },
+  {
+   "step": 15,
+   "action": "inject into T1: leaf 11 with history 1..11",
+   "resp": []
+  },
+  {
+   "step": 16,
+   "action": "inject into T2: leaf 11 with history 1..11",
+   "resp": []
+  },
+  {
+   "step": 17,
+   "action": "A: 1 edit(s) of X (last is a delete) -> 12..12"
+  },
+  {
+   "step": 18,
+   "action": "replicate A -> D (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 19,
+   "action": "inject into T1: leaf 12 (deleted) with history 3..12",
+   "resp": []
+  },
+  {
+   "step": 20,
+   "action": "inject into T2: leaf 12 (deleted) with history 3..12",
+   "resp": []
+  }
+ ],
+ "result": {
+  "params": {
+   "LA": 1000,
+   "LB": 10,
+   "LD": 10,
+   "LT": 1000,
+   "c": 1,
+   "m": 11,
+   "F": 0,
+   "opts": {
+    "worker_processes": 1,
+    "worker_batch_size": 1
+   },
+   "mode": "inj",
+   "ddoc_in_batch": false
+  },
+  "intermediate": [
+   {
+    "db": "T1 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "11",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "11",
+      "deleted": false,
+      "path_len": 10,
+      "path": "2..11"
+     }
+    ],
+    "summary": "LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]"
+   },
+   {
+    "db": "T2 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "11",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "11",
+      "deleted": false,
+      "path_len": 10,
+      "path": "2..11"
+     }
+    ],
+    "summary": "LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]"
+   },
+   {
+    "db": "T1 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "11",
+    "_conflicts": [],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "11",
+      "deleted": false,
+      "path_len": 11,
+      "path": "1..11"
+     }
+    ],
+    "summary": "LIVE winner=11 conflicts=[]  leaves=[1..11]"
+   },
+   {
+    "db": "T2 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "11",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "11",
+      "deleted": false,
+      "path_len": 10,
+      "path": "2..11"
+     }
+    ],
+    "summary": "LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]"
+   }
+  ],
+  "final": [
+   {
+    "db": "T1 final",
+    "GET_status": 404,
+    "live": false,
+    "winner": null,
+    "_conflicts": null,
+    "_deleted_conflicts": null,
+    "leaves": [
+     {
+      "leaf": "12",
+      "deleted": true,
+      "path_len": 12,
+      "path": "1..12"
+     }
+    ],
+    "summary": "DELETED (GET 404)  leaves=[1..12](del)"
+   },
+   {
+    "db": "T2 final",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "12"
+    ],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "12",
+      "deleted": true,
+      "path_len": 11,
+      "path": "2..12"
+     }
+    ],
+    "summary": "LIVE winner=1 conflicts=[]  leaves=[1]; [2..12](del)"
+   }
+  ],
+  "differ": true
+ }
+}

@@ -20,7 +20,8 @@
   \item \emph{A unique solution does not give convergence} (\cref{prop:flip2}), and arc consistency
     does not decide existence without the chain and monotonicity hypotheses.
   \item \emph{gsm's static checks are sufficient, not exact.}
-  \item \emph{Scope.} ``Exact'' is relative to the model each result states. Byzantine participants,
+  \item \emph{Scope.} ``Exact'' is relative to the model each result states. Least fixed points without the
+    ascending chain condition, Byzantine participants,
     nondeterministic repair, probabilistic schedules, infinite networks and real-time semantics are
     excluded by design.
 \end{itemize}
@@ -28,13 +29,13 @@
 \section{Conclusion}\label{sec:conclusion}
 
 Repair can replace raw commutativity exactly when the result after repair does not depend on the
-order. At one event this requires state descent; together with history descent over finite histories,
+order. At one event, when events can arrive before repair finishes, this requires state descent; together with history descent over finite histories,
 and terminating repair, it is exact for a single registry; over infinite runs on finite state spaces,
 canonical recurrence is exact. The conditions form a proved hierarchy, and counterexamples fix the
 qualifiers they name. A three-layer framework with proved interfaces organizes them across a map of
 regimes, recovers the central theorem without circularity, transports to classical theorems from
 outside its development with its own files frozen, and has made two correct preregistered
-predictions, one of them about a widely used database.
+predictions, one of them about widely used databases.
 
 The open problems that matter most are composition on cycles, where most of the map's open questions
 sit; long-run behavior beyond finite state spaces; a way to combine concurrent states or steps in the

@@ -75,7 +75,7 @@ consistency accepts an instance that has no section (\coq{ac_needs_mono}).
 \emph{Proof idea.} The procedure revises every domain at once, keeping a value only if it has a
 support along every edge into and out of its vertex, and stops when a pass removes nothing; every
 other pass shrinks the total size of the domains, which starts at most the number of vertices times
-$N + 1$, so it stops (\coq{measure_nxt}, \coq{ac_run_some}). Revision never removes the value of a
+the size of the chain, so it stops (\coq{measure_nxt}, \coq{ac_run_some}). Revision never removes the value of a
 section (\coq{sol_ok}, \coq{run_spec}), so if a section exists every final domain is nonempty; this
 direction does not use monotonicity. Conversely, take the minimum of each final domain
 (\coq{ac_min_section}). For an edge $u \to v$ labeled $f$ with minima $a$ and $b$, the support of $a$

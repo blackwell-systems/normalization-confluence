@@ -5,7 +5,7 @@
 \paragraph{CRDTs and coordination avoidance.}
 CRDTs~\cite{shapiro2011} obtain convergence by designing operations that commute; \cref{sec:crdt}
 shows they are the case where repair does nothing, that their conditions are exact on reachable states,
-and that every convergent repaired system is a CRDT on its repaired steps. The CALM
+and that every convergent repaired system is a CRDT on its governed steps. The CALM
 theorem~\cite{hellerstein2010,ameloot2013} characterizes the programs with a coordination-free
 implementation as the monotone ones; the monotone-cycle regime of the map is related, a monotone
 operator whose least fixed point is reached in any fair order, carrying business invariants.
@@ -45,5 +45,5 @@ Gomes et al.~\cite{gomes2017} verified strong eventual consistency for op-based 
 their theorem is recovered here in their own definitions (\cref{sec:tests-outside}). Dijkstra's
 self-stabilizing ring has been verified in PVS~\cite{qadeer1998} and Coq~\cite{altisen2017}. The
 development here differs in scope rather than in any single proof: it mechanizes an exact condition, a
-hardness result or a listed open problem for every regime of a map, with the counterexamples that fix
+hardness result or a listed open problem for every regime of a map that it does not exclude by design, with the counterexamples that fix
 each hypothesis.

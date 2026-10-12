@@ -1,0 +1,16 @@
+t1:
+{"error":"not_found","reason":"deleted"}
+t2:
+{"_id":"X","_rev":"1-cd6dcd82d939d5b6220025fbc573b36a","v":"a"}
+t1 leaves:
+[{"_rev":"3-b74027217ccce4c91afd292a569e8d5b","_deleted":true,"revs":3}]
+t2 leaves:
+[{"_rev":"1-cd6dcd82d939d5b6220025fbc573b36a","_deleted":null,"revs":1},{"_rev":"3-b74027217ccce4c91afd292a569e8d5b","_deleted":true,"revs":2}]
+t1:
+{"error":"not_found","reason":"deleted"}
+t2:
+{"_id":"X","_rev":"1-cd6dcd82d939d5b6220025fbc573b36a","v":"a"}
+t1 leaves:
+[{"_rev":"3-b74027217ccce4c91afd292a569e8d5b","_deleted":true,"revs":3}]
+t2 leaves:
+[{"_rev":"1-cd6dcd82d939d5b6220025fbc573b36a","_deleted":null,"revs":1},{"_rev":"3-b74027217ccce4c91afd292a569e8d5b","_deleted":true,"revs":2}]

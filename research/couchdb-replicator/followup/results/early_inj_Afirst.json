@@ -1,0 +1,246 @@
+{
+ "scenario": "early_inj_Afirst",
+ "note": "",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=1000"
+  },
+  {
+   "step": 2,
+   "action": "create R revs_limit=1000"
+  },
+  {
+   "step": 3,
+   "action": "create T1 revs_limit=1000"
+  },
+  {
+   "step": 4,
+   "action": "create T2 revs_limit=1000 +accept-all VDU"
+  },
+  {
+   "step": 5,
+   "action": "A: 5 edit(s) of X -> 1..5"
+  },
+  {
+   "step": 6,
+   "action": "inject into T1: leaf 5 with history 1..5",
+   "resp": []
+  },
+  {
+   "step": 7,
+   "action": "inject into T2: leaf 5 with history 1..5",
+   "resp": []
+  },
+  {
+   "step": 8,
+   "action": "A: 595 edit(s) of X -> 6..600"
+  },
+  {
+   "step": 9,
+   "action": "replicate A -> R (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 10,
+   "action": "A: 605 edit(s) of X -> 601..1205"
+  },
+  {
+   "step": 11,
+   "action": "inject into T1: leaf 1205 with history 206..1205",
+   "resp": []
+  },
+  {
+   "step": 12,
+   "action": "inject into T2: leaf 1205 with history 206..1205",
+   "resp": []
+  },
+  {
+   "step": 13,
+   "action": "A: 1 edit(s) of X (last is a delete) -> 1206..1206"
+  },
+  {
+   "step": 14,
+   "action": "inject into T1: leaf 1206 (deleted) with history 207..1206",
+   "resp": []
+  },
+  {
+   "step": 15,
+   "action": "inject into T2: leaf 1206 (deleted) with history 207..1206",
+   "resp": []
+  },
+  {
+   "step": 16,
+   "action": "inject into T1: leaf 600 with history 1..600",
+   "resp": []
+  },
+  {
+   "step": 17,
+   "action": "inject into T2: leaf 600 with history 1..600",
+   "resp": []
+  }
+ ],
+ "result": {
+  "params": {
+   "L": 1000,
+   "k": 5,
+   "m": 600,
+   "N": 1205,
+   "F": 0,
+   "fillers_before": true,
+   "ropts": {
+    "worker_processes": 1,
+    "worker_batch_size": 1
+   },
+   "order": "A_first",
+   "mode": "inj",
+   "ddoc_in_batch": false
+  },
+  "intermediate": [
+   {
+    "db": "T1 after A(N)",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1205",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1205",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "206..1205"
+     }
+    ],
+    "summary": "LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]"
+   },
+   {
+    "db": "T2 after A(N)",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1205",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1205",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "206..1205"
+     }
+    ],
+    "summary": "LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]"
+   },
+   {
+    "db": "T1 after A(delete)",
+    "GET_status": 200,
+    "live": true,
+    "winner": "5",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "1206"
+    ],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1206",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "207..1206"
+     }
+    ],
+    "summary": "LIVE winner=5 conflicts=[]  leaves=[1..5]; [207..1206](del)"
+   },
+   {
+    "db": "T2 after A(delete)",
+    "GET_status": 200,
+    "live": true,
+    "winner": "5",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "1206"
+    ],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1206",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "207..1206"
+     }
+    ],
+    "summary": "LIVE winner=5 conflicts=[]  leaves=[1..5]; [207..1206](del)"
+   }
+  ],
+  "final": [
+   {
+    "db": "T1 final",
+    "GET_status": 404,
+    "live": false,
+    "winner": null,
+    "_conflicts": null,
+    "_deleted_conflicts": null,
+    "leaves": [
+     {
+      "leaf": "1206",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "207..1206"
+     }
+    ],
+    "summary": "DELETED (GET 404)  leaves=[207..1206](del)"
+   },
+   {
+    "db": "T2 final",
+    "GET_status": 404,
+    "live": false,
+    "winner": null,
+    "_conflicts": null,
+    "_deleted_conflicts": null,
+    "leaves": [
+     {
+      "leaf": "1206",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "207..1206"
+     }
+    ],
+    "summary": "DELETED (GET 404)  leaves=[207..1206](del)"
+   }
+  ],
+  "differ": false
+ }
+}

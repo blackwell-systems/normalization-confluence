@@ -7,6 +7,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `research/couchdb-replicator/followup/`: the follow-up runs on CouchDB 3.5.3 (2026-10-12) behind
+  the paper's narrowed trigger for the `validate_doc_update` behavior, archived with their scripts,
+  logs and per-scenario results; `research/couchdb-replicator/README.md` gains a section "Follow-up:
+  mismatched revision limits" (uniform limits never diverge; mismatched limits 3, 10, 100 and 999
+  against 1000 always do; the re-sent leaf never reaches `validate_doc_update`).
 - `coq/AtomicRepair.v`: atomic repair, where each delivery is repaired to completion before another
   event fires. `atomic_exact`: every buffer from a start has a unique atomic normal form iff governed
   steps commute at the states reachable from it by governed steps. `atomic_history`:
@@ -1175,6 +1180,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Theory paper, consistency pass before arXiv: gsm is described as checking WFC and CC1 (the atomic
+  case), not CC2; "state descent is necessary" carries its qualifier (when events can arrive before
+  repair finishes) in the introduction, section 3 and the conclusion; "every regime" reads "every
+  regime not excluded by design"; the artifact section cites tag `paper-v4`; the gsm shelf demo
+  matches the site (stock 4 to 8); section 10's follow-up sentence matches the archived runs, and the
+  validation filter's condition includes design documents and attachments; Appendix A names
+  `docs/atlas/check.py` for the freeze, Appendix B lists `AtomicRepair.v`, Appendix E is described
+  as condensed and says "fresh document id"; every figure and appendix is now cited in the text;
+  smaller wording fixes (WFC expanded, XU attributed, no "verdict"). Site: "Each exact condition is
+  necessary and sufficient"; guide: CC2 is question (a) and CC1 is question (b). No theorem added,
+  removed or renamed.
 - Theory paper: dated October 2026 (was "Draft"); section 10 records that a CouchDB maintainer confirmed the validation-function behavior as a bug, and that follow-up tests narrowed it to databases with different revision limits (even 999 against 1000), not equal ones. The atlas figure now lives in `docs/paper/figures/` so the paper source is self-contained (arXiv); `scripts/zenodo.py` packs that folder. Theory paper version 4 on Zenodo. No theorem added, removed or renamed.
 - Site and `research/couchdb-replicator/README.md`: the CouchDB `validate_doc_update` behavior found during the P3 work (apache/couchdb#6162) is now described as confirmed as a bug by a CouchDB maintainer, with a link to the comment. No theorem added, removed or renamed.
 - The website is reworked for readers who are not research scientists. Front page: a plain hero

@@ -88,7 +88,8 @@ being its timestamp, before any test; a separate run then tries to establish or 
 outcome is recorded whatever it is. Three candidates were drafted, and P2 is one of them.
 Another, about routing, was refuted while being prepared for commitment and was never committed (a three-node network with a
 unique solution in every failure scenario in which stale routes circulate forever on a cycle the
-destination cannot reach). It is recorded with the others.
+destination cannot reach). It is recorded with the others, and the committed claims are reproduced in
+\cref{app:predictions}.
 
 \paragraph{P2: a bet on a proved distinction (passed).}\footnote{Predictions are numbered as committed in the development; P1 was
 reserved for the routing candidate, which was refuted before commitment.}
@@ -130,10 +131,11 @@ P3 is of a different kind: a model of real code, built through the framework, co
 the running software is the experiment. CouchDB keeps a revision tree per document and, after every
 replicated update, prunes it to a configured depth; pruning is the repair. A document is edited three
 times and then deleted, the four revisions are delivered in each of the 24 orders, each with its full
-history, to a fresh database with depth 3. The at-least-once exact theorem
-(\coq{alo_exact}: convergence under every order and duplication exactly when the updates commute at
-reachable states and are idempotent), run as the checker of \cref{sec:gsm} on the model, locates the
-failure in one pair of revisions after the deletion and shows that duplicates are not its cause; state descent explains why
+history, to a fresh document id with depth 3. gsm (\cref{sec:gsm}), run on the model and reading its
+result through the at-least-once exact theorem (\coq{alo_exact}: convergence under every order and
+duplication exactly when the updates commute at reachable states and are idempotent), locates the
+failure in one pair of revisions after the deletion and shows that duplicates are not its cause;
+state descent explains why
 pruning after every update, but not pruning once at the end, changes the outcome. A model transcribed
 from the source computed the outcome of every order, and three claims were committed before either
 system was run: CouchDB~3.5.3 brings the deleted document back on exactly the 6 orders in which the
@@ -149,16 +151,19 @@ performance switch, and the disagreement between the two implementations were no
 \paragraph{What failed in P3.}
 A larger scenario with partial histories was run but not scored. There the CouchDB model was wrong on
 3{,}009 of 5{,}040 orders. The cause was a filter that the model applied to every replicated update and
-that CouchDB applies only when the database has a validation function. A corrected model, kept
+that CouchDB applies only when the database has a validation function (or the request carries a
+design document or attachments). A corrected model, kept
 separate and not scored, matches every order in both configurations. The correction exposed a CouchDB
 behavior: with partial histories, the same revisions in the same order can leave a document live or
 deleted depending only on whether the database has a validation function, even one that accepts
 everything. CouchDB's own replicator reaches it, through an optimization that skips the
 missing-revisions check after a run of batches in which everything was missing. It was reported to the
-CouchDB project, and a maintainer confirmed it as a bug~\cite{couchdb6162}. Follow-up tests narrowed the
-trigger: it needs databases with different revision limits and a document history deeper than the
-lower limit, and it occurs even at 999 against 1000. With the same limit on every database it does
-not occur.
+CouchDB project, and a maintainer confirmed it as a bug~\cite{couchdb6162}. Follow-up tests on
+CouchDB~3.5.3, archived with the replicator scenarios, narrowed the trigger: it needs databases with
+different revision limits and a document history deeper than the lower limit, and it occurred at every
+mismatch tested, 3, 10, 100 and 999 against 1000 (through the replicator with default settings at 100
+against 1000). With the same limit on every database (1000, 2, 3, 10 or 100) it never occurred. The
+re-sent revision is dropped before the validation function runs, so the function's code plays no part.
 
 \paragraph{What may be claimed.}
 The framework compresses the results it was built from (\cref{sec:base-case}); some of its structure transports

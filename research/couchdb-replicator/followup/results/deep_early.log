@@ -1,0 +1,87 @@
+scenario early_inj_Rbetween: L=1000 k=5 m=600 N=1205 F=0 fillers_before=True R->T opts={'worker_processes': 1, 'worker_batch_size': 1} order=R_between mode=inj
+   1. create A revs_limit=1000
+   2. create R revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 5 edit(s) of X -> 1..5
+   6. inject into T1: leaf 5 with history 1..5  {'resp': []}
+   7. inject into T2: leaf 5 with history 1..5  {'resp': []}
+   8. A: 595 edit(s) of X -> 6..600
+   9. replicate A -> R (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 605 edit(s) of X -> 601..1205
+  11. inject into T1: leaf 1205 with history 206..1205  {'resp': []}
+  12. inject into T2: leaf 1205 with history 206..1205  {'resp': []}
+     T1 after A(N): LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+     T2 after A(N): LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+  13. inject into T1: leaf 600 with history 1..600  {'resp': []}
+  14. inject into T2: leaf 600 with history 1..600  {'resp': []}
+     T1 after R: LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+     T2 after R: LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+  15. A: 1 edit(s) of X (last is a delete) -> 1206..1206
+  16. inject into T1: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+  17. inject into T2: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[207..1206](del)
+     T2 final: DELETED (GET 404)  leaves=[207..1206](del)
+  => early_inj_Rbetween: T1 vs T2 same
+scenario early_inj_Rfirst: L=1000 k=5 m=600 N=1205 F=0 fillers_before=True R->T opts={'worker_processes': 1, 'worker_batch_size': 1} order=R_first mode=inj
+   1. create A revs_limit=1000
+   2. create R revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 5 edit(s) of X -> 1..5
+   6. inject into T1: leaf 5 with history 1..5  {'resp': []}
+   7. inject into T2: leaf 5 with history 1..5  {'resp': []}
+   8. A: 595 edit(s) of X -> 6..600
+   9. replicate A -> R (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 605 edit(s) of X -> 601..1205
+  11. inject into T1: leaf 600 with history 1..600  {'resp': []}
+  12. inject into T2: leaf 600 with history 1..600  {'resp': []}
+     T1 after R: LIVE winner=600 conflicts=[]  leaves=[1..600]
+     T2 after R: LIVE winner=600 conflicts=[]  leaves=[1..600]
+  13. inject into T1: leaf 1205 with history 206..1205  {'resp': []}
+  14. inject into T2: leaf 1205 with history 206..1205  {'resp': []}
+     T1 after A(N): LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+     T2 after A(N): LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+  15. A: 1 edit(s) of X (last is a delete) -> 1206..1206
+  16. inject into T1: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+  17. inject into T2: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[207..1206](del)
+     T2 final: DELETED (GET 404)  leaves=[207..1206](del)
+  => early_inj_Rfirst: T1 vs T2 same
+scenario early_inj_Afirst_ddoc: L=1000 k=5 m=600 N=1205 F=0 fillers_before=True R->T opts={'worker_processes': 1, 'worker_batch_size': 1} order=A_first mode=inj
+   1. create A revs_limit=1000
+   2. create R revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 5 edit(s) of X -> 1..5
+   6. inject into T1: leaf 5 with history 1..5  {'resp': []}
+   7. inject into T2: leaf 5 with history 1..5  {'resp': []}
+   8. A: 595 edit(s) of X -> 6..600
+   9. replicate A -> R (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 605 edit(s) of X -> 601..1205
+  11. inject into T1: leaf 1205 with history 206..1205  {'resp': []}
+  12. inject into T2: leaf 1205 with history 206..1205  {'resp': []}
+     T1 after A(N): LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+     T2 after A(N): LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+  13. A: 1 edit(s) of X (last is a delete) -> 1206..1206
+  14. inject into T1: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+  15. inject into T2: leaf 1206 (deleted) with history 207..1206  {'resp': []}
+     T1 after A(delete): LIVE winner=5 conflicts=[]  leaves=[1..5]; [207..1206](del)
+     T2 after A(delete): LIVE winner=5 conflicts=[]  leaves=[1..5]; [207..1206](del)
+Traceback (most recent call last):
+  File [35m"deep.py"[0m, line [35m162[0m, in [35m<module>[0m
+    [31mSCENARIOS[s][0m[1;31m()[0m
+    [31m~~~~~~~~~~~~[0m[1;31m^^[0m
+  File [35m"deep.py"[0m, line [35m150[0m, in [35m<lambda>[0m
+    "early_inj_Afirst_ddoc": lambda: [31mearly[0m[1;31m("early_inj_Afirst_ddoc", F=0, mode="inj", ddoc_in_batch=True)[0m,
+                                     [31m~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"deep.py"[0m, line [35m78[0m, in [35mearly[0m
+    [31mdeliver_R[0m[1;31m()[0m
+    [31m~~~~~~~~~[0m[1;31m^^[0m
+  File [35m"deep.py"[0m, line [35m70[0m, in [35mdeliver_R[0m
+    [31mr.inject[0m[1;31m(T, n, max(1, m - L + 1), m, extra_docs=extra)[0m
+    [31m~~~~~~~~[0m[1;31m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  File [35m"couchlib.py"[0m, line [35m131[0m, in [35minject[0m
+    assert [1;31ms == 201[0m, (s, b)
+           [1;31m^^^^^^^^[0m
+[1;35mAssertionError[0m: [35m(400, {'error': 'bad_request', 'reason': 'When `new_edits: false`, the document needs `_rev` or `_revisions` specified'})[0m

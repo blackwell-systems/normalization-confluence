@@ -10,7 +10,7 @@ shape at every scale: raw states may differ along the way, and what has to agree
 repair. This section states a condition at each of three scales, a single event
 (\cref{sec:main-state}), finite histories (\cref{sec:main-history}) and infinite runs
 (\cref{sec:main-recurrence}), together with the single-registry theorem that combines the first two
-(\cref{sec:main-single}). State descent is necessary; together with history descent and terminating
+(\cref{sec:main-single}). When events can arrive before repair finishes, state descent is necessary; together with history descent and terminating
 repair it is exact for a single registry; and canonical recurrence is exact for infinite runs on finite
 state spaces. The three conditions are not one equation. They form a proved hierarchy,
 with counterexamples showing where each level stops (\cref{sec:main-hierarchy}).
@@ -24,7 +24,7 @@ step is the governed step $x \mapsto N(e(x))$.
 % ---------------------------------------------------------------------------------------------
 \subsection{One event: state descent}\label{sec:main-state}
 
-\begin{definition}[State descent; \coq{DescendsOn}]\label{def:descent}
+\begin{definition}[State descent; \texttt{DescendsOn}]\label{def:descent}
 An event $e$ \emph{descends} on a set $P \subseteq X$ when
 \[
   N(e(N(x))) \;=\; N(e(x)) \qquad\text{for every } x \in P.
@@ -118,7 +118,7 @@ hold at every state $\sigma$ reachable from $s_0$:
 
 In words: replicas converge exactly when repaired events commute (CC1) and an event does not care
 whether repair ran first (CC2), at the states they can reach. Termination of repair is the standing
-hypothesis; it is the third condition of the theory, called WFC in the earlier
+hypothesis; it is the third condition of the theory (WFC, \cref{sec:setting}), as in the earlier
 papers~\cite{blackwell2026fed,blackwell2026stream}.
 
 The theorem reads in the vocabulary of the two descents. CC2 is state descent on the reachable
@@ -134,9 +134,10 @@ descends on the states reachable from $s_0$.
 \cref{sec:base-case} shows that this form is derived from the framework's kernels without using
 \cref{thm:cc}.
 
-\paragraph{When repair runs.} \Cref{cor:descent-form} says a registry converges under the model of
-\cref{sec:setting} exactly when it converges with repair run to completion after every event and every
-event descends at the reachable states (\coq{atomic_derived_from}). State descent is therefore what makes
+\paragraph{When repair runs.} Restated with \coq{atomic_derived_from}, \cref{cor:descent-form} says
+that a registry converges under the model of \cref{sec:setting} exactly when it converges, from the
+repaired start, with repair run to completion after every event, and every event descends at the
+reachable states. State descent is therefore what makes
 the result independent of when repair runs. Under atomic repair it is not needed: \coq{atomic_not_descent}
 gives a registry that converges under atomic repair but has an event that does not descend at a reachable
 invalid state. Under atomic repair, convergence is exactly commutation of the governed steps at the states
@@ -195,9 +196,9 @@ does.
 The three conditions are not one equation. State descent and history descent are independent of each
 other; together, with terminating repair, they are exactly convergence of a single registry
 (\cref{cor:descent-form}). The infinite-run condition reads repair only through its result
-(\cref{prop:quotient}), and it does not follow from the finite-history conditions by instance
+(\cref{prop:quotient}), and without descent it is not determined by the repaired updates alone
 (\cref{prop:separations}(c)); a combined statement across the three scales is open. Each separation
-below is witnessed by a mechanized counterexample.
+below is witnessed by a mechanized counterexample, and \cref{fig:hierarchy} summarizes the relations.
 
 \begin{proposition}\label{prop:separations}
 \leavevmode
@@ -234,8 +235,8 @@ below is witnessed by a mechanized counterexample.
 \label{fig:hierarchy}
 \end{figure}
 
-State descent is necessary; together with history descent and terminating repair it is exact
-(\cref{thm:cc,cor:descent-form}); canonical recurrence is exact on finite state spaces (\cref{thm:c1}).
+When events can arrive before repair finishes, state descent is necessary; together with history
+descent and terminating repair it is exact (\cref{thm:cc,cor:descent-form}); canonical recurrence is exact on finite state spaces (\cref{thm:c1}).
 The counterexamples above fix the qualifiers they name. \cref{sec:crdt} reads the single-registry theorem against CRDTs, the case
 where repair never runs, and Sections~\ref{sec:layer-a} to~\ref{sec:interfaces} give the
 three-layer framework that organizes these conditions across the regimes of the map.

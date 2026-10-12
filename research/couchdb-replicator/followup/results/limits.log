@@ -1,0 +1,627 @@
+scenario issue_rep: LA=1000 LB=1 LD=2 LT=1000 c=1 m=2 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 1 edit(s) of X -> 2..2
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+     T2 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=2 conflicts=[]  leaves=[1..2]
+     T2 after A: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  18. A: 1 edit(s) of X (last is a delete) -> 3..3
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[1..3](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..3](del)
+  => issue_rep: T1 vs T2 DIFFER
+scenario issue_inj: LA=1000 LB=1 LD=2 LT=1000 c=1 m=2 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 1 edit(s) of X -> 2..2
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 2 with history 2..2  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 2 with history 2..2  {'resp': []}
+     T1 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+     T2 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  15. inject into T1: leaf 2 with history 1..2  {'resp': []}
+  16. inject into T2: leaf 2 with history 1..2  {'resp': []}
+     T1 after A: LIVE winner=2 conflicts=[]  leaves=[1..2]
+     T2 after A: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  17. A: 1 edit(s) of X (last is a delete) -> 3..3
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 3 (deleted) with history 2..3  {'resp': []}
+  20. inject into T2: leaf 3 (deleted) with history 2..3  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[1..3](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..3](del)
+  => issue_inj: T1 vs T2 DIFFER
+scenario issue_inj_ddoc: LA=1000 LB=1 LD=2 LT=1000 c=1 m=2 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1
+   4. create D revs_limit=2
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 1 edit(s) of X -> 2..2
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 2 with history 2..2  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 2 with history 2..2  {'resp': []}
+     T1 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+     T2 after C,B: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  15. inject into T1: leaf 2 with history 1..2 (+1 other docs in the same request)  {'resp': []}
+  16. inject into T2: leaf 2 with history 1..2 (+1 other docs in the same request)  {'resp': []}
+     T1 after A: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+     T2 after A: LIVE winner=2 conflicts=['1']  leaves=[1]; [2]
+  17. A: 1 edit(s) of X (last is a delete) -> 3..3
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 3 (deleted) with history 2..3  {'resp': []}
+  20. inject into T2: leaf 3 (deleted) with history 2..3  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..3](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..3](del)
+  => issue_inj_ddoc: T1 vs T2 same
+scenario uniform_2: LA=2 LB=2 LD=2 LT=2 c=1 m=3 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=2
+   2. create C revs_limit=2
+   3. create B revs_limit=2
+   4. create D revs_limit=2
+   5. create T1 revs_limit=2
+   6. create T2 revs_limit=2 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 2 edit(s) of X -> 2..3
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+     T2 after C,B: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+     T2 after A: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+  18. A: 1 edit(s) of X (last is a delete) -> 4..4
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..4](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..4](del)
+  => uniform_2: T1 vs T2 same
+scenario uniform_2_inj: LA=2 LB=2 LD=2 LT=2 c=1 m=3 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=2
+   2. create C revs_limit=2
+   3. create B revs_limit=2
+   4. create D revs_limit=2
+   5. create T1 revs_limit=2
+   6. create T2 revs_limit=2 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 2 edit(s) of X -> 2..3
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 3 with history 2..3  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 3 with history 2..3  {'resp': []}
+     T1 after C,B: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+     T2 after C,B: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+  15. inject into T1: leaf 3 with history 2..3  {'resp': []}
+  16. inject into T2: leaf 3 with history 2..3  {'resp': []}
+     T1 after A: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+     T2 after A: LIVE winner=3 conflicts=['1']  leaves=[1]; [2..3]
+  17. A: 1 edit(s) of X (last is a delete) -> 4..4
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 4 (deleted) with history 3..4  {'resp': []}
+  20. inject into T2: leaf 4 (deleted) with history 3..4  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..4](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..4](del)
+  => uniform_2_inj: T1 vs T2 same
+scenario uniform_3: LA=3 LB=3 LD=3 LT=3 c=1 m=4 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=3
+   2. create C revs_limit=3
+   3. create B revs_limit=3
+   4. create D revs_limit=3
+   5. create T1 revs_limit=3
+   6. create T2 revs_limit=3 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 3 edit(s) of X -> 2..4
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  18. A: 1 edit(s) of X (last is a delete) -> 5..5
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)
+  => uniform_3: T1 vs T2 same
+scenario uniform_3_inj: LA=3 LB=3 LD=3 LT=3 c=1 m=4 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=3
+   2. create C revs_limit=3
+   3. create B revs_limit=3
+   4. create D revs_limit=3
+   5. create T1 revs_limit=3
+   6. create T2 revs_limit=3 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 3 edit(s) of X -> 2..4
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 4 with history 2..4  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 4 with history 2..4  {'resp': []}
+     T1 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  15. inject into T1: leaf 4 with history 2..4  {'resp': []}
+  16. inject into T2: leaf 4 with history 2..4  {'resp': []}
+     T1 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  17. A: 1 edit(s) of X (last is a delete) -> 5..5
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 5 (deleted) with history 3..5  {'resp': []}
+  20. inject into T2: leaf 5 (deleted) with history 3..5  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)
+  => uniform_3_inj: T1 vs T2 same
+scenario uniform_10: LA=10 LB=10 LD=10 LT=10 c=1 m=11 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=10
+   2. create C revs_limit=10
+   3. create B revs_limit=10
+   4. create D revs_limit=10
+   5. create T1 revs_limit=10
+   6. create T2 revs_limit=10 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 10 edit(s) of X -> 2..11
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  18. A: 1 edit(s) of X (last is a delete) -> 12..12
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..12](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..12](del)
+  => uniform_10: T1 vs T2 same
+scenario uniform_10_inj: LA=10 LB=10 LD=10 LT=10 c=1 m=11 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=10
+   2. create C revs_limit=10
+   3. create B revs_limit=10
+   4. create D revs_limit=10
+   5. create T1 revs_limit=10
+   6. create T2 revs_limit=10 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 10 edit(s) of X -> 2..11
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 11 with history 2..11  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 11 with history 2..11  {'resp': []}
+     T1 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  15. inject into T1: leaf 11 with history 2..11  {'resp': []}
+  16. inject into T2: leaf 11 with history 2..11  {'resp': []}
+     T1 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  17. A: 1 edit(s) of X (last is a delete) -> 12..12
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 12 (deleted) with history 3..12  {'resp': []}
+  20. inject into T2: leaf 12 (deleted) with history 3..12  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..12](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..12](del)
+  => uniform_10_inj: T1 vs T2 same
+scenario uniform_100: LA=100 LB=100 LD=100 LT=100 c=1 m=101 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=100
+   2. create C revs_limit=100
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=100
+   6. create T2 revs_limit=100 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 100 edit(s) of X -> 2..101
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  18. A: 1 edit(s) of X (last is a delete) -> 102..102
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..102](del)
+  => uniform_100: T1 vs T2 same
+scenario uniform_100_inj: LA=100 LB=100 LD=100 LT=100 c=1 m=101 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=100
+   2. create C revs_limit=100
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=100
+   6. create T2 revs_limit=100 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 100 edit(s) of X -> 2..101
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 101 with history 2..101  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 101 with history 2..101  {'resp': []}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  15. inject into T1: leaf 101 with history 2..101  {'resp': []}
+  16. inject into T2: leaf 101 with history 2..101  {'resp': []}
+     T1 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  17. A: 1 edit(s) of X (last is a delete) -> 102..102
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 102 (deleted) with history 3..102  {'resp': []}
+  20. inject into T2: leaf 102 (deleted) with history 3..102  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..102](del)
+  => uniform_100_inj: T1 vs T2 same
+scenario uniform_1000: LA=1000 LB=1000 LD=1000 LT=1000 c=1 m=1001 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1000
+   4. create D revs_limit=1000
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 1000 edit(s) of X -> 2..1001
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+     T2 after C,B: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+     T2 after A: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+  18. A: 1 edit(s) of X (last is a delete) -> 1002..1002
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..1002](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..1002](del)
+  => uniform_1000: T1 vs T2 same
+scenario uniform_1000_inj: LA=1000 LB=1000 LD=1000 LT=1000 c=1 m=1001 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=1000
+   4. create D revs_limit=1000
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 1000 edit(s) of X -> 2..1001
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 1001 with history 2..1001  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 1001 with history 2..1001  {'resp': []}
+     T1 after C,B: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+     T2 after C,B: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+  15. inject into T1: leaf 1001 with history 2..1001  {'resp': []}
+  16. inject into T2: leaf 1001 with history 2..1001  {'resp': []}
+     T1 after A: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+     T2 after A: LIVE winner=1001 conflicts=['1']  leaves=[1]; [2..1001]
+  17. A: 1 edit(s) of X (last is a delete) -> 1002..1002
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 1002 (deleted) with history 3..1002  {'resp': []}
+  20. inject into T2: leaf 1002 (deleted) with history 3..1002  {'resp': []}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..1002](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [3..1002](del)
+  => uniform_1000_inj: T1 vs T2 same
+scenario het_3: LA=1000 LB=3 LD=3 LT=1000 c=1 m=4 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=3
+   4. create D revs_limit=3
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 3 edit(s) of X -> 2..4
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=4 conflicts=[]  leaves=[1..4]
+     T2 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  18. A: 1 edit(s) of X (last is a delete) -> 5..5
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[1..5](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..5](del)
+  => het_3: T1 vs T2 DIFFER
+scenario het_3_inj: LA=1000 LB=3 LD=3 LT=1000 c=1 m=4 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=3
+   4. create D revs_limit=3
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 3 edit(s) of X -> 2..4
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 4 with history 2..4  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 4 with history 2..4  {'resp': []}
+     T1 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+     T2 after C,B: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  15. inject into T1: leaf 4 with history 1..4  {'resp': []}
+  16. inject into T2: leaf 4 with history 1..4  {'resp': []}
+     T1 after A: LIVE winner=4 conflicts=[]  leaves=[1..4]
+     T2 after A: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+  17. A: 1 edit(s) of X (last is a delete) -> 5..5
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 5 (deleted) with history 3..5  {'resp': []}
+  20. inject into T2: leaf 5 (deleted) with history 3..5  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[1..5](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..5](del)
+  => het_3_inj: T1 vs T2 DIFFER
+scenario het_10: LA=1000 LB=10 LD=10 LT=1000 c=1 m=11 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=10
+   4. create D revs_limit=10
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 10 edit(s) of X -> 2..11
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=11 conflicts=[]  leaves=[1..11]
+     T2 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  18. A: 1 edit(s) of X (last is a delete) -> 12..12
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[1..12](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..12](del)
+  => het_10: T1 vs T2 DIFFER
+scenario het_10_inj: LA=1000 LB=10 LD=10 LT=1000 c=1 m=11 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=10
+   4. create D revs_limit=10
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 10 edit(s) of X -> 2..11
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 11 with history 2..11  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 11 with history 2..11  {'resp': []}
+     T1 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+     T2 after C,B: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  15. inject into T1: leaf 11 with history 1..11  {'resp': []}
+  16. inject into T2: leaf 11 with history 1..11  {'resp': []}
+     T1 after A: LIVE winner=11 conflicts=[]  leaves=[1..11]
+     T2 after A: LIVE winner=11 conflicts=['1']  leaves=[1]; [2..11]
+  17. A: 1 edit(s) of X (last is a delete) -> 12..12
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 12 (deleted) with history 3..12  {'resp': []}
+  20. inject into T2: leaf 12 (deleted) with history 3..12  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[1..12](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..12](del)
+  => het_10_inj: T1 vs T2 DIFFER
+scenario het_100: LA=1000 LB=100 LD=100 LT=1000 c=1 m=101 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 100 edit(s) of X -> 2..101
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=101 conflicts=[]  leaves=[1..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  18. A: 1 edit(s) of X (last is a delete) -> 102..102
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[1..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..102](del)
+  => het_100: T1 vs T2 DIFFER
+scenario het_100_inj: LA=1000 LB=100 LD=100 LT=1000 c=1 m=101 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 100 edit(s) of X -> 2..101
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 101 with history 2..101  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 101 with history 2..101  {'resp': []}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  15. inject into T1: leaf 101 with history 1..101  {'resp': []}
+  16. inject into T2: leaf 101 with history 1..101  {'resp': []}
+     T1 after A: LIVE winner=101 conflicts=[]  leaves=[1..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  17. A: 1 edit(s) of X (last is a delete) -> 102..102
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 102 (deleted) with history 3..102  {'resp': []}
+  20. inject into T2: leaf 102 (deleted) with history 3..102  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[1..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..102](del)
+  => het_100_inj: T1 vs T2 DIFFER
+scenario het_999: LA=1000 LB=999 LD=999 LT=1000 c=1 m=1000 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=999
+   4. create D revs_limit=999
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 999 edit(s) of X -> 2..1000
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+     T2 after C,B: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1000 conflicts=[]  leaves=[1..1000]
+     T2 after A: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+  18. A: 1 edit(s) of X (last is a delete) -> 1001..1001
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[2..1001](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..1001](del)
+  => het_999: T1 vs T2 DIFFER
+scenario het_999_inj: LA=1000 LB=999 LD=999 LT=1000 c=1 m=1000 F=0 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=inj
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=999
+   4. create D revs_limit=999
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 999 edit(s) of X -> 2..1000
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. inject into T1: leaf 1 with history 1..1  {'resp': []}
+  12. inject into T1: leaf 1000 with history 2..1000  {'resp': []}
+  13. inject into T2: leaf 1 with history 1..1  {'resp': []}
+  14. inject into T2: leaf 1000 with history 2..1000  {'resp': []}
+     T1 after C,B: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+     T2 after C,B: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+  15. inject into T1: leaf 1000 with history 1..1000  {'resp': []}
+  16. inject into T2: leaf 1000 with history 1..1000  {'resp': []}
+     T1 after A: LIVE winner=1000 conflicts=[]  leaves=[1..1000]
+     T2 after A: LIVE winner=1000 conflicts=['1']  leaves=[1]; [2..1000]
+  17. A: 1 edit(s) of X (last is a delete) -> 1001..1001
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. inject into T1: leaf 1001 (deleted) with history 3..1001  {'resp': []}
+  20. inject into T2: leaf 1001 (deleted) with history 3..1001  {'resp': []}
+     T1 final: DELETED (GET 404)  leaves=[2..1001](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..1001](del)
+  => het_999_inj: T1 vs T2 DIFFER
+scenario het_100_deep: LA=1000 LB=100 LD=100 LT=1000 c=300 m=1200 F=6 A->T opts={'worker_processes': 1, 'worker_batch_size': 1} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 300 edit(s) of X -> 1..300
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 6 unrelated filler docs
+  10. A: 900 edit(s) of X -> 301..1200
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=1200 conflicts=['300']  leaves=[1..300]; [1101..1200]
+     T2 after C,B: LIVE winner=1200 conflicts=['300']  leaves=[1..300]; [1101..1200]
+  16. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  17. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1200 conflicts=[]  leaves=[201..1200]
+     T2 after A: LIVE winner=1200 conflicts=['300']  leaves=[1..300]; [1101..1200]
+  18. A: 1 edit(s) of X (last is a delete) -> 1201..1201
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[202..1201](del)
+     T2 final: LIVE winner=300 conflicts=[]  leaves=[1..300]; [1101..1201](del)
+  => het_100_deep: T1 vs T2 DIFFER

@@ -6,7 +6,7 @@
 The natural objection to a three-layer framework is that executions (A), consistent states (B) and
 long-run behavior (C) are three classical theories placed side by side. This section answers it with
 the three interfaces between the layers, each proved without changing the layers, and each with the
-counterexample that marks where it stops.
+counterexample that marks where it stops (\cref{fig:layers}).
 
 % ---------------------------------------------------------------------------------------------
 \subsection{A to C: Newman as the bridge, and where fairness falls short}
@@ -61,7 +61,7 @@ decided by checking the finitely many actions (\coq{lstep_dec}).
 Fair settlement replaces termination exactly when reductions cannot be hidden forever by starving an
 action. The condition is exact for termination, not for confluence: a network with a starved loop
 can still be confluent (\coq{drop_starved_confluent}). Whether \cref{thm:fair-sn} is stated in the
-fair-termination literature~\cite{lehmann1981,francez1986} is an open question of the review; the
+fair-termination literature~\cite{lehmann1981,francez1986} is open: we did not find it there; the
 statement is close to the standard picture, in which an infinite run is either fair or starves some
 action forever.
 
@@ -128,7 +128,7 @@ For events in a network of registries, strict commutation with the repair is too
 condition that matters is descent: an event must respect consistency only after repair.
 
 \begin{theorem}[\coq{xu_is_descends}, \coq{candidate_implies_xu}, \coq{xu_iff_respects}]\label{thm:ab}
-The federation's event condition XU is state descent along each registry's repair on its valid
+The event condition XU of the federation paper~\cite{blackwell2026fed} is state descent along each registry's repair on its valid
 states. Strict commutation implies it, and it holds exactly when each event passes to the quotient of
 the valid states by the repair.
 \end{theorem}

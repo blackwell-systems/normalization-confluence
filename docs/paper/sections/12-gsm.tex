@@ -5,14 +5,16 @@
 gsm~\cite{gsm} is a Go library that runs the exact conditions of this paper on concrete systems. A
 team declares its state as typed variables, its business rules as invariants with a repair, and its
 events as raw transitions. Building the machine enumerates the finite state space and checks that
-repair terminates (WFC) and that the two commutation conditions of \cref{thm:cc} hold. If they do, the
+repair terminates (WFC) and that repaired events commute (CC1 of \cref{thm:cc}) on every valid state.
+A gsm machine applies each event and its repair as one step, the atomic case of \cref{sec:main-single}
+(``When repair runs''), so CC2 is not needed there (\coq{atomic_exact}). If the checks pass, the
 build returns a machine that applies an event with one table lookup; if not, it returns no machine and
 reports a pair of events, a state, and the two orders that diverge. For the shelf of
-\cref{ex:shelf}, written with a domain of 0 to 8 and clamping at both ends, the build refuses the
-machine and reports a divergence on the empty shelf: ``add 3'' then ``remove 1'' gives 2, the other
-order gives 3.
+\cref{ex:shelf}, written with stock from 4 to 8 so that ``remove 1'' always has room, the build
+refuses the machine and reports the example's divergence: from 4 in stock, ``add 3'' then ``remove 1''
+gives 4, the other order gives 5.
 
-\paragraph{Checked twice.} The verdict of the Go code is not trusted on its own. A checker extracted
+\paragraph{Checked twice.} The result of the Go code is not trusted on its own. A checker extracted
 from the axiom-free Coq development re-certifies the machine's tables in process, and the build fails
 closed if it does not. Relative to a trusted base, the extraction mechanism, the glue that calls the
 generated code, and the translation of gsm's tables into its input, a bug in gsm's own verification
@@ -32,7 +34,7 @@ plan. The cost is then governed by the largest piece, not by the product of all 
 before deployment as safe at any time, safe behind a barrier, unsafe with a replayable witness, or
 unknown when a search bound is hit, under the delivery model the deployment actually has.
 
-\paragraph{What is not exact.} gsm's checks are sufficient forms of the reachable-state conditions:
+\paragraph{What is not exact.} gsm's checks are sufficient forms of the atomic-repair condition at the reachable states:
 they range over the whole enumerated state space, not only the states a system can reach, so a machine
 can be refused although it would converge from its actual start. Domains must be finite, and a single
 tightly coupled group of variables that is too large to enumerate is out of reach. Every guarantee in

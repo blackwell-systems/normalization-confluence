@@ -1,0 +1,340 @@
+{
+ "scenario": "uniform_3",
+ "note": "",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=3"
+  },
+  {
+   "step": 2,
+   "action": "create C revs_limit=3"
+  },
+  {
+   "step": 3,
+   "action": "create B revs_limit=3"
+  },
+  {
+   "step": 4,
+   "action": "create D revs_limit=3"
+  },
+  {
+   "step": 5,
+   "action": "create T1 revs_limit=3"
+  },
+  {
+   "step": 6,
+   "action": "create T2 revs_limit=3 +accept-all VDU"
+  },
+  {
+   "step": 7,
+   "action": "A: 1 edit(s) of X -> 1..1"
+  },
+  {
+   "step": 8,
+   "action": "replicate A -> C (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 9,
+   "action": "A: write 6 unrelated filler docs"
+  },
+  {
+   "step": 10,
+   "action": "A: 3 edit(s) of X -> 2..4"
+  },
+  {
+   "step": 11,
+   "action": "replicate A -> B (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 12,
+   "action": "replicate C -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 13,
+   "action": "replicate B -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 14,
+   "action": "replicate C -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 15,
+   "action": "replicate B -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 16,
+   "action": "replicate A -> T1 (worker_processes=1 worker_batch_size=1)",
+   "stats": {
+    "missing_checked": 7,
+    "missing_found": 7,
+    "docs_read": 7,
+    "docs_written": 7,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 17,
+   "action": "replicate A -> T2 (worker_processes=1 worker_batch_size=1)",
+   "stats": {
+    "missing_checked": 7,
+    "missing_found": 7,
+    "docs_read": 7,
+    "docs_written": 7,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 18,
+   "action": "A: 1 edit(s) of X (last is a delete) -> 5..5"
+  },
+  {
+   "step": 19,
+   "action": "replicate A -> D (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 20,
+   "action": "replicate D -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 21,
+   "action": "replicate D -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  }
+ ],
+ "result": {
+  "params": {
+   "LA": 3,
+   "LB": 3,
+   "LD": 3,
+   "LT": 3,
+   "c": 1,
+   "m": 4,
+   "F": 6,
+   "opts": {
+    "worker_processes": 1,
+    "worker_batch_size": 1
+   },
+   "mode": "rep",
+   "ddoc_in_batch": false
+  },
+  "intermediate": [
+   {
+    "db": "T1 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "4",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "4",
+      "deleted": false,
+      "path_len": 3,
+      "path": "2..4"
+     }
+    ],
+    "summary": "LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]"
+   },
+   {
+    "db": "T2 after C,B",
+    "GET_status": 200,
+    "live": true,
+    "winner": "4",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "4",
+      "deleted": false,
+      "path_len": 3,
+      "path": "2..4"
+     }
+    ],
+    "summary": "LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]"
+   },
+   {
+    "db": "T1 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "4",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "4",
+      "deleted": false,
+      "path_len": 3,
+      "path": "2..4"
+     }
+    ],
+    "summary": "LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]"
+   },
+   {
+    "db": "T2 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "4",
+    "_conflicts": [
+     "1"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "4",
+      "deleted": false,
+      "path_len": 3,
+      "path": "2..4"
+     }
+    ],
+    "summary": "LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]"
+   }
+  ],
+  "final": [
+   {
+    "db": "T1 final",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "5"
+    ],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "5",
+      "deleted": true,
+      "path_len": 3,
+      "path": "3..5"
+     }
+    ],
+    "summary": "LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)"
+   },
+   {
+    "db": "T2 final",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "5"
+    ],
+    "leaves": [
+     {
+      "leaf": "1",
+      "deleted": false,
+      "path_len": 1,
+      "path": "1"
+     },
+     {
+      "leaf": "5",
+      "deleted": true,
+      "path_len": 3,
+      "path": "3..5"
+     }
+    ],
+    "summary": "LIVE winner=1 conflicts=[]  leaves=[1]; [3..5](del)"
+   }
+  ],
+  "differ": false
+ }
+}

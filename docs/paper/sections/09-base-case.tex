@@ -34,7 +34,7 @@ $N = \rho^{*}$.
 \end{itemize}
 
 \paragraph{Proof idea for the dictionary.}
-For \coq{nd_descends_cc2}, one repair does not change the canonical form of an invalid state,
+For \coq{nd_descends_cc2}, one repair does not change the repaired form of an invalid state,
 $N(\rho(\sigma)) = N(\sigma)$ (\coq{nd_N_rho}, because runs from an empty buffer are deterministic);
 descent at the reachable states $\sigma$ and $\rho(\sigma)$ then gives CC2 at $\sigma$. Conversely, CC2
 keeps $\gov(e)$ unchanged along the repair chain from a reachable $x$ to $N(x)$, by induction on the
