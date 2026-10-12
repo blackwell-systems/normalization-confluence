@@ -21,6 +21,9 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
+% Long Coq names cannot hyphenate; give the line breaker room.
+\setlength{\emergencystretch}{3em}
+
 % A gated Coq name, as it appears in coq/*.v
 \newcommand{\coq}[1]{\texttt{\detokenize{#1}}}
 \newcommand{\gov}{\mathsf{gov}}
@@ -41,8 +44,9 @@
 \input{sections/04-crdts}
 
 \input{sections/05-layer-a}
+\input{sections/06-layer-c}
 
-% Sections 6 to 9 not yet drafted.
+% Sections 7 to 9 not yet drafted.
 \setcounter{section}{9}
 \input{sections/10-tests}
 
