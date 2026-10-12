@@ -15,8 +15,11 @@ In layer~C's terms a reduction is a step of some action that changes the state, 
 are the settled states (\coq{nf_iff_stable}). Under termination from the start and decidable
 normality, local joinability at reachable peaks, confluence and unique normal forms coincide
 (\coq{newman_bridge}); the converses need no termination (\coq{cr_peaks}, \coq{cr_unf}). This is
-Newman's lemma~\cite{newman1942} restricted to the reachable states. The single-registry theorem is
-its instance, with termination of repair supplying the hypothesis and CC2 being state descent.
+Newman's lemma~\cite{newman1942} restricted to the reachable states. The single-registry theorem has the same
+shape, with termination of repair supplying the hypothesis and CC2 being state descent, but it is not
+derived as an instance of \coq{newman_bridge}: its derivation joins peaks of the configuration rewrite
+system through the canonical-execution kernel (\coq{classified_peak_exact}, \coq{nd_confluent_from};
+\cref{sec:base-case}).
 
 Fair settlement does not replace termination. In the standard four-point system
 $k_a \leftarrow k_b \leftrightarrow k_c \rightarrow k_d$, every peak joins and every fair run settles,
@@ -61,8 +64,8 @@ There is a one-vertex network whose constraint problem has exactly one solution 
 dynamics has a fair run that never settles.
 \end{proposition}
 
-A unique consistent state does not guarantee that runs reach it. This is the distinction the first
-preregistered prediction (\cref{sec:tests-predictions}) bet on. One leak is recorded: a network with
+A unique consistent state does not guarantee that runs reach it. This is the distinction prediction P2
+(\cref{sec:tests-predictions}) bet on. One leak is recorded: a network with
 no solution can still settle canonically, through a semantic oscillation whose repaired result never
 changes (\coq{no_solution_canon_settles}).
 

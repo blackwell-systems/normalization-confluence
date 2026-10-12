@@ -5,7 +5,7 @@
 The results of \cref{sec:main,sec:crdt,sec:layer-a,sec:layer-c,sec:layer-b,sec:interfaces} are the
 organizing core of a larger body of work: a map of the regimes of governed concurrent state. In every
 regime the map records a machine-checked exact condition, a proof that no efficient exact condition
-exists, or an open problem listed in an audit. This section summarizes it; the regime-by-regime audit,
+exists unless $\mathrm{P} = \mathrm{NP}$, or an open problem listed in an audit. This section summarizes it; the regime-by-regime audit,
 with the Coq theorem behind each entry, is part of the development.
 
 \paragraph{Exact.} Single registries; causal and at-least-once delivery; CRDTs; stream processors;
@@ -21,7 +21,8 @@ mechanized reduction from 3-SAT. Minimum coordination is characterized exactly a
 Max-Cut on invertible networks and from 3-SAT on lossy ones.
 
 \paragraph{Counting and gluing.} The first cohomology of the nerve is classified and counted over
-$\mathbb{Z}/2$, and gluing local sections is exact on sub-federation covers.
+$\mathbb{Z}/2$, and gluing local sections is exact on sub-federation covers; positive assembly of
+local sections at the level of variables is narrowed but still open.
 
 \paragraph{Open.} Seven convergence questions remain: rootless lossy networks, the distributed model
 off its current hypotheses, rootless dynamics in which edges write values, existence of fixed points
@@ -46,7 +47,11 @@ hard, open or excluded and linked to its theorem. The full atlas has 60 regimes 
 \label{fig:atlas}
 \end{figure}
 
-\paragraph{The evidence base.} The development has 4{,}766 theorems, every one closed under the global
-context, with no axioms and no admitted proofs, checked on three versions of Coq on every change. The
+\paragraph{Tiles and gaps.} The atlas has nine open tiles for the seven open convergence questions: one
+question appears in two families, and one tile marks the open sheaf-assembly item above, which is not a
+convergence question.
+
+\paragraph{The evidence base.} The development's axiom-free gate checks 4{,}766 named results, every
+one closed under the global context, with no axioms and no admitted proofs anywhere in the source, checked on three versions of Coq on every change. The
 counts are kept equal to the gate by a script that also checks every theorem name cited on the
 atlas and the website against the source and the gate.

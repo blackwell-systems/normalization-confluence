@@ -29,8 +29,8 @@ $L$''. Dijkstra's $K$-state token ring~\cite{dijkstra1974} then stabilizes for e
 $n \ge 2$ machines with $K \ge n$, under fair schedules (\coq{ring_fair_selfstab}) and under a central
 daemon that picks any enabled move (\coq{ring_unfair_selfstab}), Dijkstra's own setting; the
 ring-specific work is his fresh-value argument. With $n = 4$ and $K = 2$ a bad fair lasso exists
-(\coq{ring_bound_matters}). Dijkstra's paper also notes that $K \ge n - 1$ suffices under a central
-daemon, later proved sharp~\cite{fokkink2005}; that bound is not mechanized here. The ring has been
+(\coq{ring_bound_matters}). Dijkstra's manuscript also notes that $K \ge n - 1$ suffices under a central
+daemon~\cite{ewd426}, later proved sharp~\cite{fokkink2005}; that bound is not mechanized here. The ring has been
 mechanized before, in PVS~\cite{qadeer1998} and in Coq~\cite{altisen2017}; the point of this test is
 the transport, not the mechanization. Under an arbitrary daemon, the exact condition is fair
 stabilization together with the absence of a reachable loop outside $L$ that starves a machine
@@ -40,15 +40,16 @@ literature~\cite{lehmann1981,francez1986} is stated as open.
 \paragraph{Invariant confluence (layer B; passed).}
 The results of \cref{sec:crdt-iconf} were obtained in this protocol: the polymorphism bridge
 (\coq{pol_iconfluent}) is short, the exact form with reachable states (\coq{iconf_iff_pol_reach}) and
-the counterexample (\coq{uq_not_pol}) stay inside the new file, and Bailis et al.'s main theorem holds
-in a replica model (\coq{replica_exact}).
+the counterexample (\coq{uq_not_pol}) stay inside the new file, and in a replica model the protocol in which a server commits a transaction only if its local result satisfies $I$ and merges every state it receives keeps every server $I$-valid in every execution if and only if the transactions are invariant confluent
+(\coq{replica_exact}).
 
 \paragraph{CRDT strong eventual consistency (layer A; partial).}
 For op-based CRDTs, with the identity repair, strong eventual consistency from $s_0$ holds exactly when
 concurrent operations commute wherever they can be delivered causally (\coq{opsec_exact}). Shapiro et
 al.'s condition is a corollary, and the convergence theorem of Gomes et al.~\cite{gomes2017} follows
 in their own definitions (\coq{gomes_convergence}). For state-based CRDTs, replicas with the same
-history set have equal states in every execution of Shapiro et al.'s replica model (\coq{cvrdt_sec}),
+history set have equal states in every execution of Shapiro et al.'s replica model, when every update
+is unique (\coq{cvrdt_sec}),
 but the step that merges one replica's state into another is not expressible in the frozen kernels and
 was reduced outside them. This is the weakest of the three tests: CRDT regimes were in the development
 before the framework was written.
@@ -93,12 +94,15 @@ destination cannot reach). It is recorded with the others.
 reserved for the routing candidate, which was refuted before commitment.}
 The interface between layers B and C contains two results that point opposite ways: a unique
 consistent state guarantees settling when the repair is monotone (\coq{q1_unique_iff}), and does not
-in general (\coq{flip2_unique_solution_livelock}). P2 bet that the classical stable marriage market,
+in general (\coq{flip2_unique_solution_livelock}; the first needs a top element and the dual step laws).
+P2 bet that the classical stable marriage market,
 whose blocking-pair update is not monotone, falls on the second side: some market with at most four
 men and four women has exactly one stable matching and a cycle that never settles under a schedule
 that gives every pair a turn. The claim was committed with an estimated probability of 0.6. The
-nearest published cycling instances~\cite{ackermann2011,tamura1993} do not decide it, since both have
-several stable matchings, and random resolution converges~\cite{roth1990}. An exhaustive search found
+nearest published cycling instances~\cite{ackermann2011,tamura1993}, the latter read as reproduced
+by Chen, Skowron and Sorge~\cite{chen2019}, do not decide it, since both have several stable matchings;
+Knuth's cycling example~\cite{knuth1976} uses a different rule, in which divorced partners marry each
+other; and random resolution converges~\cite{roth1990}. An exhaustive search found
 the property already at three by three, and one instance is mechanized against the frozen kernels
 (\coq{p2_pass}, through \coq{bad_lasso_refutes}): the unique stable matching, and a loop that names each
 of the nine pairs once and passes only through unstable matchings.
@@ -136,9 +140,9 @@ system was run: CouchDB~3.5.3 brings the deleted document back on exactly the 6 
 first revision arrives last; with per-update pruning switched off and one compaction at the end, on
 none; and PouchDB~9.0.0, an independent implementation of the same algorithm, on exactly the 12 orders
 in which the first revision arrives after the deletion. All 216 scored observations (three claims, 24
-orders, three repetitions) matched, with no nondeterminism, and the full revision trees matched as well.
+orders, three repetitions) matched, with no nondeterminism, and the full leaf sets matched as well.
 
-The resurrection itself is a known, accepted consequence of pruning~\cite{couchdb988}; the order rule,
+The resurrection itself is a known, accepted consequence of pruning~\cite{couchdb988,couchdb1649}; the order rule,
 the healing step that rescues some orders, the effect of the pruning setting, which is documented as a
 performance switch, and the disagreement between the two implementations were not found in any source.
 

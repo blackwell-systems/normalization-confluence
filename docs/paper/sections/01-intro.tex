@@ -18,18 +18,19 @@ same repair give different results.
 The two established answers to concurrency sidestep the question. CRDTs~\cite{shapiro2011} design
 operations so that order never matters, and need no repair. Invariant
 confluence~\cite{bailis2014} asks which operations preserve an invariant without coordination, with the
-invariant checked and never repaired. Compensation as practiced, in sagas~\cite{garcia1987} and in
-systems that add invariants to weakly consistent replication~\cite{li2012,balegas2015}, has no exact
-condition for when concurrent orders converge.
+invariant checked and never repaired. For compensation as practiced, in sagas~\cite{garcia1987} and in
+systems that add invariants to weakly consistent replication~\cite{li2012,balegas2015}, we found no
+exact condition in that literature for when concurrent orders converge.
 
 \paragraph{The answer in one sentence.} Raw states may differ along the way; what has to agree is the
-result after repair. The paper makes this exact at three scales: for a single event, for finite
+result after repair. The paper makes this precise at three scales: for a single event, for finite
 histories, and for infinite runs.
 
 \paragraph{Contributions.}
 \begin{enumerate}[nosep]
-  \item Exact conditions at three scales, state descent, history descent and canonical recurrence, with a
-    proved hierarchy between them, and the single-registry theorem that combines the first two
+  \item Conditions at three scales, with a proved hierarchy between them: state descent, necessary at
+    one event; history descent, which with state descent and terminating repair is exact for a single
+    registry; and canonical recurrence, exact for infinite runs on finite state spaces
     (\cref{sec:main}).
   \item The relation to CRDTs stated precisely: repair strictly enlarges which operations can be used, but
     every convergent repaired system is a CRDT on its repaired steps; and the relation to invariant
@@ -46,7 +47,7 @@ histories, and for infinite runs.
     time (\cref{sec:map,sec:gsm}).
 \end{enumerate}
 
-\paragraph{Scope.} ``Exact'' means necessary and sufficient relative to the model each result states, with
-a counterexample for each hypothesis. The mathematical tools, Newman's lemma, trace theory,
+\paragraph{Scope.} ``Exact'' means necessary and sufficient relative to the model each result states;
+counterexamples fix the qualifiers they name. The mathematical tools, Newman's lemma, trace theory,
 constraint-satisfaction algebra and fair cycles, are classical and credited where they are used
 (\cref{sec:related,sec:limits}).

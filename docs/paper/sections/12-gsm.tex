@@ -14,15 +14,17 @@ order gives 3.
 
 \paragraph{Checked twice.} The verdict of the Go code is not trusted on its own. A checker extracted
 from the axiom-free Coq development re-certifies the machine's tables in process, and the build fails
-closed if it does not, so a bug in gsm's own verification cannot hand back a machine that does not
-converge.
+closed if it does not. Relative to a trusted base, the extraction mechanism, the glue that calls the
+generated code, and the translation of gsm's tables into its input, a bug in gsm's own verification
+cannot hand back a machine that does not converge.
 
 \paragraph{Scale.} The state space of a realistic system is a product of variable domains and quickly
 exceeds what can be enumerated. gsm checks it in pieces, each justified by a theorem of the
 development: by footprint component, the groups of variables that events and rules touch together,
 which is exact for the whole machine when the rules are combinators; by one item of a keyed
 collection, which stands for any number of items; by representative values for integer variables that
-are only compared and copied; and, for networks of registries, by two local checks per link (C1 and C2)
+are only compared and copied; and, for networks of registries, by two local checks per link (called C1 and C2 in gsm and the earlier papers; they are federation
+conditions, not the layer~C conditions of \cref{sec:layer-c})
 on acyclic networks, with opt-in modes for monotone cycles and for cycles with a named coordination
 plan. The cost is then governed by the largest piece, not by the product of all domains.
 

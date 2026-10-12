@@ -28,15 +28,16 @@
 \section{Conclusion}\label{sec:conclusion}
 
 Repair can replace raw commutativity exactly when the result after repair does not depend on the
-order: at one event, state descent; over finite histories, history descent; over infinite runs,
-canonical recurrence. The conditions are exact, they form a proved hierarchy, and every hypothesis is
-shown to be needed. A three-layer framework with proved interfaces organizes them across a map of
+order. At one event this requires state descent; together with history descent over finite histories,
+and terminating repair, it is exact for a single registry; over infinite runs on finite state spaces,
+canonical recurrence is exact. The conditions form a proved hierarchy, and counterexamples fix the
+qualifiers they name. A three-layer framework with proved interfaces organizes them across a map of
 regimes, recovers the central theorem without circularity, transports to classical theorems from
 outside its development with its own files frozen, and has made two correct preregistered
 predictions, one of them about a widely used database.
 
 The open problems that matter most are composition on cycles, where most of the map's open questions
-sit; long-run behavior beyond finite state spaces; a merge of concurrent states in the execution layer,
-which every outside test that leaked pointed to; and an exact structural condition that decides, for a
+sit; long-run behavior beyond finite state spaces; a way to combine concurrent states or steps in the
+execution layer, which the CRDT and self-stabilization tests pointed to; and an exact structural condition that decides, for a
 class of systems, when a unique consistent state is also reached, which would let the framework compute
 answers where it can now only pose the question.
