@@ -1,0 +1,86 @@
+% Section 7. Drafted from docs/PAPER-OUTLINE.md section 7 and docs/THEORY.md "Layer B". Every named
+% result is a gated, axiom-free theorem in coq/*.v (TransportCSP.v and TransportCSPHard.v unless noted).
+
+\section{Layer B: consistent states}\label{sec:layer-b}
+
+Layer~B asks which states are consistent. It is a static question about a network's equations, not
+about any run: when registries pass values along transport maps, a consistent assignment is one that
+every map respects. This section shows that the question is a finite-domain constraint satisfaction
+problem, that the fixed points of the repair dynamics are exactly its solutions, and that the
+development's results sit at known points of the algebraic classification of such problems. Little of
+the mathematics here is new; the section's role is to place consistency where a mature theory applies,
+and to connect it to settlement through the interface of Section~8.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Consistency as constraint satisfaction}
+
+Fix a finite family $F$ of transport maps on a finite set $D$. The \emph{template} $\Gamma_F$ consists
+of the graphs $\{(x, f(x))\}$ of the maps in $F$, together with the unary relations $\{c\}$ for values
+that some vertices are pinned to. A network whose edges are labeled by maps in $F$, with some vertices
+pinned, is then an instance of $\mathrm{CSP}(\Gamma_F)$.
+
+\begin{theorem}[\coq{section_iff_csp}, \coq{edge_fixed_iff_csp}]\label{thm:csp}
+An assignment of values to the vertices of such a network is a section, a consistent assignment that
+every edge's map respects, if and only if it is a solution of the corresponding instance of
+$\mathrm{CSP}(\Gamma_F)$. Moreover, the states fixed by every update of the network's repair dynamics
+are exactly those solutions.
+\end{theorem}
+
+Merges in which a vertex reads several inputs are graphs of $k$-ary maps and fit the same way
+(\coq{hsection_iff_csp}). The identification of global sections with constraint solutions is known in
+general, from the sheaf-theoretic treatment of contextuality~\cite{abramsky2011,abramsky2014}; what is proved here
+is its form for transport networks, together with the link to the dynamics.
+
+An operation is a \emph{polymorphism} of the graph of $f$ exactly when it commutes with $f$
+(\coq{pol_iff_commute}). So the polymorphisms of $\Gamma_F$ are the operations that commute with every
+map in $F$ and fix every pinned value (\coq{pol_gamma_iff}), the centralizer of the family in the
+sense of clone theory. By the dichotomy theorem for finite-domain constraint
+problems~\cite{bulatov2017,zhuk2020}, cited and not mechanized, section existence for each fixed
+finite family is either polynomial or NP-complete, and the polymorphisms decide which.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Where the development's results sit}
+
+\paragraph{Groups.} For group labels acting by translation, $x y^{-1} z$ is a Mal'tsev polymorphism
+(\coq{group_maltsev}, \coq{group_pol}), the tractable case of Bulatov and Dalmau~\cite{bulatov2006};
+the polynomial criterion mechanized for it is a coboundary test (\coq{section_iff_coboundary}).
+
+\paragraph{Monotone maps on a chain: tractable.} A monotone map on a chain commutes with $\min$,
+$\max$ and the median (\coq{chain_pol}). For pinned networks of monotone maps on a finite chain, arc
+consistency decides whether a section exists, and the minimum of each arc-consistent domain is one
+(\coq{ac_exact}). This is the binary, min-closed case of a classical result: max-closed
+constraints~\cite{jeavons1995}, and more generally any semilattice polymorphism~\cite{jeavons1997},
+make arc consistency decide the instance. Both hypotheses are needed. On the four-element diamond a
+monotone map need not commute with join (\coq{diamond_join_fails}), and without monotonicity arc
+consistency accepts an instance that has no section (\coq{ac_needs_mono}).
+
+\paragraph{Monotone maps off the chain: hard.} Read as two flags, the diamond carries six monotone
+maps (read one flag, their AND or OR, or a constant) whose only polymorphisms are projections, at
+every arity (\coq{pol_dfam_iff}); so they have no Siggers, majority or Mal'tsev polymorphism
+(\coq{dfam_no_siggers}). A linear reduction from 3-SAT to networks over these maps shows section
+existence NP-complete (\coq{dnet_iff_sat}), for every family that contains them
+(\coq{mono_family_hard}), and each of the six is needed (\coq{dfam_minimal}). This cell recovers known
+boundaries: the six maps encode the two-element lattice, whose equation problem is
+NP-complete~\cite{larose2006}, and for three-element ordered sets the boundary follows from the
+classification of unary algebras on at most three elements~\cite{broniek2006}. What separates the two
+cells is join preservation. Maps that preserve join, the shape of state-based CRDTs, keep join as a
+semilattice polymorphism on any lattice (\coq{semilattice_pol}, \coq{joinhom_pol}); monotonicity alone
+is not enough off the chain.
+
+\paragraph{The reduction's own family.} The 3-SAT networks used for the lossy-network hardness result
+use one fixed family of 26 maps, so constraint satisfaction over that single template is NP-complete
+(\coq{hard_family_csp}).
+
+\paragraph{Majority off the chain.} A family on pairs of Booleans that includes a lossy map commutes
+with the coordinatewise median but not with meet or join (\coq{median_family}); tractability then
+follows from the bounded-width results~\cite{jeavons1997,federvardi1998}, cited, not from a mechanized
+algorithm.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{What is open}
+
+Whether every finite ordered set that is not a chain has only projections as polymorphisms of its
+monotone maps is open in general as far as the literature checked shows. The diamond is proved here;
+an argument for bounded ordered sets is recorded in the development but not mechanized; three- and
+four-element cases can be read off published classifications of centralizing monoids; and ordered
+sets without a top and a bottom, from five elements up, are not settled by any source found.
