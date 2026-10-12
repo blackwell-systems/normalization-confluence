@@ -55,12 +55,11 @@ before the framework was written.
 
 \begin{table}[t]
 \centering\small
-\begin{tabular}{@{}llll@{}}
+\begin{tabular}{@{}lllp{8.4cm}@{}}
 \toprule
 Target & Layer & Outcome & Leaks \\
 \midrule
-Self-stabilization & C & passed & listed finite state type; an adapter for systems that never quiesce; \\
- & & & no simultaneous moves \\
+Self-stabilization & C & passed & listed finite state type; an adapter for systems that never quiesce; no simultaneous moves \\
 Invariant confluence & B & passed & partition model for necessity; item-wise merges only \\
 CRDT SEC & A & partial & merge of two replica states \\
 \bottomrule
