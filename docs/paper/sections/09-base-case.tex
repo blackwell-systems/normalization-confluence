@@ -1,0 +1,53 @@
+% Section 9. Drafted from docs/PAPER-OUTLINE.md section 9 and docs/THEORY.md "The compensation-
+% commutativity theorem as the base case". Every named result is a gated, axiom-free theorem in
+% coq/NormalizationDerived.v unless noted.
+
+\section{The compensation-commutativity theorem as the base case}\label{sec:base-case}
+
+The single-registry theorem of \cref{sec:main-single} was proved directly, before the framework
+existed. This section derives it from the framework's kernels, used unchanged. It is a derivation, not
+a prediction: the framework was built after the theorem, with it in view. What it shows is that the
+kernels, as they are, reproduce the exact statement, and that each of its conditions is a named
+condition of a layer. The setting is \cref{thm:cc}'s: free delivery, terminating repair, and
+$N = \rho^{*}$.
+
+\paragraph{The dictionary.}
+\begin{itemize}[nosep]
+  \item \emph{CC2 is state descent.} From a start $s_0$, every event descends along $N$ on the states
+    reachable from $s_0$ if and only if CC2 holds there (\coq{nd_descends_cc2}); globally this is
+    \cref{prop:descent-cc2}.
+  \item \emph{CC1 is history descent on free delivery.} The governed semantics from the repaired start,
+    $t \mapsto \mathrm{grun}(t, N(s_0))$, is invariant under the free-delivery presentation, whose
+    generated equivalence is equality up to permutation (\coq{swap_peq_perm}). By P1
+    (\cref{thm:p1}) this holds exactly when every adjacent swap commutes after every word
+    (\coq{nd_history_seeds}), and given state descent it is CC1 on the states reachable from $s_0$
+    (\coq{nd_history_cc1}). History descent alone gives CC1 only at the repaired states the governed
+    runs reach; state descent carries it to the raw reachable states, where it is needed because an
+    event can fire before repair.
+  \item \emph{Termination is the progress side,} supplied by the potential $\Phi$.
+  \item \emph{Newman joins them.} A peak between an event and a repair step is joined by state descent,
+    and a peak between two events by CC1 (\coq{nd_state_peaks_join}, \coq{nd_history_peaks_join}); the
+    peak classification of the canonical-execution kernel (\coq{classified_peak_exact}) then gives
+    confluence (\coq{nd_confluent_from}).
+  \item \emph{The converse is by the same small runs} as in \cref{sec:main-single}
+    (\coq{nd_tiny_cc1}, \coq{nd_tiny_cc2}).
+\end{itemize}
+
+\begin{theorem}[\coq{nd_derived_from}, \coq{nd_cc_exact}]\label{thm:derived}
+For every start $s_0$, every buffer delivered from $s_0$ has a unique normal form if and only if
+free-history descent holds from $N(s_0)$ and every event descends on the states reachable from $s_0$.
+The three original statements of the single-registry theorem follow word for word.
+\end{theorem}
+
+\paragraph{Non-circularity.}
+Only one proof in the file cites the original theorems: \coq{nd_derived_matches_original}, which shows
+that the derived statements are the originals' by the dictionary alone. Every other theorem of the file
+remains closed under the global context when the original theorems are turned into admitted axioms in
+a scratch copy, so none of them depends on the originals. A small instance where both sides hold shows
+the hypotheses are satisfiable (\coq{nd_nonvacuous}).
+
+\paragraph{What it shows and what it does not.}
+The base case shows that the framework reproduces the theory's central theorem with its conditions
+named by layer: state descent at one event, history descent over sequences, termination as progress,
+Newman as the bridge. It does not show reach, because the framework was designed with this theorem in
+view; that is what \cref{sec:tests} tests.
