@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{mathtools,amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[hidelinks]{hyperref}
+\usepackage[capitalise]{cleveref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% A gated Coq name, as it appears in coq/*.v
+\newcommand{\coq}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\gov}{\mathsf{gov}}
+\newcommand{\reach}{\mathsf{reach}}
+\newcommand{\valid}{\mathsf{valid}}
+
+\title{Normalization confluence: an exact, mechanized theory of\\when repair can replace commutativity}
+\author{Dayna Blackwell}
+\date{Draft}
+
+\begin{document}
+\maketitle
+
+\noindent\emph{Working draft. Sections are added as they are written; see docs/PAPER-OUTLINE.md.}
+
+\setcounter{section}{2}
+\input{sections/03-main-result}
+
+\end{document}
