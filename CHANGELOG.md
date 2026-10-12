@@ -1175,6 +1175,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Site and `research/couchdb-replicator/README.md`: the CouchDB `validate_doc_update` behavior found during the P3 work (apache/couchdb#6162) is now described as confirmed as a bug by a CouchDB maintainer, with a link to the comment. No theorem added, removed or renamed.
 - The website is reworked for readers who are not research scientists. Front page: a plain hero
   ("When do copies of your data still agree?") with the P3 result and the engineer's guide as the
   primary link; short sections (who should care, the CouchDB and PouchDB prediction, when the

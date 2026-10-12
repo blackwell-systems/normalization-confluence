@@ -149,6 +149,9 @@ The `validate_doc_update` dependence was reported to Apache CouchDB on 2026-10-1
 [apache/couchdb#6162](https://github.com/apache/couchdb/issues/6162), with a curl reproduction of `vdu_min`. The resurrection is the
 known stemming tradeoff (COUCHDB-1649) and was not reported.
 
+On 2026-10-12 a CouchDB maintainer [confirmed](https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781) the accept-everything case as a bug,
+attributing it to the lowered `_revs_limit`.
+
 ## Conclusion
 
 Reachable through the real replicator, both behaviors, with no injection.
