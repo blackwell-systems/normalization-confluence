@@ -143,6 +143,12 @@ source's changes feed during one replication. With default settings, an initial 
 large database into a target that already holds a few of its documents from other replicas meets
 that condition.
 
+## Reported upstream
+
+The `validate_doc_update` dependence was reported to Apache CouchDB on 2026-10-11 as
+[apache/couchdb#6162](https://github.com/apache/couchdb/issues/6162), with a curl reproduction of `vdu_min`. The resurrection is the
+known stemming tradeoff (COUCHDB-1649) and was not reported.
+
 ## Conclusion
 
 Reachable through the real replicator, both behaviors, with no injection.
