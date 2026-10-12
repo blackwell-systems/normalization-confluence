@@ -1,0 +1,145 @@
+% Section 4. Drafted from docs/PAPER-OUTLINE.md section 4 and docs/SUBSUMPTION.md. Every named
+% result is a gated, axiom-free theorem in coq/*.v; statements are read from the source.
+
+\section{CRDTs, invariant confluence, and what repair adds}\label{sec:crdt}
+
+Two bodies of work answer neighboring questions. Conflict-free replicated data types (CRDTs)
+obtain convergence by designing operations so that order never matters~\cite{shapiro2011}.
+Invariant confluence asks which transactions can run without coordination while preserving an
+invariant~\cite{bailis2014}. This section places normalization confluence against both, precisely:
+CRDTs are the case where repair does nothing (\cref{sec:crdt-identity}); repair enlarges which
+operations can be used, but not which behaviors converge (\cref{sec:crdt-readings}); and invariant
+confluence is a different question, because there the invariant is checked and never repaired
+(\cref{sec:crdt-iconf}).
+
+% ---------------------------------------------------------------------------------------------
+\subsection{CRDTs are the case where repair does nothing}\label{sec:crdt-identity}
+
+In the terms of \cref{sec:main}, a CRDT is a system whose repair $N$ is the identity. State descent,
+$N(e(N(x))) = N(e(x))$, then holds for every event, so convergence comes down to history descent
+alone: every reordering the delivery model allows must give the same state. The classical CRDT
+conditions are what this reduces to under the two delivery models CRDTs are built for. Write
+$\mathrm{gstep}(e) = N \circ e$ for the governed step.
+
+\begin{theorem}[The compensation-free boundary; \coq{crdt_boundary} (a), (b), (b')]\label{thm:boundary}
+Let $N$ be the identity.
+\begin{enumerate}[label=(\alph*)]
+  \item \emph{Causal exactly-once delivery.} For every irreflexive happens-before relation, the
+    governed steps converge causally from every start (any two causally consistent orders of the
+    same events reach the same state) if and only if concurrent raw operations commute at every
+    state.
+  \item \emph{Unordered at-least-once delivery.} For every event range $R$ with decidable equality
+    and every start $s_0$, any two deliveries over $R$ with the same set of events, in any order and
+    with any duplication, reach the same state from $s_0$ if and only if the raw operations are
+    commutative and idempotent at every state reachable from $s_0$.
+  \item[(b$'$)] \emph{The semilattice form.} If moreover $R$ is finite and state equality is
+    decidable, the convergence of (b) holds if and only if the raw operations have a
+    join-semilattice representation on the states reachable from $s_0$: some join is a semilattice
+    there and every event acts as $e(s) = s \sqcup e(s_0)$.
+\end{enumerate}
+\end{theorem}
+
+Part (a) is the op-based (CmRDT) condition and part (b$'$) the state-based (CvRDT) condition of
+Shapiro et al.~\cite{shapiro2011}, each in exact form: Shapiro et al.\ give them as sufficient
+conditions, and the theorem shows they are also necessary, on the states a system can reach. The
+qualifiers are needed: reachability cannot be dropped (\coq{clamp_reach_qualifier}), a semilattice on
+all of the state space is too strong (\coq{naive_cvrdt_iff_fails}), and both commutativity and
+idempotence are needed in (b) (\coq{lww_not_conv}, \coq{add_cc_not_alo}). The exact conditions behind
+(a) and (b) are \coq{causal_convergence_exact} and \coq{merge_action_exact}; the theorem instantiates
+them at the identity repair.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Two readings of ``repair enlarges what converges''}\label{sec:crdt-readings}
+
+The usual claim for a repair-based design is that it reaches systems CRDTs cannot. The claim is true
+in one reading and false in another, and the paper separates them.
+
+\paragraph{Operations: strict.}
+Some raw operations converge only with repair.
+
+\begin{proposition}[\coq{crdt_boundary} (c)]\label{prop:witness}
+Take a single Boolean whose only valid value is \textsf{false}, two events with raw transitions
+$\mathsf{settrue}(s) = \textsf{true}$ and $\mathsf{flip}(s) = \neg s$, and the repair that resets to
+\textsf{false}. The governed system converges under causal exactly-once delivery from every start
+and under unordered at-least-once delivery from every start. The raw operations satisfy none of the
+conditions of \cref{thm:boundary}: they do not commute where the two events are concurrent, the
+system built from them without repair fails to converge under both delivery models, they are neither
+commutative nor idempotent at a reachable state from any start, and they have no semilattice
+representation on the reachable states.
+\end{proposition}
+
+So no system without repair that uses these raw transitions converges, while the repaired system
+does. The separation is sharpened in \coq{witness_ops_not_commute}, \coq{witness_raw_not_causal},
+\coq{witness_not_cvrdt_order} (no partial order on the Booleans makes both raw operations
+inflationary) and \coq{witness_not_cvrdt_exact}.
+
+\paragraph{Behavior: not strict.}
+The exact conditions behind \cref{thm:boundary} hold for any step function, not only for raw
+operations. Read at the governed step $\mathrm{gstep}(e) = N \circ e$, they say:
+
+\begin{corollary}[\coq{causal_convergence_exact}, \coq{merge_action_exact}, at the governed step]\label{cor:behavior}
+For any repair $N$:
+\begin{enumerate}[label=(\alph*)]
+  \item for an irreflexive happens-before relation, the governed system converges causally from
+    every start if and only if governed steps of concurrent events commute at every state;
+  \item from a start $s_0$, the governed system converges under unordered at-least-once delivery if
+    and only if the governed steps are commutative and idempotent at every state reachable from
+    $s_0$.
+\end{enumerate}
+\end{corollary}
+
+These are the CmRDT and the commutative-idempotent conditions, stated for the governed steps. So
+every convergent governed system is a CRDT on its own governed steps, at the states it reaches. The
+witness of \cref{prop:witness} is an instance: its governed behavior is the constant
+\textsf{false}, and its governed steps are a CvRDT with join $\wedge$
+(\coq{witness_governed_constant}).
+
+\paragraph{What repair adds.}
+Normalization confluence does not reach convergent behaviors that CRDTs cannot. What it adds is a
+way to build them. A designer writes the operations the application needs, which need not commute,
+and a repair that restores the invariants; the exact conditions of \cref{sec:main}, state descent
+and history descent, decide whether the combination converges, which is to say whether its governed
+steps form a CRDT. The design freedom is in the operations, and the guarantee is checked rather than
+designed in. Section~12 describes a checker that runs these conditions at build time.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Invariant confluence: checked, not repaired}\label{sec:crdt-iconf}
+
+Invariant confluence~\cite{bailis2014} asks whether a set of transactions can run on replicas that
+merge their states without coordination and still preserve an invariant $I$. A transaction commits
+only if its local result satisfies $I$, and a merge can never be refused. The invariant is checked,
+never repaired. This is a different question from the one normalization confluence answers, and the
+two meet in one place: the merge.
+
+Model the invariant as the solution set of a constraint problem and the merge as an operation
+applied item by item. In the constraint-satisfaction terms of Section~7, the merge is then
+a binary operation on states, and invariant confluence becomes a statement about it.
+
+\begin{theorem}[\coq{pol_iconfluent}, \coq{iconf_iff_pol_reach}]\label{thm:iconf}
+\leavevmode
+\begin{enumerate}[label=(\alph*)]
+  \item If the item-wise merge is a polymorphism of the invariant's constraint language, every set of
+    transactions is invariant confluent.
+  \item Exactly: when $I$ holds at the start and reads finitely many items, a set of transactions is
+    invariant confluent if and only if the merge is a polymorphism of the relation of states
+    reachable under those transactions with $I$ preserved.
+\end{enumerate}
+\end{theorem}
+
+The restriction to reachable states is necessary, as Whittaker and
+Hellerstein~\cite{whittaker2018} observed. A mechanized counterexample makes it concrete
+(\coq{uq_not_pol}): with two versions $a$ and $b$, merge by set union, the invariant ``not both
+present'' and the single transaction ``add $a$'', the transactions are invariant confluent, but
+union does not preserve the invariant on all states. Bailis et al.'s main theorem, that a
+coordination-free, available, convergent and invariant-preserving execution exists exactly for
+invariant-confluent transactions, holds in a replica model mechanized in the same file
+(\coq{replica_exact}); necessity for arbitrary protocols would need a model of partitions that the
+development does not have.
+
+Repair changes the picture. With the same invariant and both transactions ``add $a$'' and ``add
+$b$'', the transactions are not invariant confluent. With the repair
+$N(x, y) = (x,\, y \wedge \neg x)$, which drops $b$ whenever $a$ is present, state descent and
+history descent both hold, every repaired state satisfies the invariant, and replicas that exchange
+repaired states agree with the repaired run of the joint history (\coq{repair_enlarges}). The caveat
+is that this repair can undo a committed write, which Bailis et al.'s model forbids; the comparison is
+between two models, not a strengthening of theirs.
