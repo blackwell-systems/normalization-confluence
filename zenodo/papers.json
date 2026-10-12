@@ -1,0 +1,31 @@
+{
+  "_comment": "Papers managed on Zenodo. concept: the concept record id (its DOI resolves to the latest version). files: Zenodo file name -> repository path. A new version copies the latest version's metadata (title, description, keywords, license, resource type) and sets the fields under 'version'. Use scripts/zenodo.py.",
+  "papers": {
+    "federated": {
+      "concept": "18677400",
+      "files": {
+        "normalization_confluence_in_federated_registry_networks.pdf": "normalization_confluence_in_federated_registry_networks.pdf",
+        "normalization_confluence_in_federated_registry_networks.tex": "normalization_confluence_in_federated_registry_networks.tex"
+      },
+      "version": {
+        "version": "2",
+        "notes": "Version 2: corrected statements and an errata appendix; every result stated is mechanized axiom-free in the Coq development at https://github.com/blackwell-systems/normalization-confluence (see its CHANGELOG)."
+      }
+    },
+    "stream": {
+      "concept": "18671870",
+      "files": {
+        "normalization_confluence_2026.pdf": "normalization_confluence_2026.pdf",
+        "normalization_confluence_2026.tex": "normalization_confluence_2026.tex"
+      },
+      "version": {
+        "version": "2",
+        "notes": "Version 2: corrected statements and an errata appendix; every result stated is mechanized axiom-free in the Coq development at https://github.com/blackwell-systems/normalization-confluence (see its CHANGELOG)."
+      }
+    }
+  },
+  "related_identifiers": [
+    {"identifier": "https://github.com/blackwell-systems/normalization-confluence", "relation": "isSupplementedBy", "resource_type": "software"},
+    {"identifier": "https://blackwell-systems.github.io/normalization-confluence/", "relation": "isDocumentedBy"}
+  ]
+}
