@@ -7,6 +7,8 @@
   python3 scripts/zenodo.py publish <deposition-id>   publish a reviewed draft (permanent)
   python3 scripts/zenodo.py check                 confirm the token works (read-only: lists your depositions)
   python3 scripts/zenodo.py drafts                list unpublished drafts with their concept ids and reserved DOIs
+  python3 scripts/zenodo.py meta [paper ...] [--dry-run]   update the published metadata in place (creators,
+                                                 keywords, references, links between papers); no new version
 
 Papers are the keys of zenodo/papers.json (default: all). draft and publish need ZENODO_TOKEN in the
 environment (scopes deposit:write and deposit:actions); ZENODO_URL selects the server
@@ -154,13 +156,94 @@ def drafts():
               f"version DOI {doi}, files {[f['filename'] for f in full.get('files', [])]}: {d.get('title')}")
 
 
+ACCENTS = {"\\'e": "é", "\\'a": "á", "\\'o": "ó", "\\'i": "í", "\\`e": "è", "\\`a": "à", '\\"o': "ö",
+           '\\"u': "ü", '\\"a': "ä", "\\c{c}": "ç", "\\c c": "ç", "\\~n": "ñ", "\\'E": "É", "\\v{s}": "š"}
+
+
+def latex_text(t):
+    import re
+    for k, v in ACCENTS.items():
+        t = t.replace("{" + k + "}", v).replace(k, v)
+    t = re.sub(r"\\href\{[^}]*\}\{([^}]*)\}", r"\1", t)
+    t = re.sub(r"\\url\{([^}]*)\}", lambda m: m.group(1).replace("~", "\x00"), t)
+    t = re.sub(r"\\(emph|textit|textbf|texttt|textsc)\{([^}]*)\}", r"\2", t)
+    t = t.replace("``", "\"").replace("''", "\"").replace("~", " ").replace("--", "-").replace("\\&", "&")
+    t = re.sub(r"\$([^$]*)\$", r"\1", t)
+    t = re.sub(r"\\[a-zA-Z]+\*?", "", t).replace("{", "").replace("}", "").replace("\\", "")
+    return " ".join(t.split()).replace("\x00", "~")
+
+
+def bib_refs(path):
+    import re
+    text = (ROOT / path).read_text()
+    start = text.find("\\begin{thebibliography}")
+    end = text.find("\\end{thebibliography}", start)
+    body = text[start:end] if start >= 0 else text
+    items = re.split(r"\\bibitem(?:\[[^\]]*\])?\{[^}]*\}", body)[1:]
+    return [latex_text(i) for i in items if latex_text(i)]
+
+
+def concept_doi(key):
+    c = CONFIG["papers"][key].get("concept")
+    return f"10.5281/zenodo.{c}" if c else None
+
+
+def metadata_for(name, p, current):
+    meta = dict(current)
+    meta["creators"] = CONFIG["creators"]
+    kw = CONFIG.get("keywords_core", []) + p.get("keywords", [])
+    meta["keywords"] = list(dict.fromkeys(kw))
+    if p.get("references_from"):
+        meta["references"] = bib_refs(p["references_from"])
+    rel = [r for r in meta.get("related_identifiers", [])
+           if r.get("relation") not in ("cites", "isCitedBy") and r.get("relation") != "isNewVersionOf"]
+    known = {r["identifier"] for r in rel}
+    rel += [r for r in CONFIG.get("related_identifiers", []) if r["identifier"] not in known]
+    for other in p.get("cites", []):
+        if concept_doi(other):
+            rel.append({"identifier": concept_doi(other), "relation": "cites", "scheme": "doi",
+                        "resource_type": "publication-preprint"})
+    for other, q in CONFIG["papers"].items():
+        if name in q.get("cites", []) and concept_doi(other):
+            rel.append({"identifier": concept_doi(other), "relation": "isCitedBy", "scheme": "doi",
+                        "resource_type": "publication-preprint"})
+    meta["related_identifiers"] = rel
+    for k in ("doi", "prereserve_doi"):
+        meta.pop(k, None)
+    return meta
+
+
+def meta(names, dry):
+    for name, p in papers(names).items():
+        if "concept" not in p:
+            print(f"{name}: not on Zenodo yet, skipped")
+            continue
+        rec = latest(p["concept"])
+        if dry:
+            m = metadata_for(name, p, rec["metadata"])
+            print(f"{name}: record {rec['id']}: {len(m['keywords'])} keywords, {len(m.get('references', []))} references, "
+                  f"{len(m['related_identifiers'])} related identifiers; creators {m['creators']}")
+            for r in m.get("references", [])[:2]:
+                print(f"    e.g. {r}")
+            continue
+        call("POST", f"/api/deposit/depositions/{rec['id']}/actions/edit")
+        try:
+            dep = call("GET", f"/api/deposit/depositions/{rec['id']}")
+            call("PUT", f"/api/deposit/depositions/{rec['id']}", body={"metadata": metadata_for(name, p, dep["metadata"])})
+            call("POST", f"/api/deposit/depositions/{rec['id']}/actions/publish")
+        except SystemExit:
+            call("POST", f"/api/deposit/depositions/{rec['id']}/actions/discard")
+            raise
+        print(f"{name}: metadata of record {rec['id']} updated in place")
+
+
 def publish(dep_id):
     res = call("POST", f"/api/deposit/depositions/{dep_id}/actions/publish")
     print(f"published {dep_id}: DOI {res.get('doi')}, {res.get('links', {}).get('record_html') or res.get('links', {}).get('html')}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2 or sys.argv[1] not in ("status", "draft", "publish", "check", "drafts"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("status", "draft", "publish", "check", "drafts", "meta"):
         sys.exit(__doc__)
     cmd, args = sys.argv[1], sys.argv[2:]
     if cmd == "status":
@@ -169,6 +252,8 @@ if __name__ == "__main__":
         check()
     elif cmd == "drafts":
         drafts()
+    elif cmd == "meta":
+        meta([a for a in args if a != "--dry-run"], "--dry-run" in args)
     elif cmd == "draft":
         draft(args)
     else:
