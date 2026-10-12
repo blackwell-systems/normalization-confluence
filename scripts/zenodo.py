@@ -75,10 +75,11 @@ def status(names):
         remote = {f["key"]: f.get("checksum", "").removeprefix("md5:") for f in rec.get("files", [])}
         print(f"{name}: latest version {rec['id']} ({rec['metadata'].get('publication_date')}, "
               f"version {rec['metadata'].get('version') or 'unlabeled'})")
+        if "build" in p:
+            print(f"  built from {p['build']} at draft time; each build stamps its own timestamps, so files are"
+                  f" not compared by checksum: compare the version date with the last change to {p['build']}")
+            continue
         for key, path in p["files"].items():
-            if not (ROOT / path).exists():
-                print(f"  {key}: built at draft time")
-                continue
             local = md5(path)
             state = "same" if remote.get(key) == local else ("missing on Zenodo" if key not in remote else "differs")
             stale |= state != "same"

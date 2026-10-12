@@ -134,7 +134,29 @@ machine-checked reduction from a problem whose NP-completeness is cited (3-SAT, 
 
 ## Publications
 
+### Normalization confluence: an exact, mechanized theory of when repair can replace commutativity
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23311489.svg)](https://doi.org/10.5281/zenodo.23311489)
+
+**The main paper: the theory, the framework and its tests**
+
+The exact conditions at three scales and the hierarchy between them, the relation to CRDTs and invariant confluence, the three-layer framework with its proved interfaces, the regime map, and the tests of the framework: outside theorems recovered with its files frozen, and two predictions committed before their tests. Written from this repository; every cited result is a gated theorem. Source: [docs/paper](docs/paper) (`tectonic -X compile docs/paper/main.tex`).
+
+**Citation:**
+```bibtex
+@techreport{blackwell2026theory,
+  title   = {Normalization confluence: an exact, mechanized theory of when repair can replace commutativity},
+  author  = {Blackwell, Dayna},
+  year    = {2026},
+  doi     = {10.5281/zenodo.23311489},
+  note    = {Preprint},
+  license = {CC-BY-4.0}
+}
+```
+
 ### The Categorical Structure of Federated Convergence: Limits, Sheaves, and Minimal Coordination
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23311468.svg)](https://doi.org/10.5281/zenodo.23311468)
 
 **Companion paper: the structure under the federated regimes**
 
