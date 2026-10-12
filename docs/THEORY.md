@@ -736,7 +736,7 @@ Traditional approaches to coordination-free convergence require either:
 1. **Operation commutativity** (CRDTs) - operations must be designed to commute
 2. **Invariant confluence** - operations must preserve invariants in all orderings
 
-This research identifies a third regime: **normalization confluence**, where operations may be non-commutative and may violate invariants, yet systems converge through compensation. Convergence is a property of the normalization rewrite system (event application + invariant repair), not the operations themselves.
+This research identifies a third regime: **normalization confluence**, where operations may be non-commutative and may violate invariants, yet systems converge through compensation. Convergence is a property of the normalization rewrite system (event application + invariant repair), not the operations themselves. Here a regime means an execution model with its exact conditions, not a new class of outcomes: the operations a designer may use, and when repair may run, differ from a CRDT's, while every convergent repaired system is a CRDT on its repaired steps (paper, Section 4).
 
 This repository contains theoretical foundations, proofs, and companion verification tools.
 
