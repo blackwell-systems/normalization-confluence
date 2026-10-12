@@ -129,7 +129,8 @@
         ]
       },
       "version": {
-        "version": "1"
+        "version": "2",
+        "notes": "Version 2: removes a leftover working-draft note under the abstract; no change to the content."
       },
       "concept": "23311489",
       "keywords": [
