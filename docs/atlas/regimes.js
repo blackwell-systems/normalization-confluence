@@ -351,7 +351,7 @@ window.ATLAS = {
     "mark": "iff",
     "name": "Stream processors",
     "id": "streams",
-    "plain": "Settled processors that saw the same events agree exactly when two events ready at once rejoin; under any order, when repaired events commute.",
+    "plain": "Settled processors agree exactly when two events ready together end in one result either way; if any order can happen, when repaired events commute.",
     "layer": "A",
     "shape": "one",
     "model": "delivery",

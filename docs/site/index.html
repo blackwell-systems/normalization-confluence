@@ -5,7 +5,7 @@
 <title>Normalization Confluence</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="When do copies of your data still agree? Systems that keep copies often accept a write and then repair it, and the copies can still disagree. Exact, machine-checked conditions for when they agree, and gsm checks them at build time.">
+<meta name="description" content="When do copies of your data still agree? Systems that keep copies often accept a write and then repair it, and the copies can still disagree. Exact, machine-checked conditions for when they agree, and gsm checks them at build time for systems that repair in the same transaction as the write.">
 <meta property="og:title" content="Normalization Confluence">
 <meta property="og:description" content="When do copies of your data still agree after a write is repaired? Exact, machine-checked conditions, and a build-time checker. By Dayna Blackwell.">
 <meta property="og:type" content="website">
@@ -116,7 +116,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 
 <div class="kicker">Normalization Confluence</div>
 <h1>When do copies of your data still agree?</h1>
-<p class="thesis">Systems that keep copies across regions, devices or services often accept a write and then repair it: cap the stock, clamp a balance, run a compensating step. Every copy can run that repair correctly and the copies can still disagree. This work gives the exact conditions for when they agree, every one machine-checked, and gsm checks them at build time.</p>
+<p class="thesis">Systems that keep copies across regions, devices or services often accept a write and then repair it: cap the stock, clamp a balance, run a compensating step. Every copy can run that repair correctly and the copies can still disagree. This work gives the exact conditions for when they agree, every one machine-checked, and gsm checks them at build time for systems that repair in the same transaction as the write.</p>
 <p class="tagline"><i>Normalization confluence: an exact theory of when repair can replace commutativity.</i></p>
 <p class="proofline">Before running either system, it predicted which delivery orders bring a deleted document back in CouchDB and PouchDB. All 216 observations matched, and a behavior found along the way is <a href="https://github.com/apache/couchdb/issues/6162">reported upstream</a>.</p>
 <div class="cta">
