@@ -1,0 +1,233 @@
+% Section 3. Drafted from docs/paper/section-3-skeleton.md. Every named result is a gated,
+% axiom-free theorem in coq/*.v; statements are read from the source.
+
+\section{The main result}\label{sec:main}
+
+Replicas apply the same events in different orders, because networks delay, reorder and retry
+messages, and every replica runs the same repair after each event to restore its invariants. The
+question is when replicas that have seen the same events end in the same state. The answer has one
+shape at every scale: raw states may differ along the way, and what has to agree is the result after
+repair. This section states an exact condition at three scales, a single event
+(\cref{sec:main-state}), finite histories (\cref{sec:main-history}) and infinite runs
+(\cref{sec:main-recurrence}), together with the single-registry theorem that combines the first two
+(\cref{sec:main-single}). The three conditions are not one equation. They form a proved hierarchy,
+with counterexamples showing where each level stops (\cref{sec:main-hierarchy}).
+
+Throughout, $X$ is a set of states and $N : X \to X$ is the repair. An event is a map
+$e : X \to X$ on raw states; a replica applies an event and then repairs, so its step is
+$x \mapsto N(e(x))$.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{One event: state descent}\label{sec:main-state}
+
+\begin{definition}[State descent; \coq{DescendsOn}]\label{def:descent}
+An event $e$ \emph{descends} on a set $P \subseteq X$ when
+\[
+  N(e(N(x))) \;=\; N(e(x)) \qquad\text{for every } x \in P.
+\]
+\end{definition}
+
+The condition says that applying the event to a state or to its repaired form gives the same result
+after repair. Repairing early loses nothing the event can observe. For an idempotent repair the definition is the
+standard compatibility of a map with the kernel of $N$ (\coq{descends_iff_respects}); what matters here is that
+convergence forces it, at the states a system can reach.
+
+\begin{example}[A shelf]\label{ex:shelf}
+A shelf holds at most 5 items and has 4 in stock. The events are ``add 3'' and ``remove 1'', and the
+repair caps the stock at 5, so $N(x) = \min(x, 5)$. Replica~A applies ``add 3'' (7), repairs (5), then
+``remove 1'': it ends at 4. Replica~B applies ``remove 1'' (3), then ``add 3'' (6), and repairs: it
+ends at 5. The two replicas saw the same events and ran the same repair, and they disagree.
+
+State descent locates the failure. Take the raw state 7, just after ``add 3'', and let $e$ be
+``remove 1''. Then $N(e(N(7))) = N(e(5)) = N(4) = 4$, while $N(e(7)) = N(6) = 5$. The event does not
+descend at 7: removing an item before or after the cap is applied gives different answers.
+\end{example}
+
+In the single-registry setting of \cref{sec:main-single}, state descent is exactly one of the two
+conditions convergence requires. There, the repair is built from a repair step $\rho$ that strictly
+decreases a potential $\Phi : X \to \mathbb{N}$ on invalid states, and $N = \rho^{*}$ applies $\rho$
+until the state is valid.
+
+\begin{proposition}[\coq{state_descent_iff_cc2}]\label{prop:descent-cc2}
+If $\Phi(\rho(s)) < \Phi(s)$ for every invalid $s$, then every event descends on all of $X$ under
+$N = \rho^{*}$ if and only if
+\[
+  \rho^{*}(e(s)) \;=\; \rho^{*}(e(\rho(s))) \qquad\text{for every event } e \text{ and every invalid } s.
+\]
+\end{proposition}
+
+The right-hand side is the condition called CC2 below: an event does not care whether one repair
+step ran before it.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Finite histories: history descent}\label{sec:main-history}
+
+A delivery model says which reorderings of a history count as the same delivery. Under free delivery
+every permutation is allowed; under causal delivery, only orders consistent with a happens-before
+relation; under at-least-once delivery, also duplicates; under declared independence, swaps of
+declared pairs.
+
+\begin{definition}[History descent]\label{def:history}
+For a delivery model, given as an equivalence $\equiv$ on histories, and a start $s_0$, the system
+satisfies \emph{history descent} when every two equivalent histories give the same result after
+repair: $N(\mathrm{run}(h, s_0)) = N(\mathrm{run}(k, s_0))$ whenever $h \equiv k$, where
+$\mathrm{run}$ applies the raw events in order.
+\end{definition}
+
+The raw runs in this definition never repair. A replica, however, repairs after every event. The next
+lemma says that, given state descent, the two views agree, so a checker may work with repaired states
+only.
+
+\begin{lemma}[\coq{history_from_descent}]\label{lem:transfer}
+Suppose every event descends on $X$. Write $\mathrm{grun}(h, x)$ for the run that applies the events
+of $h$ to $x$ and repairs after each one. Then for every equivalence $\equiv$ on histories and every
+start $s_0$,
+\[
+  \bigl(\forall h \equiv k.\; N(\mathrm{run}(h, s_0)) = N(\mathrm{run}(k, s_0))\bigr)
+  \iff
+  \bigl(\forall h \equiv k.\; \mathrm{grun}(h, N(s_0)) = \mathrm{grun}(k, N(s_0))\bigr).
+\]
+\end{lemma}
+
+The proof is the observation that, under state descent, $N(\mathrm{run}(w, s_0)) =
+\mathrm{grun}(w, N(s_0))$ for every word $w$ (\coq{normalization_descent}). Which reorderings preserve
+the result depends on the delivery model; Section~5 gives one theorem pair that decides it for
+each model above. Here only free delivery is needed, through the single-registry theorem.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{The single-registry theorem}\label{sec:main-single}
+
+A \emph{registry} fixes the states, a validity predicate $\valid$, the events, and the repair step
+$\rho$ with its potential $\Phi$. Write $\gov(e) = \rho^{*} \circ e$ for the governed step. A
+configuration is a pair $(\sigma, B)$ of a state and a buffer of pending events; a step either applies
+a pending event to $\sigma$ or, when $\sigma$ is invalid, applies $\rho$. A normal form is a valid state
+with an empty buffer. A state is \emph{reachable} from $s_0$, written $\reach(s_0, \sigma)$, when some
+sequence of event and repair steps leads from $s_0$ to $\sigma$.
+
+\begin{theorem}[Compensation commutativity; \coq{cc_exact}]\label{thm:cc}
+Let $\Phi(\rho(s)) < \Phi(s)$ for every invalid $s$. For every start $s_0$, every configuration
+$(\sigma, B)$ with $\reach(s_0, \sigma)$ has a unique normal form if and only if both of the following
+hold at every state $\sigma$ reachable from $s_0$:
+\begin{enumerate}[label=(CC\arabic*)]
+  \item $\gov(e_2)(\gov(e_1)(\sigma)) = \gov(e_1)(\gov(e_2)(\sigma))$ for all events $e_1, e_2$;
+  \item $\gov(e)(\sigma) = \gov(e)(\rho(\sigma))$ for every event $e$, when $\sigma$ is invalid.
+\end{enumerate}
+\end{theorem}
+
+In words: replicas converge exactly when repaired events commute (CC1) and an event does not care
+whether repair ran first (CC2), at the states they can reach. Termination of repair is the standing
+hypothesis; it is the third condition of the theory, called WFC in the earlier papers.
+
+The theorem reads directly in the vocabulary of the two descents. CC1 is history descent for free
+delivery, stated on the governed steps, and CC2 is state descent on the reachable states.
+
+\begin{corollary}[\coq{nd_derived_from}]\label{cor:descent-form}
+Under the hypotheses of \cref{thm:cc}, every configuration $(s_0, B)$ has a unique normal form if and
+only if the governed runs from $N(s_0)$ agree on every permutation of every history, and every event
+descends on the states reachable from $s_0$.
+\end{corollary}
+
+Section~9 shows that this form is derived from the framework's kernels without using
+\cref{thm:cc}.
+
+\paragraph{Proof idea, and what is not new.}
+Sufficiency is Newman's lemma restricted to the reachable states, with a case split on the two kinds
+of critical peak: two events, and an event against a repair step. Necessity uses two small runs. The
+buffer $[e_1, e_2]$ in both orders forces CC1; the buffer $[e]$ with the event first versus the repair
+first forces CC2. Both ends of each run are normal forms, because $\rho^{*}$ always reaches a valid
+state. The result is therefore the critical-pair theorem of Knuth and Bendix and of
+Huet~\cite{huet1980}, specialized to a system whose critical pairs are already normal forms: that is
+why ``joinable'' becomes ``equal'' and the converse costs nothing. The contribution is the condition
+and its necessity at the reachable states, not the proof technique. Two counterexamples fix the
+qualifiers: without the restriction to reachable states the converse fails
+(\coq{rho_star_qualifier}, \coq{masked_cc1}).
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Infinite runs: canonical recurrence}\label{sec:main-recurrence}
+
+When repair may never stop, for example on networks of registries that feed each other around a
+cycle, the question becomes one of long-run behavior. A system now has a finite set of actions $J$,
+each with an update $u_j : X \to X$, and a schedule $\sigma : \mathbb{N} \to J$ picks the action at
+each step. A schedule is \emph{fair} when every action is picked infinitely often, an action that
+changes nothing at the current state being a no-op. At this scale $N$ may be any observation $N : X \to C$ of the state, for example its repaired
+result. A run \emph{settles} on $c \in C$ when $N(x_n) = c$ for all large enough $n$.
+
+A \emph{bad fair lasso} from $s_0$ for $c$ is a path from $s_0$ to a state $x$ followed by a
+nonempty loop from $x$ back to $x$ that picks every action, with some state on the loop outside the
+fiber $N^{-1}(c)$.
+
+\begin{theorem}[Canonical recurrence; \coq{C1_closed}]\label{thm:c1}
+Let $X$ be finite, and suppose the fiber $N^{-1}(c)$ is closed under every update. Then every fair run
+from $s_0$ settles on $c$ if and only if there is no bad fair lasso from $s_0$ for $c$.
+\end{theorem}
+
+Settling fails exactly through a fair loop that leaves the target result. The kernel is the classical
+fair-cycle characterization of Emerson and Lei~\cite{emersonlei1987}, read through $N$; its role here
+is to classify how runs fail (oscillation, livelock, settling on the wrong state) in one vocabulary
+(Section~6). Finiteness is needed for the exact form only: a bad fair lasso refutes settling
+on any state space (\coq{C1_refutes}).
+
+At this scale the condition reads repair only through its result.
+
+\begin{proposition}[\coq{canon_settles_quotient_invariant}]\label{prop:quotient}
+Suppose the updates $u_j$ respect $N$, that is $N(x) = N(y)$ implies $N(u_j(x)) = N(u_j(y))$, and
+let $u'_j$ satisfy $N(u'_j(x)) = N(u_j(x))$ for every action and state. If $N(s'_0) = N(s_0)$, then
+every fair run of $u$ from $s_0$ settles on $c$ if and only if every fair run of $u'$ from $s'_0$
+does.
+\end{proposition}
+
+% ---------------------------------------------------------------------------------------------
+\subsection{How the conditions relate}\label{sec:main-hierarchy}
+
+The three conditions are not one equation. State descent and history descent are independent of each
+other; together, with terminating repair, they are exactly convergence of a single registry
+(\cref{cor:descent-form}); and terminating repair connects them to settlement through Newman's lemma
+(Section~8). Each separation is witnessed by a mechanized counterexample.
+
+\begin{proposition}\label{prop:separations}
+\leavevmode
+\begin{enumerate}[label=(\alph*)]
+  \item \emph{State descent without history descent} (\coq{descent_not_history}). With $N$ the
+    identity every event descends, and two events that do not commute give different results for the
+    two orders of one history.
+  \item \emph{History descent without state descent} (\coq{history_not_descent}). With one event,
+    the successor map on $\mathbb{N}$, and the repair $N$ that sends $0$ and $1$ to $0$ and fixes every
+    other number, every reordering of a history is the history itself, so history descent holds; but
+    $N(e(N(1))) = N(1) = 0$ while $N(e(1)) = N(2) = 2$.
+  \item \emph{Infinite runs need descent} (\coq{trajectory_needs_descent}). There are two systems whose
+    updates have the same image under $N$ at every state, neither of which respects $N$, such that,
+    from the same start, every fair run of one settles on \textsf{true} and every fair run of the
+    other settles on \textsf{false}.
+\end{enumerate}
+\end{proposition}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, minimum width=3.3cm, minimum height=1.1cm, align=center},
+  lab/.style={font=\small, align=center}]
+  \node[box] (s) {\textsc{one event}\\ state descent};
+  \node[box, right=2.6cm of s] (h) {\textsc{sequences}\\ history descent};
+  \node[box, right=2.6cm of h] (c) {\textsc{infinite runs}\\ canonical recurrence};
+  \draw[{Latex}-{Latex}, dashed] (s) -- node[lab, above] {neither implies\\ the other} (h);
+  \draw[-{Latex}] (h) -- node[lab, above] {with terminating\\ repair} (c);
+  \draw ([yshift=-0.35cm]s.south west) -- ([yshift=-0.35cm]h.south east)
+    node[lab, midway, below=2pt] {together, with terminating repair: exactly the single-registry theorem};
+\end{tikzpicture}
+\caption{The three conditions and the proved relations between them
+(\cref{prop:separations,cor:descent-form,thm:c1}).}
+\label{fig:hierarchy}
+\end{figure}
+
+Every condition in this section is exact: necessary and sufficient, with each hypothesis shown to be
+needed by a counterexample. Section~4 reads the single-registry theorem against CRDTs, the case
+where repair never runs, and Sections~5 to~8 give the
+three-layer framework that organizes these conditions across the regimes of the map.
+
+
+\begin{thebibliography}{9}
+\bibitem{huet1980} G.~Huet. Confluent reductions: abstract properties and applications to term
+  rewriting systems. \emph{Journal of the ACM} 27(4):797--821, 1980.
+\bibitem{emersonlei1987} E.~A.~Emerson and C.-L.~Lei. Modalities for model checking: branching time
+  logic strikes back. \emph{Science of Computer Programming} 8(3):275--306, 1987.
+\end{thebibliography}
