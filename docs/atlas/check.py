@@ -17,6 +17,8 @@ Fails (exit 1) if:
     ungated theorem, or an atlas count on the front page (tiles, families, tiles by kind) differs
     from docs/atlas/regimes.js, or the front page's prediction counts differ from the committed
     predictions table in research/predictions/README.md;
+  - a theorem link on the engineer's guide (docs/site/guide/index.html) fails the front page's link
+    check above, the guide has no theorem links, or it contains an em dash;
   - a frozen kernel file listed in research/predictions/frozen.sha256 changed;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile;
@@ -232,6 +234,23 @@ def check_theory(atlas, use, errors):
         errors.append("regimes.js: contains an em dash")
 
 
+def check_thm_links(page, label, gated, errors):
+    """Check every theorem link (class="thm") on a page: it points at the line declaring that name
+    in coq/, and a Theorem, Lemma or Corollary is gated. Returns the number of links checked."""
+    decl_pat = r"^\s*(Definition|Theorem|Lemma|Corollary)\s+"
+    links = re.findall(r'<a class="thm" href="[^"]*/coq/(\w+\.v)#L(\d+)">(' + NAME + r")</a>", page)
+    for f, line, n in links:
+        src = COQ / f
+        lines = src.read_text(encoding="utf-8").splitlines() if src.exists() else []
+        i = int(line)
+        m2 = re.match(decl_pat + re.escape(n) + r"\b", lines[i - 1]) if 0 < i <= len(lines) else None
+        if not m2:
+            errors.append(f"{label}: {n} is not declared at coq/{f} line {line}")
+        elif m2.group(1) != "Definition" and n not in gated:
+            errors.append(f"{label}: {n} is not in coq/verify.sh's Print Assumptions list")
+    return len(links)
+
+
 def main():
     atlas = load_atlas()
     decl = coq_declarations()
@@ -334,16 +353,15 @@ def main():
         listed = {int(g) for g in re.findall(r'class="g">Gap (\d+)<', ol.group(1))} if ol else set()
         if listed != current:
             errors.append(f"docs/site/index.html: open-problem list {sorted(listed)} differs from REGIME-AUDIT.md's {sorted(current)}")
-        decl_pat = r"^\s*(Definition|Theorem|Lemma|Corollary)\s+"
-        for f, line, n in re.findall(r'<a class="thm" href="[^"]*/coq/(\w+\.v)#L(\d+)">(' + NAME + r")</a>", page):
-            src = COQ / f
-            lines = src.read_text(encoding="utf-8").splitlines() if src.exists() else []
-            i = int(line)
-            m2 = re.match(decl_pat + re.escape(n) + r"\b", lines[i - 1]) if 0 < i <= len(lines) else None
-            if not m2:
-                errors.append(f"docs/site/index.html: {n} is not declared at coq/{f} line {line}")
-            elif m2.group(1) != "Definition" and n not in gated:
-                errors.append(f"docs/site/index.html: {n} is not in coq/verify.sh's Print Assumptions list")
+        check_thm_links(page, "docs/site/index.html", gated, errors)
+
+    guide = ROOT / "docs" / "site" / "guide" / "index.html"
+    if guide.exists():
+        gpage = guide.read_text(encoding="utf-8")
+        if not check_thm_links(gpage, "docs/site/guide/index.html", gated, errors):
+            errors.append("docs/site/guide/index.html: no theorem links found")
+        if "\u2014" in gpage:
+            errors.append("docs/site/guide/index.html: contains an em dash")
 
     m = re.search(r"([\d,]+) axiom-free theorems", poster)
     shown = int(m.group(1).replace(",", "")) if m else None
