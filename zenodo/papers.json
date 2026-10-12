@@ -1,5 +1,5 @@
 {
-  "_comment": "Papers managed on Zenodo. concept: the concept record id (its DOI resolves to the latest version). files: Zenodo file name -> repository path. A new version copies the latest version's metadata (title, description, keywords, license, resource type) and sets the fields under 'version'. Use scripts/zenodo.py. A paper without 'concept' is created as a new record from 'new'; after it is published, record its concept id here. 'build' names a LaTeX directory whose main.tex is compiled with tectonic and packed into source.tar.gz before upload.",
+  "_comment": "Papers managed on Zenodo. concept: the concept record id (its DOI resolves to the latest version). files: Zenodo file name -> repository path. A new version copies the latest version's metadata (title, description, keywords, license, resource type) and sets the fields under 'version'. Use scripts/zenodo.py. A paper without 'concept' is created as a new record from 'new'; after it is published, record its concept id here. 'build' names a LaTeX directory whose main.tex is compiled with tectonic and packed into source.tar.gz before upload. meta (metadata only, no new version): creators, keywords_core plus each paper's keywords, the references parsed from references_from, and related identifiers: the repo and site, and 'cites' / 'isCitedBy' links between papers by concept DOI.",
   "papers": {
     "federated": {
       "concept": "18677400",
@@ -10,7 +10,20 @@
       "version": {
         "version": "2",
         "notes": "Version 2: corrected statements and an errata appendix; every result stated is mechanized axiom-free in the Coq development at https://github.com/blackwell-systems/normalization-confluence (see its CHANGELOG)."
-      }
+      },
+      "keywords": [
+        "federated systems",
+        "registry morphisms",
+        "compensation commutativity",
+        "eventual consistency",
+        "semantic consistency",
+        "invariant enforcement",
+        "monotone repair"
+      ],
+      "references_from": "normalization_confluence_in_federated_registry_networks.tex",
+      "cites": [
+        "stream"
+      ]
     },
     "stream": {
       "concept": "18671870",
@@ -21,7 +34,16 @@
       "version": {
         "version": "2",
         "notes": "Version 2: corrected statements and an errata appendix; every result stated is mechanized axiom-free in the Coq development at https://github.com/blackwell-systems/normalization-confluence (see its CHANGELOG)."
-      }
+      },
+      "keywords": [
+        "stream processing",
+        "compensation commutativity",
+        "semantic consistency",
+        "invariant enforcement",
+        "verification"
+      ],
+      "references_from": "normalization_confluence_2026.tex",
+      "cites": []
     },
     "categorical": {
       "files": {
@@ -56,7 +78,21 @@
       "version": {
         "version": "2"
       },
-      "concept": "23311468"
+      "concept": "23311468",
+      "keywords": [
+        "category theory",
+        "sheaves",
+        "cohomology",
+        "federated systems",
+        "CALM",
+        "group feedback edge set",
+        "minimal coordination"
+      ],
+      "references_from": "categorical_structure_of_federated_convergence.tex",
+      "cites": [
+        "stream",
+        "federated"
+      ]
     },
     "theory": {
       "build": "docs/paper",
@@ -95,7 +131,20 @@
       "version": {
         "version": "1"
       },
-      "concept": "23311489"
+      "concept": "23311489",
+      "keywords": [
+        "constraint satisfaction",
+        "fair termination",
+        "self-stabilization",
+        "preregistered prediction",
+        "regime map",
+        "CouchDB"
+      ],
+      "references_from": "docs/paper/references.tex",
+      "cites": [
+        "stream",
+        "federated"
+      ]
     }
   },
   "related_identifiers": [
@@ -108,5 +157,24 @@
       "identifier": "https://blackwell-systems.github.io/normalization-confluence/",
       "relation": "isDocumentedBy"
     }
+  ],
+  "creators": [
+    {
+      "name": "Blackwell, Dayna",
+      "affiliation": "Blackwell Systems",
+      "orcid": "0009-0002-5704-121X"
+    }
+  ],
+  "keywords_core": [
+    "normalization confluence",
+    "distributed systems",
+    "convergence",
+    "coordination avoidance",
+    "CRDTs",
+    "invariant confluence",
+    "rewriting",
+    "Newman's lemma",
+    "Coq",
+    "mechanized proof"
   ]
 }

@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: 'status, check, drafts, draft or publish'
+        description: 'status, check, drafts, draft, publish or meta'
         required: true
         default: 'status'
         type: choice
-        options: [status, check, drafts, draft, publish]
+        options: [status, check, drafts, draft, publish, meta]
       papers:
         description: 'papers from zenodo/papers.json, space separated (empty: all); for publish, the deposition id'
         required: false
