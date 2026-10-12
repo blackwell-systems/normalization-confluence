@@ -125,7 +125,12 @@ an arbitrary step function, and the corollary instantiates them at $\gov(e) = N 
 of $N$ is used, which is why the corollary holds for every repair.
 
 These are the CmRDT and the commutative-idempotent conditions, stated for the governed steps. So
-every convergent governed system is a CRDT on its own governed steps, at the states it reaches. The
+every convergent governed system is a CRDT on its own governed steps, at the states it reaches.
+Here a CRDT means the op-based condition under causal delivery, and under at-least-once delivery the
+commutative and idempotent condition, which over a finite event range is the semilattice form of
+\cref{thm:boundary}(b$'$) read at the governed step (\coq{cvrdt_exact_all}). It does not mean a
+state-based CRDT whose replicas merge whole states, a model outside the framework
+(\cref{sec:tests-outside}). The
 witness of \cref{prop:witness} is an instance: its governed behavior is the constant
 \textsf{false}, and its governed steps are a CvRDT with join $\wedge$
 (\coq{witness_governed_constant}).
@@ -137,6 +142,12 @@ and a repair that restores the invariants; the exact conditions of \cref{sec:mai
 and history descent, decide whether the combination converges, which is to say whether its governed
 steps form a CRDT. The design freedom is in the operations, and the guarantee is checked rather than
 designed in. \cref{sec:gsm} describes a checker that runs these conditions at build time.
+
+The CRDT reading treats an event and its repair as one atomic operation, so it says nothing about when
+repair runs. When an event can arrive before repair finishes, state descent is the further condition
+(\cref{sec:main-single}, ``When repair runs''); \coq{atomic_not_descent} gives a system whose governed
+steps converge under atomic repair but which fails it. The extension is in the operations and the
+execution model a designer may use, not in the class of order-independent outcomes.
 
 % ---------------------------------------------------------------------------------------------
 \subsection{Invariant confluence: checked, not repaired}\label{sec:crdt-iconf}
