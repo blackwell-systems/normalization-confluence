@@ -10,6 +10,7 @@ on:
     paths:
       - 'docs/atlas/**'
       - 'docs/site/**'
+      - 'docs/paper/**'
       - 'REGIME-AUDIT.md'
       - 'coq/verify.sh'
       - '.github/workflows/pages.yml'
@@ -31,12 +32,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: Atlas names, count and gap status
         run: python3 docs/atlas/check.py
+      - name: Build the paper draft
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
+          ./tectonic -X compile docs/paper/main.tex
       - name: Assemble the site
         run: |
           mkdir -p _site/atlas
           cp docs/site/index.html _site/index.html
           cp docs/site/og.png _site/og.png
           cp docs/site/atlas-preview.jpg _site/atlas-preview.jpg
+          cp docs/paper/main.pdf _site/paper.pdf
           cp docs/atlas/poster.html _site/atlas/index.html
           cp docs/atlas/poster.html _site/atlas/poster.html
           cp docs/atlas/regimes.js _site/atlas/regimes.js
