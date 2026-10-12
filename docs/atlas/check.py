@@ -25,12 +25,13 @@ Fails (exit 1) if:
   - a tile lacks a unique id, its plain answer, a layer (A, B, C, AB, BC or AC), an axis row and
     column from the axes block, or a paper destination from the paper block; a plain answer is too
     long or does not match its kind (open tiles start "Open:", excluded tiles "Excluded:", hard tiles
-    name NP);
+    name NP), or a plain answer or a tour stop uses a bare research abbreviation (CC1, CC2, XU, XUcR,
+    PJC, PCC, ACC, GC, C1, C2), which belong in the detail card;
   - a paper section title in regimes.js differs from the section with that number in docs/paper
     (main.tex input order, appendices lettered), or the layers, framework or tour blocks are
     malformed (a tour stop names a tile id that does not exist); their theorem names are checked
     like the tiles' above;
-  - regimes.js contains an em dash.
+  - regimes.js, poster.html or the front page contains an em dash.
 """
 import json
 import re
@@ -115,6 +116,7 @@ def audit_gaps():
 LAYERS = ("A", "B", "C", "AB", "BC", "AC")
 ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PLAIN_MAX = 150
+JARGON = re.compile(r"\b(CC1|CC2|XU|XUcR|PJC|PCC|ACC|GC|C1|C2)\b")
 
 
 def paper_sections():
@@ -189,6 +191,8 @@ def check_theory(atlas, use, errors):
                 errors.append(f"{where}: a hard tile's plain answer must say what is NP-complete or NP-hard")
             elif t["kind"] in ("exact", "hard") and plain.startswith(("Open:", "Excluded:")):
                 errors.append(f"{where}: plain answer does not match the tile's kind")
+            if JARGON.search(plain):
+                errors.append(f"{where}: plain answer uses {JARGON.search(plain).group(1)}; say it in words")
             if t.get("layer") not in LAYERS:
                 errors.append(f"{where}: layer {t.get('layer')!r} is not one of {', '.join(LAYERS)}")
             if t.get("shape") not in shapes:
@@ -228,6 +232,8 @@ def check_theory(atlas, use, errors):
             errors.append(f"regimes.js: tour stop {i} names tile {stop.get('tile')!r}, which does not exist")
         if not stop.get("title") or not stop.get("text"):
             errors.append(f"regimes.js: tour stop {i} needs a title and a text")
+        if JARGON.search(stop.get("text", "")):
+            errors.append(f"regimes.js: tour stop {i} uses {JARGON.search(stop['text']).group(1)}; say it in words")
         if stop.get("thm"):
             use(stop["thm"], f"tour stop {i}")
     if "\u2014" in (HERE / "regimes.js").read_text(encoding="utf-8"):
@@ -354,6 +360,8 @@ def main():
         if listed != current:
             errors.append(f"docs/site/index.html: open-problem list {sorted(listed)} differs from REGIME-AUDIT.md's {sorted(current)}")
         check_thm_links(page, "docs/site/index.html", gated, errors)
+        if "\u2014" in page:
+            errors.append("docs/site/index.html: contains an em dash")
 
     guide = ROOT / "docs" / "site" / "guide" / "index.html"
     if guide.exists():
@@ -363,6 +371,8 @@ def main():
         if "\u2014" in gpage:
             errors.append("docs/site/guide/index.html: contains an em dash")
 
+    if "\u2014" in poster:
+        errors.append("poster.html: contains an em dash")
     m = re.search(r"([\d,]+) axiom-free theorems", poster)
     shown = int(m.group(1).replace(",", "")) if m else None
     if threshold is None:

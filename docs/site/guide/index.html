@@ -181,21 +181,22 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <p>These are the plain versions of the conditions the theory proves. Write <code>apply(e, s)</code> for event <code>e</code> applied to state <code>s</code>, and <code>repair(s)</code> for the repair run until it is done.</p>
 
 <div class="q">
-<div class="term">Research term: state descent</div>
+<div class="term">Research term: state descent (CC2)</div>
 <h3>(a) Does repairing early or late change what the next event produces?</h3>
 <p>Take a state a replica can be in, including one where the repair has not run yet. Apply the next event to the state as it is, and to its repaired form. Repair both results. They should be equal: <code>repair(apply(e, repair(s))) == repair(apply(e, s))</code>.</p>
 <p>The shelf fails at a raw stock of 7. Repair, then remove 1: 4. Remove 1, then repair: 5. The cap threw away items that the removal needed to see.</p>
+<p class="note">This only matters if an event can arrive before the repair has finished; <a href="#when">section 4</a> shows when that happens.</p>
 </div>
 
 <div class="q">
-<div class="term">Research term: history descent</div>
+<div class="term">Research term: history descent (CC1, on repaired steps)</div>
 <h3>(b) Does reordering events change the repaired result?</h3>
 <p>Apply events with the repair after each one. Every order your delivery allows should give the same result. When any order is possible, it is enough to check every pair of events, in both orders, at every state a replica can reach.</p>
 <p>The shelf fails: 4 in one order, 5 in the other.</p>
 </div>
 
 <div class="q">
-<div class="term">Research term: terminating repair</div>
+<div class="term">Research term: terminating repair (WFC)</div>
 <h3>(c) Does the repair always finish?</h3>
 <p>A repair that triggers another repair, which triggers the first one again, never settles. The usual way to show that it finishes is to find a measure, such as the number of broken rules or the number of items over capacity, that every repair step makes smaller. That is not only a convenient method: a repair finishes from every state exactly when some such measure exists.</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceWFConverse.v#L109">terminating_iff_comp_wf</a></p>
@@ -281,7 +282,7 @@ def test_repair_finishes(s):
 <li><b>Make the events commute.</b> Design operations so that order never matters: counters kept as separate increments and decrements, sets with an add-wins or remove-wins rule, registers with a deterministic tiebreak. This is the CRDT approach, and the repair then has nothing to do.</li>
 <li><b>Keep what later events need.</b> If (a) fails, the repair is throwing away something a later event reads. Store the raw facts and derive the result when reading, as in the shelf demo. Or have each event record a fact, and let the repair recompute the outcome from the facts; the order-fulfillment example in the <a href="https://github.com/blackwell-systems/gsm">gsm README</a> is built this way.</li>
 <li><b>Move the repair into the transaction.</b> If (a) fails only because a reconciler runs late, see <a href="#when">section 4</a>.</li>
-<li><b>Coordinate only the events that conflict.</b> Use a lock, a single leader or a consensus round for the pairs of events that fail (b), and let the rest run without coordination. When gsm rejects a model, it names the pair of events and the state where they diverge. Across a network of services, finding the fewest links to coordinate is NP-hard in the cases the atlas covers, so unless P = NP no efficient method finds the minimum in general.</li>
+<li><b>Coordinate only the events that conflict.</b> Use a lock, a single leader or a consensus round for the pairs of events that fail (b), and let the rest run without coordination. When gsm rejects a model, it names the pair of events and the state where they diverge. Across a network of services, where a link is a connection between two services that copy each other's data (<a href="#services">section 6</a>), finding the fewest links to coordinate is NP-hard in the cases the atlas covers, so unless P = NP no efficient method finds the minimum in general.</li>
 </ul>
 <p class="proof">Proof (fewest links): <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CoordinationMinimum.v#L946">maxcut_plan_reduction</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LossyMinimum.v#L569">lmin_reduction</a></p>
 </section>
@@ -290,7 +291,7 @@ def test_repair_finishes(s):
 <h2><span class="n">6</span>More than one service</h2>
 <p>Services often copy data to each other: a catalog feeds search, orders feed billing, billing feeds a ledger. Each service enforces its own rules with its own repair. The questions change with the shape of the network.</p>
 <h3>No loops</h3>
-<p>When data flows one way, along a chain or a tree of services, the check splits into two local checks per link. An event gives the same result whether or not the link's repair has run (question (a), at the link). Two independent events on one service give the same result in either order after that repair (question (b)). And when every service keeps getting its turn, the network settles at one state.</p>
+<p>When data flows one way, along a chain or a tree of services, the check splits into two local checks per link. An event gives the same result whether or not the link's repair has run (question (a), at the link). Two independent events on one service (events that nothing orders, so they can arrive in either order) give the same result in either order after that repair (question (b)). And when every service keeps getting its turn, the network settles at one state.</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/FederationEventsConverse.v#L565">fed_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/RobertFair.v#L343">rb_robert_fair</a></p>
 <h3>Loops</h3>
 <p>When rules feed each other in a loop, repairs can push against each other forever. A schedule that gives every rule its turn can cycle without end, even when exactly one consistent state exists. The proved example is as small as a loop gets: one record and two rules that act on it. One rule swaps two bad values, A and B. The other repairs A to the good value. If the repair rule only ever gets its turn while the record holds B, the good value is never reached. Knowing the one consistent state is not enough; whether runs reach it is a separate question.</p>
@@ -333,6 +334,10 @@ def test_repair_finishes(s):
 <tr><td>State descent</td><td>Question (a): repairing early or late does not change what the next event produces.</td></tr>
 <tr><td>History descent</td><td>Question (b): every order the delivery model allows gives the same repaired result.</td></tr>
 <tr><td>Terminating repair</td><td>Question (c): the repair always finishes. The earlier papers call it WFC.</td></tr>
+<tr><td>CC</td><td>Compensation commutativity. In the papers, CC1 and CC2 together: questions (a) and (b). The CC line in a gsm report checks CC1 only, question (b), because a gsm machine runs each event and its repair as one step (<a href="#when">section 4</a>).</td></tr>
+<tr><td>CC1</td><td>Question (b): two repaired events give the same result in either order. History descent, on repaired steps. Note that the numbering runs the other way: CC1 is (b) and CC2 is (a).</td></tr>
+<tr><td>CC2</td><td>Question (a): repairing early or late does not change what the next event produces. State descent.</td></tr>
+<tr><td>WFC</td><td>Well-founded compensation. Question (c): the repair always finishes.</td></tr>
 <tr><td>Fair run</td><td>A schedule in which every rule keeps getting its turn.</td></tr>
 <tr><td>Canonical recurrence</td><td>For systems whose repairs may never stop, such as loops: every fair run eventually stays on one repaired result.</td></tr>
 <tr><td>Regime</td><td>One combination of system shape (one service, a chain, a loop) and delivery guarantee. The atlas has one tile per regime.</td></tr>

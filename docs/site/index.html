@@ -5,9 +5,9 @@
 <title>Normalization Confluence</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark light">
-<meta name="description" content="Normalization confluence gives an exact theory of when repair can replace raw commutativity in concurrent systems: exact, machine-checked conditions at three scales, with a regime map of when they hold.">
+<meta name="description" content="When do copies of your data still agree? Systems that keep copies often accept a write and then repair it, and the copies can still disagree. Exact, machine-checked conditions for when they agree, and gsm checks them at build time.">
 <meta property="og:title" content="Normalization Confluence">
-<meta property="og:description" content="An exact, machine-checked theory of when repair can replace raw commutativity in concurrent systems. By Dayna Blackwell.">
+<meta property="og:description" content="When do copies of your data still agree after a write is repaired? Exact, machine-checked conditions, and a build-time checker. By Dayna Blackwell.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://blackwell-systems.github.io/normalization-confluence/">
 <meta property="og:image" content="https://blackwell-systems.github.io/normalization-confluence/og.png">
@@ -26,7 +26,9 @@ a{color:var(--link)}a:hover{color:var(--linkHover)}
 main{max-width:980px;margin:0 auto;padding:64px 24px 48px}
 .kicker{font-family:var(--mono);font-size:13px;letter-spacing:0.16em;color:var(--dim);text-transform:uppercase}
 h1{font-family:var(--cond);font-weight:700;font-size:clamp(40px,7vw,72px);line-height:1;margin:12px 0 20px}
-.thesis{font-size:clamp(20px,2.6vw,26px);line-height:1.4;color:var(--text);max-width:860px;margin:0}
+.thesis{font-size:clamp(18px,2.2vw,22px);line-height:1.5;color:var(--text);max-width:860px;margin:0}
+.tagline{font-size:16px;color:var(--dim);margin:14px 0 0}
+.proofline{font-size:17px;line-height:1.55;color:var(--muted);max-width:860px;margin:14px 0 0;padding-left:12px;border-left:3px solid var(--good)}
 .byline{margin-top:16px;color:var(--dim);font-size:15px}
 h2{font-family:var(--cond);font-weight:600;font-size:30px;margin:0 0 14px}
 h3.sub{font-family:var(--cond);font-weight:600;font-size:22px;margin:28px 0 10px}
@@ -96,6 +98,16 @@ ol.open .g{font-family:var(--mono);font-size:13px;color:var(--gold);display:inli
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .chip{font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
 .chip b{color:var(--text)}
+.plainq{font-size:14px;line-height:1.45;color:var(--dim);margin:0 0 10px}
+.plainq b{color:var(--muted);font-weight:600}
+.detail{font-size:14.5px;line-height:1.55;color:var(--dim)}
+.proofs{font-size:13.5px;color:var(--dim);line-height:1.7;margin:4px 0 14px}
+ul.who{margin:4px 0 14px;padding-left:22px}
+ul.who li{font-size:17px;line-height:1.55;color:var(--muted);margin-bottom:4px}
+.divider{margin-top:64px;border-top:3px solid var(--line);padding-top:22px}
+.divider h2{font-size:36px;margin:0 0 8px}
+.divider p{margin:0}
+.divider + section{margin-top:28px}
 footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:var(--dim);font-size:14px;line-height:1.6}
 </style>
 </head>
@@ -103,48 +115,115 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <main>
 
 <div class="kicker">Normalization Confluence</div>
-<h1>When can repair replace commutativity?</h1>
-<p class="thesis">Normalization confluence gives an exact theory of when repair can replace raw commutativity: concurrent systems whose events may conflict and break invariants, and whose replicas still converge because a deterministic repair restores them.</p>
-<p class="byline">Dayna Blackwell (<a href="https://orcid.org/0009-0002-5704-121X">ORCID</a>), Blackwell Systems. Every result machine-checked in Coq; papers archived on <a href="https://zenodo.org/search?q=%22normalization%20confluence%22">Zenodo</a>.</p>
+<h1>When do copies of your data still agree?</h1>
+<p class="thesis">Systems that keep copies across regions, devices or services often accept a write and then repair it: cap the stock, clamp a balance, run a compensating step. Every copy can run that repair correctly and the copies can still disagree. This work gives the exact conditions for when they agree, every one machine-checked, and gsm checks them at build time.</p>
+<p class="tagline"><i>Normalization confluence: an exact theory of when repair can replace commutativity.</i></p>
+<p class="proofline">Before running either system, it predicted which delivery orders bring a deleted document back in CouchDB and PouchDB. All 216 observations matched, and a behavior found along the way is <a href="https://github.com/apache/couchdb/issues/6162">reported upstream</a>.</p>
 <div class="cta">
-<a class="btn primary" href="atlas/">Open the Convergence Atlas &#8594;</a>
-<a class="btn" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/OVERVIEW.md">Five-minute overview</a>
-<a class="btn" href="https://github.com/blackwell-systems/gsm">Use it: gsm</a>
-<a class="btn" href="guide/">New to this? The engineer's guide</a>
+<a class="btn primary" href="guide/">Start here: the engineer's guide</a>
+<a class="btn" href="https://github.com/blackwell-systems/gsm">Try gsm</a>
+<a class="btn" href="atlas/">The Convergence Atlas</a>
+<a class="btn" href="normalization_confluence_exact_mechanized_theory.pdf">The paper</a>
 </div>
-
-<section id="atlas">
-<h2>The Convergence Atlas</h2>
-<p>Every regime the theory covers, on one map: free and causal delivery, CRDTs and streams, federations, networks with cycles, lossy channels, reconfiguration, composition. Each tile is an exact condition, a proof that no efficient one exists, or a numbered open problem, and opens to its theorem and counterexamples.</p>
-<a class="atlas" href="atlas/"><img src="atlas-preview.jpg" width="1200" height="672" alt="The Convergence Atlas: a grid of regime tiles grouped by family, each marked exact, hard, open or excluded, with its Coq theorem."><div class="bar"><span><b id="atlas-tiles">60</b> regimes in <b id="atlas-families">11</b> families</span><span class="go">Open the atlas &#8594;</span></div></a>
-<div class="chips">
-<span class="chip"><b id="atlas-exact">45</b> exact</span>
-<span class="chip"><b id="atlas-hard">4</b> provably hard</span>
-<span class="chip"><b id="atlas-open">9</b> open</span>
-<span class="chip"><b id="atlas-excl">2</b> excluded by design</span>
-</div>
-</section>
+<p class="byline">Dayna Blackwell, engineer and researcher, founder of Blackwell Systems · <a href="https://orcid.org/0009-0002-5704-121X">ORCID</a> · <a href="mailto:dayna@blackwell-systems.com">dayna@blackwell-systems.com</a></p>
 
 <section>
 <h2>Same events, different results</h2>
 <p>Replicas apply the same events in different orders, because networks delay, reorder and retry messages. After each event, every replica runs the same repair to restore its invariants. Do replicas that have seen the same events end in the same state?</p>
 <div class="example">
-<p>Not always. A shelf holds 5 items and has 4 in stock. Two events arrive, "add 3" and "remove 1", and repair caps the stock at 5.</p>
+<p>Not always. A shelf holds 5 items and has 4 in stock. Two events arrive, "add 3" and "remove 1". Each replica records an update first, and then the repair caps the stock at 5.</p>
 <p>Replica A applies "add 3" (7), repairs (5), then "remove 1": <b>4</b>. Replica B applies "remove 1" (3), then "add 3" (6), repairs: <b>5</b>.</p>
 <p>Same events, same repair, different stock.</p>
 </div>
-<p>The theory says which condition fails. Take the raw state 7, just after "add 3". Repairing first and then removing 1 gives 4. Removing 1 from the raw 7 and then repairing gives 5. The one-event condition below, state descent, requires these two to agree, so this shelf cannot converge in every order. <a href="#use-it">gsm</a> finds a diverging order at build time.</p>
+<p>The theory says which condition fails. A replica can hold an unrepaired value like 7 for a moment, when an event lands before the repair has run, for example when a background job does the repair (<a href="guide/#when">guide, section 4</a>). Take the raw state 7, just after "add 3". Repairing first and then removing 1 gives 4. Removing 1 from the raw 7 and then repairing gives 5. The one-event condition below, state descent, requires these two to agree, so this shelf cannot converge in every order. <a href="#use-it">gsm</a> finds a diverging order at build time.</p>
 </section>
+
+<section id="who">
+<h2>Who should care</h2>
+<p>Anyone whose system applies the same writes in more than one place and repairs them afterwards:</p>
+<ul class="who">
+<li>active-active databases and multi-region writes;</li>
+<li>offline-first apps that sync when they reconnect;</li>
+<li>queues that retry and reorder messages;</li>
+<li>sagas with compensating steps;</li>
+<li>reconcilers and Kubernetes-style controllers.</li>
+</ul>
+<p>The <a href="guide/">engineer's guide</a> shows how to check your own system.</p>
+</section>
+
+<section id="prediction">
+<h2>A prediction about real software</h2>
+<p>CouchDB and PouchDB replicate documents between databases. A model of each, built through the framework, computed which delivery orders bring a deleted document back. The prediction was committed before either system was run. Then both systems were run: all 216 observations matched. A larger, unscored scenario found an error in the CouchDB model, since corrected. That error led to a CouchDB behavior where a validation function that accepts everything changes the replicated result, now <a href="https://github.com/apache/couchdb/issues/6162">reported upstream</a>.</p>
+<p class="detail">The computed orders: 6 of 24 in CouchDB, none with per-update pruning off, 12 of 24 in PouchDB. Each order ran three times. The real CouchDB replicator reaches the same behavior. Details: <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P3.md">P3</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/couchdb-replicator/README.md">replicator</a> · <a href="https://github.com/apache/couchdb/issues/6162">apache/couchdb#6162</a></p>
+</section>
+
+<section id="timing">
+<h2>When the repair runs matters</h2>
+<p>If the repair runs in the same transaction as the event, check that event order does not change the result (question (b) in the guide). If it runs in a background job or a reconciler, also check that repairing early or late does not change the next event's result (question (a)). A system can be correct with an in-transaction repair and break with a background reconciler. <a href="guide/#when">The guide's section 4</a> shows one.</p>
+<p class="proofs">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L131">atomic_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L239">atomic_derived_from</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L337">atomic_not_descent</a></p>
+</section>
+
+<section id="use-it">
+<h2>Checking a system with gsm</h2>
+<p><a href="https://github.com/blackwell-systems/gsm">gsm</a> is a Go library. You write a model of your system in Go: its variables, each with a finite range, its business rules with their repairs, and its events. The model can live in a test next to your service; it does not have to be your production code. At build time gsm checks every state of that finite model, and either accepts it or names the order that diverges. It also checks a rules change before deployment, under the delivery the system actually has.</p>
+<div class="codewrap"><pre>go get github.com/blackwell-systems/gsm</pre></div>
+<p>Here is the shelf. gsm reports the first failing state it finds, counting up from the bottom of each range. At the bottom of any range, "remove 1" has nowhere to go, so this model's stock starts at the story's 4 items and ends at 8, the most "add 3" can reach from a full shelf.</p>
+<div class="codewrap"><pre>r := gsm.NewRegistry("shelf")
+stock := r.Int("stock", 4, 8)
+
+r.Invariant("fits_on_shelf").
+    Watches(stock).
+    Holds(func(s gsm.State) bool { return s.GetInt(stock) &lt;= 5 }).
+    Repair(func(s gsm.State) gsm.State { return s.SetInt(stock, 5) }).
+    Add()
+
+r.Event("add_3").Writes(stock).
+    Apply(func(s gsm.State) gsm.State { return s.SetInt(stock, s.GetInt(stock)+3) }).Add()
+r.Event("remove_1").Writes(stock).
+    Apply(func(s gsm.State) gsm.State { return s.SetInt(stock, s.GetInt(stock)-1) }).Add()
+
+_, report, err := r.Build()</pre></div>
+<div class="codewrap"><pre><span class="c">err: gsm: Compensation Commutativity (CC) check failed</span>
+  WFC: PASS (max repair depth: 1)
+  CC (Compensation Commutativity): FAIL
+    Events: (add_3, remove_1)
+    State:  {stock=4}
+    add_3→remove_1: {stock=4}
+    remove_1→add_3: {stock=5}
+  Saturation: event "add_3" clamps "stock" into its range on 3 state(s) (silently; an invariant testing the bound never sees the overflow)
+  Saturation: event "remove_1" clamps "stock" into its range on 1 state(s) (silently; an invariant testing the bound never sees the overflow)</pre></div>
+<p>The build refuses the machine, and the failure it names is the story's: from 4 in stock, "add 3" then "remove 1" gives 4, and the other order gives 5. In the report, WFC is question (c): the repair always finishes. CC is question (b): repaired events give the same result in either order. A gsm machine runs each event and its repair as one step, so its CC line checks (b) only (<a href="guide/#when">guide, section 4</a>).</p>
+<p>The Saturation lines mark the ends of the model's range: a write past 8 or below 4 is held at the end. In the reported run, "remove 1" at 4 holds the stock at 4 instead of 3. The result is the same, because 3 + 3 and 4 + 3 are both over the cap and the repair brings both to 5. Output from gsm v0.16.0, abridged by removing lines.</p>
+<p>No Go model? The guide's <a href="guide/#three-questions">property tests</a> check the same three questions in an ordinary test suite, with no setup. They sample states, so they can find a failure but cannot show that none exists.</p>
+<p>A system that converges behaves like a CRDT on its repaired steps. What gsm adds is a way to build one: write the operations you want and the rules they must keep, and the build either proves every order converges or names the order that fails. Large systems are checked in pieces (groups of variables that change together, one item of a collection, one link of a network of registries), so the cost depends on the largest piece, not the whole system.</p>
+</section>
+
+<section id="atlas">
+<h2>The Convergence Atlas</h2>
+<p>Every regime the theory covers, on one map: free and causal delivery, CRDTs and streams, federations, networks with cycles, lossy channels, reconfiguration, composition. Each tile is an exact condition, a proof that no efficient one exists, or a numbered open problem, and opens to its theorem and counterexamples. Some open problems span more than one tile.</p>
+<a class="atlas" href="atlas/"><img src="atlas-preview.jpg" width="1200" height="672" alt="The Convergence Atlas: a grid of regime tiles grouped by family, each marked exact, hard, open or excluded, with its Coq theorem."><div class="bar"><span><b id="atlas-tiles">60</b> regimes in <b id="atlas-families">11</b> families</span><span class="go">Open the atlas &#8594;</span></div></a>
+<div class="chips">
+<span class="chip"><b id="atlas-exact">45</b> exact</span>
+<span class="chip"><b id="atlas-hard">4</b> provably hard</span>
+<span class="chip"><b id="atlas-open">9</b> open tiles</span>
+<span class="chip"><b id="atlas-excl">2</b> excluded by design</span>
+</div>
+</section>
+
+<div class="divider" id="research">
+<h2>For researchers</h2>
+<p>The research summary: the three conditions, how they relate, the framework, what is proved, how it was tested, and what is open.</p>
+</div>
 
 <section>
 <h2>Three conditions</h2>
 <p>Raw states may differ along the way; what has to agree is the result after repair. Write <code>N</code> for the repair. The theory proves a condition at each of three scales: necessary at one event when events can arrive mid-repair, exact for a single registry when combined with the condition on sequences, and exact for infinite runs on finite state spaces.</p>
 <div class="grid3">
-<div class="card"><div class="label">One event</div><h3>State descent</h3><p>Applying an event to a state or to its repaired form gives the same result after repair: <code>N(e(N x)) = N(e x)</code>. Convergence requires it.</p>
+<div class="card"><div class="label">One event</div><h3>State descent</h3><p class="plainq"><b>Question (a).</b> Does repairing early or late change what the next event produces?</p><p>Applying an event to a state or to its repaired form gives the same result after repair: <code>N(e(N x)) = N(e x)</code>. Convergence requires it.</p>
 <div class="thms"><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L88">DescendsOn</a></div></div>
-<div class="card"><div class="label">A sequence of events</div><h3>History descent</h3><p>Every reordering the delivery model allows gives the same result after repair: free, causal, at-least-once, or declared independence.</p>
+<div class="card"><div class="label">A sequence of events</div><h3>History descent</h3><p class="plainq"><b>Question (b).</b> Does reordering events change the repaired result?</p><p>Every reordering the delivery model allows gives the same result after repair: free, causal, at-least-once, or declared independence.</p>
 <div class="thms"><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L317">history_from_descent</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/PresentedExecution.v#L206">local_exact</a></div></div>
-<div class="card"><div class="label">An infinite run</div><h3>Canonical recurrence</h3><p>On networks where repair may never stop, every fair run eventually stays on one repaired result.</p>
+<div class="card"><div class="label">An infinite run</div><h3>Canonical recurrence</h3><p class="plainq"><b>For systems whose repair may never stop.</b> Does every fair run settle on one result?</p><p>On networks where repair may never stop, every fair run eventually stays on one repaired result.</p>
 <div class="thms"><a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CanonicalRecurrence.v#L486">C1_closed</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L400">canon_settles_quotient_invariant</a></div></div>
 </div>
 
@@ -188,21 +267,21 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <section>
 <h2>What's proved</h2>
 <div class="stats">
-<div class="stat"><div class="n" id="gate-count">4,797</div><div class="t">axiom-free theorems, checked on three Coq versions on every pull request</div></div>
-<div class="stat"><div class="n"><span id="pred-confirmed">2</span> of <span id="pred-total">2</span></div><div class="t"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">preregistered predictions</a> confirmed, each committed before its test</div></div>
+<div class="stat"><div class="n" id="gate-count">4,797</div><div class="t">machine-checked theorems, with no added axioms, checked on three Coq versions on every pull request</div></div>
+<div class="stat"><div class="n"><span id="pred-confirmed">2</span> of <span id="pred-total">2</span></div><div class="t"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">preregistered predictions</a> confirmed, each committed before its test. P1 was refuted by a counterexample before it was committed, so it never counted (<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">how</a>).</div></div>
 <div class="stat"><div class="n">Exact</div><div class="t">conditions with a counterexample for each hypothesis, across dozens of regimes</div></div>
-<div class="stat"><div class="n" id="open-count">7</div><div class="t"><a href="#open-problems">open problems</a> listed in the audit, most on networks with cycles</div></div>
+<div class="stat"><div class="n" id="open-count">7</div><div class="t"><a href="#open-problems">open problems</a> listed in the audit, most on networks with cycles; some span more than one atlas tile</div></div>
 <div class="stat"><div class="n">NP-complete</div><div class="t">where no efficient exact condition can exist unless P = NP, with machine-checked reductions</div></div>
 </div>
 
-<h3 class="sub">Tests of the framework</h3>
-<p>Recovering results the framework was built from shows organization, not reach. So the test is stricter: freeze every existing proof file, fix the pass criterion in advance, and recover a classical theorem from outside the repository. Whatever the frozen framework cannot express is reported as a leak.</p>
+<h3 class="sub">Checked against known results and real software</h3>
+<p>Recovering results the framework was built from shows organization, not reach. So the test is stricter: freeze every existing proof file, fix the pass criterion in advance, and recover a classical theorem from outside the repository. Each step the frozen framework could not express is reported as a leak.</p>
 <div class="grid3 rec">
-<div class="card"><div class="status pass">Passed</div><h3>Dijkstra's self-stabilization (1974)</h3><p>A finite system stabilizes under fair schedules exactly when no fair loop leaves the legitimate states: one line from layer C. Dijkstra's K-state token ring follows for every ring size with K at least the number of machines, under fair and arbitrary schedules. Three leaks, all stated.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/146">#146</a></div></div>
-<div class="card"><div class="status wait">Partial</div><h3>CRDT strong eventual consistency</h3><p>Shapiro, Preguiça, Baquero and Zawirski (2011), and Gomes and others (2017). Op-based: passed, a short bridge from layer A with a repair that does nothing; replicas converge exactly when concurrent operations commute where they can be delivered. State-based: proved, but the merge of two replica states is not a kernel event, so that step leaked out of the frozen framework.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/152">#152</a></div></div>
-<div class="card"><div class="status pass">Passed</div><h3>A preregistered prediction (P2)</h3><p>Committed before any test: a matching market with exactly one stable matching can still cycle forever when every pair gets its turn. Confirmed at 3 by 3 and proved in Coq; about a quarter of 4 by 4 markets with one stable matching cycle.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P2.md">P2</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/pull/160">#160</a></div></div>
-<div class="card"><div class="status pass">Passed</div><h3>A computed prediction about real software (P3)</h3><p>Committed before either system was run: CouchDB and PouchDB bring a deleted document back on exactly the delivery orders a model built through the framework computed (6 of 24 in CouchDB, none with per-update pruning off, 12 of 24 in PouchDB). All 216 observations matched. The real CouchDB replicator reaches the same behavior. A larger, unscored scenario found an error in the CouchDB model, since corrected. That error led to a CouchDB behavior where a validation function that accepts everything changes the replicated result, now reported upstream.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P3.md">P3</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/couchdb-replicator/README.md">replicator</a> · <a href="https://github.com/apache/couchdb/issues/6162">apache/couchdb#6162</a></div></div>
-<div class="card"><div class="status pass">Passed</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): a set of transactions is invariant confluent exactly when the merge is a polymorphism of the reachable valid states, one short step from layer B. A polymorphism of the whole invariant is enough but not needed: two versions under set union with "not both present" is invariant confluent for "add a" while union breaks the invariant. Necessity of their Theorem 1 holds in a replica model; for an arbitrary system it needs a partition model the framework lacks, stated as a leak.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/150">#150</a></div></div>
+<div class="card"><div class="status pass">Passed</div><h3>Dijkstra's self-stabilization (1974)</h3><p>A finite system stabilizes under fair schedules exactly when no fair loop leaves the legitimate states: one line from layer C. Dijkstra's K-state token ring follows for every ring size with K at least the number of machines, under fair and arbitrary schedules. Three leaks, all stated.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/146">The work (pull request #146)</a></div></div>
+<div class="card"><div class="status wait">Partial</div><h3>CRDT strong eventual consistency</h3><p>Shapiro, Preguiça, Baquero and Zawirski (2011), and Gomes and others (2017). Op-based: passed, a short bridge from layer A with a repair that does nothing; replicas converge exactly when concurrent operations commute where they can be delivered. State-based: proved, but the merge of two replica states is not a kernel event, so that step leaked out of the frozen framework.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/152">The work (pull request #152)</a></div></div>
+<div class="card"><div class="status pass">Passed</div><h3>A preregistered prediction (P2)</h3><p>Committed before any test: a matching market with exactly one stable matching can still cycle forever when every pair gets its turn. Confirmed at 3 by 3 and proved in Coq; about a quarter of 4 by 4 markets with one stable matching cycle.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P2.md">P2</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/pull/160">The work (pull request #160)</a></div></div>
+<div class="card"><div class="status pass">Passed</div><h3>A computed prediction about real software (P3)</h3><p>Committed before either system was run: CouchDB and PouchDB bring a deleted document back on exactly the delivery orders a model built through the framework computed. All 216 observations matched. The counts and the upstream report are <a href="#prediction">above</a>.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P3.md">P3</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/couchdb-replicator/README.md">replicator</a> · <a href="https://github.com/apache/couchdb/issues/6162">apache/couchdb#6162</a></div></div>
+<div class="card"><div class="status pass">Passed</div><h3>Invariant confluence</h3><p>Bailis and others (VLDB 2015): a set of transactions is invariant confluent exactly when the merge is a polymorphism of the reachable valid states, one short step from layer B. A polymorphism of the whole invariant is enough but not needed: two versions under set union with "not both present" is invariant confluent for "add a" while union breaks the invariant. Necessity of their Theorem 1 holds in a replica model; for an arbitrary system it needs a partition model the framework lacks, stated as a leak.</p><div class="thms"><a href="https://github.com/blackwell-systems/normalization-confluence/pull/150">The work (pull request #150)</a></div></div>
 </div>
 
 <p style="margin-top:16px">The CRDT test is the weakest: the repository proved CRDT convergence directly before the framework existed. The framework stays frozen, its files hash-checked in CI, while predictions written down before any test are checked (<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">how</a>).</p>
@@ -226,35 +305,6 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <li><span class="g">Gap 20</span>Reconfiguration inside a run: rules or topology changing while events are in flight, in the cases not yet closed.</li>
 <li><span class="g">Gap 21</span>Propagation over channels that delay, reorder or duplicate, in the cases not yet closed.</li>
 </ol>
-</section>
-
-<section id="use-it">
-<h2>Checking a system with gsm</h2>
-<p><a href="https://github.com/blackwell-systems/gsm">gsm</a> checks these conditions at build time: a team declares its business rules and repairs, and the build verifies that concurrent updates converge to one valid state, or names the order that diverges. It also checks a rules change before deployment, under the delivery the system actually has. Here is the shelf:</p>
-<div class="codewrap"><pre>r := gsm.NewRegistry("shelf")
-stock := r.Int("stock", 0, 8)
-
-r.Invariant("fits_on_shelf").
-    Watches(stock).
-    Holds(func(s gsm.State) bool { return s.GetInt(stock) &lt;= 5 }).
-    Repair(func(s gsm.State) gsm.State { return s.SetInt(stock, 5) }).
-    Add()
-
-r.Event("add_3").Writes(stock).
-    Apply(func(s gsm.State) gsm.State { return s.SetInt(stock, min(s.GetInt(stock)+3, 8)) }).Add()
-r.Event("remove_1").Writes(stock).
-    Apply(func(s gsm.State) gsm.State { return s.SetInt(stock, max(s.GetInt(stock)-1, 0)) }).Add()
-
-_, report, err := r.Build()</pre></div>
-<div class="codewrap"><pre><span class="c">err: gsm: Compensation Commutativity (CC) check failed</span>
-  WFC: PASS (max repair depth: 1)
-  CC (Compensation Commutativity): FAIL
-    Events: (add_3, remove_1)
-    State:  {stock=0}
-    add_3→remove_1: {stock=2}
-    remove_1→add_3: {stock=3}</pre></div>
-<p>The build refuses the machine. The first divergence it reports is on an empty shelf, where removing first does nothing: "add 3" then "remove 1" gives 2, the other order gives 3. Output from gsm v0.16.0, abridged.</p>
-<p>A system that converges behaves like a CRDT on its repaired steps. What gsm adds is a way to build one: write the operations you want and the rules they must keep, and the build either proves every order converges or names the order that fails. Large systems are checked in pieces (groups of variables that change together, one item of a collection, one link of a network of registries), so the cost depends on the largest piece, not the whole system.</p>
 </section>
 
 <section>
