@@ -30,8 +30,8 @@ def cap(x):
     return min(x, CAP)
 
 
-def fix_on_write(order):
-    """Fix up after every event: (raw value, value after fix-up) per step."""
+def repair_on_write(order):
+    """Repair after every event: (raw value, value after repair) per step."""
     s, steps = START, []
     for e in order:
         raw = RAW[e](s)
@@ -50,13 +50,13 @@ def cap_on_read(order):
 
 
 A, B = ["add 3", "remove 1"], ["remove 1", "add 3"]
-expect("fix on write, add first", fix_on_write(A), [(7, 5), (4, 4)])
-expect("fix on write, remove first", fix_on_write(B), [(3, 3), (6, 5)])
+expect("repair on write, add first", repair_on_write(A), [(7, 5), (4, 4)])
+expect("repair on write, remove first", repair_on_write(B), [(3, 3), (6, 5)])
 expect("cap on read, add first", cap_on_read(A), [(7, 5), (6, 5)])
 expect("cap on read, remove first", cap_on_read(B), [(3, 3), (6, 5)])
-# State descent fails at the raw 7 for "remove 1": fix(e(fix 7)) = 4, fix(e 7) = 5.
-expect("fix(remove(fix 7))", cap(RAW["remove 1"](cap(7))), 4)
-expect("fix(remove 7)", cap(RAW["remove 1"](7)), 5)
+# State descent fails at the raw 7 for "remove 1": repair(e(repair 7)) = 4, repair(e 7) = 5.
+expect("repair(remove(repair 7))", cap(RAW["remove 1"](cap(7))), 4)
+expect("repair(remove 7)", cap(RAW["remove 1"](7)), 5)
 # Raw counts commute: every order of any multiset of these events stores the same count.
 for n in range(1, 6):
     for bag in itertools.combinations_with_replacement(["add 3", "remove 1"], n):
@@ -74,13 +74,13 @@ EVENTS = {
 }
 
 
-def fix_step(s):
+def repair_step(s):
     return OK  # x_rho: one repair step sends the invalid state to 0
 
 
-def fix(s):
+def repair(s):
     while s not in VALID:
-        s = fix_step(s)
+        s = repair_step(s)
     return s
 
 
@@ -96,13 +96,13 @@ def atomic_results(start, buffer):
     for order in itertools.permutations(buffer):
         s = start
         for e in order:
-            s = fix(EVENTS[e](s))
+            s = repair(EVENTS[e](s))
         out.add(s)
     return out
 
 
 def interleaved_results(start, buffer):
-    """Every normal form when events may fire before the fix-up runs (free delivery)."""
+    """Every normal form when events may fire before the repair runs (free delivery)."""
     out, seen, todo = set(), set(), [(start, tuple(buffer))]
     while todo:
         s, buf = todo.pop()
@@ -113,7 +113,7 @@ def interleaved_results(start, buffer):
         for i, e in enumerate(buf):
             moves.append((EVENTS[e](s), buf[:i] + buf[i + 1:]))
         if s not in VALID:
-            moves.append((fix_step(s), buf))
+            moves.append((repair_step(s), buf))
         if not moves:
             out.add(s)
         todo.extend(moves)
@@ -124,12 +124,12 @@ for n in range(0, 5):
     for bag in itertools.combinations_with_replacement(sorted(EVENTS), n):
         expect(f"atomic runs of {bag}", atomic_results(OK, bag), {OK})
 expect("background reconciler, charge then review", interleaved_results(OK, ["charge", "review"]), {OK, SUSPENDED})
-# Same order, different timing: (charge, fix-up, review) and (charge, review).
-expect("charge, fix-up, review", EVENTS["review"](fix(EVENTS["charge"](OK))), OK)
-expect("charge, review (fix-up late)", fix(EVENTS["review"](EVENTS["charge"](OK))), SUSPENDED)
+# Same order, different timing: (charge, repair, review) and (charge, review).
+expect("charge, repair, review", EVENTS["review"](repair(EVENTS["charge"](OK))), OK)
+expect("charge, review (repair late)", repair(EVENTS["review"](EVENTS["charge"](OK))), SUSPENDED)
 # State descent fails at "over the limit" for review.
-expect("fix(review(fix over))", fix(EVENTS["review"](fix(OVER))), OK)
-expect("fix(review over)", fix(EVENTS["review"](OVER)), SUSPENDED)
+expect("repair(review(fix over))", repair(EVENTS["review"](repair(OVER))), OK)
+expect("repair(review over)", repair(EVENTS["review"](OVER)), SUSPENDED)
 
 if errors:
     for e in errors:
