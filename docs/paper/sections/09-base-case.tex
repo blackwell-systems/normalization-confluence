@@ -18,8 +18,8 @@ $N = \rho^{*}$.
     \cref{prop:descent-cc2}.
   \item \emph{CC1 is history descent on free delivery.} The governed semantics from the repaired start,
     $t \mapsto \mathrm{grun}(t, N(s_0))$, is invariant under the free-delivery presentation, whose
-    generated equivalence is equality up to permutation (\coq{swap_peq_perm}). By P1
-    (\cref{thm:p1}) this holds exactly when every adjacent swap commutes after every word
+    generated equivalence is equality up to permutation (\coq{swap_peq_perm}). By the local
+    principle (\cref{thm:p1}) this holds exactly when every adjacent swap commutes after every word
     (\coq{nd_history_seeds}), and given state descent it is CC1 on the states reachable from $s_0$
     (\coq{nd_history_cc1}). History descent alone gives CC1 only at the repaired states the governed
     runs reach; state descent carries it to the raw reachable states, where it is needed because an

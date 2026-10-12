@@ -27,7 +27,7 @@ Outcomes in brief:
 | O6 | The "predictions" are known results | Conceded |
 | O7 | Recovering the repository's own theorems is circular | Partly answered; since answered in part by outside recoveries (A7, update) |
 | O8 | The finiteness and LPO leaks remove the cases that matter | Partly conceded |
-| O9 | The framework has predicted nothing not already known | Conceded in part: one preregistered prediction (P2) passed, as a bet rather than a derivation (A9, updates) |
+| O9 | The framework has predicted nothing not already known | Conceded in part: two preregistered predictions passed, P2 as a bet and P3 as a model computation checked against running software (A9, updates) |
 | O10 | The distributed application is a change of vocabulary | Partly answered |
 | O11 | "One principle at three scales" is not a theorem | Conceded in part; the paper must restate it |
 | O12 | "Exact" is cheap: the author picks the model and quantifies over reachable states | Partly answered |
@@ -440,6 +440,14 @@ answer came from an exhaustive search and a proof of one instance. So the paper 
 framework made one correct preregistered prediction, a bet on which side of a proved distinction
 a new system falls, and must not say that the framework computed the answer.
 
+**Update (P3 scored).** A second prediction, of a different kind, passed ([P3.md](predictions/P3.md)):
+a model of CouchDB's and PouchDB's revision handling, built through the at-least-once exact theorem
+and state descent, computed on which delivery orders a deleted document comes back, and the running
+software matched on all 216 scored observations. The paper may say the framework made two correct
+preregistered predictions, a bet (P2) and a model computation checked against running software (P3),
+and must still not say that it derives answers by theorem alone. An unscored scenario found a model
+error, recorded in the outcome.
+
 ### A10. The distributed application is a change of vocabulary: partly answered
 
 **Conceded.** The mathematical form of each condition is classical (A1 to A4). Read as mathematics,
@@ -614,7 +622,7 @@ These are questions the repository cannot answer now. None is a proposal to star
 1. **An outside prediction.** Is there a regime not yet studied here for which the framework states
    a condition before it is proved, and the condition then turns out exact? Nothing in the
    repository is of that kind (A9). Since: the kernels are frozen and a prediction protocol is in place
-   ([research/predictions](predictions/README.md)); one prediction, P2, has been scored and passed, as a bet rather than a derivation (A9); a prediction the framework computes is still open.
+   ([research/predictions](predictions/README.md)); two predictions have been scored and passed: P2, a bet, and P3, a model computation checked against running software (A9); a prediction derived by theorem alone is still open.
 2. **An outside recovery.** Every recovery is of a theorem proved in this repository. Whether the
    kernels prove a published convergence theorem from outside it, with that theorem's own
    definitions, has not been tried.

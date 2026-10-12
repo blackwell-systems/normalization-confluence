@@ -95,7 +95,12 @@ repository's results, so recovering them shows compression, not reach. Two stric
   ([research/predictions](research/predictions/README.md)). The first, P2, passed: a matching
   market with exactly one stable matching can still cycle forever when every pair gets its turn
   (`StableMatchingP2.v`). It was a bet on which side of a proved distinction a new system falls,
-  not an answer the framework computed.
+  not an answer the framework computed. The second, P3, also passed: a model of CouchDB's and
+  PouchDB's revision handling, built through the framework, computed on which delivery orders a
+  deleted document comes back (6 of 24 in CouchDB, 12 of 24 in PouchDB), and the running software
+  matched on all 216 scored observations ([P3](research/predictions/P3.md)). An unscored scenario
+  found an error in the model; its correction exposed a CouchDB behavior, reported upstream as
+  [apache/couchdb#6162](https://github.com/apache/couchdb/issues/6162).
 
 ## Scope
 
