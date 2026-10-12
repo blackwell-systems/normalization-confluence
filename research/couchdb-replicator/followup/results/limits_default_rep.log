@@ -1,0 +1,57 @@
+scenario het_100_default_rep: LA=1000 LB=100 LD=100 LT=1000 c=1 m=101 F=20000 A->T opts={} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: write 20000 unrelated filler docs
+  10. A: 100 edit(s) of X -> 2..101
+  11. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  16. replicate A -> T1  {'stats': {'missing_checked': 20001, 'missing_found': 20001, 'docs_read': 20001, 'docs_written': 20001, 'doc_write_failures': 0}}
+  17. replicate A -> T2  {'stats': {'missing_checked': 20001, 'missing_found': 20001, 'docs_read': 20001, 'docs_written': 20001, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=101 conflicts=[]  leaves=[1..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  18. A: 1 edit(s) of X (last is a delete) -> 102..102
+  19. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[1..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..102](del)
+  => het_100_default_rep: T1 vs T2 DIFFER
+scenario het_100_default_rep_nofill: LA=1000 LB=100 LD=100 LT=1000 c=1 m=101 F=0 A->T opts={} mode=rep
+   1. create A revs_limit=1000
+   2. create C revs_limit=1000
+   3. create B revs_limit=100
+   4. create D revs_limit=100
+   5. create T1 revs_limit=1000
+   6. create T2 revs_limit=1000 +accept-all VDU
+   7. A: 1 edit(s) of X -> 1..1
+   8. replicate A -> C (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. A: 100 edit(s) of X -> 2..101
+  10. replicate A -> B (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. replicate C -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate B -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  13. replicate C -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate B -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after C,B: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  15. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  16. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+     T2 after A: LIVE winner=101 conflicts=['1']  leaves=[1]; [2..101]
+  17. A: 1 edit(s) of X (last is a delete) -> 102..102
+  18. replicate A -> D (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. replicate D -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate D -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..102](del)
+     T2 final: LIVE winner=1 conflicts=[]  leaves=[1]; [2..102](del)
+  => het_100_default_rep_nofill: T1 vs T2 same

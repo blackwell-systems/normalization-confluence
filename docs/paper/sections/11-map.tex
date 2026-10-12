@@ -4,8 +4,9 @@
 
 The results of \cref{sec:main,sec:crdt,sec:layer-a,sec:layer-c,sec:layer-b,sec:interfaces} are the
 organizing core of a larger body of work: a map of the regimes of governed concurrent state. In every
-regime the map records a machine-checked exact condition, a proof that no efficient exact condition
-exists unless $\mathrm{P} = \mathrm{NP}$, or an open problem listed in an audit. This section summarizes it; the regime-by-regime audit,
+regime it does not exclude by design, the map records a machine-checked exact condition, a proof that no efficient exact condition
+exists unless $\mathrm{P} = \mathrm{NP}$, or an open problem listed in an audit. This section summarizes it (\cref{fig:atlas}, and by family in
+\cref{app:map}); the regime-by-regime audit,
 with the Coq theorem behind each entry, is part of the development.
 
 \paragraph{Exact.} Single registries; causal and at-least-once delivery; CRDTs; stream processors;
@@ -52,6 +53,6 @@ question appears in two families, and one tile marks the open sheaf-assembly ite
 convergence question.
 
 \paragraph{The evidence base.} The development's axiom-free gate checks 4{,}797 named results, every
-one closed under the global context, with no axioms and no admitted proofs anywhere in the source, checked on three versions of Coq on every change. The
+one closed under the global context, with no axioms and no admitted proofs anywhere in the source, checked on three versions of Coq and Rocq on every change. The
 counts are kept equal to the gate by a script that also checks every theorem name cited on the
 atlas and the website against the source and the gate.

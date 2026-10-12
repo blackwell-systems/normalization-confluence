@@ -1,0 +1,15 @@
+   1. create A revs_limit=1000
+   2. create T2 revs_limit=1000
+   3. A: 4 edit(s) of X -> 1..4
+   4. A: 1 edit(s) of X (last is a delete) -> 5..5
+pre  inject leaf 1 history 1..1: HTTP 201 []
+pre  inject leaf 4 history 2..4: HTTP 201 []
+     T2 before re-delivery: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+T2 before: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+install rejecting VDU: 201 {'ok': True, 'id': '_design/reject', 'rev': '1-62204b01ea83d5c7aa63f1b8f86566a2'}
+RE-DELIVERY leaf 4 history 1..4: HTTP 201 []
+     T2 after: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+T2 after re-delivery: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+CONTROL new leaf 5 (deleted): HTTP 201 [{'id': 'X', 'rev': '5-6ae1da2b9bec92937ef6488e23e694c9', 'error': 'forbidden', 'reason': 'vdu saw 5-6ae1da2b9bec92937ef6488e23e694c9'}]
+     T2 final: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]
+T2 final: LIVE winner=4 conflicts=['1']  leaves=[1]; [2..4]

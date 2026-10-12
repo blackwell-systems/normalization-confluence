@@ -139,9 +139,10 @@ witness of \cref{prop:witness} is an instance: its governed behavior is the cons
 Normalization confluence does not reach convergent behaviors that CRDTs cannot. What it adds is a
 way to build them. A designer writes the operations the application needs, which need not commute,
 and a repair that restores the invariants; the exact conditions of \cref{sec:main}, state descent
-and history descent, decide whether the combination converges, which is to say whether its governed
-steps form a CRDT. The design freedom is in the operations, and the guarantee is checked rather than
-designed in. \cref{sec:gsm} describes a checker that runs these conditions at build time.
+and history descent, decide whether the combination converges; when repair runs with the event, that
+is whether its governed steps form a CRDT. The design freedom is in the operations, and the guarantee
+is checked rather than designed in. \cref{sec:gsm} describes a checker for that case that runs at
+build time.
 
 The CRDT reading treats an event and its repair as one atomic operation, so it says nothing about when
 repair runs. When an event can arrive before repair finishes, state descent is the further condition

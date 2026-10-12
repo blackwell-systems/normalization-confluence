@@ -1,0 +1,326 @@
+{
+ "scenario": "two_full_first_early5",
+ "note": "",
+ "couchdb": "3.5.3",
+ "steps": [
+  {
+   "step": 1,
+   "action": "create A revs_limit=1000"
+  },
+  {
+   "step": 2,
+   "action": "create S revs_limit=1000"
+  },
+  {
+   "step": 3,
+   "action": "create T1 revs_limit=1000"
+  },
+  {
+   "step": 4,
+   "action": "create T2 revs_limit=1000 +accept-all VDU"
+  },
+  {
+   "step": 5,
+   "action": "A: 5 edit(s) of X -> 1..5"
+  },
+  {
+   "step": 6,
+   "action": "replicate A -> T1 (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 7,
+   "action": "replicate A -> T2 (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 8,
+   "action": "A: 1200 edit(s) of X -> 6..1205"
+  },
+  {
+   "step": 9,
+   "action": "replicate A -> S (doc_ids=[X])",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 10,
+   "action": "A: 95 edit(s) of X -> 1206..1300"
+  },
+  {
+   "step": 11,
+   "action": "replicate A -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 12,
+   "action": "replicate A -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 13,
+   "action": "replicate S -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 14,
+   "action": "replicate S -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 15,
+   "action": "A: 1 edit(s) of X (last is a delete) -> 1301..1301"
+  },
+  {
+   "step": 16,
+   "action": "replicate A -> T1",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 17,
+   "action": "replicate A -> T2",
+   "stats": {
+    "missing_checked": 1,
+    "missing_found": 1,
+    "docs_read": 1,
+    "docs_written": 1,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 18,
+   "action": "replicate S -> T1",
+   "stats": {
+    "missing_checked": 0,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  },
+  {
+   "step": 19,
+   "action": "replicate S -> T2",
+   "stats": {
+    "missing_checked": 0,
+    "missing_found": 0,
+    "docs_read": 0,
+    "docs_written": 0,
+    "doc_write_failures": 0
+   }
+  }
+ ],
+ "result": {
+  "params": {
+   "L": 1000,
+   "k": 5,
+   "N0": 1205,
+   "N1": 1300,
+   "F": 0,
+   "ropts": {},
+   "order": "full_first"
+  },
+  "intermediate": [
+   {
+    "db": "T1 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1300",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1300",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "301..1300"
+     }
+    ],
+    "summary": "LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]"
+   },
+   {
+    "db": "T2 after A",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1300",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1300",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "301..1300"
+     }
+    ],
+    "summary": "LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]"
+   },
+   {
+    "db": "T1 after S",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1300",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1300",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "301..1300"
+     }
+    ],
+    "summary": "LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]"
+   },
+   {
+    "db": "T2 after S",
+    "GET_status": 200,
+    "live": true,
+    "winner": "1300",
+    "_conflicts": [
+     "5"
+    ],
+    "_deleted_conflicts": [],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1300",
+      "deleted": false,
+      "path_len": 1000,
+      "path": "301..1300"
+     }
+    ],
+    "summary": "LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]"
+   }
+  ],
+  "final": [
+   {
+    "db": "T1 final",
+    "GET_status": 200,
+    "live": true,
+    "winner": "5",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "1301"
+    ],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1301",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "302..1301"
+     }
+    ],
+    "summary": "LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)"
+   },
+   {
+    "db": "T2 final",
+    "GET_status": 200,
+    "live": true,
+    "winner": "5",
+    "_conflicts": [],
+    "_deleted_conflicts": [
+     "1301"
+    ],
+    "leaves": [
+     {
+      "leaf": "5",
+      "deleted": false,
+      "path_len": 5,
+      "path": "1..5"
+     },
+     {
+      "leaf": "1301",
+      "deleted": true,
+      "path_len": 1000,
+      "path": "302..1301"
+     }
+    ],
+    "summary": "LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)"
+   }
+  ],
+  "differ": false
+ }
+}

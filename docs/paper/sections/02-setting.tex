@@ -7,8 +7,8 @@
 business rules), a set of events, and a repair. Each event $e$ has a raw transition $e : X \to X$, which may
 leave the valid states. The repair is given by a step $\rho : X \to X$ applied to invalid states, with a
 potential $\Phi : X \to \mathbb{N}$ that strictly decreases under $\rho$ on invalid states, so that repair
-terminates. This termination condition is called WFC. Iterating $\rho$ until the state is valid gives the
-repair map $N = \rho^{*}$, and the governed step of an event is $\gov(e) = \rho^{*} \circ e$.
+terminates. This termination condition is called WFC (well-founded compensation). Iterating $\rho$ until the state is valid gives the
+repair map $N = \rho^{*}$, and the governed (repaired) step of an event is $\gov(e) = \rho^{*} \circ e$.
 
 \paragraph{Executions.} A replica holds a configuration: a state and a buffer of pending events. A step
 either applies a pending event or, if the state is invalid, applies $\rho$. A normal form is a valid state
@@ -27,10 +27,11 @@ settings of layer~B and of most of the regime map; their definitions are introdu
 
 \paragraph{Mechanization.} Every result named in the paper is a theorem in a Coq development, cited by its
 name in typewriter font. Every theorem is closed under the global context, with no axioms and no
-admitted proofs, and continuous integration checks this on three versions of Coq on every change. The
+admitted proofs, and continuous integration checks this on three versions of Coq and Rocq on every change. The
 statements in the paper are read from the source. Decidability assumptions (decidable equality of
 states and events, decidable validity) are stated where the Coq statement needs them for a
-constructive proof; other hypotheses are stated in full.
+constructive proof; other hypotheses are stated in full. \Cref{app:method} describes the method and
+\cref{app:modules} the files.
 
 \begin{center}\small
 \begin{tabular}{@{}ll@{}}

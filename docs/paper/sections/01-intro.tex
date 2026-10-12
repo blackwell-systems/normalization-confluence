@@ -29,7 +29,7 @@ histories, and for infinite runs.
 \paragraph{Contributions.}
 \begin{enumerate}[nosep]
   \item Conditions at three scales, with a proved hierarchy between them: state descent, necessary at
-    one event; history descent, which with state descent and terminating repair is exact for a single
+    one event when events can arrive before repair finishes; history descent, which with state descent and terminating repair is exact for a single
     registry; and canonical recurrence, exact for infinite runs on finite state spaces
     (\cref{sec:main}).
   \item The relation to CRDTs stated precisely: repair strictly enlarges which operations can be used, but
@@ -40,9 +40,10 @@ histories, and for infinite runs.
     is derived without circularity (\cref{sec:layer-a,sec:layer-c,sec:layer-b,sec:interfaces,sec:base-case}).
   \item Tests of the framework where it could fail: classical theorems from outside the development
     recovered with its files frozen, and two predictions committed before their tests, one a bet about
-    matching markets and one a computed prediction about a widely used database, both confirmed
+    matching markets and one a computed prediction about widely used databases, both confirmed
     (\cref{sec:tests}).
-  \item A regime map with an exact condition, a hardness result or a listed open problem in every regime,
+  \item A regime map with an exact condition, a hardness result or a listed open problem in every regime
+    not excluded by design,
     all mechanized in Coq with no axioms, and a checker that runs the practical conditions at build
     time (\cref{sec:map,sec:gsm}).
 \end{enumerate}

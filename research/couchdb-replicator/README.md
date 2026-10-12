@@ -152,6 +152,35 @@ known stemming tradeoff (COUCHDB-1649) and was not reported.
 On 2026-10-12 a CouchDB maintainer [confirmed](https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781) the accept-everything case as a bug,
 attributing it to the lowered `_revs_limit`.
 
+## Follow-up: mismatched revision limits
+
+Run on 2026-10-12 on a fresh CouchDB 3.5.3 (Homebrew build, single node) after the maintainer's
+reply, to find what the trigger needs. Scripts, logs and one JSON file per scenario are in
+[followup/](followup/) ([followup/README.md](followup/README.md) has the details and the recipe).
+
+- **Uniform limits never diverge.** With the same `_revs_limit` on every database (1000, 2, 3, 10,
+  100), the target with and the target without a `validate_doc_update` function end the same in
+  every run, through the replicator (with and without the `_revs_diff` skip) and through
+  `_bulk_docs` with `new_edits: false`, including documents edited 1,205 times, an early-synced
+  target and two sources in both orders.
+- **Mismatched limits always diverge.** With intermediate replicas at a lower limit L, the full
+  source and the targets at 1000, and a document history deeper than L, the target without the
+  function ends deleted and the target with an accept-all one ends live on a stale revision. This
+  holds at L = 3, 10, 100 and 999 against 1000, through `_bulk_docs` at every L including 999, and
+  through the replicator; with default replication settings it is confirmed at 100 against 1000
+  (about 20,000 unrelated documents before `X` in the source's changes feed; without them the
+  `_revs_diff` skip does not fire and the targets agree).
+- **The re-sent leaf never reaches `validate_doc_update`.** `reject_vdu.py`: on a target holding
+  `X` as two roots, with a function that rejects every write to `X`, re-delivering the existing
+  leaf with its full history returns success and leaves the tree unchanged, while a revision the
+  target lacks is rejected with the function's own message. So the revision is dropped before
+  validation (the already-a-leaf branch of `prep_and_validate_replicated_updates`), and the
+  function's code plays no part.
+- **Batch composition.** A design document in the same `_bulk_docs` request sends a target without
+  the function down the same filtered path (`before_docs_update` also filters when the request
+  holds a design document or attachments).
+- **Control.** The issue's original reproduction (limits 1 and 2) gives the reported split.
+
 ## Conclusion
 
 Reachable through the real replicator, both behaviors, with no injection.

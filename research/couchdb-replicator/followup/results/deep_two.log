@@ -1,0 +1,160 @@
+scenario two_late_first: L=1000 k=None N0=1205 N1=1300 F=0 opts={} order=late_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 1205 edit(s) of X -> 1..1205
+   6. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   7. A: 95 edit(s) of X -> 1206..1300
+   8. replicate S -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. replicate S -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+     T2 after S: LIVE winner=1205 conflicts=[]  leaves=[206..1205]
+  10. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  11. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+     T2 after A: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+  12. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  13. replicate S -> T1  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  14. replicate S -> T2  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  15. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  16. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[302..1301](del)
+     T2 final: DELETED (GET 404)  leaves=[302..1301](del)
+  => two_late_first: T1 vs T2 same
+scenario two_full_first: L=1000 k=None N0=1205 N1=1300 F=0 opts={} order=full_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 1205 edit(s) of X -> 1..1205
+   6. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   7. A: 95 edit(s) of X -> 1206..1300
+   8. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+     T2 after A: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+  10. replicate S -> T1  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  11. replicate S -> T2  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+     T2 after S: LIVE winner=1300 conflicts=[]  leaves=[301..1300]
+  12. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  13. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  15. replicate S -> T1  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  16. replicate S -> T2  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 final: DELETED (GET 404)  leaves=[302..1301](del)
+     T2 final: DELETED (GET 404)  leaves=[302..1301](del)
+  => two_full_first: T1 vs T2 same
+scenario two_late_first_early5: L=1000 k=5 N0=1205 N1=1300 F=0 opts={} order=late_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 5 edit(s) of X -> 1..5
+   6. replicate A -> T1 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   7. replicate A -> T2 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   8. A: 1200 edit(s) of X -> 6..1205
+   9. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 95 edit(s) of X -> 1206..1300
+  11. replicate S -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate S -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+     T2 after S: LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+  13. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  14. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  15. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  16. replicate S -> T1  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  17. replicate S -> T2  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  18. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+     T2 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+  => two_late_first_early5: T1 vs T2 same
+scenario two_full_first_early5: L=1000 k=5 N0=1205 N1=1300 F=0 opts={} order=full_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: 5 edit(s) of X -> 1..5
+   6. replicate A -> T1 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   7. replicate A -> T2 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   8. A: 1200 edit(s) of X -> 6..1205
+   9. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 95 edit(s) of X -> 1206..1300
+  11. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  13. replicate S -> T1  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  14. replicate S -> T2  {'stats': {'missing_checked': 1, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after S: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  15. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  16. replicate A -> T1  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  17. replicate A -> T2  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  18. replicate S -> T1  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  19. replicate S -> T2  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+     T2 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+  => two_full_first_early5: T1 vs T2 same
+scenario two_full_first_early5_skip: L=1000 k=5 N0=1205 N1=1300 F=6 opts={'worker_processes': 1, 'worker_batch_size': 1} order=full_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: write 6 unrelated filler docs
+   6. S: write 6 unrelated filler docs
+   7. A: 5 edit(s) of X -> 1..5
+   8. replicate A -> T1 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. replicate A -> T2 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 1200 edit(s) of X -> 6..1205
+  11. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. A: 95 edit(s) of X -> 1206..1300
+  13. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  14. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  15. replicate S -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  16. replicate S -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after S: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  17. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  18. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  19. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  20. replicate S -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  21. replicate S -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+     T2 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+  => two_full_first_early5_skip: T1 vs T2 same
+scenario two_late_first_early5_skip: L=1000 k=5 N0=1205 N1=1300 F=6 opts={'worker_processes': 1, 'worker_batch_size': 1} order=late_first
+   1. create A revs_limit=1000
+   2. create S revs_limit=1000
+   3. create T1 revs_limit=1000
+   4. create T2 revs_limit=1000 +accept-all VDU
+   5. A: write 6 unrelated filler docs
+   6. S: write 6 unrelated filler docs
+   7. A: 5 edit(s) of X -> 1..5
+   8. replicate A -> T1 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+   9. replicate A -> T2 (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  10. A: 1200 edit(s) of X -> 6..1205
+  11. replicate A -> S (doc_ids=[X])  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  12. A: 95 edit(s) of X -> 1206..1300
+  13. replicate S -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  14. replicate S -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after S: LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+     T2 after S: LIVE winner=1205 conflicts=['5']  leaves=[1..5]; [206..1205]
+  15. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+  16. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 7, 'missing_found': 7, 'docs_read': 7, 'docs_written': 7, 'doc_write_failures': 0}}
+     T1 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+     T2 after A: LIVE winner=1300 conflicts=['5']  leaves=[1..5]; [301..1300]
+  17. A: 1 edit(s) of X (last is a delete) -> 1301..1301
+  18. replicate S -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  19. replicate S -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 0, 'missing_found': 0, 'docs_read': 0, 'docs_written': 0, 'doc_write_failures': 0}}
+  20. replicate A -> T1 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+  21. replicate A -> T2 (worker_processes=1 worker_batch_size=1)  {'stats': {'missing_checked': 1, 'missing_found': 1, 'docs_read': 1, 'docs_written': 1, 'doc_write_failures': 0}}
+     T1 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+     T2 final: LIVE winner=5 conflicts=[]  leaves=[1..5]; [302..1301](del)
+  => two_late_first_early5_skip: T1 vs T2 same

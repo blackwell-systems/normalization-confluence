@@ -4,6 +4,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{mathtools,amsmath,amssymb,amsthm}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{tikz}
@@ -50,7 +51,8 @@ between them and show that CRDTs are the case where
 repair does nothing: repair enlarges which operations can be used, while every convergent repaired
 system is a CRDT on its repaired steps. A three-layer framework for executions, consistent states and
 long-run behavior, with proved interfaces, organizes these conditions across a map of regimes that has,
-in every regime, an exact condition, a hardness result or a listed open problem. We test the framework
+in every regime it does not exclude by design, an exact condition, a hardness result or a listed open
+problem. We test the framework
 where it could fail: with its files frozen it recovers Dijkstra's self-stabilization and invariant
 confluence, and two predictions committed before their tests were confirmed, one about stable matching
 markets and one about replication in CouchDB and PouchDB. All 4{,}797 gated results are mechanized in Coq with
