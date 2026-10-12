@@ -1175,6 +1175,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- The website is reworked for readers who are not research scientists. Front page: a plain hero
+  ("When do copies of your data still agree?") with the P3 result and the engineer's guide as the
+  primary link; short sections (who should care, the CouchDB and PouchDB prediction, when the
+  repair runs) before a "For researchers" divider that keeps the research sections in their order,
+  each condition with its plain question. The gsm example now models the stock from 4 to 8 and shows
+  real gsm v0.16.0 output whose reported divergence is the story's (4 against 5). One naming scheme
+  across the front page, the guide and the atlas: questions (a), (b) and (c) first, research names
+  (CC1, CC2, WFC and the rest) in the guide's glossary and the atlas detail cards. Atlas: a purpose
+  line, a more prominent tour button, tile faces and tour stops in plain words, "Recently solved" in
+  place of a pull-request number. `docs/atlas/check.py` also rejects bare research abbreviations on
+  tile faces and tour stops and em dashes on the front page and the poster. The link preview and
+  the atlas preview image are re-rendered. No theorem added, removed or renamed.
 - The theory paper states the execution model of the single-registry theorem (an event may
   arrive before repair finishes) in section 3, adds a paragraph "When repair runs" citing
   `atomic_not_descent` and `atomic_exact`, and describes state descent in the abstract as what makes

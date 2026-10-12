@@ -21,6 +21,7 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
 .head{display:flex;flex-direction:column;gap:22px}
 .eyebrow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:clamp(12px,0.9vw,16px);letter-spacing:0.18em;color:var(--dim)}
 h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,104px);line-height:0.98;letter-spacing:-0.01em;max-width:1500px}
+.purpose{margin:0;font-size:clamp(19px,1.7vw,30px);line-height:1.35;color:var(--text);max-width:1380px;font-weight:500}
 .lede{margin:0;font-size:clamp(17px,1.45vw,26px);line-height:1.4;color:var(--muted);max-width:1380px}
 
 /* View switch and tour button */
@@ -30,7 +31,7 @@ h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,1
 .views button:last-child{border-right:0}
 .views button:hover{background:#1A2029;color:var(--text)}
 .views button[aria-pressed="true"]{background:#163A66;color:var(--text)}
-.start{font:600 16px/1 var(--sans);color:#0C0F14;background:var(--gold);border:0;border-radius:8px;padding:12px 18px;cursor:pointer}
+.start{font:700 clamp(17px,1.2vw,21px)/1.1 var(--sans);color:#0C0F14;background:var(--gold);border:0;border-radius:10px;padding:16px 24px;cursor:pointer;box-shadow:0 0 0 4px rgba(242,193,78,0.25)}
 .start:hover{background:#F7D27A}
 .views button:focus-visible,.start:focus-visible,.tour button:focus-visible,.fw a:focus-visible{outline:3px solid #8CC4FF;outline-offset:2px}
 .viewnote{font-size:clamp(15px,1vw,18px);color:var(--dim);flex:1 1 320px;margin:0;line-height:1.4}
@@ -224,25 +225,26 @@ body.touring{padding-bottom:300px}
 <header class="head">
 <div class="eyebrow"><span>THE CONVERGENCE ATLAS</span><span>PLATE INDEX I to IV</span></div>
 <h1>When does concurrent state with invariant repair converge?</h1>
+<p class="purpose">Find your situation: each tile is one kind of system, and says what to check for its copies to agree.</p>
 <p class="lede">An exact regime map. In every regime: a necessary and sufficient condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Every answer machine-checked: 4,797 axiom-free theorems in Coq.</p>
 </header>
 
 <div class="bar">
+<button type="button" class="start" id="start" aria-haspopup="dialog">Start here: a six-stop tour &#8594;</button>
 <div class="views" role="group" aria-label="View">
 <button type="button" data-view="catalog" aria-pressed="true">Catalog</button>
 <button type="button" data-view="framework" aria-pressed="false">Framework</button>
 <button type="button" data-view="axes" aria-pressed="false">Axes</button>
 </div>
-<button type="button" class="start" id="start" aria-haspopup="dialog">Start here: a six-stop tour</button>
 <p class="viewnote" id="viewnote" aria-live="polite"></p>
 </div>
 
 <div class="legend">
-<div><div class="sw" style="background:#163A66"></div><span>Exact (iff)</span></div>
+<div><div class="sw" style="background:#163A66"></div><span>Exact: <i>iff</i>, if and only if (the condition is necessary and sufficient)</span></div>
 <div><div class="sw" style="background:#B4561A"></div><span>Hardness (mechanized reduction)</span></div>
 <div><div class="sw" style="width:26px;height:18px;border:2px dashed #C9D2DD"></div><span>Open, numbered gap</span></div>
 <div><div class="sw" style="background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 5px,#2A303A 5px,#2A303A 10px)"></div><span>Excluded by design</span></div>
-<div><div class="sw" style="width:26px;height:18px;box-shadow:0 0 0 3px #F2C14E"></div><span>Closed in #117</span></div>
+<div><div class="sw" style="width:26px;height:18px;box-shadow:0 0 0 3px #F2C14E"></div><span>Recently solved</span></div>
 <span class="hint">Each line is relative to its tile's model. Hover, focus or tap a tile for its detail card.</span>
 </div>
 
@@ -376,7 +378,7 @@ body.touring{padding-bottom:300px}
     var label = t.thm ? t.thm + (t.thmNote ? ' ' + t.thmNote : '') : t.note;
     var kind = KIND[t.kind] + (t.gap ? ' ' + t.gap : '');
     return '<button type="button" class="tile ' + t.kind + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" data-id="' + esc(t.id) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
-      esc(t.name + '. ' + kind + '. ' + t.plain + ' ' + label + (t.fresh ? '. Closed in #117' : '')) + '">' +
+      esc(t.name + '. ' + kind + '. ' + t.plain + ' ' + label + (t.fresh ? '. Recently solved' : '')) + '">' +
       '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span><span class="name">' + esc(t.name) + '</span>' +
       '<span class="plain">' + esc(t.plain) + '</span><span class="thm">' + esc(label) + '</span></button>';
   }
@@ -454,7 +456,7 @@ body.touring{padding-bottom:300px}
     var t = e.t, f = e.f, h = '', l = LAYER[t.layer];
     h += '<button type="button" class="c-close" aria-label="Close">&#215;</button>';
     h += '<div class="c-top"><span class="c-kind k-' + t.kind + '">' + esc(KIND[t.kind]) + (t.gap ? ' &middot; gap ' + esc(t.gap) : '') + '</span>' +
-      (t.fresh ? '<span class="k-fresh">closed in #117</span>' : '') + '<span>' + esc(f.code + ' ' + f.name) + '</span></div>';
+      (t.fresh ? '<span class="k-fresh">recently solved</span>' : '') + '<span>' + esc(f.code + ' ' + f.name) + '</span></div>';
     h += '<h3 id="card-title">' + esc(t.name) + '</h3><p class="c-plain">' + esc(t.plain) + '</p><dl>';
     h += '<dt>Setting</dt><dd>' + esc(t.setting) + '</dd>';
     h += '<dt>' + COND[t.kind] + '</dt><dd>' + esc(t.condition) + '</dd>';
