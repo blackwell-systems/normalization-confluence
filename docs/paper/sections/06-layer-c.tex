@@ -24,10 +24,32 @@ lasso from $s_0$ has a loop state outside $N^{-1}(c)$. The equivalence is constr
 is closed under every update (\cref{thm:c1}), and holds for every fiber in double-negated form.
 \end{theorem}
 
+\paragraph{Proof idea.}
+For the refutation direction, a bad fair lasso $(p, q)$ gives the schedule $p\,q\,q\,q\cdots$, which is
+fair because $q$ picks every action (\coq{lasso_fair}) and visits the bad loop state once per round
+of $q$ (\coq{lasso_visits}); no finiteness is used (\coq{bad_lasso_refutes}). For the converse, cut a
+fair run into consecutive windows that each pick every action (\coq{fair_window}). Since $X$ is
+finite, two of any $|X| + 1$ window boundaries carry the same state, the segment between them is a
+fair lasso, and its base point lies in the fiber because no fair lasso is bad (\coq{hits_aux},
+\coq{loop_good}); so the run enters the fiber after every time (\coq{nobad_hits}), and a closed fiber
+keeps it there (\coq{closed_stays}). Without closure, the same lasso argument shows that each state
+outside the fiber is visited only finitely often, in double-negated form, since whether a state recurs
+along an arbitrary schedule is not decidable; these statements are combined over the finite list of
+states, using decidable equality on $C$ to decide membership in the fiber
+(\coq{state_finitely_often}, \coq{nn_bound}).
+
 \begin{theorem}[C2; \coq{C2}, \coq{C2_loops}]\label{thm:c2}
 On a finite $X$, every fair run from $s_0$ eventually stays at a state fixed by every update if and
 only if every fair lasso from $s_0$ has a single loop state, and that state is fixed by every update.
 \end{theorem}
+
+\paragraph{Proof idea.}
+The closed form of C1 and C2 are instances of one lemma for a decidable set of states closed under
+every update (\coq{recurrence_closed_exact}). For C2 the set is the settled states: they are closed
+(\coq{settled_closed}) and decidable, by decidable equality on $X$ and the finite list of actions
+(\coq{settled_dec}), so C2 needs no double negation. The loop form follows from it: a fair lasso
+whose base point is unsettled is bad, with the base point as its loop state (\coq{onloop_base}), and
+a settled base point is fixed by every word, so every loop state equals it (\coq{settled_wrun}).
 
 C1 asks whether runs settle on the right result; C2 asks whether they settle at all. The refutation
 direction needs no finiteness: a bad fair lasso refutes settling on any state space
@@ -55,6 +77,20 @@ loops below a fixed point.
     bounds every loop by a fixed point, which is unique, so every recurrent class is that fixed point.
   \item \emph{Fair flush} (\coq{fairflush_lasso}, \coq{fairflushR_lasso}): the originals are C2.
 \end{itemize}
+
+\paragraph{Proof idea for signed settlement.}
+\coq{signed_settlement_lasso} keeps the statement of the original and adds that the state type is
+listed; the switching hypothesis makes every repair monotone in the switched order
+(\coq{switched_monotone}). The key step is \coq{sr_floor}, an application of the toolkit lemma
+\coq{loop_floor} to a fair loop at $z$ with word $q$: the iterates of $q$ from the bottom state are
+inflationary and stay below $z$ by monotonicity, two of them coincide because the state type is
+finite (\coq{pigeon}), and an inflationary loop fixes every action it uses (\coq{infl_loop_fixed});
+since $q$ picks every action, that iterate is a fixed point, so the least fixed point lies below $z$.
+From a start below the least fixed point every reachable state stays below it (\coq{wrun_below}), so
+every fair loop is the least fixed point alone (\coq{sr_below_nobad}), and settlement there is read
+off the closed form of C1, whose fiber is a single fixed point. From a sound start the run is
+inflationary, so a fair loop word fixes its base point (\coq{sr_sound_nobad}), which is C2; the
+remaining conjuncts are the original's kernel lemmas applied to this settlement.
 
 A cycle that is not fair does not refute anything. The development has a bad cycle that never picks
 one of the actions, in a network where every fair run settles

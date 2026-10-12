@@ -27,6 +27,16 @@ read and write laws, the states fixed by every edge repair of the network's dyna
 solutions.
 \end{theorem}
 
+\emph{Proof idea.} The correspondence is unfolding: the constraint of an edge $u \to v$ labeled $f$ holds
+at an assignment $s$ exactly when $f(s_u) = s_v$ (\coq{csat_econ}), and a pin constraint exactly when
+the pinned value is taken (\coq{csat_pcon}), so sections agreeing with the pins are the solutions
+(\coq{section_solution}); each constraint uses the graph of its edge's label or a pin, so the instance
+is over $\Gamma_F$. Finiteness of $F$ and $D$ is not used. For the dynamics, the repair
+$s[v := f(s_u)]$ fixes $s$ exactly when $f(s_u) = s_v$: reading $v$ after the write gives one
+direction, and writing back the value just read leaves the store unchanged for the other
+(\coq{erep_fixed_iff}). Taking every edge gives \coq{edge_fixed_iff_section}, and the correspondence turns
+sections into solutions.
+
 Merges in which a vertex reads several inputs are graphs of $k$-ary maps and fit the same way
 (\coq{hsection_iff_csp}). The identification of global sections with constraint solutions is known in
 general, from the sheaf-theoretic treatment of contextuality~\cite{abramsky2011,abramsky2014}; what is proved here
@@ -38,6 +48,13 @@ map in $F$ and fix every pinned value (\coq{pol_gamma_iff}), the centralizer of 
 sense of clone theory. By the dichotomy theorem for finite-domain constraint
 problems~\cite{bulatov2017,zhuk2020}, cited and not mechanized, section existence for each fixed
 finite family is either polynomial or NP-complete, and the polymorphisms decide which.
+
+\emph{Proof idea.} Applied to $k$ rows $(x_i, f(x_i))$ of the graph of $f$, an operation $p$ that
+preserves the graph returns a pair of the graph, which says $f(p(x_1, \dots, x_k)) = p(f(x_1), \dots,
+f(x_k))$; conversely, commutation sends the column of left entries to a value whose image under $f$ is $p$ of
+the column of right entries (\coq{pol_iff_commute}). For a pin $\{c\}$ the only rows are constant, so $p$
+preserves it exactly when $p(c, \dots, c) = c$ (\coq{pol_pin_iff}), and \coq{pol_gamma_iff} is the
+conjunction over the relations of the template.
 
 % ---------------------------------------------------------------------------------------------
 \subsection{Where the development's results sit}
@@ -55,6 +72,17 @@ make arc consistency decide the instance. Both hypotheses are needed. On the fou
 monotone map need not commute with join (\coq{diamond_join_fails}), and without monotonicity arc
 consistency accepts an instance that has no section (\coq{ac_needs_mono}).
 
+\emph{Proof idea.} The procedure revises every domain at once, keeping a value only if it has a
+support along every edge into and out of its vertex, and stops when a pass removes nothing; every
+other pass shrinks the total size of the domains, which starts at most the number of vertices times
+$N + 1$, so it stops (\coq{measure_nxt}, \coq{ac_run_some}). Revision never removes the value of a
+section (\coq{sol_ok}, \coq{run_spec}), so if a section exists every final domain is nonempty; this
+direction does not use monotonicity. Conversely, take the minimum of each final domain
+(\coq{ac_min_section}). For an edge $u \to v$ labeled $f$ with minima $a$ and $b$, the support of $a$
+along the edge gives $f(a)$ in the domain of $v$, so $b \le f(a)$; the support of $b$ gives some $a'$
+in the domain of $u$ with $f(a') = b$, and $a \le a'$ with monotonicity of $f$ gives $f(a) \le b$.
+The pins hold because each domain starts inside its pinned value.
+
 \paragraph{Monotone maps off the chain: hard.} Read as two flags, the diamond carries six monotone
 maps (read one flag, their AND or OR, or a constant) whose only polymorphisms are projections, at
 every arity (\coq{pol_dfam_iff}); so they have no Siggers, majority or Mal'tsev polymorphism
@@ -67,6 +95,19 @@ classification of unary algebras on at most three elements~\cite{broniek2006}. W
 cells is join preservation. Maps that preserve join, the shape of state-based CRDTs, keep join as a
 semilattice polymorphism on any lattice (\coq{semilattice_pol}, \coq{joinhom_pol}); monotonicity alone
 is not enough off the chain.
+
+\emph{Proof idea for \coq{pol_dfam_iff}.} Projections are polymorphisms of every template of graphs
+and pins (\coq{proj_pol}). Conversely, by \coq{pol_gamma_iff} a polymorphism $p$ commutes with the six
+maps. Commuting with the maps that copy one flag into both shows that $p$ sends tuples from the chain
+$\{(0,0), (1,1)\}$ into that chain, which defines a Boolean function $\sigma$ of $k$ arguments, and that
+each flag of $p(x_1, \dots, x_k)$ is $\sigma$ applied to that flag of the arguments (\coq{p_btup},
+\coq{sig_bit1}, \coq{sig_bit2}); commuting with the AND and OR maps makes $\sigma$ preserve $\wedge$
+and $\vee$, and the two constants make it fix $0$ and $1$ (\coq{sig_comb}, \coq{sig_const}). Such a
+$\sigma$ is a coordinate (\coq{bool_hom_proj}): writing each argument tuple $g$ as the join of its
+unit vectors gives $\sigma(g) = \bigvee_j (g_j \wedge \sigma(e_j))$, so $\sigma(1, \dots, 1) = 1$
+yields an $i$ with $\sigma(e_i) = 1$, and if $g_i = 0$ then $\sigma(g) = \sigma(g) \wedge \sigma(e_i)
+= \sigma(g \wedge e_i) = \sigma(0, \dots, 0) = 0$. So both flags of $p$ are read from argument $i$,
+and $p$ is the projection to it.
 
 \paragraph{The reduction's own family.} The 3-SAT networks used for the lossy-network hardness result
 use one fixed family of 26 maps, so constraint satisfaction over that single template is NP-complete
