@@ -50,6 +50,22 @@ idempotence are needed in (b) (\coq{lww_not_conv}, \coq{add_cc_not_alo}). The ex
 (a) and (b) are \coq{causal_convergence_exact} and \coq{merge_action_exact}; the theorem instantiates
 them at the identity repair.
 
+\paragraph{Proof idea.}
+With $N$ the identity the governed step is the raw step (\coq{gstep_id}), so each part is an exact
+condition for an arbitrary step function, read at the raw operations. For (a),
+\coq{causal_convergence_exact}: necessity runs two concurrent events in both orders from an arbitrary
+start, and both orders are causally consistent because happens-before is irreflexive; sufficiency is
+\coq{causal_convergence}, which moves each event of one order to the front of the other past events
+concurrent with it. For (b), \coq{merge_action_exact}: necessity compares $u \cdot [x, y]$ with
+$u \cdot [y, x]$, and $u \cdot [x, x]$ with $u \cdot [x]$, after a delivery $u$ that reaches the state;
+sufficiency replaces each delivery by its duplicate-free form, which needs decidable equality of
+events (\coq{mergeconv_alo}), and applies the exact at-least-once theorem \coq{alo_exact}. For
+(b$'$), \coq{cvrdt_exact_all}: a semilattice representation gives commutativity and idempotence by
+the semilattice laws (\coq{cvrdt_on_conv}); conversely, the join of reachable states $s$ and $t$ runs
+from $s$ a sublist of the finite range whose run from $s_0$ reaches $t$. Such a sublist exists by
+convergence (the events of a delivery reaching $t$, listed once), is found by search using decidable
+state equality, and the semilattice laws then follow from convergence.
+
 % ---------------------------------------------------------------------------------------------
 \subsection{Two readings of ``repair enlarges what converges''}\label{sec:crdt-readings}
 
@@ -75,6 +91,18 @@ does. The separation is sharpened in \coq{witness_ops_not_commute}, \coq{witness
 \coq{witness_not_cvrdt_order} (no partial order on the Booleans makes both raw operations
 inflationary) and \coq{witness_not_cvrdt_exact}.
 
+\paragraph{Proof idea.}
+Everything is a computation on the Booleans. The governed step is the constant \textsf{false}
+(\coq{wgov_false}), so governed steps commute and are idempotent at every state, and the sufficiency
+directions of \coq{causal_convergence_exact} and \coq{merge_action_exact} give convergence under both
+delivery models (\coq{witness_governed_converges}). On the raw side, $\mathsf{flip}(\mathsf{settrue}(s))
+= \textsf{false}$ and $\mathsf{settrue}(\mathsf{flip}(s)) = \textsf{true}$ for every $s$, which breaks
+commutation for the concurrent pair; part (a) of \cref{thm:boundary} at the identity repair turns this
+into divergence of the system without repair. From any start $s_0$, which is reachable by the empty
+delivery, the same pair fails to commute and $\mathsf{flip}$ fails to be idempotent at $s_0$ itself;
+\coq{merge_action_exact} turns this into divergence under at-least-once delivery, and a semilattice
+representation is ruled out because it would imply convergence (\coq{cvrdt_on_conv}).
+
 \paragraph{Behavior: not strict.}
 The exact conditions behind \cref{thm:boundary} hold for any step function, not only for raw
 operations. Read at the governed step $\gov(e) = N \circ e$, they say:
@@ -90,6 +118,11 @@ For any repair $N$:
     $s_0$.
 \end{enumerate}
 \end{corollary}
+
+\paragraph{Proof idea.}
+There is no separate proof: \coq{causal_convergence_exact} and \coq{merge_action_exact} are stated for
+an arbitrary step function, and the corollary instantiates them at $\gov(e) = N \circ e$. No property
+of $N$ is used, which is why the corollary holds for every repair.
 
 These are the CmRDT and the commutative-idempotent conditions, stated for the governed steps. So
 every convergent governed system is a CRDT on its own governed steps, at the states it reaches. The
@@ -129,6 +162,19 @@ a binary operation on states, and invariant confluence becomes a statement about
 \end{enumerate}
 \end{theorem}
 
+\paragraph{Proof idea.}
+For (a), the standard fact that a polymorphism of a template maps solutions of any instance over it
+to a solution (\coq{pol_solutions}) says that the merge of two $I$-valid states is $I$-valid
+(\coq{pol_iclosed}). Every state reachable under the transactions is $I$-valid when $I$ holds at the
+start (\coq{itr_valid}), so this closure gives invariant confluence for any set of transactions
+(\coq{iclosed_iconf}). For (b), when $I$ holds at the start, invariant confluence is equivalent to
+closure of the reachable states under the merge (\coq{iconf_iff_reach_closed}): a merge of reachable
+states with a valid result is itself reachable, and reachable states are valid. The polymorphism
+condition on the relation of a state predicate restricted to $n$ items says that for any two states
+satisfying the predicate, some state satisfying it agrees with their merge on those items
+(\coq{preserves_prel}). The hypothesis that $I$ reads only those items is used in the converse
+direction, to pass validity from that state to the merge itself.
+
 The restriction to reachable states is necessary, as Whittaker and
 Hellerstein~\cite{whittaker2018} observed. A mechanized counterexample makes it concrete
 (\coq{uq_not_pol}): with two versions $a$ and $b$, merge by set union, the invariant ``not both
@@ -138,6 +184,11 @@ coordination-free, available, convergent and invariant-preserving execution exis
 invariant-confluent transactions. What is mechanized is narrower: in a replica model,
 the protocol in which a server commits a transaction only if its local result satisfies $I$ and merges every state it receives keeps every server $I$-valid in every execution if and only if the transactions are invariant confluent (\coq{replica_exact}). The general theorem, over arbitrary protocols, would need a model of
 partitions that the development does not have.
+\emph{Proof idea.} Sufficiency is an induction over the execution showing that every server always
+holds a state reachable under the transactions (\coq{rstep_itr}): a committed transaction has a valid
+result, and a merge of two reachable states is valid by invariant confluence. Necessity replays any
+two reachable states on disjoint sets of servers (\coq{replay}, Bailis et al.'s Lemma~1) and then
+merges them on one server (\coq{replay_merge}), so a merge that breaks $I$ shows up in some execution.
 
 Repair changes the picture. With the same invariant and both transactions ``add $a$'' and ``add
 $b$'', the transactions are not invariant confluent. With the repair
