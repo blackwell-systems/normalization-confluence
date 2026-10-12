@@ -1,0 +1,139 @@
+% Appendices A to E.
+
+\appendix
+
+\section{Method}\label{app:method}
+
+\paragraph{Names as statements.} Every result cited in the paper is a \texttt{Theorem}, \texttt{Lemma}
+or \texttt{Corollary} in the development, cited by its Coq name. Each statement in the paper was read
+from the Coq source; a script checks that every name cited on the atlas and the website is declared
+and gated, and that the counts shown there equal the gate.
+
+\paragraph{The gate.} \texttt{coq/verify.sh} runs \texttt{Print Assumptions} on every gated result and
+fails if any depends on an axiom or an admitted proof, or if the number of gated results falls below
+the threshold. Nothing in the development is admitted.
+
+\paragraph{The freeze.} For the tests of \cref{sec:tests}, the eight kernel files were frozen: their
+SHA-256 hashes are recorded in \texttt{research/predictions/frozen.sha256}, and the same script fails
+if any of them changes. Outside recoveries and predictions are new files only.
+
+\paragraph{Predictions.} A prediction is committed as a file, unchanged after the commit that adds it,
+before any test; the commit is its timestamp. Candidates that were refuted before commitment are kept in
+\texttt{research/predictions/candidates.md}.
+
+\section{Module index}\label{app:modules}
+
+\begin{center}\small
+\begin{tabular}{@{}p{4.4cm}p{9.6cm}@{}}
+\toprule
+File & Role \\
+\midrule
+\texttt{GovernanceConverse.v} & the single-registry theorem (\coq{cc_exact}), causal exactness \\
+\texttt{CanonicalExecution.v} & state descent, the transfer lemma, the peak classification \\
+\texttt{PresentedExecution.v} & layer A: presented executions, the local and closure principles \\
+\texttt{CanonicalRecurrence.v} & layer C: the fair-lasso kernel C1 and C2 \\
+\texttt{TransportCSP.v}, \texttt{TransportCSPHard.v} & layer B: sections as constraint solutions, polymorphisms, the chain and diamond cells \\
+\texttt{LayerInterfaces.v} & the interfaces and the hierarchy across scales \\
+\texttt{NormalizationDerived.v} & the single-registry theorem derived from the kernels \\
+\texttt{CRDTBoundary.v}, \texttt{CvRDTExact.v} & the compensation-free boundary \\
+\texttt{SelfStabilization.v}, \texttt{InvariantConfluence.v}, \texttt{CRDTRecovery.v} & outside theorems with the kernels frozen \\
+\texttt{StableMatchingP2.v} & prediction P2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The full index by regime is in \texttt{coq/README.md}.
+
+\section{Recovery tables}\label{app:recoveries}
+
+\paragraph{Layer C bridges.} Lines of proof for each recovered settlement result, and of its no-bad-lasso
+argument, over a shared toolkit of about 60 lines.
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Recovered result & Whole bridge & No-bad-lasso argument \\
+\midrule
+\coq{chaotic_reaches_lfp_lasso} & 36 lines & 11 lines \\
+\coq{signed_settlement_lasso} & about 75 lines & 5 and 6 lines \\
+\coq{signed_fidelity_lasso} & 28 lines & 5 lines \\
+\coq{fairflush_lasso}, \coq{fairflushR_lasso} & 3 and 4 lines & (the originals are C2) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Outside theorems.} Approximate lines of Coq for each part, as recorded in the development.
+
+\begin{center}\small
+\begin{tabular}{@{}p{4.2cm}p{9.8cm}@{}}
+\toprule
+Target & Parts \\
+\midrule
+Self-stabilization & bridge from \cref{thm:c1}: 1 line; ring closure: 55; ring loop-freedom: 220; finite packaging: 100; adapter for systems that never quiesce: 110 \\
+Invariant confluence & polymorphism bridge: 44; exact form: 54; counterexample: 66; sufficiency: 117; replica model: 101 \\
+CRDT SEC & op-based bridge: 83 (kernel chain 36); Gomes et al.'s statement: 114; state-based kernel step: 21; semilattice facts: 24; merge reduction outside the kernels: 73 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Layer A adequacy.} For each delivery model of \cref{tab:layer-a}, the per-model cost is the
+proof that its notion of the same delivery equals the generated equivalence of its presentation; for
+at-least-once delivery it is about 250 lines.
+
+\section{The regime map by family}\label{app:map}
+
+\begin{center}\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Family & Regimes & Exact & Hard & Open & Excluded \\
+\midrule
+Single registry & 4 & 4 & & & \\
+Delivery & 5 & 5 & & & \\
+CRDTs and streams & 6 & 5 & & & 1 \\
+Acyclic federations & 5 & 5 & & & \\
+Distributed propagation & 6 & 5 & & 1 & \\
+Channels and reconfiguration & 8 & 6 & & 2 & \\
+Monotone cycles & 5 & 4 & & & 1 \\
+Invertible networks & 5 & 3 & 1 & 1 & \\
+Lossy networks & 8 & 2 & 3 & 3 & \\
+Composition & 5 & 4 & & 1 & \\
+Structure & 3 & 2 & & 1 & \\
+\midrule
+Total & 60 & 45 & 4 & 9 & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The nine open tiles correspond to the seven open convergence questions of \cref{sec:map} and
+the open sheaf-assembly item. Each regime's theorem is listed in \texttt{REGIME-AUDIT.md}.
+
+\section{The committed predictions}\label{app:predictions}
+
+The claims below are copied from the committed files, \texttt{research/predictions/P2.md} and
+\texttt{P3.md}, with the Markdown removed.
+
+\paragraph{P2 (committed 2026-10-11, commit \texttt{ba043e9}).} \emph{Model.} The marriage market with
+$n$ men and $n$ women and complete strict preferences; states are matchings (partial allowed); labels
+are the $n^2$ pairs; the update for $(m, w)$ matches $m$ with $w$ if $(m, w)$ blocks the matching,
+meaning each is single or prefers the other to the current partner, and their former partners become
+single; otherwise it changes nothing. A fair schedule names every pair infinitely often, naming a
+non-blocking pair being a no-op. \emph{Claim.} There are $n \le 4$, preferences with exactly one stable
+matching, and a start matching from which a bad fair lasso exists: a pair-word reaches a matching, and a
+nonempty pair-word that names every one of the $n^2$ pairs returns it to itself, with some loop state
+unstable. \emph{Pass.} An explicit instance, its unique stable matching and a bad fair lasso, all
+mechanized. \emph{Fail.} An exhaustive check, up to symmetry, showing that for every $n \le 4$ and every
+profile with exactly one stable matching there is no bad fair lasso from any start. \emph{Probability
+stated:} about 0.6. \emph{Outcome:} passed (\cref{sec:tests-predictions}).
+
+\paragraph{P3 (committed 2026-10-11, commit \texttt{aaba8b4}).} \emph{Setting.} One document with
+revisions 1-a, 2-b, 3-c and 4-d, where 4-d is a deletion; each revision delivered once with its full
+history, one per request, to a fresh database with \texttt{revs\_limit} 3, in each of the 24 orders;
+CouchDB~3.5.3 and PouchDB~9.0.0. \emph{Claims, each scored separately.} (1) CouchDB with default
+settings: the document ends live, with winning revision 1-a, on exactly the 6 orders in which 1-a is
+delivered last, and deleted on the other 18. (2) CouchDB with \texttt{stem\_interactive\_updates =
+false}, then compaction: deleted on all 24 orders. (3) PouchDB with default settings: live on exactly
+the 12 orders in which 1-a is delivered after 4-d, and deleted on the other 12. \emph{Pass and fail.}
+Each order is run three times in a fresh database; a claim passes if every scored order matches the
+computed table and fails on any reproducible mismatch. \emph{Probability stated:} about 0.75.
+\emph{Outcome:} passed on all three claims; the packaging deviation (a Homebrew build of the same
+version instead of the official image) is recorded in the outcome.
