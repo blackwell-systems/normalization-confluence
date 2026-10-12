@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>An engineer's guide: Normalization Confluence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="For backend engineers: when do replicas that run the same fix-up code after every write still agree? Three questions to ask of your fix-up code, an interactive example, and property tests you can drop into a test suite.">
+<meta property="og:title" content="An engineer's guide to normalization confluence">
+<meta property="og:description" content="When do replicas that run the same fix-up code still agree? Plain words, an interactive example, and tests you can run. By Dayna Blackwell.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://blackwell-systems.github.io/normalization-confluence/guide/">
+<meta property="og:image" content="https://blackwell-systems.github.io/normalization-confluence/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;display=swap">
+<style>
+:root{--sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;--cond:'IBM Plex Sans Condensed','Arial Narrow',var(--sans);--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+--bg:#0C0F14;--panel:#11151C;--line:#2A303A;--text:#F2F6FB;--muted:#C9D2DD;--dim:#9AA6B4;--layerBg:#163A66;--layerText:#DCE8F5;--layerLabel:#9CCBFF;--code:#9CCBFF;--gold:#F2C14E;--link:#8CC4FF;--linkHover:#BFDDFF;--good:#7FD49B;--bad:#FF9A8A;--goodBg:#12301F;--badBg:#3A1A17;--btn:#171B22;--btnOn:#163A66}
+@media (prefers-color-scheme: light){:root{--bg:#F6F7F9;--panel:#FFFFFF;--line:#D6DCE4;--text:#0E1621;--muted:#334050;--dim:#5B6878;--layerBg:#E2EDFA;--layerText:#1E2F45;--layerLabel:#1D4F8A;--code:#1D4F8A;--gold:#8A5A00;--link:#1F5FAF;--linkHover:#0D3F80;--good:#1E7A3C;--bad:#A8321F;--goodBg:#E3F4E8;--badBg:#FBE7E3;--btn:#F1F4F8;--btnOn:#E2EDFA}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+a{color:var(--link)}a:hover{color:var(--linkHover)}
+main{max-width:860px;margin:0 auto;padding:56px 24px 48px}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:0.16em;color:var(--dim);text-transform:uppercase}
+.kicker a{color:var(--dim);text-decoration:none}.kicker a:hover{color:var(--text)}
+h1{font-family:var(--cond);font-weight:700;font-size:clamp(36px,6vw,60px);line-height:1.05;margin:12px 0 18px}
+.thesis{font-size:clamp(19px,2.4vw,23px);line-height:1.45;color:var(--text);margin:0}
+.byline{margin-top:14px;color:var(--dim);font-size:15px}
+h2{font-family:var(--cond);font-weight:600;font-size:30px;margin:0 0 14px;line-height:1.15}
+h2 .n{color:var(--dim);font-weight:600;margin-right:10px}
+h3{font-family:var(--cond);font-weight:600;font-size:22px;margin:26px 0 8px;line-height:1.2}
+section{border-top:1px solid var(--line);padding-top:30px;margin-top:40px}
+p{font-size:17px;line-height:1.6;color:var(--muted);margin:0 0 14px}
+b,strong{color:var(--text)}
+code{font-family:var(--mono);font-size:0.88em;color:var(--code);overflow-wrap:anywhere}
+ul.list{margin:0 0 14px;padding-left:22px}
+ul.list li{font-size:17px;line-height:1.55;color:var(--muted);margin-bottom:6px}
+.toc{margin:28px 0 0;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.toc ol{margin:0;padding-left:22px;columns:2;column-gap:28px}
+.toc li{font-size:15.5px;line-height:1.5;color:var(--dim);margin:0 0 4px;break-inside:avoid}
+.toc a{text-decoration:none}
+@media (max-width:640px){.toc ol{columns:1}}
+.example{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:12px 0 14px}
+.example p{margin:0 0 10px}.example p:last-child{margin:0}
+.example ul.list{margin-bottom:10px}
+.term{font-family:var(--mono);font-size:12px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase;margin:0 0 6px}
+.q{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:16px 20px;margin:14px 0}
+.q h3{margin:0 0 8px}
+.q p:last-child{margin-bottom:0}
+.proof{font-size:13.5px;color:var(--dim);line-height:1.7;margin:4px 0 14px}
+.q .proof,.example .proof{margin:6px 0 0}
+a.thm{font-family:var(--mono);font-size:13px;color:var(--code);text-decoration:none;border-bottom:1px dotted var(--code);overflow-wrap:anywhere}
+a.thm:hover{border-bottom-style:solid}
+.codewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin:12px 0}
+pre{margin:0;padding:14px 16px;font-family:var(--mono);font-size:13.5px;line-height:1.55;color:var(--text)}
+pre .c{color:var(--dim)}
+.note{font-size:15.5px;color:var(--dim)}
+/* The demo */
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0 16px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.seg button,.orders button{font:500 15px/1.25 var(--sans);color:var(--text);background:var(--btn);border:1px solid var(--line);border-radius:7px;padding:9px 12px;cursor:pointer;text-align:left}
+.seg button[aria-pressed="true"],.orders button[aria-pressed="true"]{background:var(--btnOn);border-color:var(--link);color:var(--text)}
+.seg button:focus-visible,.orders button:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.seglabel{font-family:var(--mono);font-size:12px;letter-spacing:0.12em;color:var(--dim);text-transform:uppercase;margin:0 0 6px}
+.replicas{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.replicas{grid-template-columns:1fr}}
+.replica{border:1px solid var(--line);border-radius:8px;padding:12px;min-width:0}
+.replica h3{margin:0 0 8px;font-size:20px}
+.orders{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.steps{width:100%;border-collapse:collapse;font-size:15px}
+.steps th{font-family:var(--mono);font-weight:500;font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.steps td{padding:6px;border-bottom:1px solid var(--line);color:var(--muted)}
+.steps td.num{font-family:var(--mono);color:var(--text)}
+.steps tr:last-child td{border-bottom:none}
+.steps .cut{color:var(--gold);font-size:13px;font-family:var(--sans)}
+.final{margin-top:8px;font-size:15px;color:var(--muted)}
+.final b{font-family:var(--mono);font-size:18px}
+.outcome{margin-top:12px;border-radius:8px;padding:12px 14px;font-size:16px;line-height:1.5}
+.outcome.agree{background:var(--goodBg);color:var(--text);border:1px solid var(--good)}
+.outcome.disagree{background:var(--badBg);color:var(--text);border:1px solid var(--bad)}
+.outcome b{color:inherit}
+/* Glossary */
+.gwrap{overflow-x:auto;margin-top:8px}
+table.gloss{width:100%;border-collapse:collapse;font-size:15.5px;min-width:520px}
+table.gloss th{text-align:left;font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim);padding:8px 10px;border-bottom:1px solid var(--line)}
+table.gloss td{vertical-align:top;padding:10px;border-bottom:1px solid var(--line);color:var(--muted);line-height:1.5}
+table.gloss td:first-child{color:var(--text);font-weight:600;white-space:nowrap}
+@media (max-width:640px){table.gloss{min-width:0}table.gloss thead{display:none}table.gloss tr,table.gloss td{display:block}table.gloss tr{border-bottom:1px solid var(--line);padding:8px 0}table.gloss td{border-bottom:none;padding:2px 0}table.gloss td:first-child{white-space:normal}}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px}
+.links a{display:block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-decoration:none;color:var(--text)}
+.links a span{display:block;color:var(--dim);font-size:14px;margin-top:4px}
+.links a:hover{border-color:var(--dim)}
+.links a.primary{background:var(--layerBg);border-color:var(--layerBg)}
+.links a.primary span{color:var(--layerText)}
+footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:var(--dim);font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+<main>
+
+<div class="kicker"><a href="../">Normalization Confluence</a> · Engineer's guide</div>
+<h1>Do your replicas agree after the fix-up code runs?</h1>
+<p class="thesis">A guide for backend engineers. No background in proofs or rewriting systems is needed. Plain words come first; the research terms are collected in a <a href="#glossary">glossary</a> at the end.</p>
+<p class="byline">Dayna Blackwell, Blackwell Systems. Each claim about what is proved links to its machine-checked proof.</p>
+
+<nav class="toc" aria-label="Contents">
+<ol>
+<li><a href="#problem">The problem you already have</a></li>
+<li><a href="#try-it">Try it: the shelf</a></li>
+<li><a href="#three-questions">Three questions to ask of your fix-up code</a></li>
+<li><a href="#when">When the fix-up runs matters</a></li>
+<li><a href="#options">When a check fails: your options</a></li>
+<li><a href="#services">More than one service</a></li>
+<li><a href="#relates">How it relates to what you know</a></li>
+<li><a href="#glossary">Glossary</a></li>
+<li><a href="#next">Where to go next</a></li>
+</ol>
+</nav>
+
+<section id="problem">
+<h2><span class="n">1</span>The problem you already have</h2>
+<p>Many backend systems apply the same events in more than one place, in different orders:</p>
+<ul class="list">
+<li>active-active databases and multi-region writes;</li>
+<li>offline-first apps that sync when they reconnect;</li>
+<li>queues that retry, redeliver and reorder messages;</li>
+<li>event-sourced projections built from several streams.</li>
+</ul>
+<p>Most of these systems also have business rules. Often a rule is not kept by refusing a write. The write is accepted, and code that runs afterwards puts things right:</p>
+<ul class="list">
+<li>cap inventory at what the shelf or warehouse holds;</li>
+<li>clamp a balance at a floor;</li>
+<li>run a saga's compensating step when a later step fails;</li>
+<li>drop duplicates;</li>
+<li>clean up records that point at something deleted;</li>
+<li>a reconciler loop that compares actual state with desired state and fixes the difference.</li>
+</ul>
+<p>This guide calls that code the <b>fix-up</b>. The question is this: if every replica sees the same events, in different orders, and runs the same fix-up code, do they end up agreeing?</p>
+<p>Not always. The fix-up can be correct on every replica, and the replicas can still disagree. The next section shows the smallest example.</p>
+</section>
+
+<section id="try-it">
+<h2><span class="n">2</span>Try it: the shelf</h2>
+<p>A shelf holds at most 5 items and has 4 in stock. Two events arrive: "add 3" and "remove 1". The fix-up caps the stock at 5. Pick an order for each replica.</p>
+
+<div class="demo" id="demo">
+<div class="seglabel" id="mode-label">When the cap applies</div>
+<div class="seg" role="group" aria-labelledby="mode-label">
+<button type="button" data-mode="write" aria-pressed="true">Fix up on every write</button>
+<button type="button" data-mode="read" aria-pressed="false">Store raw, cap when reading</button>
+</div>
+<div class="replicas">
+<div class="replica" data-replica="A">
+<h3>Replica A</h3>
+<div class="orders" role="group" aria-label="Order for replica A">
+<button type="button" data-order="add" aria-pressed="true">"add 3", then "remove 1"</button>
+<button type="button" data-order="remove" aria-pressed="false">"remove 1", then "add 3"</button>
+</div>
+<table class="steps"><thead><tr><th>Step</th><th class="h-raw">Raw</th><th class="h-fix">After fix-up</th></tr></thead><tbody></tbody></table>
+<div class="final"><span class="flabel">Stock</span>: <b class="end"></b></div>
+</div>
+<div class="replica" data-replica="B">
+<h3>Replica B</h3>
+<div class="orders" role="group" aria-label="Order for replica B">
+<button type="button" data-order="add" aria-pressed="false">"add 3", then "remove 1"</button>
+<button type="button" data-order="remove" aria-pressed="true">"remove 1", then "add 3"</button>
+</div>
+<table class="steps"><thead><tr><th>Step</th><th class="h-raw">Raw</th><th class="h-fix">After fix-up</th></tr></thead><tbody></tbody></table>
+<div class="final"><span class="flabel">Stock</span>: <b class="end"></b></div>
+</div>
+</div>
+<div class="outcome" id="outcome" aria-live="polite"></div>
+</div>
+
+<p><b>Fix up on every write.</b> The two orders end at 4 and 5. In the order "add 3" then "remove 1", the cap throws away 2 items, and the removal then takes a real item off a full shelf. In the other order the removal comes before the overflow, so the cap later throws away only 1 item. Same events, same code, different stock.</p>
+<p><b>Store raw, cap when reading.</b> The store keeps the raw count, and the cap is applied each time the value is read. Adding and subtracting give the same total in any order, so every replica stores 6 and reads 5, whatever the order. This changes the business meaning. The store now accepts the overflow: it records 6 items for a shelf of 5, and removing one item from a full shelf can still read 5 afterwards, because the removal came out of the overflow. That is right for a backlog of items waiting for shelf space, and wrong for a shelf that refuses extra items.</p>
+</section>
+
+<section id="three-questions">
+<h2><span class="n">3</span>Three questions to ask of your fix-up code</h2>
+<p>These are the plain versions of the conditions the theory proves. Write <code>apply(e, s)</code> for event <code>e</code> applied to state <code>s</code>, and <code>fix(s)</code> for the fix-up run until it is done.</p>
+
+<div class="q">
+<div class="term">Research term: state descent</div>
+<h3>(a) Does fixing up early or late change what the next event produces?</h3>
+<p>Take a state a replica can be in, including one where the fix-up has not run yet. Apply the next event to the state as it is, and to its fixed-up form. Fix up both results. They should be equal: <code>fix(apply(e, fix(s))) == fix(apply(e, s))</code>.</p>
+<p>The shelf fails at a raw stock of 7. Fix up, then remove 1: 4. Remove 1, then fix up: 5. The cap threw away items that the removal needed to see.</p>
+</div>
+
+<div class="q">
+<div class="term">Research term: history descent</div>
+<h3>(b) Does reordering events change the fixed-up result?</h3>
+<p>Apply events with the fix-up after each one. Every order your delivery allows should give the same result. When any order is possible, it is enough to check every pair of events, in both orders, at every state a replica can reach.</p>
+<p>The shelf fails: 4 in one order, 5 in the other.</p>
+</div>
+
+<div class="q">
+<div class="term">Research term: terminating repair</div>
+<h3>(c) Does the fix-up always finish?</h3>
+<p>A fix-up that triggers another fix-up, which triggers the first one again, never settles. The usual way to show that it finishes is to find a measure, such as the number of broken rules or the number of items over capacity, that every fix-up step makes smaller. That is not only a convenient method: a fix-up finishes from every state exactly when some such measure exists.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceWFConverse.v#L109">terminating_iff_comp_wf</a></p>
+</div>
+
+<p><b>What is proved.</b> Take one service whose fix-up always finishes, where events can arrive in any order and an event can arrive before the fix-up has finished. Its replicas agree in every order exactly when (a) and (b) both hold at the states replicas can reach. "Exactly" means both directions: if (a) and (b) hold, every order agrees; if either fails, some run of events and fix-up steps ends in two different states. Neither question implies the other. Some systems pass (a) and fail (b), and some pass (b) and fail (a).</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceConverse.v#L372">cc_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/NormalizationDerived.v#L454">nd_derived_from</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L342">descent_not_history</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L354">history_not_descent</a></p>
+
+<h3>Tests you can add today</h3>
+<p>Here are the three questions as property-based tests, written for Python's <a href="https://hypothesis.readthedocs.io/">Hypothesis</a>. Supply your own <code>START</code>, <code>EVENTS</code>, <code>apply</code>, <code>is_valid</code>, <code>fix_step</code> (one step of the fix-up), <code>fix</code> (the fix-up run to the end) and <code>measure</code>.</p>
+<div class="codewrap"><pre>from hypothesis import given, strategies as st
+
+events = st.sampled_from(EVENTS)
+
+@st.composite
+def reachable(draw):
+    <span class="c">"""A state a replica can be in: events applied, fix-up partly run."""</span>
+    s = START
+    for e in draw(st.lists(events, max_size=6)):
+        s = apply(e, s)
+        for _ in range(draw(st.integers(0, 3))):
+            if not is_valid(s):
+                s = fix_step(s)
+    return s
+
+@st.composite
+def reachable_fixed(draw):
+    <span class="c">"""A state after every event has been fixed up."""</span>
+    s = START
+    for e in draw(st.lists(events, max_size=6)):
+        s = fix(apply(e, s))
+    return s
+
+<span class="c"># (a) Fixing up early or late: same result after the fix-up.</span>
+@given(reachable(), events)
+def test_fix_early_or_late(s, e):
+    assert fix(apply(e, fix(s))) == fix(apply(e, s))
+
+<span class="c"># (b) Two fixed-up events give the same result in either order.</span>
+@given(reachable_fixed(), events, events)
+def test_order(s, e1, e2):
+    assert fix(apply(e2, fix(apply(e1, s)))) == \
+           fix(apply(e1, fix(apply(e2, s))))
+
+<span class="c"># (c) Every fix-up step makes the measure smaller.</span>
+@given(reachable())
+def test_fix_up_finishes(s):
+    if not is_valid(s):
+        assert measure(fix_step(s)) &lt; measure(s)</pre></div>
+<p>Run against the shelf, the first two tests fail with 4 against 5. The states are built by replaying events from <code>START</code> on purpose: the conditions need to hold only at states a replica can reach, and testing arbitrary states can report failures that never happen. If your queue can deliver a message twice, a duplicate is one more order to check; the <a href="../atlas/">atlas</a> gives the exact condition for each delivery guarantee.</p>
+<p class="note">A property-based test samples states and events. It can find a counterexample. It cannot show that none exists, because it does not try every state. That is what <a href="https://github.com/blackwell-systems/gsm">gsm</a> and the proofs are for: gsm tries every state of a finite model at build time, and the proofs show that these are the right conditions to check.</p>
+</section>
+
+<section id="when">
+<h2><span class="n">4</span>When the fix-up runs matters</h2>
+<p>Question (a) is about timing, so whether you need it depends on when your fix-up runs.</p>
+<ul class="list">
+<li><b>In the same transaction as the event.</b> Each event and its fix-up commit together, and no other event sees the state in between. Then only (b) matters, checked on the fixed-up steps: replicas agree exactly when fixed-up events give the same result in either order, at the states replicas reach.</li>
+<li><b>Separately from the event.</b> A background reconciler, a cron job, an asynchronous compensation, a consumer of a change stream. Events keep arriving while the fix-up has not run, so an event can land on a state the fix-up has not repaired yet. Then (a) is needed as well: replicas agree exactly when they would agree with an in-transaction fix-up and (a) holds at the states replicas reach.</li>
+</ul>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L131">atomic_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L239">atomic_derived_from</a></p>
+<p>The difference is real. A system can be correct with an in-transaction fix-up and break with a background reconciler.</p>
+
+<div class="example">
+<p><b>An account, modeled by its status alone.</b> It is in good standing, suspended, or over the limit. Over the limit breaks a rule; the other two do not.</p>
+<ul class="list">
+<li>"charge": a charge that takes the account over its limit, whatever its status.</li>
+<li>"review": a risk review. If the account is over the limit, the review suspends it. Otherwise it marks the account in good standing.</li>
+<li>The fix-up: an account over the limit is covered from a credit line and returns to good standing.</li>
+</ul>
+<p><b>Fix-up in the same transaction.</b> A charge and its fix-up end in good standing. A review of an account in good standing leaves it there. Starting from good standing, every order of any mix of these events ends in good standing.</p>
+<p><b>Fix-up by a background reconciler.</b> The account is in good standing; "charge" arrives, then "review". If the reconciler runs between them, the review sees good standing and the account stays in good standing. If the review arrives before the reconciler, it sees the account over the limit and suspends it. Suspended breaks no rule, so the reconciler has nothing to do. Same events, same order, two different end states, decided by when the reconciler ran.</p>
+<p>Question (a) finds it. From over the limit, fixing up and then reviewing gives good standing. Reviewing and then fixing up gives suspended.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/AtomicRepair.v#L337">atomic_not_descent</a></p>
+</div>
+<p>In practice: if your fix-up runs in the same transaction as the event, test (b). If anything runs it later, test (a) as well, or move the fix-up into the transaction.</p>
+</section>
+
+<section id="options">
+<h2><span class="n">5</span>When a check fails: your options</h2>
+<p>These are standard design moves, not results of the theory, except where a proof link says otherwise.</p>
+<ul class="list">
+<li><b>Make the events commute.</b> Design operations so that order never matters: counters kept as separate increments and decrements, sets with an add-wins or remove-wins rule, registers with a deterministic tiebreak. This is the CRDT approach, and the fix-up then has nothing to do.</li>
+<li><b>Keep what later events need.</b> If (a) fails, the fix-up is throwing away something a later event reads. Store the raw facts and derive the result when reading, as in the shelf demo. Or have each event record a fact, and let the fix-up recompute the outcome from the facts; the order-fulfillment example in the <a href="https://github.com/blackwell-systems/gsm">gsm README</a> is built this way.</li>
+<li><b>Move the fix-up into the transaction.</b> If (a) fails only because a reconciler runs late, see <a href="#when">section 4</a>.</li>
+<li><b>Coordinate only the events that conflict.</b> Use a lock, a single leader or a consensus round for the pairs of events that fail (b), and let the rest run without coordination. When gsm rejects a model, it names the pair of events and the state where they diverge. Across a network of services, finding the fewest links to coordinate is NP-hard in the cases the atlas covers, so unless P = NP no efficient method finds the minimum in general.</li>
+</ul>
+<p class="proof">Proof (fewest links): <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CoordinationMinimum.v#L946">maxcut_plan_reduction</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LossyMinimum.v#L569">lmin_reduction</a></p>
+</section>
+
+<section id="services">
+<h2><span class="n">6</span>More than one service</h2>
+<p>Services often copy data to each other: a catalog feeds search, orders feed billing, billing feeds a ledger. Each service enforces its own rules with its own fix-up. The questions change with the shape of the network.</p>
+<h3>No loops</h3>
+<p>When data flows one way, along a chain or a tree of services, the check splits into two local checks per link. An event gives the same result whether or not the link's fix-up has run (question (a), at the link). Two independent events on one service give the same result in either order after that fix-up (question (b)). And when every service keeps getting its turn, the network settles at one state.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/FederationEventsConverse.v#L565">fed_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/RobertFair.v#L343">rb_robert_fair</a></p>
+<h3>Loops</h3>
+<p>When rules feed each other in a loop, fix-ups can push against each other forever. A schedule that gives every rule its turn can cycle without end, even when exactly one consistent state exists. The proved example is as small as a loop gets: one record and two rules that act on it. One rule swaps two bad values, A and B. The other repairs A to the good value. If the repair rule only ever gets its turn while the record holds B, the good value is never reached. Knowing the one consistent state is not enough; whether runs reach it is a separate question.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L1158">flip2_unique_solution_livelock</a></p>
+<h3>Questions with no efficient general check</h3>
+<p>Suppose the copies between services can lose information (a copy keeps a summary, not the whole record) and no single source feeds every service. Then deciding whether any state satisfies every link at once is NP-complete. Unless P = NP, no efficient check answers it in general.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LossyHardness.v#L327">net_section_iff_sat</a></p>
+<p>Several questions, most of them about loops, are still open; each is listed with its progress in the <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/REGIME-AUDIT.md#the-open-gaps">regime audit</a>. The <a href="../atlas/">Convergence Atlas</a> maps every case on one page. Press "Start here" for a six-stop tour.</p>
+</section>
+
+<section id="relates">
+<h2><span class="n">7</span>How it relates to what you know</h2>
+<h3>CRDTs</h3>
+<p>A CRDT is the case where the fix-up does nothing: the events commute by design. Fix-up code lets you use operations that do not commute. Some operations converge only with a fix-up, and no system without one converges using them.</p>
+<p>What a fix-up does not add is outcomes a CRDT cannot have. Every system that converges with fix-ups behaves like a CRDT on its fixed-up steps, where an event and its fix-up count as one operation. The gain is in which operations you may write, and in when the fix-up may run (<a href="#when">section 4</a>), not in which end states are possible.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CRDTBoundary.v#L293">crdt_boundary</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceConverse.v#L747">causal_convergence_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/CvRDTExact.v#L285">merge_action_exact</a></p>
+<h3>Database constraints that reject writes</h3>
+<p>A CHECK constraint or a unique index refuses a write that would break a rule. The research question for that style is invariant confluence (Bailis and others, VLDB 2015): which transactions can run on replicas without coordination and never break a rule. This guide is about the other style, where the write is accepted and a fix-up restores the rule. With a fix-up, some transactions that are not invariant confluent converge anyway, at a cost: the fix-up may undo a committed write, which the rejecting style never does.</p>
+<p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/InvariantConfluence.v#L705">repair_enlarges</a></p>
+<h3>Reconcile loops</h3>
+<p>This is an analogy, not a claim about any product. A controller that compares actual state with desired state and acts until they match, the pattern behind Kubernetes controllers, is a fix-up that runs separately from the events. In the terms of this guide, <a href="#when">section 4</a> applies to it: question (a) is needed. When several controllers act on each other's output, the loop questions of <a href="#services">section 6</a> apply: do they settle, and on one state?</p>
+</section>
+
+<section id="glossary">
+<h2><span class="n">8</span>Glossary</h2>
+<p>The research term on the left; what it means in a backend on the right.</p>
+<div class="gwrap"><table class="gloss">
+<thead><tr><th>Research term</th><th>In engineering terms</th></tr></thead>
+<tbody>
+<tr><td>Replica</td><td>A copy of the state: a database node, a region, a device, a consumer's local view.</td></tr>
+<tr><td>Event</td><td>A write, message or command applied to a replica.</td></tr>
+<tr><td>Invariant</td><td>A business rule the fix-up restores: stock at most 5, balance at least 0.</td></tr>
+<tr><td>Repair, compensation</td><td>The fix-up: code that restores a rule after a write. A cap, a clamp, a saga's compensating step, a cleanup, a reconciler pass.</td></tr>
+<tr><td>Governed step</td><td>An event followed by its fix-up, run to the end.</td></tr>
+<tr><td>Atomic repair</td><td>The fix-up runs in the same transaction as the event.</td></tr>
+<tr><td>Registry</td><td>One service or store with its state, its events, its rules and its fix-ups.</td></tr>
+<tr><td>Federation</td><td>Services that copy each other's data, each with its own rules.</td></tr>
+<tr><td>Delivery model</td><td>What your transport guarantees about order: any order, causal order, at-least-once (duplicates possible), or declared pairs that may be swapped.</td></tr>
+<tr><td>Converge</td><td>Every replica that has seen the same events ends in the same state, whatever the order.</td></tr>
+<tr><td>State descent</td><td>Question (a): fixing up early or late does not change what the next event produces.</td></tr>
+<tr><td>History descent</td><td>Question (b): every order the delivery model allows gives the same fixed-up result.</td></tr>
+<tr><td>Terminating repair</td><td>Question (c): the fix-up always finishes. The earlier papers call it WFC.</td></tr>
+<tr><td>Fair run</td><td>A schedule in which every rule keeps getting its turn.</td></tr>
+<tr><td>Canonical recurrence</td><td>For systems whose fix-ups may never stop, such as loops: every fair run eventually stays on one fixed-up result.</td></tr>
+<tr><td>Regime</td><td>One combination of system shape (one service, a chain, a loop) and delivery guarantee. The atlas has one tile per regime.</td></tr>
+<tr><td>Exact</td><td>Necessary and sufficient: if the condition holds, replicas agree; if it fails, some run disagrees.</td></tr>
+<tr><td>NP-complete, NP-hard</td><td>No efficient general algorithm exists unless P = NP.</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section id="next">
+<h2><span class="n">9</span>Where to go next</h2>
+<div class="links">
+<a class="primary" href="https://github.com/blackwell-systems/gsm">gsm<span>A Go library that checks one service's fix-up rules at build time over every state of a finite model, and names the order that fails. It also checks networks without loops, link by link.</span></a>
+<a href="../atlas/">The Convergence Atlas<span>Every regime on one page, each with its exact condition, hardness proof or open problem. Press "Start here" for the tour.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/OVERVIEW.md">Five-minute overview<span>The problem and the result, in plain words.</span></a>
+<a href="../normalization_confluence_exact_mechanized_theory.pdf">The paper<span>The full theory, with proof sketches. Section 3 has the main result and when repair runs.</span></a>
+<a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/REGIMES.md">Field guide<span>Does my system converge, and which theorem says so, by situation.</span></a>
+<a href="../">Front page<span>The research summary, the open problems and the papers.</span></a>
+</div>
+</section>
+
+<footer>
+Dayna Blackwell, <a href="https://github.com/blackwell-systems">Blackwell Systems</a> · ORCID <a href="https://orcid.org/0009-0002-5704-121X">0009-0002-5704-121X</a> · <a href="https://github.com/blackwell-systems/normalization-confluence">github.com/blackwell-systems/normalization-confluence</a>. The numbers on this page are recomputed by <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/docs/site/guide/check_examples.py">check_examples.py</a>.
+</footer>
+
+</main>
+<script>
+(function () {
+  var CAP = 5, START = 4;
+  var ORDERS = { add: ['add 3', 'remove 1'], remove: ['remove 1', 'add 3'] };
+  var state = { mode: 'write', A: 'add', B: 'remove' };
+
+  // One replica's steps: [label, raw or stored value, value after fix-up or read].
+  function run(order) {
+    var s = START, rows = [['Start', START, START]];
+    ORDERS[order].forEach(function (e) {
+      var raw;
+      if (state.mode === 'write') {
+        raw = e === 'add 3' ? s + 3 : Math.max(s - 1, 0);
+        s = Math.min(raw, CAP);
+        rows.push([e, raw, s]);
+      } else {
+        s = e === 'add 3' ? s + 3 : s - 1; // stored counts are not capped
+        rows.push([e, s, Math.min(s, CAP)]);
+      }
+    });
+    return rows;
+  }
+
+  function render() {
+    var ends = {};
+    document.querySelectorAll('.seg button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
+    });
+    document.querySelectorAll('.replica').forEach(function (el) {
+      var r = el.dataset.replica, rows = run(state[r]);
+      el.querySelectorAll('.orders button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.order === state[r]));
+      });
+      el.querySelector('.h-raw').textContent = state.mode === 'write' ? 'Raw' : 'Stored';
+      el.querySelector('.h-fix').textContent = state.mode === 'write' ? 'After fix-up' : 'Read (cap 5)';
+      var tb = el.querySelector('tbody');
+      tb.textContent = '';
+      rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        var td0 = document.createElement('td'); td0.textContent = row[0];
+        var td1 = document.createElement('td'); td1.className = 'num'; td1.textContent = row[1];
+        var td2 = document.createElement('td'); td2.className = 'num'; td2.textContent = row[2];
+        if (row[1] > row[2]) {
+          var cut = document.createElement('span');
+          cut.className = 'cut';
+          cut.textContent = state.mode === 'write' ? '  (' + (row[1] - row[2]) + ' discarded)' : '  (' + (row[1] - row[2]) + ' over)';
+          td2.appendChild(cut);
+        }
+        tr.appendChild(td0); tr.appendChild(td1); tr.appendChild(td2);
+        tb.appendChild(tr);
+      });
+      ends[r] = rows[rows.length - 1][2];
+      el.querySelector('.end').textContent = ends[r];
+      el.querySelector('.flabel').textContent = state.mode === 'write' ? 'Stock' : 'Stock read';
+    });
+    var out = document.getElementById('outcome');
+    if (ends.A === ends.B) {
+      out.className = 'outcome agree';
+      out.innerHTML = '<b>The replicas agree:</b> both read ' + ends.A + '.' +
+        (state.A === state.B ? ' Both used the same order; try different orders.' : '');
+    } else {
+      out.className = 'outcome disagree';
+      out.innerHTML = '<b>The replicas disagree:</b> A has ' + ends.A + ', B has ' + ends.B + '. Same events, same fix-up.';
+    }
+  }
+
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { state.mode = b.dataset.mode; render(); });
+  });
+  document.querySelectorAll('.replica').forEach(function (el) {
+    el.querySelectorAll('.orders button').forEach(function (b) {
+      b.addEventListener('click', function () { state[el.dataset.replica] = b.dataset.order; render(); });
+    });
+  });
+  render();
+})();
+</script>
+</body>
+</html>

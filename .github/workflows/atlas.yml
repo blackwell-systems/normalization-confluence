@@ -17,3 +17,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Atlas names, count and gap status
         run: python3 docs/atlas/check.py
+      - name: The engineer's guide examples
+        run: python3 docs/site/guide/check_examples.py
