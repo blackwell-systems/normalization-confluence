@@ -21,6 +21,17 @@ derived as an instance of \coq{newman_bridge}: its derivation joins peaks of the
 system through the canonical-execution kernel (\coq{classified_peak_exact}, \coq{nd_confluent_from};
 \cref{sec:base-case}).
 
+\paragraph{Proof idea.}
+In \coq{newman_bridge}, local joinability at reachable peaks gives confluence by Newman's lemma
+applied to the reachable states, which are closed under steps and inherit termination
+(\coq{peak_exact}, \coq{newman_on}, \coq{SN_star_closed}). Confluence gives local joinability at
+once, and unique normal forms because two normal forms below a state join and a normal form reduces
+only to itself (\coq{cr_unf}); neither direction uses termination. For the
+remaining direction, termination and decidable normality give every reachable state a normal form
+below it, by well-founded induction in which decidability chooses between stopping and taking a step
+(\coq{sn_reach_nf}). Two reachable states then have normal forms that both lie below the start, so
+unique normal forms makes them equal, and that normal form joins the two states.
+
 Fair settlement does not replace termination. In the standard four-point system
 $k_a \leftarrow k_b \leftrightarrow k_c \rightarrow k_d$, every peak joins and every fair run settles,
 yet the run that only swaps $k_b$ and $k_c$ is an infinite reduction that starves the other actions, and
@@ -32,6 +43,20 @@ action it never picks would move every state on the loop. Consequently, on a fin
 termination holds exactly when no reachable loop starves an action, and then Newman's lemma applies
 (\coq{fair_newman}).
 \end{theorem}
+
+\paragraph{Proof idea.}
+For \coq{fair_starves}, take a reachable loop of moving steps at $x$ with word $q$. Each action occurs
+in $q$, or fixes some state on the loop, or moves every state on the loop and is starved; equality on
+$X$ is decidable, so the cases can be decided. If no action is starved, insert before each step of
+$q$ every action that fixes the current state; this changes no state (\coq{wrun_ins}) and makes the
+word pick every action (\coq{in_ins_orig}, \coq{in_ins_fixer}), so it is a fair lasso whose base point
+$x$ is moved by the loop's opening step, a bad lasso that refutes C2 (\coq{bad_lasso_refutes}). No
+finiteness is used in this part. Finiteness enters in \coq{sn_iff_no_loop}: a reduction chain from the
+start with as many steps as there are states repeats a state (\coq{pigeon_aux}), and the segment
+between the repeats is a reachable moving loop, so without such loops chains are bounded and reduction
+terminates (\coq{acc_bound}), while a terminating relation has no cycle (\coq{sn_no_cycle}).
+\coq{fair_sn_exact} combines the two, and \coq{fair_newman} applies \coq{newman_bridge}, with normality
+decided by checking the finitely many actions (\coq{lstep_dec}).
 
 Fair settlement replaces termination exactly when reductions cannot be hidden forever by starving an
 action. The condition is exact for termination, not for confluence: a network with a starved loop
@@ -54,6 +79,18 @@ constraint problem. If every fair run settles (C2), then every fair run settles 
 and only if every reachable solution lies in the fiber of $c$.
 \end{theorem}
 
+\paragraph{Proof idea.}
+For \coq{singleton_iff_solution}, suppose a fair loop at $x$ visits only $x$. For each action $j$ pick
+a position of the loop word where $j$ occurs; the states just before and just after it are both $x$
+(the later one is a loop state, or, at the last position, the loop's return to $x$), so $u_j(x) = x$.
+Conversely, a reachable fixed point carries the loop that applies every action once, which is fair,
+returns to it and visits nothing else (\coq{settled_wrun}); this uses a nonempty list of actions. For
+\coq{settled_canon_exact}, the lasso schedule of such a single-state loop is fair and visits the
+solution infinitely often (\coq{lasso_visits}), so settling on $c$ puts every reachable solution in the
+fiber of $c$ (\coq{canon_needs_solutions}). Conversely, under C2 every fair run is eventually always at
+settled states, each reached by a word and so a reachable solution, hence eventually always in the
+fiber. Neither direction uses finiteness.
+
 So a state that settles on the wrong result is a reachable solution outside the target fiber
 (\coq{ghost_refutes}), and two reachable solutions with different results refute every target
 (\coq{multistable}); a network with no solution has no raw settlement
@@ -63,6 +100,14 @@ So a state that settles on the wrong result is a reachable solution outside the 
 There is a one-vertex network whose constraint problem has exactly one solution and whose repair
 dynamics has a fair run that never settles.
 \end{proposition}
+
+\paragraph{Proof idea.}
+The proof is a computation on one instance. The vertex takes values $z, a, b$ and has two self-loop
+edges: the swap, which fixes $z$ and exchanges $a$ and $b$, and the drop, which sends $a$ to $z$ and
+fixes $b$ and $z$. The swap edge forces the value $z$, which the drop fixes, so $z$ is the only
+section and, by \coq{edge_fixed_iff_section}, the only state fixed by both repairs. The word swap,
+drop, swap takes $a$ to $b$, leaves $b$ in place and returns to $a$; it picks both actions and its
+base point $a$ is not fixed, so it is a bad fair lasso and C2 fails (\coq{bad_lasso_refutes}).
 
 A unique consistent state does not guarantee that runs reach it. This is the distinction prediction P2
 (\cref{sec:tests-predictions}) bet on. One leak is recorded: a network with
@@ -90,3 +135,17 @@ the valid states by the repair.
 
 Strict commutation is sufficient but not necessary. On a supply federation XU holds, strict
 commutation fails, and every order of events converges (\coq{strict_not_necessary}).
+
+\paragraph{Proof idea.}
+\coq{xu_is_descends} unfolds the definition of XU. The rest are facts about an operation $e$ and a map
+$N$ on a set $P$, used with $N$ the repair of the event's registry and $P$ its valid states: when $N$
+maps $P$ into itself and is idempotent there, descent $N(e(N x)) = N(e(x))$ is equivalent to
+respecting the kernel of $N$ (\coq{descends_iff_respects}), and strict commutation implies descent,
+since $N(e(N x)) = e(N(N x)) = e(N x) = N(e(x))$ (\coq{commutes_descends}). For the federation,
+closure and idempotence are its assumptions that repair preserves validity and that a later
+repair absorbs an earlier one (\coq{fed_closed}, \coq{fed_idem}). \coq{strict_not_necessary} is computed on a two-registry supply federation
+(\coq{supply_instance}): the repair overwrites the supplier's listed flag from the manufacturer's
+recall flag and keeps the count, and no supplier event reads the flag, so descent holds, while unlisting and then
+repairing restores the flag and repairing and then unlisting leaves it cleared, so strict commutation
+fails. Convergence of every order follows from the federation theorem through
+\coq{xu_implies_c1_c2} and \coq{fed_permutations_converge}.
