@@ -1,0 +1,96 @@
+% Section 6. Drafted from docs/PAPER-OUTLINE.md section 6 and docs/THEORY.md "Layer C". Every named
+% result is a gated, axiom-free theorem in coq/*.v (CanonicalRecurrence.v unless noted).
+
+\section{Layer C: long-run behavior}\label{sec:layer-c}
+
+Layer~C asks whether runs reach a consistent state and which one. It is the scale of
+\cref{sec:main-recurrence}, where repair may never stop: networks of registries that feed each other
+around a cycle, resolvers that iterate to a fixed point, schedules that interleave updates
+indefinitely. This section states one kernel for that scale, recovers the settlement results of the
+map through it, and classifies every way a run was found to fail in one vocabulary.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{The kernel}
+
+A system has states $X$ with decidable equality, a list of actions $J$, and an update $u_j : X \to X$
+for each action, applied asynchronously: a schedule picks one action per step, and it is fair when
+every action is picked infinitely often. A \emph{fair lasso} from $s_0$ is a word $p$ that reaches a
+state $x$, followed by a nonempty word $q$ that returns $x$ to itself and picks every action; its loop
+states are the states $q$ visits. Let $N : X \to C$ be an observation and $c$ a target.
+
+\begin{theorem}[C1; \coq{C1_closed}, \coq{C1_nn}]\label{thm:c1-kernel}
+On a finite $X$, every fair run from $s_0$ is eventually always in $N^{-1}(c)$ if and only if no fair
+lasso from $s_0$ has a loop state outside $N^{-1}(c)$. The equivalence is constructive when the fiber
+is closed under every update (\cref{thm:c1}), and holds for every fiber in double-negated form.
+\end{theorem}
+
+\begin{theorem}[C2; \coq{C2}, \coq{C2_loops}]\label{thm:c2}
+On a finite $X$, every fair run from $s_0$ eventually stays at a state fixed by every update if and
+only if every fair lasso from $s_0$ has a single loop state, and that state is fixed by every update.
+\end{theorem}
+
+C1 asks whether runs settle on the right result; C2 asks whether they settle at all. The refutation
+direction needs no finiteness: a bad fair lasso refutes settling on any state space
+(\coq{C1_refutes}, \coq{bad_lasso_refutes}). This is the classical characterization of fair
+behavior by reachable accepting cycles~\cite{clarke1986,emersonlei1987,vardi1986}, and it is not
+claimed as new. The question this section answers is whether it compresses the development's
+settlement results.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{The settlement results as short bridges}
+
+Each settlement result of the map was recovered by proving that no bad fair lasso exists and reading
+settlement off C1 or C2. The argument for each is between 5 and 11 lines, over a shared,
+regime-independent toolkit: pigeonhole on finite runs, inflationary loops, and a floor lemma for
+loops below a fixed point.
+
+\begin{itemize}[nosep]
+  \item \emph{Chaotic iteration reaches the least fixed point} (\coq{chaotic_reaches_lfp_lasso}): a fair
+    loop at a reachable state is inflationary, so it is a single fixed point, which is the least one.
+  \item \emph{Signed networks settle} (\coq{signed_settlement_lasso}): the run from the bottom under the
+    loop's word stabilizes at a fixed point below the loop, so from sound starts every fair loop is a
+    single fixed point.
+  \item \emph{and settle on the right fixed point} (\coq{signed_fidelity_lasso}): the run from the top
+    bounds every loop by a fixed point, which is unique, so every recurrent class is that fixed point.
+  \item \emph{Fair flush} (\coq{fairflush_lasso}, \coq{fairflushR_lasso}): the originals are C2.
+\end{itemize}
+
+A cycle that is not fair does not refute anything. The development has a bad cycle that never picks
+one of the actions, in a network where every fair run settles
+(\coq{nonfair_cycle_not_refuting}).
+
+% ---------------------------------------------------------------------------------------------
+\subsection{How runs fail}
+
+Every long-run obstruction found in the map is a fair lasso, and C1 and C2 tell the kinds apart
+(\coq{lasso_classification}).
+
+\begin{itemize}[nosep]
+  \item \emph{Oscillation.} A negation cycle is a bad fair lasso with more than one loop state; it is
+    bad for every target.
+  \item \emph{Livelock.} A bad fair lasso exists although the repair has exactly one fixed point
+    (\coq{flip2_fair_lasso}); this is the B to C interface's counterexample of Section~8.
+  \item \emph{Settling on the wrong state.} A single settled loop state in the wrong fiber: C2 holds and
+    C1 fails (\coq{copyback_ghost_lasso}).
+  \item \emph{Several fixed points.} Several reachable single-state loops: C2 holds and every target
+    fails C1.
+  \item \emph{Semantic oscillation.} A fair raw oscillation $a \to b \to a$ with $N(a) = N(b)$: C2 fails
+    and C1 holds (\coq{semantic_oscillation}). The run never stops moving, but its repaired result
+    never changes.
+\end{itemize}
+
+\noindent
+A good monotone resolver has no bad fair lasso from any start. The last kind is why C1 and C2 are
+separate conditions: a system can converge in the sense that matters, its result after repair, while
+never quiescing.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Boundaries}
+
+The recoveries are of finite fragments. Every bridge assumes a finite, listed state type, while the
+originals assume only finite height, which allows infinitely many states; the chaotic-iteration bridge
+also needs a finite list of components. The strong form of C1 is classical in general: on a four-state
+instance with no bad fair lasso, strong settlement implies the limited principle of omniscience
+(\coq{lpo_leak}). The recoveries avoid this because their targets are fixed points, whose fibers are
+closed under the steps. Extending the kernel to finite-height state spaces with infinitely many states
+is open.
