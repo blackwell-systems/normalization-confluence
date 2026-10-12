@@ -19,7 +19,16 @@ Fails (exit 1) if:
     predictions table in research/predictions/README.md;
   - a frozen kernel file listed in research/predictions/frozen.sha256 changed;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
-    convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile.
+    convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile;
+  - a tile lacks a unique id, its plain answer, a layer (A, B, C, AB, BC or AC), an axis row and
+    column from the axes block, or a paper destination from the paper block; a plain answer is too
+    long or does not match its kind (open tiles start "Open:", excluded tiles "Excluded:", hard tiles
+    name NP);
+  - a paper section title in regimes.js differs from the section with that number in docs/paper
+    (main.tex input order, appendices lettered), or the layers, framework or tour blocks are
+    malformed (a tour stop names a tile id that does not exist); their theorem names are checked
+    like the tiles' above;
+  - regimes.js contains an em dash.
 """
 import json
 import re
@@ -101,6 +110,128 @@ def audit_gaps():
     return current, rows
 
 
+LAYERS = ("A", "B", "C", "AB", "BC", "AC")
+ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+PLAIN_MAX = 150
+
+
+def paper_sections():
+    """Return {"section.N" or "appendix.X": title} from docs/paper/main.tex and its inputs."""
+    paper = ROOT / "docs" / "paper"
+    main_tex = paper / "main.tex"
+    if not main_tex.exists():
+        return None
+    out, n, app = {}, 0, None
+    files = []
+    for line in main_tex.read_text(encoding="utf-8").splitlines():
+        m = re.search(r"\\input\{([^}]+)\}", line.split("%", 1)[0])
+        if m:
+            files.append(paper / (m.group(1) + ("" if m.group(1).endswith(".tex") else ".tex")))
+    for f in files:
+        if not f.exists():
+            continue
+        for line in f.read_text(encoding="utf-8").splitlines():
+            line = line.split("%", 1)[0]
+            if re.match(r"^\s*\\appendix\b", line):
+                app = 0
+            m = re.match(r"^\s*\\section\{(.*?)\}(?:\\label|\s*$)", line)
+            if not m:
+                continue
+            title = m.group(1).replace("``", '"').replace("''", '"')
+            if app is None:
+                n += 1
+                out[f"section.{n}"] = title
+            else:
+                out[f"appendix.{chr(ord('A') + app)}"] = title
+                app += 1
+    return out
+
+
+def check_theory(atlas, use, errors):
+    """Validate the theory views' data: tile fields, layers, framework, axes, paper and tour."""
+    paper = atlas.get("paper", {})
+    secs = paper.get("sections", {})
+    actual = paper_sections()
+    if not paper.get("url", "").endswith(".pdf"):
+        errors.append("regimes.js: paper.url is not a PDF link")
+    for key, title in secs.items():
+        if actual is not None and actual.get(key) != title:
+            errors.append(f"regimes.js: paper section {key} is titled {title!r}, docs/paper has {actual.get(key)!r}")
+    axes = atlas.get("axes", {})
+    shapes = [s["id"] for s in axes.get("shapes", [])]
+    models = [m["id"] for m in axes.get("models", [])]
+    if len(set(shapes)) != len(shapes) or "other" not in shapes:
+        errors.append("regimes.js: axes.shapes ids must be unique and include an 'other' lane")
+    if len(set(models)) != len(models) or not models:
+        errors.append("regimes.js: axes.models ids must be unique and nonempty")
+    ids = {}
+    for fam in atlas["families"]:
+        for t in fam["tiles"]:
+            where = f'{fam["code"]} {t["name"]}'
+            tid = t.get("id", "")
+            if not ID.match(tid):
+                errors.append(f"{where}: missing or malformed id {tid!r}")
+            elif tid in ids:
+                errors.append(f"{where}: id {tid} also used by {ids[tid]}")
+            ids[tid] = where
+            plain = t.get("plain", "")
+            if not plain.strip():
+                errors.append(f"{where}: no plain answer")
+            elif len(plain) > PLAIN_MAX:
+                errors.append(f"{where}: plain answer is {len(plain)} characters (at most {PLAIN_MAX})")
+            elif t["kind"] == "open" and not plain.startswith("Open:"):
+                errors.append(f'{where}: an open tile\'s plain answer must start "Open:"')
+            elif t["kind"] == "excl" and not plain.startswith("Excluded:"):
+                errors.append(f'{where}: an excluded tile\'s plain answer must start "Excluded:"')
+            elif t["kind"] == "hard" and "NP" not in plain:
+                errors.append(f"{where}: a hard tile's plain answer must say what is NP-complete or NP-hard")
+            elif t["kind"] in ("exact", "hard") and plain.startswith(("Open:", "Excluded:")):
+                errors.append(f"{where}: plain answer does not match the tile's kind")
+            if t.get("layer") not in LAYERS:
+                errors.append(f"{where}: layer {t.get('layer')!r} is not one of {', '.join(LAYERS)}")
+            if t.get("shape") not in shapes:
+                errors.append(f"{where}: shape {t.get('shape')!r} is not an axes.shapes id")
+            if t.get("model") not in models:
+                errors.append(f"{where}: model {t.get('model')!r} is not an axes.models id")
+            if t.get("paper") not in secs:
+                errors.append(f"{where}: paper {t.get('paper')!r} is not a key of paper.sections")
+    layers = atlas.get("layers", [])
+    if [l.get("id") for l in layers] != list(LAYERS):
+        errors.append(f"regimes.js: layers must be, in order, {', '.join(LAYERS)}")
+    for l in layers:
+        if l.get("paper") not in secs:
+            errors.append(f"regimes.js: layer {l.get('id')} paper {l.get('paper')!r} is not a key of paper.sections")
+        if not l.get("asks"):
+            errors.append(f"regimes.js: layer {l.get('id')} has no 'asks' line")
+        for k in ("thm", "stop"):
+            if len(l.get("id", "")) == 2 and not l.get(k):
+                errors.append(f"regimes.js: interface {l.get('id')} has no {k}")
+            if l.get(k):
+                use(l[k], f"layer {l.get('id')}")
+    fw = atlas.get("framework", {})
+    if len(fw.get("scales", [])) != 3 or len(fw.get("links", [])) != 2:
+        errors.append("regimes.js: framework needs three scales and two links")
+    for sc in fw.get("scales", []):
+        use(sc["thm"], "framework scale")
+    for ln in fw.get("links", []) + [fw.get("together", {"thms": []})]:
+        for n in ln["thms"]:
+            use(n, "framework")
+    if fw.get("paper") not in secs:
+        errors.append("regimes.js: framework.paper is not a key of paper.sections")
+    tour = atlas.get("tour", [])
+    if not 5 <= len(tour) <= 6:
+        errors.append(f"regimes.js: the tour has {len(tour)} stops (5 or 6)")
+    for i, stop in enumerate(tour, 1):
+        if stop.get("tile") not in ids:
+            errors.append(f"regimes.js: tour stop {i} names tile {stop.get('tile')!r}, which does not exist")
+        if not stop.get("title") or not stop.get("text"):
+            errors.append(f"regimes.js: tour stop {i} needs a title and a text")
+        if stop.get("thm"):
+            use(stop["thm"], f"tour stop {i}")
+    if "\u2014" in (HERE / "regimes.js").read_text(encoding="utf-8"):
+        errors.append("regimes.js: contains an em dash")
+
+
 def main():
     atlas = load_atlas()
     decl = coq_declarations()
@@ -139,6 +270,8 @@ def main():
                 errors.append(f"{where}: anchor #{GAPS_ANCHOR} is not a heading of REGIME-AUDIT.md")
             if t["kind"] in ("exact", "hard") and not t.get("thm"):
                 errors.append(f"{where}: {t['kind']} tile with no theorem")
+
+    check_theory(atlas, use, errors)
 
     current, rows = audit_gaps()
     if not current:

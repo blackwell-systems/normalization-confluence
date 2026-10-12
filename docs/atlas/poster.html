@@ -1,183 +1,348 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><title>The Convergence Atlas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="A map of when concurrent systems that repair themselves converge: in every regime, a machine-checked exact condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Hover or tap a tile for its condition, counterexamples and Coq theorems.">
+<meta name="description" content="A map of when concurrent systems that repair themselves converge: in every regime, a machine-checked exact condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Each tile gives its answer in one line; group the tiles by the layer of the theory that decides them, or lay them out on the model's axes.">
 <meta property="og:title" content="The Convergence Atlas">
 <meta property="og:description" content="When concurrent systems that repair themselves converge: an exact, machine-checked regime map. From normalization-confluence by Dayna Blackwell.">
 <meta property="og:type" content="website">
-<!-- Draft poster of the Convergence Atlas (docs/ROADMAP.md). Tile and card data: regimes.js,
-     checked against coq/ by check.py. Prints at its fixed size, 1800 x 2800 px. -->
+<!-- The Convergence Atlas (docs/ROADMAP.md). Tile, card, layer, axis and tour data: regimes.js,
+     checked against coq/, REGIME-AUDIT.md and docs/paper by check.py. Prints at 1800 px wide. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@500;600;700&amp;display=swap">
 <style>
-:root{--sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;--cond:'IBM Plex Sans Condensed','Arial Narrow',var(--sans);--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace}
-html,body{margin:0;background:#0C0F14}
+:root{--sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;--cond:'IBM Plex Sans Condensed','Arial Narrow',var(--sans);--mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+--bg:#0C0F14;--panel:#11151C;--line:#2A303A;--line2:#3A4250;--text:#F2F6FB;--muted:#C9D2DD;--dim:#9AA6B4;--dimmer:#8E99A8;--gold:#F2C14E;
+--la:#9CCBFF;--lb:#7FD1AE;--lc:#D2B3FF;color-scheme:dark}
+html,body{margin:0;background:var(--bg);color:var(--text)}
 a{color:#8CC4FF}a:hover{color:#BFDDFF}
-/* The poster scrolls inside #wrap, so a phone keeps its own viewport width for the bottom sheet. */
-#wrap{overflow-x:auto;overflow-y:hidden;max-width:100vw}
-#poster{position:relative;width:1800px;height:2800px;box-sizing:border-box;padding:88px 80px 72px;background:#0C0F14;color:#F2F6FB;font-family:var(--sans);display:flex;flex-direction:column;gap:40px}
-.fam{display:grid;grid-template-columns:220px minmax(0,1fr);column-gap:20px;align-items:stretch}
-.fam-label{display:flex;flex-direction:column;justify-content:center;gap:4px;border-top:2px solid #3A4250;padding-top:10px}
-.fam-code{font-family:var(--mono);font-size:13px;letter-spacing:0.12em;color:#8E99A8}
-.fam-name{font-family:var(--cond);font-size:24px;font-weight:600;line-height:1.1}
-.fam-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
-.tile{box-sizing:border-box;height:112px;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;position:relative;margin:0;border:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#poster{position:relative;max-width:1800px;margin:0 auto;box-sizing:border-box;padding:clamp(28px,4.9vw,88px) clamp(16px,4.4vw,80px) clamp(28px,4vw,72px);font-family:var(--sans);display:flex;flex-direction:column;gap:clamp(22px,2.2vw,40px)}
+
+/* Header */
+.head{display:flex;flex-direction:column;gap:22px}
+.eyebrow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:clamp(12px,0.9vw,16px);letter-spacing:0.18em;color:var(--dim)}
+h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,104px);line-height:0.98;letter-spacing:-0.01em;max-width:1500px}
+.lede{margin:0;font-size:clamp(17px,1.45vw,26px);line-height:1.4;color:var(--muted);max-width:1380px}
+
+/* View switch and tour button */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.views{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.views button{font:500 16px/1 var(--sans);color:var(--muted);background:#11151C;border:0;border-right:1px solid var(--line2);padding:11px 18px;cursor:pointer}
+.views button:last-child{border-right:0}
+.views button:hover{background:#1A2029;color:var(--text)}
+.views button[aria-pressed="true"]{background:#163A66;color:var(--text)}
+.start{font:600 16px/1 var(--sans);color:#0C0F14;background:var(--gold);border:0;border-radius:8px;padding:12px 18px;cursor:pointer}
+.start:hover{background:#F7D27A}
+.views button:focus-visible,.start:focus-visible,.tour button:focus-visible,.fw a:focus-visible{outline:3px solid #8CC4FF;outline-offset:2px}
+.viewnote{font-size:clamp(15px,1vw,18px);color:var(--dim);flex:1 1 320px;margin:0;line-height:1.4}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:center;font-size:17px;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--line)}
+.legend>div{display:flex;gap:10px;align-items:center}
+.sw{width:30px;height:22px;border-radius:4px;box-sizing:border-box}
+.legend .hint{margin-left:auto;font-size:15px;color:var(--dimmer)}
+
+/* Tiles */
+.tgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.tile{box-sizing:border-box;min-height:168px;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;align-items:stretch;position:relative;margin:0;border:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
 .tile .mark{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.04em}
 .tile .name{font-family:var(--sans);font-size:17px;line-height:1.2;font-weight:500;padding-right:34px}
-.tile .thm{font-family:var(--mono);font-size:12.5px;line-height:1.25;word-break:break-all}
+.tile .plain{font-size:14px;line-height:1.36}
+.tile .thm{margin-top:auto;font-family:var(--mono);font-size:12.5px;line-height:1.25;word-break:break-all}
 .exact{background:#163A66;color:#F2F6FB}
-.exact .mark{color:#9CCBFF}
-.exact .thm{color:#B9D6F5}
+.exact .mark{color:#9CCBFF}.exact .plain{color:#D6E6F7}.exact .thm{color:#B9D6F5}
 .hard{background:#B4561A;color:#FFF7F0}
-.hard .mark{color:#FFE2C9}
-.hard .thm{color:#FFE7D4}
+.hard .mark{color:#FFE2C9}.hard .plain{color:#FFF1E6}.hard .thm{color:#FFE7D4}
 .open{background:#0C0F14;color:#F2F6FB;border:2px dashed #C9D2DD}
 .open .mark{color:#0C0F14;background:#F2F6FB;border-radius:4px;padding:1px 6px}
-.open .thm{color:#AEB8C5}
-.excl{background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 9px,#1F242D 9px,#1F242D 18px);color:#AEB8C5;border:1px solid #2A303A}
-.excl .mark{color:#AEB8C5}
-.excl .thm{color:#8E99A8}
+.open .plain{color:#DCE3EB}.open .thm{color:#AEB8C5}
+.excl{background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 9px,#1F242D 9px,#1F242D 18px);color:#C9D2DD;border:1px solid #2A303A}
+.excl .mark{color:#AEB8C5}.excl .plain{color:#C9D2DD}.excl .thm{color:#8E99A8}
 .fresh{box-shadow:0 0 0 3px #F2C14E}
 .tile:hover{filter:brightness(1.12)}
 .tile:focus{outline:none}
 .tile:focus-visible,.tile[aria-expanded="true"]{outline:3px solid #8CC4FF;outline-offset:3px}
-.plate{border:1px solid #2A303A;border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;background:#11151C}
-.plate-thm{margin-top:auto;font-family:var(--mono);font-size:13px;color:#8E99A8}
+
+/* Catalog view */
+.fams{display:flex;flex-direction:column;gap:14px}
+.fam{display:grid;grid-template-columns:220px minmax(0,1fr);column-gap:20px;align-items:stretch}
+.fam-label{display:flex;flex-direction:column;justify-content:center;gap:4px;border-top:2px solid var(--line2);padding-top:10px}
+.fam-code{font-family:var(--mono);font-size:13px;letter-spacing:0.12em;color:var(--dimmer)}
+.fam-name{font-family:var(--cond);font-size:24px;font-weight:600;line-height:1.1}
+
+/* Framework view */
+.fw{display:flex;flex-direction:column;gap:26px}
+.fw-head{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:22px 24px;display:flex;flex-direction:column;gap:14px}
+.fw-kicker{font-family:var(--mono);font-size:13px;letter-spacing:0.14em;color:var(--dimmer);text-transform:uppercase}
+.hier{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);align-items:stretch}
+.node{border:1px solid var(--line2);background:#0E1219;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.node .lab{font-family:var(--mono);font-size:12px;letter-spacing:0.14em;color:var(--gold);text-transform:uppercase}
+.node b{font-family:var(--cond);font-size:22px;font-weight:600}
+.node span{font-size:15px;line-height:1.4;color:var(--muted)}
+.node code,.fw code{font-family:var(--mono);font-size:12.5px;color:#B9D6F5;overflow-wrap:anywhere}
+.edge{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 12px;max-width:190px;text-align:center;font-size:14px;color:var(--dim);line-height:1.35}
+.edge .sym{font-size:24px;color:var(--text);line-height:1.1}
+.hier-foot{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;font-size:15px;line-height:1.4;color:var(--muted)}
+.bracket{border-top:2px solid var(--line2);padding-top:8px;text-align:center}
+.bracket b{color:var(--text);font-weight:500}
+.quot{border-top:2px dashed var(--line2);padding-top:8px;text-align:center}
+.fw-src{font-size:14px;color:var(--dimmer)}
+.lay{display:flex;flex-direction:column;gap:12px}
+.lay-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;border-top:2px solid var(--line2);padding-top:12px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:30px;padding:0 8px;border-radius:6px;font:700 17px/1 var(--mono);color:#0C0F14}
+.b-A{background:var(--la)}.b-B{background:var(--lb)}.b-C{background:var(--lc)}
+.b-AB{background:linear-gradient(90deg,var(--la) 50%,var(--lb) 50%)}
+.b-BC{background:linear-gradient(90deg,var(--lb) 50%,var(--lc) 50%)}
+.b-AC{background:linear-gradient(90deg,var(--la) 50%,var(--lc) 50%)}
+.lay-title{font-family:var(--cond);font-size:26px;font-weight:600;margin:0}
+.lay-asks{font-size:17px;color:var(--muted);flex:1 1 420px;margin:0;line-height:1.4}
+.lay-meta{font-size:14px;color:var(--dimmer);width:100%;line-height:1.5}
+.ifhead{font-family:var(--cond);font-size:30px;font-weight:600;margin:10px 0 0}
+.ifnote{margin:0;font-size:16px;color:var(--dim)}
+
+/* Axes view */
+.ax{display:grid;grid-template-columns:150px minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,2fr) minmax(0,2fr) minmax(0,1fr);gap:10px}
+.ax-corner{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;color:var(--dimmer);line-height:1.5;align-self:end}
+.ax-col{border-bottom:2px solid var(--line2);padding-bottom:8px;align-self:end}
+.ax-col b,.ax-row b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;line-height:1.1}
+.ax-col span,.ax-row span{display:block;font-size:13px;color:var(--dimmer);line-height:1.35;margin-top:3px}
+.ax-row{border-top:2px solid var(--line2);padding-top:10px}
+.ax-row .opens{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:12px;letter-spacing:0.06em;border:2px dashed #C9D2DD;border-radius:4px;padding:2px 6px;color:var(--text)}
+.ax-cell{border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;align-content:start;min-height:40px}
+.ax-cell.empty::after{content:"";display:block;width:8px;height:8px;border-radius:50%;background:var(--line2);margin:8px 0 0 4px}
+.ax .tile{min-height:0;padding:10px 12px 11px}
+.ax .tile .name{font-size:15.5px}
+.ax .tile .plain{font-size:13px}
+.ax .tile .thm{font-size:11.5px}
+.ax-row.other{border-top-style:dashed}
+
+/* Plates */
+.plates{display:flex;flex-direction:column;gap:18px}
+.plates-head{display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px}
+.plates-head h2{margin:0;font-family:var(--cond);font-size:34px;font-weight:600}
+.plates-head span{font-size:18px;color:var(--dim)}
+.pgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.plate{border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;background:var(--panel)}
+.plate-no{font-family:var(--mono);font-size:14px;letter-spacing:0.14em;color:var(--gold)}
+.plate-title{font-family:var(--cond);font-size:26px;font-weight:600}
+.plate-fig{display:flex;align-items:center;gap:10px;height:92px}
+.plate p{margin:0;font-size:17px;line-height:1.45;color:var(--muted)}
+.plate-thm{margin-top:auto;font-family:var(--mono);font-size:13px;color:var(--dimmer)}
+.box{flex:1 1 0;border:2px solid #9CCBFF;border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:14px;line-height:1.4}
+.dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;flex:0 0 auto}
+.arrow{font-size:26px;color:var(--muted)}
+
+/* Footer */
+.foot{margin-top:auto;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,0.9fr);gap:40px;border-top:1px solid var(--line);padding-top:24px;font-size:17px;line-height:1.5;color:var(--muted)}
+.foot .k{font-family:var(--mono);font-size:13px;letter-spacing:0.14em;color:var(--dimmer);margin-bottom:6px}
 
 /* Detail card: beside the tile on wide screens, a bottom sheet on narrow ones. Screen only. */
-#card{position:absolute;z-index:10;width:440px;box-sizing:border-box;padding:18px 20px 16px;background:#11151C;color:#E6ECF3;border:1px solid #3A4250;border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,0.55);font-family:var(--sans);font-size:15px;line-height:1.45}
+#card{position:absolute;z-index:30;width:440px;box-sizing:border-box;padding:18px 20px 16px;background:#11151C;color:#E6ECF3;border:1px solid var(--line2);border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,0.55);font-family:var(--sans);font-size:15px;line-height:1.45}
 #card[hidden]{display:none}
-#card .c-top{display:flex;align-items:baseline;gap:10px;margin:0 30px 2px 0;font-family:var(--mono);font-size:12px;letter-spacing:0.1em;color:#8E99A8;text-transform:uppercase}
+#card .c-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 30px 2px 0;font-family:var(--mono);font-size:12px;letter-spacing:0.1em;color:var(--dimmer);text-transform:uppercase}
 #card .c-kind{font-weight:600}
 #card .k-exact{color:#9CCBFF}#card .k-hard{color:#F0A46B}#card .k-open{color:#F2F6FB}#card .k-excl{color:#AEB8C5}#card .k-fresh{color:#F2C14E}
-#card h3{margin:2px 30px 10px 0;font-family:var(--cond);font-size:23px;font-weight:600;line-height:1.15;color:#F2F6FB}
+#card h3{margin:2px 30px 8px 0;font-family:var(--cond);font-size:23px;font-weight:600;line-height:1.15;color:#F2F6FB}
+#card .c-plain{margin:0 0 12px;font-size:16px;line-height:1.45;color:#F2F6FB;border-left:3px solid var(--gold);padding-left:10px}
 #card dl{margin:0;display:grid;gap:8px}
-#card dt{font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8E99A8}
+#card dt{font-family:var(--mono);font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--dimmer)}
 #card dd{margin:0}
 #card code{font-family:var(--mono);font-size:13px;color:#B9D6F5;overflow-wrap:anywhere}
 #card ul{margin:0;padding-left:18px}
 #card li{margin:1px 0}
-#card .c-links{margin-top:12px;padding-top:10px;border-top:1px solid #2A303A;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}
-#card .c-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid #3A4250;background:#171B22;color:#C9D2DD;font:600 18px/1 var(--sans);cursor:pointer}
+#card .c-links{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}
+#card .c-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid var(--line2);background:#171B22;color:var(--muted);font:600 18px/1 var(--sans);cursor:pointer}
 #card .c-close:hover{background:#1F242D}
 #card .c-close:focus-visible,#card a:focus-visible{outline:2px solid #8CC4FF;outline-offset:2px}
+
+/* Guided tour */
+.tour{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));width:min(600px,calc(100vw - 32px));box-sizing:border-box;background:#11151C;border:1px solid var(--line2);border-top:3px solid var(--gold);border-radius:10px;box-shadow:0 18px 48px rgba(0,0,0,0.6);padding:16px 18px 14px;font-family:var(--sans);color:#E6ECF3}
+.tour[hidden]{display:none}
+.tour .t-step{font-family:var(--mono);font-size:12px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase}
+.tour h2:focus{outline:none}
+.tour h2{margin:4px 34px 6px 0;font-family:var(--cond);font-size:24px;font-weight:600;line-height:1.15}
+.tour p{margin:0 0 6px;font-size:15.5px;line-height:1.45;color:var(--muted)}
+.tour .t-thm{font-family:var(--mono);font-size:12.5px;color:#B9D6F5;overflow-wrap:anywhere}
+.tour .t-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.tour .t-nav button{font:500 15px/1 var(--sans);border-radius:6px;padding:10px 14px;cursor:pointer;border:1px solid var(--line2);background:#171B22;color:var(--text)}
+.tour .t-nav button:hover{background:#1F242D}
+.tour .t-nav .t-next{background:var(--gold);color:#0C0F14;border-color:var(--gold)}
+.tour .t-nav .t-next:hover{background:#F7D27A}
+.tour .t-nav button:disabled{opacity:0.4;cursor:default}
+.tour .t-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid var(--line2);background:#171B22;color:var(--muted);font:600 18px/1 var(--sans);cursor:pointer}
+body.touring .tile{opacity:0.3;transition:opacity .2s}
+body.touring .tile.tour-on{opacity:1;box-shadow:0 0 0 4px var(--gold),0 0 0 10px rgba(242,193,78,0.25)}
+body.touring{padding-bottom:300px}
+@media (prefers-reduced-motion:reduce){body.touring .tile{transition:none}}
+
+/* Responsive */
+@media (max-width:1400px){
+  .tgrid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .fam{grid-template-columns:1fr;row-gap:10px}
+  .fam-label{flex-direction:row;align-items:baseline;justify-content:flex-start;gap:12px}
+  .pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:1180px){
+  .ax{display:block}
+  .ax-corner,.ax-col{display:none}
+  .ax-row{margin-top:22px;padding-top:12px}
+  .ax-row span{display:inline;margin-left:8px}
+  .ax-row b{display:inline}
+  .ax-row .opens{margin:0 0 0 10px}
+  .ax-cell{border-top:0;padding-top:8px;margin-top:4px}
+  .ax-cell.empty{display:none}
+  .ax-cell::before{content:attr(data-col);grid-column:1/-1;font-family:var(--mono);font-size:12px;letter-spacing:0.08em;color:var(--dim);text-transform:uppercase}
+  .ax-cell.empty::after{display:none}
+}
+@media (max-width:900px){
+  .hier{grid-template-columns:1fr}
+  .edge{max-width:none;flex-direction:row;gap:8px;padding:8px 0}
+  .edge .sym{transform:rotate(90deg)}
+  .hier-foot{grid-template-columns:1fr}
+  .foot{grid-template-columns:1fr;gap:20px}
+  .legend .hint{margin-left:0}
+}
 @media (max-width:700px){
   #card{position:fixed;left:0;right:0;bottom:0;top:auto!important;width:auto;max-height:62vh;overflow:auto;border-radius:14px 14px 0 0;border-width:1px 0 0;padding:18px max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  .pgrid{grid-template-columns:1fr}
+  .tgrid{grid-template-columns:1fr}
+  .tile{min-height:0}
+  .legend{font-size:15px;gap:10px 20px}
+  .views button{padding:11px 14px;font-size:15px}
+  .tour{bottom:0;width:100vw;border-radius:12px 12px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom))}
 }
 @media print{
-  @page{size:1800px 2800px;margin:0}
+  @page{size:1800px 4000px;margin:0}
   html,body{background:#0C0F14;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #card{display:none!important}
-  #wrap{overflow:visible;max-width:none}
-  .tile{outline:none!important;filter:none!important}
+  #poster{width:1800px;max-width:none}
+  #card,.tour,.bar,.legend .hint{display:none!important}
+  .tile{outline:none!important;filter:none!important;opacity:1!important}
 }
 </style>
 </head><body>
-<div id="wrap">
 <div id="poster">
 
-<div style="display: flex; flex-direction: column; gap: 22px">
-<div style="display: flex; justify-content: space-between; align-items: baseline; font-family: var(--mono); font-size: 16px; letter-spacing: 0.18em; color: #9AA6B4">
-<span>THE CONVERGENCE ATLAS</span>
-<span>PLATE INDEX I to IV</span>
+<header class="head">
+<div class="eyebrow"><span>THE CONVERGENCE ATLAS</span><span>PLATE INDEX I to IV</span></div>
+<h1>When does concurrent state with invariant repair converge?</h1>
+<p class="lede">An exact regime map. In every regime: a necessary and sufficient condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Every answer machine-checked: 4,766 axiom-free theorems in Coq.</p>
+</header>
+
+<div class="bar">
+<div class="views" role="group" aria-label="View">
+<button type="button" data-view="catalog" aria-pressed="true">Catalog</button>
+<button type="button" data-view="framework" aria-pressed="false">Framework</button>
+<button type="button" data-view="axes" aria-pressed="false">Axes</button>
 </div>
-<h1 style="margin: 0; font-family: var(--cond); font-weight: 700; font-size: 104px; line-height: 0.98; letter-spacing: -0.01em; max-width: 1500px">When does concurrent state with invariant repair converge?</h1>
-<p style="margin: 0; font-size: 26px; line-height: 1.4; color: #C9D2DD; max-width: 1380px">An exact regime map. In every regime: a necessary and sufficient condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Every answer machine-checked: 4,766 axiom-free theorems in Coq.</p>
+<button type="button" class="start" id="start" aria-haspopup="dialog">Start here: a six-stop tour</button>
+<p class="viewnote" id="viewnote" aria-live="polite"></p>
 </div>
 
-<div style="display: flex; gap: 36px; align-items: center; font-size: 17px; color: #C9D2DD; padding-bottom: 6px; border-bottom: 1px solid #2A303A">
-<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: #163A66"></div><span>Exact (iff)</span></div>
-<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: #B4561A"></div><span>Hardness (mechanized reduction)</span></div>
-<div style="display: flex; gap: 10px; align-items: center"><div style="width: 26px; height: 18px; border-radius: 4px; border: 2px dashed #C9D2DD"></div><span>Open, numbered gap</span></div>
-<div style="display: flex; gap: 10px; align-items: center"><div style="width: 30px; height: 22px; border-radius: 4px; background: repeating-linear-gradient(135deg,#171B22 0px,#171B22 5px,#2A303A 5px,#2A303A 10px)"></div><span>Excluded by design</span></div>
-<div style="display: flex; gap: 10px; align-items: center"><div style="width: 26px; height: 18px; border-radius: 4px; box-shadow: 0 0 0 3px #F2C14E"></div><span>Closed in #117</span></div>
-<span class="hint" style="margin-left: auto; font-size: 15px; color: #8E99A8">Hover, focus or tap a tile for its detail card.</span>
+<div class="legend">
+<div><div class="sw" style="background:#163A66"></div><span>Exact (iff)</span></div>
+<div><div class="sw" style="background:#B4561A"></div><span>Hardness (mechanized reduction)</span></div>
+<div><div class="sw" style="width:26px;height:18px;border:2px dashed #C9D2DD"></div><span>Open, numbered gap</span></div>
+<div><div class="sw" style="background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 5px,#2A303A 5px,#2A303A 10px)"></div><span>Excluded by design</span></div>
+<div><div class="sw" style="width:26px;height:18px;box-shadow:0 0 0 3px #F2C14E"></div><span>Closed in #117</span></div>
+<span class="hint">Each line is relative to its tile's model. Hover, focus or tap a tile for its detail card.</span>
 </div>
 
-<div id="fams" style="display: flex; flex-direction: column; gap: 14px"></div>
+<main id="view"></main>
 
-<div style="display: flex; flex-direction: column; gap: 18px">
-<div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #2A303A; padding-bottom: 10px">
-<h2 style="margin: 0; font-family: var(--cond); font-size: 34px; font-weight: 600">Why each condition is needed</h2>
-<span style="font-size: 18px; color: #9AA6B4">Every plate is a gated counterexample: drop one condition and convergence fails.</span>
+<section class="plates" aria-labelledby="plates-h">
+<div class="plates-head">
+<h2 id="plates-h">Why each condition is needed</h2>
+<span>Every plate is a gated counterexample: drop one condition and convergence fails.</span>
 </div>
-<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+<div class="pgrid">
 
 <div class="plate">
-<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE I</div>
-<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The sticky block</div>
-<div style="display: flex; align-items: center; gap: 10px; height: 92px">
-<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">A rises once</div><div>false to true</div></div>
-<div style="font-size: 26px; color: #C9D2DD">&#8594;</div>
-<div style="flex: 1 1 0; border: 2px solid #F2C14E; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #F2C14E">B latches once</div><div>y := 2 if A, else 1</div></div>
+<div class="plate-no">PLATE I</div>
+<div class="plate-title">The sticky block</div>
+<div class="plate-fig">
+<div class="box"><div style="color:#9CCBFF">A rises once</div><div>false to true</div></div>
+<div class="arrow">&#8594;</div>
+<div class="box" style="border-color:#F2C14E"><div style="color:#F2C14E">B latches once</div><div>y := 2 if A, else 1</div></div>
 </div>
-<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">A converges. B converges at every fixed input. Together they reach two final states: y = 2 or y = 1, decided by whether B moves before or after A.</p>
+<p>A converges. B converges at every fixed input. Together they reach two final states: y = 2 or y = 1, decided by whether B moves before or after A.</p>
 <div class="plate-thm">compose_isolated_refuted</div>
 </div>
 
 <div class="plate">
-<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE II</div>
-<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The leaked repair</div>
-<div style="display: flex; align-items: center; gap: 8px; height: 92px">
-<div style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #C9D2DD; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">0</div>
-<div style="font-size: 22px; color: #C9D2DD">&#8594;</div>
-<div style="flex: 1 1 0; border: 2px dashed #9CCBFF; border-radius: 30px; padding: 12px 10px; display: flex; align-items: center; justify-content: space-around">
-<div style="width: 46px; height: 46px; border-radius: 50%; background: #B4561A; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">1</div>
-<div style="font-size: 22px; color: #F2C14E">&#8594;</div>
-<div style="width: 46px; height: 46px; border-radius: 50%; border: 2px solid #C9D2DD; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 18px">2</div>
+<div class="plate-no">PLATE II</div>
+<div class="plate-title">The leaked repair</div>
+<div class="plate-fig" style="gap:8px">
+<div class="dot" style="width:50px;height:50px;border:2px solid #C9D2DD">0</div>
+<div class="arrow" style="font-size:22px">&#8594;</div>
+<div style="flex:1 1 0;border:2px dashed #9CCBFF;border-radius:30px;padding:12px 10px;display:flex;align-items:center;justify-content:space-around">
+<div class="dot" style="background:#B4561A">1</div>
+<div style="font-size:22px;color:#F2C14E">&#8594;</div>
+<div class="dot" style="border:2px solid #C9D2DD">2</div>
 </div>
 </div>
-<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">An event on 1 propagates to 2 before 1 is repaired. Collapsed into one block J = {1, 2}, the network converges. Distributed, it does not.</p>
+<p>An event on 1 propagates to 2 before 1 is repaired. Collapsed into one block J = {1, 2}, the network converges. Distributed, it does not.</p>
 <div class="plate-thm">dist_collapse_refuted</div>
 </div>
 
 <div class="plate">
-<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE III</div>
-<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The ghost</div>
-<div style="display: flex; align-items: center; gap: 10px; height: 92px">
-<div style="flex: 0 0 auto; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">rootless</div><div>alarm, briefly</div></div>
-<div style="font-size: 26px; color: #C9D2DD">&#8594;</div>
-<div style="flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px">
-<div style="width: 46px; height: 46px; border-radius: 50%; background: #F2F6FB; color: #0C0F14; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 15px; font-weight: 600">on</div>
-<div style="font-size: 24px; color: #C9D2DD">&#8644;</div>
-<div style="width: 46px; height: 46px; border-radius: 50%; background: #F2F6FB; color: #0C0F14; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 15px; font-weight: 600">on</div>
+<div class="plate-no">PLATE III</div>
+<div class="plate-title">The ghost</div>
+<div class="plate-fig">
+<div class="box" style="flex:0 0 auto"><div style="color:#9CCBFF">rootless</div><div>alarm, briefly</div></div>
+<div class="arrow">&#8594;</div>
+<div style="flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:6px">
+<div class="dot" style="background:#F2F6FB;color:#0C0F14;font-size:15px;font-weight:600">on</div>
+<div style="font-size:24px;color:#C9D2DD">&#8644;</div>
+<div class="dot" style="background:#F2F6FB;color:#0C0F14;font-size:15px;font-weight:600">on</div>
 </div>
 </div>
-<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">A transient alarm feeds a monotone flag cycle. The flags hold each other up: a fixed point no clean run reaches, so two normal forms.</p>
+<p>A transient alarm feeds a monotone flag cycle. The flags hold each other up: a fixed point no clean run reaches, so two normal forms.</p>
 <div class="plate-thm">mixed_ghost_refuted</div>
 </div>
 
 <div class="plate">
-<div style="font-family: var(--mono); font-size: 14px; letter-spacing: 0.14em; color: #F2C14E">PLATE IV</div>
-<div style="font-family: var(--cond); font-size: 26px; font-weight: 600">The raised cap</div>
-<div style="display: flex; align-items: center; gap: 10px; height: 92px">
-<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">config A</div><div>cap 5</div></div>
-<div style="display: flex; flex-direction: column; align-items: center; font-family: var(--mono); font-size: 12px; color: #F2C14E"><span>add, add</span><span style="font-size: 26px; color: #C9D2DD">&#8594;</span><span>in flight</span></div>
-<div style="flex: 1 1 0; border: 2px solid #9CCBFF; border-radius: 8px; padding: 8px 10px; font-family: var(--mono); font-size: 14px; line-height: 1.4"><div style="color: #9CCBFF">config B</div><div>cap 10</div></div>
+<div class="plate-no">PLATE IV</div>
+<div class="plate-title">The raised cap</div>
+<div class="plate-fig">
+<div class="box"><div style="color:#9CCBFF">config A</div><div>cap 5</div></div>
+<div style="display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:12px;color:#F2C14E"><span>add, add</span><span style="font-size:26px;color:#C9D2DD">&#8594;</span><span>in flight</span></div>
+<div class="box"><div style="color:#9CCBFF">config B</div><div>cap 10</div></div>
 </div>
-<p style="margin: 0; font-size: 17px; line-height: 1.45; color: #C9D2DD">Each configuration converges, and so does a switch at a barrier. Switch live with adds in flight and A's repair is not absorbed: it diverges.</p>
+<p>Each configuration converges, and so does a switch at a barrier. Switch live with adds in flight and A's repair is not absorbed: it diverges.</p>
 <div class="plate-thm">cap_raise</div>
 </div>
 
 </div>
-</div>
+</section>
 
-<div style="margin-top: auto; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.9fr); gap: 40px; border-top: 1px solid #2A303A; padding-top: 24px; font-size: 17px; line-height: 1.5; color: #C9D2DD">
+<footer class="foot">
 <div>
-<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">THE OPEN FRONTIER</div>
+<div class="k">THE OPEN FRONTIER</div>
 <div>Gaps 3, 16, 17, 18, 19, 20, 21. Most are one question: what extra structure makes composition exact on cycles.</div>
 </div>
 <div>
-<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">OUTSIDE THE MAP, BY DESIGN</div>
+<div class="k">OUTSIDE THE MAP, BY DESIGN</div>
 <div>Byzantine participants, nondeterministic repair, probabilistic schedules, infinite networks, real time.</div>
 </div>
 <div>
-<div style="font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; color: #8E99A8; margin-bottom: 6px">SOURCE</div>
+<div class="k">SOURCE</div>
 <div>github.com/blackwell-systems/normalization-confluence</div>
-<div style="color: #F2F6FB">Dayna Blackwell, Blackwell Systems</div>
+<div style="color:#F2F6FB">Dayna Blackwell, Blackwell Systems</div>
 </div>
-</div>
+</footer>
 
 <div id="card" role="dialog" aria-modal="false" aria-labelledby="card-title" tabindex="-1" hidden></div>
+</div>
+
+<div class="tour" id="tour" role="dialog" aria-modal="false" aria-labelledby="tour-title" hidden>
+<button type="button" class="t-x" aria-label="Exit the tour">&#215;</button>
+<div class="t-step" id="tour-step"></div>
+<h2 id="tour-title" tabindex="-1"></h2>
+<p id="tour-text"></p>
+<div class="t-thm" id="tour-thm"></div>
+<div class="t-nav">
+<button type="button" class="t-back">Back</button>
+<button type="button" class="t-next">Next</button>
+<button type="button" class="t-open">Open the tile's card</button>
 </div>
 </div>
 
@@ -190,32 +355,107 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
   var COND = { exact: 'Exact condition', hard: 'Hardness', open: 'Proved so far, and what is open', excl: 'Why it is outside the map' };
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var code = function (s) { return '<code>' + esc(s) + '</code>'; };
+  var LAYER = {}; A.layers.forEach(function (l) { LAYER[l.id] = l; });
+  var SHAPE = {}; A.axes.shapes.forEach(function (s) { SHAPE[s.id] = s; });
+  var MODEL = {}; A.axes.models.forEach(function (m) { MODEL[m.id] = m; });
+  var paperHref = function (d) { return A.paper.url + '#' + d; };
+  var paperName = function (d) { return 'Section ' + d.split('.')[1] + ', ' + A.paper.sections[d]; };
+  var all = [], byId = {};
+  A.families.forEach(function (f) { f.tiles.forEach(function (t) { var e = { t: t, f: f }; all.push(e); byId[t.id] = e; }); });
 
-  // Tiles: real buttons, in reading order.
+  var NOTE = {
+    catalog: 'Eleven families, one tile per regime; each tile gives its answer in one line.',
+    framework: 'The same tiles, grouped by the part of the theory that decides them: three layers and the interfaces between them.',
+    axes: 'The same tiles on the model’s two main axes (docs/COVERAGE.md): network shape down, execution and delivery model across. The open gaps sit on cycles.'
+  };
+
+  // One tile button. Every view draws each tile once, so list indexes stay unique.
   var list = [];
-  document.getElementById('fams').innerHTML = A.families.map(function (f) {
-    return '<div class="fam"><div class="fam-label"><div class="fam-code">' + esc(f.code) + '</div><div class="fam-name">' + esc(f.name) + '</div></div>' +
-      '<div class="fam-tiles">' + f.tiles.map(function (t) {
-        var i = list.push({ t: t, f: f }) - 1;
-        var label = t.thm ? t.thm + (t.thmNote ? ' ' + t.thmNote : '') : t.note;
-        var kind = KIND[t.kind] + (t.gap ? ' ' + t.gap : '');
-        return '<button type="button" class="tile ' + t.kind + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
-          esc(t.name + '. ' + kind + '. ' + label + (t.fresh ? '. Closed in #117' : '')) + '">' +
-          '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span><span class="name">' + esc(t.name) + '</span><span class="thm">' + esc(label) + '</span></button>';
-      }).join('') + '</div></div>';
-  }).join('');
+  function tile(e) {
+    var t = e.t, i = list.push(e) - 1;
+    var label = t.thm ? t.thm + (t.thmNote ? ' ' + t.thmNote : '') : t.note;
+    var kind = KIND[t.kind] + (t.gap ? ' ' + t.gap : '');
+    return '<button type="button" class="tile ' + t.kind + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" data-id="' + esc(t.id) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
+      esc(t.name + '. ' + kind + '. ' + t.plain + ' ' + label + (t.fresh ? '. Closed in #117' : '')) + '">' +
+      '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span><span class="name">' + esc(t.name) + '</span>' +
+      '<span class="plain">' + esc(t.plain) + '</span><span class="thm">' + esc(label) + '</span></button>';
+  }
+
+  function catalog() {
+    return '<div class="fams">' + A.families.map(function (f) {
+      return '<section class="fam" aria-label="' + esc(f.code + ' ' + f.name) + '"><div class="fam-label"><div class="fam-code">' + esc(f.code) + '</div><div class="fam-name">' + esc(f.name) + '</div></div>' +
+        '<div class="tgrid">' + all.filter(function (e) { return e.f === f; }).map(tile).join('') + '</div></section>';
+    }).join('') + '</div>';
+  }
+
+  function framework() {
+    var F = A.framework, s = F.scales, h = '<div class="fw">';
+    h += '<div class="fw-head"><div class="fw-kicker">The main result: one condition at three scales</div><div class="hier">';
+    s.forEach(function (n, i) {
+      if (i) {
+        var l = F.links[i - 1];
+        h += '<div class="edge"><span class="sym" aria-hidden="true">' + (i === 1 ? '&#8596;' : '&#8594;') + '</span><span>' + esc(l.text) + '<br>' + l.thms.map(code).join(', ') + '</span></div>';
+      }
+      h += '<div class="node"><span class="lab">' + esc(n.label) + '</span><b>' + esc(n.name) + '</b><span>' + esc(n.says) + '</span>' + code(n.thm) + '</div>';
+    });
+    h += '</div><div class="hier-foot"><div class="bracket"><b>' + esc(F.together.text) + '</b><br>' + F.together.thms.map(code).join(', ') + '</div>' +
+      '<div class="quot">' + esc(F.note) + '</div></div>';
+    h += '<div class="fw-src">As in the paper’s Figure 1: <a href="' + esc(paperHref(F.paper)) + '" target="_blank" rel="noopener">' + esc(paperName(F.paper)) + '</a>.</div></div>';
+    function group(l) {
+      var ts = all.filter(function (e) { return e.t.layer === l.id; });
+      var g = '<section class="lay" aria-labelledby="lay-' + l.id + '"><div class="lay-head"><span class="badge b-' + l.id + '" aria-hidden="true">' + esc(l.id.split('').join('–')) + '</span>' +
+        '<h3 class="lay-title" id="lay-' + l.id + '">' + esc(l.name + ': ' + l.title) + '</h3><p class="lay-asks">' + esc(l.asks) + '</p>' +
+        '<div class="lay-meta">' + ts.length + ' tiles' + (l.thm ? ' &middot; theorem ' + code(l.thm) + ' &middot; counterexample: ' + esc(l.stopText) + ' (' + code(l.stop) + ')' : '') +
+        ' &middot; <a href="' + esc(paperHref(l.paper)) + '" target="_blank" rel="noopener">Paper, ' + esc(paperName(l.paper)) + '</a></div></div>';
+      return g + '<div class="tgrid">' + ts.map(tile).join('') + '</div></section>';
+    }
+    A.layers.forEach(function (l, i) {
+      if (i === 3) h += '<div><h3 class="ifhead">The interfaces</h3><p class="ifnote">Tiles whose theorems use two layers, grouped by the interface that joins them.</p></div>';
+      h += group(l);
+    });
+    return h + '</div>';
+  }
+
+  function axes() {
+    var M = A.axes.models, h = '<div class="ax"><div class="ax-corner">network shape &#8595;<br>model &#8594;</div>';
+    M.forEach(function (m) { h += '<div class="ax-col"><b>' + esc(m.name) + '</b><span>' + esc(m.note) + '</span></div>'; });
+    A.axes.shapes.forEach(function (s) {
+      var row = all.filter(function (e) { return e.t.shape === s.id; });
+      var opens = row.filter(function (e) { return e.t.kind === 'open'; }).length;
+      h += '<div class="ax-row' + (s.id === 'other' ? ' other' : '') + '"><b>' + esc(s.name) + '</b><span>' + esc(s.note) + '</span>' +
+        (opens ? '<div class="opens">' + opens + ' open</div>' : '') + '</div>';
+      M.forEach(function (m) {
+        var ts = row.filter(function (e) { return e.t.model === m.id; });
+        h += '<div class="ax-cell' + (ts.length ? '' : ' empty') + '" role="group" data-col="' + esc(m.name) + '" aria-label="' + esc(s.name + ', ' + m.name) + '">' + ts.map(tile).join('') + '</div>';
+      });
+    });
+    return h + '</div>';
+  }
 
   var poster = document.getElementById('poster');
+  var view = document.getElementById('view');
   var card = document.getElementById('card');
   var sheet = window.matchMedia('(max-width: 700px)');
-  var cur = null, pinned = false, hideTimer = null, refocus = false;
+  var cur = null, pinned = false, hideTimer = null, refocus = false, mode = 'catalog';
+  var VIEWS = { catalog: catalog, framework: framework, axes: axes };
+
+  function setView(v, keepHash) {
+    if (!VIEWS[v]) v = 'catalog';
+    close(false);
+    mode = v; list = [];
+    view.innerHTML = VIEWS[v]();
+    document.querySelectorAll('.views button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+    document.getElementById('viewnote').textContent = NOTE[v];
+    if (!keepHash && window.history && history.replaceState) history.replaceState(null, '', v === 'catalog' ? location.pathname + location.search : '#' + v);
+    if (tour.on) markTour();
+  }
 
   function render(e) {
-    var t = e.t, f = e.f, h = '';
+    var t = e.t, f = e.f, h = '', l = LAYER[t.layer];
     h += '<button type="button" class="c-close" aria-label="Close">&#215;</button>';
     h += '<div class="c-top"><span class="c-kind k-' + t.kind + '">' + esc(KIND[t.kind]) + (t.gap ? ' &middot; gap ' + esc(t.gap) : '') + '</span>' +
       (t.fresh ? '<span class="k-fresh">closed in #117</span>' : '') + '<span>' + esc(f.code + ' ' + f.name) + '</span></div>';
-    h += '<h3 id="card-title">' + esc(t.name) + '</h3><dl>';
+    h += '<h3 id="card-title">' + esc(t.name) + '</h3><p class="c-plain">' + esc(t.plain) + '</p><dl>';
     h += '<dt>Setting</dt><dd>' + esc(t.setting) + '</dd>';
     h += '<dt>' + COND[t.kind] + '</dt><dd>' + esc(t.condition) + '</dd>';
     if (t.needed && t.needed.length) {
@@ -225,9 +465,12 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
     }
     if (t.gsm) h += '<dt>gsm</dt><dd>' + esc(t.gsm) + '</dd>';
     h += '<dt>Theorems</dt><dd>' + t.theorems.map(code).join(', ') + '<br>in ' + t.modules.map(function (m) { return code('coq/' + m); }).join(', ') + '</dd>';
+    h += '<dt>In the theory</dt><dd>' + esc((l.id.length > 1 ? 'Interface ' : '') + l.name + ': ' + l.title) + '; on the axes, ' + esc(SHAPE[t.shape].name + ' × ' + MODEL[t.model].name) + '</dd>';
     h += '</dl><div class="c-links"><a href="' + esc(A.repo + 'REGIME-AUDIT.md#' + t.section) + '" target="_blank" rel="noopener">REGIME-AUDIT.md, ' +
       (t.section === 'the-open-gaps' ? 'the open gaps' : 'section ' + esc(t.section.split('-')[0])) + '</a>';
     if (t.gap) h += '<a href="' + esc(A.repo + 'REGIME-AUDIT.md#the-open-gaps') + '" target="_blank" rel="noopener">Gap ' + esc(t.gap) + ' row</a>';
+    h += '<a href="' + esc(paperHref(t.paper)) + '" target="_blank" rel="noopener">Paper, ' + esc(paperName(t.paper)) + '</a>';
+    if (l.paper !== t.paper) h += '<a href="' + esc(paperHref(l.paper)) + '" target="_blank" rel="noopener">' + esc(l.name) + ' in the paper, Section ' + esc(l.paper.split('.')[1]) + '</a>';
     h += '</div>';
     card.innerHTML = h;
     card.querySelector('.c-close').addEventListener('click', function () { close(true); });
@@ -237,9 +480,10 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
     if (sheet.matches) { card.style.left = card.style.top = ''; return; }
     var pr = poster.getBoundingClientRect(), r = btn.getBoundingClientRect(), gap = 14;
     var w = card.offsetWidth, h = card.offsetHeight, pw = poster.offsetWidth, ph = poster.offsetHeight;
-    var left = r.right - pr.left + gap;
+    var left = r.right - pr.left + gap, beside = true;
     if (left + w > pw - 16) left = r.left - pr.left - gap - w;   // no room right: go left, never over the tile
-    var top = r.top - pr.top;
+    if (left < 16) { beside = false; left = Math.max(16, Math.min(r.left - pr.left, pw - w - 16)); }   // no room either side: below the tile
+    var top = beside ? r.top - pr.top : r.bottom - pr.top + gap;
     top = Math.max(16, Math.min(top, ph - h - 16));
     card.style.left = left + 'px';
     card.style.top = top + 'px';
@@ -272,22 +516,21 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
     }, 160);
   }
 
-  var fams = document.getElementById('fams');
-  fams.addEventListener('mouseover', function (ev) {
+  view.addEventListener('mouseover', function (ev) {
     var b = ev.target.closest('.tile'); if (!b || pinned) return;
     show(b, false);
   });
-  fams.addEventListener('mouseout', function (ev) {
+  view.addEventListener('mouseout', function (ev) {
     var b = ev.target.closest('.tile'); if (!b || b.contains(ev.relatedTarget)) return;
     softHide();
   });
-  fams.addEventListener('focusin', function (ev) {
+  view.addEventListener('focusin', function (ev) {
     var b = ev.target.closest('.tile'); if (!b || refocus) return;   // focus returned by Escape stays closed
     if (pinned && cur === b) return;
     show(b, false);
   });
-  fams.addEventListener('focusout', function () { softHide(); });
-  fams.addEventListener('click', function (ev) {
+  view.addEventListener('focusout', function () { softHide(); });
+  view.addEventListener('click', function (ev) {
     var b = ev.target.closest('.tile'); if (!b) return;
     if (pinned && cur === b) { close(false); return; }
     show(b, true);
@@ -296,18 +539,71 @@ a{color:#8CC4FF}a:hover{color:#BFDDFF}
   card.addEventListener('mouseleave', softHide);
   card.addEventListener('mouseenter', function () { clearTimeout(hideTimer); });
   card.addEventListener('focusout', softHide);
-  document.addEventListener('keydown', function (ev) {
-    if ((ev.key === 'Escape' || ev.key === 'Esc') && !card.hidden) {
-      ev.preventDefault();
-      close(card.contains(document.activeElement) || pinned);
-    }
-  });
   document.addEventListener('click', function (ev) {
-    if (card.hidden || card.contains(ev.target) || ev.target.closest('.tile')) return;
+    if (card.hidden || card.contains(ev.target) || ev.target.closest('.tile') || ev.target.closest('.tour')) return;
     close(false);
   });
   window.addEventListener('resize', function () { if (cur && !card.hidden) place(cur); });
   window.addEventListener('beforeprint', function () { close(false); });
+
+  document.querySelector('.views').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (b) setView(b.dataset.view);
+  });
+
+  // Guided tour: a fixed panel that walks through A.tour, spotlighting each tile in the current view.
+  var tour = { on: false, i: 0 }, panel = document.getElementById('tour'), startBtn = document.getElementById('start');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  function tileEl(id) { return view.querySelector('.tile[data-id="' + id + '"]'); }
+  function markTour() {
+    view.querySelectorAll('.tile.tour-on').forEach(function (b) { b.classList.remove('tour-on'); });
+    var b = tileEl(A.tour[tour.i].tile); if (!b) return;
+    b.classList.add('tour-on');
+    var r = b.getBoundingClientRect(), room = window.innerHeight - panel.offsetHeight - 24;
+    var y = window.pageYOffset + r.top - Math.max(16, (room - r.height) / 2);
+    window.scrollTo({ top: Math.max(0, y), behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  function step(i) {
+    tour.i = Math.max(0, Math.min(A.tour.length - 1, i));
+    var s = A.tour[tour.i], e = byId[s.tile];
+    close(false);
+    document.getElementById('tour-step').textContent = 'Start here · ' + (tour.i + 1) + ' of ' + A.tour.length + ' · ' + e.t.name;
+    document.getElementById('tour-title').textContent = s.title;
+    document.getElementById('tour-text').textContent = s.text;
+    document.getElementById('tour-thm').innerHTML = s.thm ? 'Theorem: ' + esc(s.thm) : '';
+    panel.querySelector('.t-back').disabled = tour.i === 0;
+    panel.querySelector('.t-next').textContent = tour.i === A.tour.length - 1 ? 'Finish' : 'Next';
+    markTour();
+  }
+  function startTour() {
+    tour.on = true; panel.hidden = false; document.body.classList.add('touring');
+    step(0);
+    document.getElementById('tour-title').focus();
+  }
+  function endTour() {
+    tour.on = false; panel.hidden = true; document.body.classList.remove('touring');
+    view.querySelectorAll('.tile.tour-on').forEach(function (b) { b.classList.remove('tour-on'); });
+    close(false);
+    startBtn.focus();
+  }
+  startBtn.addEventListener('click', startTour);
+  panel.querySelector('.t-x').addEventListener('click', endTour);
+  panel.querySelector('.t-back').addEventListener('click', function () { step(tour.i - 1); });
+  panel.querySelector('.t-next').addEventListener('click', function () { if (tour.i === A.tour.length - 1) endTour(); else step(tour.i + 1); });
+  panel.querySelector('.t-open').addEventListener('click', function () { var b = tileEl(A.tour[tour.i].tile); if (b) { show(b, true); card.focus(); } });
+  panel.addEventListener('keydown', function (ev) {
+    if (ev.key === 'ArrowRight' && tour.i < A.tour.length - 1) { ev.preventDefault(); step(tour.i + 1); }
+    if (ev.key === 'ArrowLeft' && tour.i > 0) { ev.preventDefault(); step(tour.i - 1); }
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Escape' && ev.key !== 'Esc') return;
+    if (!card.hidden) {
+      ev.preventDefault();
+      var inCard = card.contains(document.activeElement) || pinned;
+      if (tour.on && inCard) { close(false); panel.querySelector('.t-open').focus(); } else close(inCard);
+    } else if (tour.on) { ev.preventDefault(); endTour(); }
+  });
+
+  setView((location.hash || '').slice(1), true);
 })();
 </script>
 </body></html>
