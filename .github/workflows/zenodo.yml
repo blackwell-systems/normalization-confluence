@@ -1,0 +1,39 @@
+name: zenodo
+
+# Manual only. status compares Zenodo's latest version of each paper with the repository; draft
+# creates an unpublished new-version draft with the repository's files; publish publishes one
+# reviewed draft, which is permanent. Uses the ZENODO_TOKEN repository secret.
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'status, check, draft or publish'
+        required: true
+        default: 'status'
+        type: choice
+        options: [status, check, draft, publish]
+      papers:
+        description: 'papers from zenodo/papers.json, space separated (empty: all); for publish, the deposition id'
+        required: false
+        default: ''
+      server:
+        description: 'Zenodo server'
+        required: true
+        default: 'https://zenodo.org'
+        type: choice
+        options: ['https://zenodo.org', 'https://sandbox.zenodo.org']
+
+permissions:
+  contents: read
+
+jobs:
+  zenodo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          ZENODO_URL: ${{ inputs.server }}
+        run: python3 scripts/zenodo.py ${{ inputs.command }} ${{ inputs.papers }} || [ "${{ inputs.command }}" = "status" ]
