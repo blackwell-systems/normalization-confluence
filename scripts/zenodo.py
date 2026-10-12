@@ -6,6 +6,7 @@
                                                  files and the version fields of zenodo/papers.json
   python3 scripts/zenodo.py publish <deposition-id>   publish a reviewed draft (permanent)
   python3 scripts/zenodo.py check                 confirm the token works (read-only: lists your depositions)
+  python3 scripts/zenodo.py drafts                list unpublished drafts with their concept ids and reserved DOIs
 
 Papers are the keys of zenodo/papers.json (default: all). draft and publish need ZENODO_TOKEN in the
 environment (scopes deposit:write and deposit:actions); ZENODO_URL selects the server
@@ -141,19 +142,32 @@ def check():
         print(f"  {d['id']}  {d.get('state')}  submitted={d.get('submitted')}  {d.get('title')}")
 
 
+def drafts():
+    for d in call("GET", "/api/deposit/depositions?size=100"):
+        if d.get("state") != "unsubmitted":
+            continue
+        full = call("GET", f"/api/deposit/depositions/{d['id']}")
+        doi = (full.get("metadata", {}).get("prereserve_doi") or {}).get("doi")
+        concept = full.get("conceptrecid")
+        print(f"draft {d['id']}: concept {concept} (concept DOI 10.5281/zenodo.{concept}), "
+              f"version DOI {doi}, files {[f['filename'] for f in full.get('files', [])]}: {d.get('title')}")
+
+
 def publish(dep_id):
     res = call("POST", f"/api/deposit/depositions/{dep_id}/actions/publish")
     print(f"published {dep_id}: DOI {res.get('doi')}, {res.get('links', {}).get('record_html') or res.get('links', {}).get('html')}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2 or sys.argv[1] not in ("status", "draft", "publish", "check"):
+    if len(sys.argv) < 2 or sys.argv[1] not in ("status", "draft", "publish", "check", "drafts"):
         sys.exit(__doc__)
     cmd, args = sys.argv[1], sys.argv[2:]
     if cmd == "status":
         sys.exit(status(args))
     if cmd == "check":
         check()
+    elif cmd == "drafts":
+        drafts()
     elif cmd == "draft":
         draft(args)
     else:
