@@ -91,7 +91,7 @@ start $s_0$,
 
 The proof is the observation that, under state descent, $N(\mathrm{run}(w, s_0)) =
 \mathrm{grun}(w, N(s_0))$ for every word $w$ (\coq{normalization_descent}). Which reorderings preserve
-the result depends on the delivery model; Section~5 gives one theorem pair that decides it for
+the result depends on the delivery model; \cref{sec:layer-a} gives one theorem pair that decides it for
 each model above. Here only free delivery is needed, through the single-registry theorem.
 
 % ---------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ only if the governed runs from $N(s_0)$ agree on every permutation of every hist
 descends on the states reachable from $s_0$.
 \end{corollary}
 
-Section~9 shows that this form is derived from the framework's kernels without using
+\cref{sec:base-case} shows that this form is derived from the framework's kernels without using
 \cref{thm:cc}.
 
 \paragraph{Proof idea, and what is not new.}
@@ -135,8 +135,8 @@ Sufficiency is Newman's lemma restricted to the reachable states, with a case sp
 of critical peak: two events, and an event against a repair step. Necessity uses two small runs. The
 buffer $[e_1, e_2]$ in both orders forces CC1; the buffer $[e]$ with the event first versus the repair
 first forces CC2. Both ends of each run are normal forms, because $\rho^{*}$ always reaches a valid
-state. The result is therefore the critical-pair theorem of Knuth and Bendix and of
-Huet~\cite{huet1980}, specialized to a system whose critical pairs are already normal forms: that is
+state. The result is therefore the critical-pair theorem of Knuth and Bendix~\cite{knuthbendix1970}
+and of Huet~\cite{huet1980}, specialized to a system whose critical pairs are already normal forms: that is
 why ``joinable'' becomes ``equal'' and the converse costs nothing. The contribution is the condition
 and its necessity at the reachable states, not the proof technique. Two counterexamples fix the
 qualifiers: without the restriction to reachable states the converse fails
@@ -164,7 +164,7 @@ from $s_0$ settles on $c$ if and only if there is no bad fair lasso from $s_0$ f
 Settling fails exactly through a fair loop that leaves the target result. The kernel is the classical
 fair-cycle characterization of Emerson and Lei~\cite{emersonlei1987}, read through $N$; its role here
 is to classify how runs fail (oscillation, livelock, settling on the wrong state) in one vocabulary
-(Section~6). Finiteness is needed for the exact form only: a bad fair lasso refutes settling
+(\cref{sec:layer-c}). Finiteness is needed for the exact form only: a bad fair lasso refutes settling
 on any state space (\coq{C1_refutes}).
 
 At this scale the condition reads repair only through its result.
@@ -182,7 +182,7 @@ does.
 The three conditions are not one equation. State descent and history descent are independent of each
 other; together, with terminating repair, they are exactly convergence of a single registry
 (\cref{cor:descent-form}); and terminating repair connects them to settlement through Newman's lemma
-(Section~8). Each separation is witnessed by a mechanized counterexample.
+(\cref{sec:interfaces}). Each separation is witnessed by a mechanized counterexample.
 
 \begin{proposition}\label{prop:separations}
 \leavevmode
@@ -220,6 +220,6 @@ other; together, with terminating repair, they are exactly convergence of a sing
 \end{figure}
 
 Every condition in this section is exact: necessary and sufficient, with each hypothesis shown to be
-needed by a counterexample. Section~4 reads the single-registry theorem against CRDTs, the case
-where repair never runs, and Sections~5 to~8 give the
+needed by a counterexample. \cref{sec:crdt} reads the single-registry theorem against CRDTs, the case
+where repair never runs, and Sections~\ref{sec:layer-a} to~\ref{sec:interfaces} give the
 three-layer framework that organizes these conditions across the regimes of the map.

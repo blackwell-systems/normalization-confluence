@@ -1,0 +1,52 @@
+% Section 1. Drafted from docs/PAPER-OUTLINE.md section 1, docs/OVERVIEW.md and README.md.
+
+\section{Introduction}\label{sec:intro}
+
+Replicated systems deliver the same events to different replicas in different orders, because networks
+delay, reorder and retry messages. Real applications also have rules: an order ships only once it is
+paid, a balance stays above a floor, a shelf holds at most so many items. In practice, systems keep such
+rules by repairing after the fact. An event is applied, and if it breaks a rule, a deterministic repair
+restores it: a saga compensates, a constraint is re-established, a value is capped. The question this
+paper answers is when that works: when replicas that have seen the same events, and run the same repair
+after each one, end in the same state.
+
+It does not always work. A shelf holds at most 5 items and has 4 in stock; the events ``add 3'' and
+``remove 1'' arrive, and the repair caps the stock at 5. One replica applies ``add 3'', caps at 5 and
+removes one, ending at 4; another removes one, adds three and caps, ending at 5. The same events and the
+same repair give different results.
+
+The two established answers to concurrency sidestep the question. CRDTs~\cite{shapiro2011} design
+operations so that order never matters, and need no repair. Invariant
+confluence~\cite{bailis2014} asks which operations preserve an invariant without coordination, with the
+invariant checked and never repaired. Compensation as practiced, in sagas~\cite{garcia1987} and in
+systems that add invariants to weakly consistent replication~\cite{li2012,balegas2015}, has no exact
+condition for when concurrent orders converge.
+
+\paragraph{The answer in one sentence.} Raw states may differ along the way; what has to agree is the
+result after repair. The paper makes this exact at three scales: for a single event, for finite
+histories, and for infinite runs.
+
+\paragraph{Contributions.}
+\begin{enumerate}[nosep]
+  \item Exact conditions at three scales, state descent, history descent and canonical recurrence, with a
+    proved hierarchy between them, and the single-registry theorem that combines the first two
+    (\cref{sec:main}).
+  \item The relation to CRDTs stated precisely: repair strictly enlarges which operations can be used, but
+    every convergent repaired system is a CRDT on its repaired steps; and the relation to invariant
+    confluence (\cref{sec:crdt}).
+  \item A three-layer framework, for executions, consistent states and long-run behavior, with proved
+    interfaces and the counterexamples that mark where each stops, from which the single-registry theorem
+    is derived without circularity (\cref{sec:layer-a,sec:layer-c,sec:layer-b,sec:interfaces,sec:base-case}).
+  \item Tests of the framework where it could fail: classical theorems from outside the development
+    recovered with its files frozen, and two predictions committed before their tests, one a bet about
+    matching markets and one a computed prediction about a widely used database, both confirmed
+    (\cref{sec:tests}).
+  \item A regime map with an exact condition, a hardness result or a listed open problem in every regime,
+    all mechanized in Coq with no axioms, and a checker that runs the practical conditions at build
+    time (\cref{sec:map,sec:gsm}).
+\end{enumerate}
+
+\paragraph{Scope.} ``Exact'' means necessary and sufficient relative to the model each result states, with
+a counterexample for each hypothesis. The mathematical tools, Newman's lemma, trace theory,
+constraint-satisfaction algebra and fair cycles, are classical and credited where they are used
+(\cref{sec:related,sec:limits}).

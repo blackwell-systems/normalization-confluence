@@ -1,0 +1,42 @@
+% Sections 14 and 15. Drafted from research/paper-argument.md ("Claims the paper should not make").
+
+\section{Limitations and what is not claimed}\label{sec:limits}
+
+\begin{itemize}[nosep]
+  \item \emph{No new mathematics in the tools.} Descent is compatibility with a kernel; Newman's lemma,
+    trace theory, constraint-satisfaction algebra and fair cycles are classical and credited where they
+    are used. The contribution is the exact conditions, the map, the mechanization and the framework's
+    tests, not new technique.
+  \item \emph{The three layers are not one principle.} Descent unifies the single-event conditions;
+    across scales the conditions form a hierarchy with proved separations (\cref{prop:separations}).
+    Layer~B is not a descent condition.
+  \item \emph{Recoveries compress; they do not confirm.} The framework was written after the results it
+    recovers. Outside theorems and two preregistered predictions are the evidence of reach, and two
+    predictions are a small sample.
+  \item \emph{The framework does not derive answers by theorem alone.} P2 was a bet on which side of a
+    proved distinction a system falls; P3 was a model computation checked against running software.
+  \item \emph{Layer~C is exact on finite state spaces.} The settlement recoveries are of finite
+    fragments, and the strong form of C1 is classical in general.
+  \item \emph{A unique solution does not give convergence} (\cref{prop:flip2}), and arc consistency
+    does not decide existence without the chain and monotonicity hypotheses.
+  \item \emph{gsm's static checks are sufficient, not exact.}
+  \item \emph{Scope.} ``Exact'' is relative to the model each result states. Byzantine participants,
+    nondeterministic repair, probabilistic schedules, infinite networks and real-time semantics are
+    excluded by design.
+\end{itemize}
+
+\section{Conclusion}\label{sec:conclusion}
+
+Repair can replace raw commutativity exactly when the result after repair does not depend on the
+order: at one event, state descent; over finite histories, history descent; over infinite runs,
+canonical recurrence. The conditions are exact, they form a proved hierarchy, and every hypothesis is
+shown to be needed. A three-layer framework with proved interfaces organizes them across a map of
+regimes, recovers the central theorem without circularity, transports to classical theorems from
+outside its development with its own files frozen, and has made two correct preregistered
+predictions, one of them about a widely used database.
+
+The open problems that matter most are composition on cycles, where most of the map's open questions
+sit; long-run behavior beyond finite state spaces; a merge of concurrent states in the execution layer,
+which every outside test that leaked pointed to; and an exact structural condition that decides, for a
+class of systems, when a unique consistent state is also reached, which would let the framework compute
+answers where it can now only pose the question.

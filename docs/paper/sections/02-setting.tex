@@ -1,0 +1,49 @@
+% Section 2. Drafted from docs/PAPER-OUTLINE.md section 2 and the Coq definitions (GovernanceConverse.v,
+% CausalReplay.v, RhoStar.v).
+
+\section{Setting}\label{sec:setting}
+
+\paragraph{Registries.} A \emph{registry} fixes a set of states $X$, a validity predicate $\valid$ (the
+business rules), a set of events, and a repair. Each event $e$ has a raw transition $e : X \to X$, which may
+leave the valid states. The repair is given by a step $\rho : X \to X$ applied to invalid states, with a
+potential $\Phi : X \to \mathbb{N}$ that strictly decreases under $\rho$ on invalid states, so that repair
+terminates. This termination condition is called WFC. Iterating $\rho$ until the state is valid gives the
+repair map $N = \rho^{*}$, and the governed step of an event is $\gov(e) = \rho^{*} \circ e$.
+
+\paragraph{Executions.} A replica holds a configuration: a state and a buffer of pending events. A step
+either applies a pending event or, if the state is invalid, applies $\rho$. A normal form is a valid state
+with an empty buffer. A state is reachable from a start $s_0$ when some sequence of event and repair steps
+leads to it; the exact conditions of the paper quantify over reachable states, and the counterexamples of
+\cref{sec:main-single} show that this restriction cannot be dropped.
+
+\paragraph{Delivery models.} Which orders a replica may see is fixed by a delivery model: free delivery
+(any order), causal delivery (orders consistent with a happens-before relation), at-least-once delivery
+(also duplicates), and declared independence (only declared pairs may be swapped). \Cref{sec:layer-a}
+treats them uniformly.
+
+\paragraph{Networks of registries.} A federation connects registries by transport maps along which values
+propagate; a network may be acyclic or contain cycles, and propagation may be lossy. These are the
+settings of layer~B and of most of the regime map; their definitions are introduced where they are used
+(\cref{sec:layer-b,sec:map}).
+
+\paragraph{Mechanization.} Every result named in the paper is a theorem in a Coq development, cited by its
+name in typewriter font. Every theorem is closed under the global context, with no axioms and no
+admitted proofs, and continuous integration checks this on three versions of Coq on every change. The
+statements in the paper are read from the source; where the paper's notation differs from the source,
+the content does not.
+
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Notation & Meaning \\
+\midrule
+$X$, $\valid$ & states and the validity predicate \\
+$e : X \to X$ & the raw transition of an event \\
+$\rho$, $\Phi$ & a repair step and its potential (WFC: $\Phi$ decreases on invalid states) \\
+$N = \rho^{*}$ & the repair map: apply $\rho$ until valid \\
+$\gov(e) = N \circ e$ & the governed step \\
+$\reach(s_0, \sigma)$ & $\sigma$ is reachable from $s_0$ \\
+CC1, CC2 & the two commutation conditions of \cref{thm:cc} \\
+\bottomrule
+\end{tabular}
+\end{center}
