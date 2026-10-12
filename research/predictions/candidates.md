@@ -201,6 +201,33 @@ the four failure classes listed above.
 - Proof side: a general argument over all networks (for example induction on the arcs a fair loop
   uses), medium to large, 800 lines or more of Coq.
 
+### Refuted before commitment (2026-10-11)
+
+Candidate B was never committed. While drafting it as P1, a check of the definitions (no search)
+found a counterexample to the claim as stated:
+
+- Route values `0 < a < b < inf`. Nodes `u`, `v`, `d`. Arc `u -> v` has the policy `0 -> a`,
+  `a -> b`, `b -> a`, `inf -> inf`; arc `v -> u` is the identity; `d` has no arcs.
+- H(G) holds. For destination `d` on the full graph the equations reduce to `r(u) = f(r(u))`, whose
+  only solution is `inf`; for destinations `u` and `v` the solution is forced; every scenario with
+  an arc removed is acyclic, so its solution is unique.
+- The protocol does not settle. For destination `d`, from `r(u) = r(v) = a`, alternating `u` and
+  `v` (a fair schedule): `(a,a) -> (b,a) -> (b,b) -> (a,b) -> (a,a)`, and none of the four states is
+  a fixed point.
+
+The mechanism is stale routes circulating on a cycle the destination cannot reach. It also refutes
+the static reshape "H(G) implies every cycle avoiding `d` is free". The same check confirmed that
+H(G) together with centripetal cycles implies freeness (per destination, for the cycles avoiding
+`d`), so that part follows from Daggitt and Griffin 2023, Thm 2; and that Santos and Sobrinho's
+condition (SIGCOMM 2026) is stronger than H(G), because its necessity proof attaches a new
+destination with chosen attributes.
+
+This candidate's stated probability was about 0.5. It is recorded here so that the record keeps the
+candidates that failed as well as the predictions that passed. Possible rescopes, untested: clean
+starts only (routes start invalid everywhere except `d`), which needs a literature check against
+Griffin, Shepherd and Wilfong 2002 and Sobrinho 2005; or only scenarios in which every node can
+reach `d`.
+
 ## Candidate C. A unique stable matching does not stop fair blocking-pair dynamics
 
 **Model.** The marriage market with `n` men and `n` women and complete strict preferences:
