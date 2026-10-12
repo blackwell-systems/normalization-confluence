@@ -1,0 +1,89 @@
+% Section 8. Drafted from docs/PAPER-OUTLINE.md section 8 and docs/THEORY.md "Interfaces between the
+% layers". Every named result is a gated, axiom-free theorem in coq/*.v (LayerInterfaces.v unless noted).
+
+\section{The interfaces}\label{sec:interfaces}
+
+The natural objection to a three-layer framework is that executions (A), consistent states (B) and
+long-run behavior (C) are three classical theories placed side by side. This section answers it with
+the three interfaces between the layers, each proved without changing the layers, and each with the
+counterexample that marks where it stops.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{A to C: Newman as the bridge, and where fairness falls short}
+
+In layer~C's terms a reduction is a step of some action that changes the state, and its normal forms
+are the settled states (\coq{nf_iff_stable}). Under termination from the start and decidable
+normality, local joinability at reachable peaks, confluence and unique normal forms coincide
+(\coq{newman_bridge}); the converses need no termination (\coq{cr_peaks}, \coq{cr_unf}). This is
+Newman's lemma~\cite{newman1942} restricted to the reachable states. The single-registry theorem is
+its instance, with termination of repair supplying the hypothesis and CC2 being state descent.
+
+Fair settlement does not replace termination. In the standard four-point system
+$k_a \leftarrow k_b \leftrightarrow k_c \rightarrow k_d$, every peak joins and every fair run settles,
+yet the run that only swaps $k_b$ and $k_c$ is an infinite reduction that starves the other actions, and
+$k_a$ and $k_d$ are two normal forms below $k_b$ (\coq{four_point_fair_not_confluent}).
+
+\begin{theorem}[\coq{fair_starves}, \coq{fair_sn_exact}]\label{thm:fair-sn}
+If every fair run settles (C2), then every reachable loop of moving steps starves some action: some
+action it never picks would move every state on the loop. Consequently, on a finite state space,
+termination holds exactly when no reachable loop starves an action, and then Newman's lemma applies
+(\coq{fair_newman}).
+\end{theorem}
+
+Fair settlement replaces termination exactly when reductions cannot be hidden forever by starving an
+action. The condition is exact for termination, not for confluence: a network with a starved loop
+can still be confluent (\coq{drop_starved_confluent}). Whether \cref{thm:fair-sn} is stated in the
+fair-termination literature~\cite{lehmann1981,francez1986} is an open question of the review; the
+statement is close to the standard picture, in which an infinite run is either fair or starves some
+action forever.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{B to C: the fixed points are the solutions}
+
+On a store with the usual read and write laws, a state is fixed by every edge repair
+$s[v := f(s_u)]$ if and only if it is a section, if and only if it solves the network's constraint
+problem (\coq{edge_fixed_iff_section}, \coq{edge_fixed_iff_csp}); the same holds for resolver
+repairs that recompute a vertex from several inputs (\coq{rupd_fixed_iff_csp}). Read in layer~C:
+
+\begin{theorem}[\coq{singleton_iff_solution}, \coq{settled_canon_exact}]\label{thm:bc}
+The fair recurrent classes that are single states are exactly the reachable solutions of the
+constraint problem. If every fair run settles (C2), then every fair run settles on the result $c$ if
+and only if every reachable solution lies in the fiber of $c$.
+\end{theorem}
+
+So a state that settles on the wrong result is a reachable solution outside the target fiber
+(\coq{ghost_refutes}), and two reachable solutions with different results refute every target
+(\coq{multistable}); a network with no solution has no raw settlement
+(\coq{no_solution_no_settlement}). The converse direction fails in the way that matters most:
+
+\begin{proposition}[\coq{flip2_unique_solution_livelock}]\label{prop:flip2}
+There is a one-vertex network whose constraint problem has exactly one solution and whose repair
+dynamics has a fair run that never settles.
+\end{proposition}
+
+A unique consistent state does not guarantee that runs reach it. This is the distinction the first
+preregistered prediction (\cref{sec:tests-predictions}) bet on. One leak is recorded: a network with
+no solution can still settle canonically, through a semantic oscillation whose repaired result never
+changes (\coq{no_solution_canon_settles}).
+
+% ---------------------------------------------------------------------------------------------
+\subsection{A to B: consistency needs to hold only after repair}
+
+A per-vertex family of maps that commutes with every edge map sends sections to sections
+(\coq{natural_maps_sections}). For one network the exact condition is commutation on the values
+sections take (\coq{preserves_exact}), and the commuting squares are necessary edge by edge for edges
+that are not self-loops (\coq{square_necessary}), with counterexamples to the naive converse
+(\coq{natural_converse_fails}). A uniform family is a unary polymorphism
+(\coq{uniform_natural_is_unary_pol}).
+
+For events in a network of registries, strict commutation with the repair is too strong. The
+condition that matters is descent: an event must respect consistency only after repair.
+
+\begin{theorem}[\coq{xu_is_descends}, \coq{candidate_implies_xu}, \coq{xu_iff_respects}]\label{thm:ab}
+The federation's event condition XU is state descent along each registry's repair on its valid
+states. Strict commutation implies it, and it holds exactly when each event passes to the quotient of
+the valid states by the repair.
+\end{theorem}
+
+Strict commutation is sufficient but not necessary. On a supply federation XU holds, strict
+commutation fails, and every order of events converges (\coq{strict_not_necessary}).
