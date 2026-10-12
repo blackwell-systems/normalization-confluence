@@ -7,6 +7,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/AtomicRepair.v`: atomic repair, where each delivery is repaired to completion before another
+  event fires. `atomic_exact`: every buffer from a start has a unique atomic normal form iff governed
+  steps commute at the states reachable from it by governed steps. `atomic_history`:
+  `FreeHistoryDescent s0` is atomic convergence from `rho_star s0`, so `nd_derived_from` reads
+  interleaved convergence iff atomic convergence and state descent (`atomic_derived_from`,
+  `atomic_split`, `atomic_derived_valid`). `atomic_not_descent`: a three-state system where every
+  atomic run from 0 converges but the interleaved step of `cc_exact` gives two normal forms for the
+  buffer `[f; e]` and CC2 fails at a reachable invalid state: CC2 is necessary for the interleaved
+  model, not for atomic repair. Axiom-free. Gate: 4766 to 4797.
 - The first full draft of the paper, `docs/paper/` (LaTeX; abstract and fifteen sections, 45
   references), written from `docs/PAPER-OUTLINE.md` and the section 3 skeleton (#171 to #179). The
   layer A principles are called the local and the closure principle in the paper, so that P2 and P3

@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/coq":/src:ro coqorg/coq:8.20 \
   bash -lc "cp -r /src /tmp/c && cd /tmp/c && bash verify.sh"
 ```
 
-Expected tail: `PASS: all 4748 theorems are Closed under the global context (no axioms, no admits)`.
-The gate runs `Print Assumptions` on all 4748 gated results and fails if any of them depends on an
+Expected tail: `PASS: all 4797 theorems are Closed under the global context (no axioms, no admits)`.
+The gate runs `Print Assumptions` on all 4797 gated results and fails if any of them depends on an
 axiom or an admitted lemma. `verify.sh` lists them module by module: the single-registry confluence,
 unique-normal-form and converse results (`Governance.v`, `GovernanceWF.v`, `GovernanceConverse.v`,
 `GovernanceWFConverse.v`, `RhoStar.v`, the causal, at-least-once and stream modules), the gsm
@@ -255,6 +255,7 @@ variable-level and monotone-overlap site is not mechanized (`REGIME-AUDIT.md` ga
 
 | `SelfStabilization.v` | An outside theorem with the kernels frozen, Dijkstra's self-stabilization (Dijkstra 1974; Dolev 2000) ([THEORY.md](../docs/THEORY.md#an-outside-theorem-self-stabilization)): fair central daemon `stab_fair_from` (one line from `C1_closed`), `stab_fair_exact`; unfair central daemon `unfair_no_loop` (`sn_iff_no_loop`), `unfair_exact` (`fair_sn_exact`); the K-state token ring for every n >= 2 and K >= n: closure `ring_closed`, `ring_closure`, the fresh-value core `core_leg`, `fair_fires`, `unfair_fires`, `ring_no_bad_lasso`, `ring_fair_selfstab`, `ring_unfair_selfstab`, `ring_no_starved_loop`; the bound `ring_bound_matters` (n = 4, K = 2: a bad fair lasso); `ring3_nonvacuous`. #146 proves the K >= n condition (n = number of machines). Dijkstra's 1974 paper also notes that K >= n - 1 suffices under a central daemon; Fokkink, Hoepman and Pang later gave a formal proof and showed that bound is sharp. `unfair_exact` is a consequence of `fair_sn_exact`, not a separate headline result. Leaks: the unfair daemon needs the L-frozen system `uL` and `bad_lasso_cycle` (generic, about 110 lines, not in the kernels); the ring's states are packaged as a listed finite type (`RX`, `rxs`, about 100 lines); the distributed daemon is not expressible | [THEORY.md](../docs/THEORY.md#an-outside-theorem-self-stabilization) |
 | `StableMatchingP2.v` | The test of prediction P2 ([research/predictions/P2.md](../research/predictions/P2.md)), kernels frozen: the blocking-pair dynamics of a marriage market (generic `n`: `upd`, `SM` = `DistributedCycles.Stable`, `stable_iff_no_blocking`); a 3-by-3 market with complete strict preferences `p2_wellformed` and one stable matching `p2_unique_stable`; a bad fair lasso from the empty matching `p2_bad_lasso` whose loop word names each pair once (`p2_round_robin`) through unstable matchings (`p2_loop_unstable`); fair settlement refuted through `bad_lasso_refutes` (`p2_refutes_settlement`); the committed claim `p2_pass`. Found by the search in [research/predictions/p2/](../research/predictions/p2/) | [P2.md](../research/predictions/P2.md#outcome) |
+| `AtomicRepair.v` | Atomic repair (each delivery repaired to completion before another event fires) against the interleaved model of `cc_exact`: the atomic step `astep`; exact condition `atomic_exact` (unique atomic normal forms from a start iff governed steps commute at the governed-reachable states, no validity, repair or WFC hypothesis); `atomic_perm` (the same as permutation invariance of the governed run); `atomic_history` (`NormalizationDerived.FreeHistoryDescent` is atomic convergence from the canonical start); `atomic_derived_from`, `atomic_split`, `atomic_derived_valid`, `interleaved_atomic` (interleaved convergence iff atomic convergence and state descent, equivalently CC2 on the reachable states); the gap: `atomic_not_descent` (states 0, 1, 2, valid 0 and 1: atomic convergence from 0 for every buffer, two interleaved normal forms for `[f; e]`, CC2 fails at the reachable state 2), `atomic_not_descent_framework`, `atomic_not_descent_split`; `atomic_split_nonvacuous` | [GovernanceConverse.v](GovernanceConverse.v), [NormalizationDerived.v](NormalizationDerived.v) |
 
 ## Adding a module
 
@@ -277,7 +278,7 @@ make          # compiles every module (Newman, Governance, Defensibility, Gsm, F
 make check    # prints the assumption base (expect "Closed under the global context")
 ```
 
-`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4748
+`bash verify.sh` does the same compile and then runs the full axiom-free gate over all 4797
 gated theorems. To build and run the two extracted oracles, see `extraction/` (`make`,
 `make demo`, `make astdemo`). The same two checkers are also generated as Go, for gsm to run
 in-process: see `goextract/` (`make test`).

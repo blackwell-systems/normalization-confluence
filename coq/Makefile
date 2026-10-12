@@ -587,3 +587,10 @@ all: StableMatchingP2.vo
 
 StableMatchingP2.vo: StableMatchingP2.v DistributedCycles.vo CanonicalRecurrence.vo
 	coqc -Q . NC StableMatchingP2.v
+
+# Atomic repair (each delivery repaired to completion): the exact condition is commutation of
+# governed steps; interleaved convergence is atomic convergence plus CC2 (AtomicRepair.v).
+all: AtomicRepair.vo
+
+AtomicRepair.vo: AtomicRepair.v Newman.vo Governance.vo CanonicalExecution.vo PresentedExecution.vo GovernanceConverse.vo LayerInterfaces.vo NormalizationDerived.vo
+	coqc -Q . NC AtomicRepair.v
