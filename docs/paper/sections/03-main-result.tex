@@ -16,8 +16,10 @@ state spaces. The three conditions are not one equation. They form a proved hier
 with counterexamples showing where each level stops (\cref{sec:main-hierarchy}).
 
 Throughout, $X$ is a set of states and $N : X \to X$ is the repair. An event is a map
-$e : X \to X$ on raw states; a replica applies an event and then repairs, so its step is
-$x \mapsto N(e(x))$.
+$e : X \to X$ on raw states. A replica applies events and repairs invalid states. In the
+single-registry theorem an event may arrive while repair is still in progress, so a step is either an
+event or one repair step (\cref{sec:setting}). When repair always finishes before the next event, the
+step is the governed step $x \mapsto N(e(x))$.
 
 % ---------------------------------------------------------------------------------------------
 \subsection{One event: state descent}\label{sec:main-state}
@@ -131,6 +133,14 @@ descends on the states reachable from $s_0$.
 
 \cref{sec:base-case} shows that this form is derived from the framework's kernels without using
 \cref{thm:cc}.
+
+\paragraph{When repair runs.} \Cref{cor:descent-form} says a registry converges under the model of
+\cref{sec:setting} exactly when it converges with repair run to completion after every event and every
+event descends at the reachable states (\coq{atomic_derived_from}). State descent is therefore what makes
+the result independent of when repair runs. Under atomic repair it is not needed: \coq{atomic_not_descent}
+gives a registry that converges under atomic repair but has an event that does not descend at a reachable
+invalid state. Under atomic repair, convergence is exactly commutation of the governed steps at the states
+reachable by governed steps (\coq{atomic_exact}).
 
 \paragraph{Proof idea, and what is not new.}
 Sufficiency is Newman's lemma restricted to the reachable states, with a case split on the two kinds

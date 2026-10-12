@@ -7,8 +7,8 @@ delay, reorder and retry messages. Real applications also have rules: an order s
 paid, a balance stays above a floor, a shelf holds at most so many items. In practice, systems keep such
 rules by repairing after the fact. An event is applied, and if it breaks a rule, a deterministic repair
 restores it: a saga compensates, a constraint is re-established, a value is capped. The question this
-paper answers is when that works: when replicas that have seen the same events, and run the same repair
-after each one, end in the same state.
+paper answers is when that works: when replicas that have seen the same events and run the same repair
+end in the same state, whatever order the events arrive in and whenever the repair runs.
 
 It does not always work. A shelf holds at most 5 items and has 4 in stock; the events ``add 3'' and
 ``remove 1'' arrive, and the repair caps the stock at 5. One replica applies ``add 3'', caps at 5 and

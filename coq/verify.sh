@@ -4849,6 +4849,38 @@ Print Assumptions NC.StableMatchingP2.p2_refutes_settlement.
 Print Assumptions NC.StableMatchingP2.p2_round_robin.
 Print Assumptions NC.StableMatchingP2.p2_start_matching.
 Print Assumptions NC.StableMatchingP2.p2_pass.
+Require NC.AtomicRepair.
+Print Assumptions NC.AtomicRepair.a_rm_head.
+Print Assumptions NC.AtomicRepair.a_rm_skip.
+Print Assumptions NC.AtomicRepair.a_in_rm.
+Print Assumptions NC.AtomicRepair.a_perm_rm.
+Print Assumptions NC.AtomicRepair.a_nf_empty.
+Print Assumptions NC.AtomicRepair.a_nf_nil.
+Print Assumptions NC.AtomicRepair.a_SN.
+Print Assumptions NC.AtomicRepair.a_word.
+Print Assumptions NC.AtomicRepair.a_greach_run.
+Print Assumptions NC.AtomicRepair.a_greach_star.
+Print Assumptions NC.AtomicRepair.atomic_exact.
+Print Assumptions NC.AtomicRepair.a_star_perm.
+Print Assumptions NC.AtomicRepair.a_run_perm.
+Print Assumptions NC.AtomicRepair.atomic_perm.
+Print Assumptions NC.AtomicRepair.atomic_history.
+Print Assumptions NC.AtomicRepair.atomic_derived_from.
+Print Assumptions NC.AtomicRepair.atomic_split.
+Print Assumptions NC.AtomicRepair.atomic_derived_valid.
+Print Assumptions NC.AtomicRepair.interleaved_atomic.
+Print Assumptions NC.AtomicRepair.x_wfc.
+Print Assumptions NC.AtomicRepair.x_rho_star_reach.
+Print Assumptions NC.AtomicRepair.x_rho_star_valid.
+Print Assumptions NC.AtomicRepair.x_greach_zero.
+Print Assumptions NC.AtomicRepair.x_nf.
+Print Assumptions NC.AtomicRepair.atomic_not_descent.
+Print Assumptions NC.AtomicRepair.atomic_not_descent_framework.
+Print Assumptions NC.AtomicRepair.atomic_not_descent_split.
+Print Assumptions NC.AtomicRepair.q_wfc.
+Print Assumptions NC.AtomicRepair.q_reach.
+Print Assumptions NC.AtomicRepair.atomic_split_nonvacuous.
+Print Assumptions NC.AtomicRepair.xev_eq_dec.
 EOF
 OUT=$(coqc -Q . NC _audit.v 2>/dev/null || true)
 rm -f _audit.v _audit.vo .*.aux _audit.glob
@@ -4859,8 +4891,8 @@ if echo "$OUT" | grep -qiE 'Axioms:|^Axiom|admit'; then
   exit 1
 fi
 N=$(echo "$OUT" | grep -c 'Closed under the global context' || true)
-if [ "$N" -lt 4766 ]; then
-  echo "FAIL: expected 4766 axiom-free results, got $N"
+if [ "$N" -lt 4797 ]; then
+  echo "FAIL: expected 4797 axiom-free results, got $N"
   exit 1
 fi
 echo "PASS: all $N theorems are Closed under the global context (no axioms, no admits)"

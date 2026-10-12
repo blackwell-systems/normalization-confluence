@@ -7,6 +7,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- `coq/AtomicRepair.v`: atomic repair, where each delivery is repaired to completion before another
+  event fires. `atomic_exact`: every buffer from a start has a unique atomic normal form iff governed
+  steps commute at the states reachable from it by governed steps. `atomic_history`:
+  `FreeHistoryDescent s0` is atomic convergence from `rho_star s0`, so `nd_derived_from` reads
+  interleaved convergence iff atomic convergence and state descent (`atomic_derived_from`,
+  `atomic_split`, `atomic_derived_valid`). `atomic_not_descent`: a three-state system where every
+  atomic run from 0 converges but the interleaved step of `cc_exact` gives two normal forms for the
+  buffer `[f; e]` and CC2 fails at a reachable invalid state: CC2 is necessary for the interleaved
+  model, not for atomic repair. Axiom-free. Gate: 4766 to 4797.
 - The first full draft of the paper, `docs/paper/` (LaTeX; abstract and fifteen sections, 45
   references), written from `docs/PAPER-OUTLINE.md` and the section 3 skeleton (#171 to #179). The
   layer A principles are called the local and the closure principle in the paper, so that P2 and P3
@@ -1166,6 +1175,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- The theory paper states the execution model of the single-registry theorem (an event may
+  arrive before repair finishes) in section 3, adds a paragraph "When repair runs" citing
+  `atomic_not_descent` and `atomic_exact`, and describes state descent in the abstract as what makes
+  the result independent of when repair runs; the introduction, `docs/site/index.html` and
+  `docs/OVERVIEW.md` follow. `zenodo/papers.json`: theory paper version 3; `scripts/zenodo.py`
+  `draft()` drops version notes copied from the previous version.
 - Headline wording: "a hardness result showing no efficient one exists, or a gap stated in the open" becomes "a proof that no efficient one exists, or an open problem listed in the audit" in `README.md`, `REGIME-AUDIT.md`, the atlas poster and the docs index. No theorem added, removed or renamed.
 - The Convergence Atlas poster is published to GitHub Pages (`.github/workflows/pages.yml`, after `docs/atlas/check.py` passes), with a page description and link-preview tags in `docs/atlas/poster.html`. No theorem added, removed or renamed.
 - `docs/THEORY.md` main result and the `README.md` sentence: normalization confluence stated as an exact theory of when repair can replace raw commutativity; the three scales described as a proved hierarchy, not one equation (`history_from_descent`, `descent_not_history`, `history_not_descent`, `canon_settles_quotient_invariant`), following the adversarial review. `docs/ROADMAP.md`: the planned paper leads with normalization confluence, with the framework as the second, carefully supported claim; claim tiers and core evidence set updated from the review. No theorem added, removed or renamed.
