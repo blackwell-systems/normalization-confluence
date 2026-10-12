@@ -69,7 +69,7 @@ Every long-run obstruction found in the map is a fair lasso, and C1 and C2 tell 
   \item \emph{Oscillation.} A negation cycle is a bad fair lasso with more than one loop state; it is
     bad for every target.
   \item \emph{Livelock.} A bad fair lasso exists although the repair has exactly one fixed point
-    (\coq{flip2_fair_lasso}); this is the B to C interface's counterexample of Section~8.
+    (\coq{flip2_fair_lasso}); this is the B to C interface's counterexample of \cref{sec:interfaces}.
   \item \emph{Settling on the wrong state.} A single settled loop state in the wrong fiber: C2 holds and
     C1 fails (\coq{copyback_ghost_lasso}).
   \item \emph{Several fixed points.} Several reachable single-state loops: C2 holds and every target

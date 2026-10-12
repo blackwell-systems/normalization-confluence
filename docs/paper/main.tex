@@ -5,6 +5,7 @@
 \usepackage{mathtools,amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{enumitem}
+\usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 \usepackage{url}
@@ -38,9 +39,26 @@
 \begin{document}
 \maketitle
 
-\noindent\emph{Working draft. Sections are added as they are written; see docs/PAPER-OUTLINE.md.}
+\begin{abstract}
+Replicas that apply the same events in different orders, and repair their business invariants after
+each event, need not end in the same state. We give an exact theory of when they do: raw states may
+differ, but the result after repair must agree. We state necessary and sufficient conditions at three
+scales, for a single event (state descent), for finite histories (history descent) and for infinite
+runs (canonical recurrence), prove the hierarchy between them, and show that CRDTs are the case where
+repair does nothing: repair enlarges which operations can be used, while every convergent repaired
+system is a CRDT on its repaired steps. A three-layer framework for executions, consistent states and
+long-run behavior, with proved interfaces, organizes these conditions across a map of regimes that has,
+in every regime, an exact condition, a hardness result or a listed open problem. We test the framework
+where it could fail: with its files frozen it recovers Dijkstra's self-stabilization and invariant
+confluence, and two predictions committed before their tests were confirmed, one about stable matching
+markets and one about replication in CouchDB and PouchDB. All 4{,}766 results are mechanized in Coq with
+no axioms.
+\end{abstract}
 
-\setcounter{section}{2}
+\noindent\emph{Working draft; see docs/PAPER-OUTLINE.md.}
+
+\input{sections/01-intro}
+\input{sections/02-setting}
 \input{sections/03-main-result}
 \input{sections/04-crdts}
 
@@ -51,6 +69,10 @@
 \input{sections/08-interfaces}
 \input{sections/09-base-case}
 \input{sections/10-tests}
+\input{sections/11-map}
+\input{sections/12-gsm}
+\input{sections/13-related}
+\input{sections/14-15-limits-conclusion}
 
 \input{references}
 

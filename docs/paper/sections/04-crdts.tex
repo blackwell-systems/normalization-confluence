@@ -100,7 +100,7 @@ way to build them. A designer writes the operations the application needs, which
 and a repair that restores the invariants; the exact conditions of \cref{sec:main}, state descent
 and history descent, decide whether the combination converges, which is to say whether its governed
 steps form a CRDT. The design freedom is in the operations, and the guarantee is checked rather than
-designed in. Section~12 describes a checker that runs these conditions at build time.
+designed in. \cref{sec:gsm} describes a checker that runs these conditions at build time.
 
 % ---------------------------------------------------------------------------------------------
 \subsection{Invariant confluence: checked, not repaired}\label{sec:crdt-iconf}
@@ -112,7 +112,7 @@ never repaired. This is a different question from the one normalization confluen
 two meet in one place: the merge.
 
 Model the invariant as the solution set of a constraint problem and the merge as an operation
-applied item by item. In the constraint-satisfaction terms of Section~7, the merge is then
+applied item by item. In the constraint-satisfaction terms of \cref{sec:layer-b}, the merge is then
 a binary operation on states, and invariant confluence becomes a statement about it.
 
 \begin{theorem}[\coq{pol_iconfluent}, \coq{iconf_iff_pol_reach}]\label{thm:iconf}

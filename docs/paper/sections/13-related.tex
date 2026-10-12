@@ -1,0 +1,49 @@
+% Section 13. Drafted from docs/LANDSCAPE.md, with the corrections of docs/SUBSUMPTION.md.
+
+\section{Related work}\label{sec:related}
+
+\paragraph{CRDTs and coordination avoidance.}
+CRDTs~\cite{shapiro2011} obtain convergence by designing operations that commute; \cref{sec:crdt}
+shows they are the case where repair does nothing, that their conditions are exact on reachable states,
+and that every convergent repaired system is a CRDT on its repaired steps. The CALM
+theorem~\cite{hellerstein2010,ameloot2013} characterizes the programs with a coordination-free
+implementation as the monotone ones; the monotone-cycle regime of the map is its mechanism, a monotone
+operator whose least fixed point is reached in any fair order, carrying business invariants.
+Invariant confluence~\cite{bailis2014,whittaker2018} asks which transactions preserve an invariant
+without coordination, with the invariant checked and never repaired (\cref{sec:crdt-iconf}).
+
+\paragraph{Invariants on weakly consistent replication.}
+RedBlue consistency~\cite{li2012} labels operations as commuting or globally ordered; Indigo and
+IPA~\cite{balegas2015,balegas2018} combine invariant preservation with repair and with
+reservations, building on escrow~\cite{oneil1986}. These systems ground convergence in operation
+commutativity plus invariant preservation, transforming operations where needed. Normalization
+confluence admits operations that do not commute and that violate the invariant, and proves
+convergence by Newman's lemma on the repaired rewrite system: compensation commutativity is local
+confluence, not operation commutativity. Bayou~\cite{terry1995} resolved conflicts by
+application-specific merge procedures after a tentative order; sagas~\cite{garcia1987} use
+compensation to undo partial work. Normalization confluence gives compensation a convergence theory:
+exactly when repairs make concurrent orders agree.
+
+\paragraph{Rewriting, fixed points and traces.}
+The single-registry theorem is the critical-pair theorem~\cite{knuthbendix1970,huet1980} specialized to
+a system whose critical pairs are normal forms, with Newman's lemma~\cite{newman1942} as the bridge.
+Chaotic iteration to a least fixed point is classical in abstract interpretation~\cite{cousot1977} and
+in discrete dynamics~\cite{robert1986}. Layer~A is trace theory~\cite{cartier1969,mazurkiewicz1977}
+generalized to admissible words and non-commutation generators, with the congruence facts of semigroup
+presentations~\cite{howie1995}.
+
+\paragraph{Constraints and long-run behavior.}
+Layer~B places consistency in the algebraic theory of constraint
+satisfaction~\cite{jeavons1997,bulatov2017,zhuk2020}, and the identification of global sections with
+constraint solutions follows the sheaf-theoretic treatment of contextuality~\cite{abramsky2011,
+abramsky2014}. Layer~C's kernel is the fair-cycle characterization of model
+checking~\cite{clarke1986,emersonlei1987,vardi1986}; its relation to fair
+termination~\cite{lehmann1981,francez1986} is stated as open.
+
+\paragraph{Mechanized convergence.}
+Gomes et al.~\cite{gomes2017} verified strong eventual consistency for op-based CRDTs in Isabelle;
+their theorem is recovered here in their own definitions (\cref{sec:tests-outside}). Dijkstra's
+self-stabilizing ring has been verified in PVS~\cite{qadeer1998} and Coq~\cite{altisen2017}. The
+development here differs in scope rather than in any single proof: it mechanizes an exact condition, a
+hardness result or a listed open problem for every regime of a map, with the counterexamples that fix
+each hypothesis.
