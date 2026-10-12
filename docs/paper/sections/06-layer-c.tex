@@ -71,7 +71,8 @@ loops below a fixed point.
   \item \emph{Chaotic iteration reaches the least fixed point} (\coq{chaotic_reaches_lfp_lasso}): a fair
     loop at a reachable state is inflationary, so it is a single fixed point, which is the least one.
   \item \emph{Signed networks settle} (\coq{signed_settlement_lasso}): the run from the bottom under the
-    loop's word stabilizes at a fixed point below the loop, so from sound starts every fair loop is a
+    loop's word stabilizes at a fixed point that lies above the least fixed point and below the loop
+    state, so from sound starts every fair loop is a
     single fixed point.
   \item \emph{and settle on the right fixed point} (\coq{signed_fidelity_lasso}): the run from the top
     bounds every loop by a fixed point, which is unique, so every recurrent class is that fixed point.
