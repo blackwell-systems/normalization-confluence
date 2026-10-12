@@ -32,6 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install tectonic (for papers built from LaTeX)
+        if: inputs.command == 'draft'
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL https://drop-sh.fullyjustified.net | sh
+          sudo mv tectonic /usr/local/bin/
       - name: Run
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}

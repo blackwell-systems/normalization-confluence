@@ -66,11 +66,18 @@ def latest(concept):
 def status(names):
     stale = False
     for name, p in papers(names).items():
+        if "concept" not in p:
+            print(f"{name}: not on Zenodo yet (draft creates a new record)")
+            stale = True
+            continue
         rec = latest(p["concept"])
         remote = {f["key"]: f.get("checksum", "").removeprefix("md5:") for f in rec.get("files", [])}
         print(f"{name}: latest version {rec['id']} ({rec['metadata'].get('publication_date')}, "
               f"version {rec['metadata'].get('version') or 'unlabeled'})")
         for key, path in p["files"].items():
+            if not (ROOT / path).exists():
+                print(f"  {key}: built at draft time")
+                continue
             local = md5(path)
             state = "same" if remote.get(key) == local else ("missing on Zenodo" if key not in remote else "differs")
             stale |= state != "same"
@@ -78,28 +85,53 @@ def status(names):
     return 1 if stale else 0
 
 
+def build(directory):
+    """Compile directory/main.tex with tectonic and pack the sources (with the figures they use)."""
+    import subprocess
+    d = ROOT / directory
+    subprocess.run(["tectonic", "-X", "compile", str(d / "main.tex")], check=True)
+    rel = d.relative_to(ROOT / "docs")
+    subprocess.run(["tar", "czf", str(d / "source.tar.gz"), "-C", str(ROOT / "docs"),
+                    f"{rel}/main.tex", f"{rel}/references.tex", f"{rel}/sections", "site/atlas-preview.jpg"],
+                   check=True)
+
+
+def unsubmitted(title):
+    for d in call("GET", "/api/deposit/depositions?size=100"):
+        if d.get("state") == "unsubmitted" and d.get("title") == title:
+            return call("GET", f"/api/deposit/depositions/{d['id']}")
+    return None
+
+
 def draft(names):
     for name, p in papers(names).items():
-        rec = latest(p["concept"])
-        res = call("POST", f"/api/deposit/depositions/{rec['id']}/actions/newversion")
-        dep = call("GET", res["links"]["latest_draft"])
+        if "build" in p:
+            build(p["build"])
+        if "concept" in p:
+            rec = latest(p["concept"])
+            dep = unsubmitted(rec["metadata"]["title"])
+            if dep is None:
+                res = call("POST", f"/api/deposit/depositions/{rec['id']}/actions/newversion")
+                dep = call("GET", res["links"]["latest_draft"])
+            meta = dict(dep["metadata"])
+        else:
+            dep = unsubmitted(p["new"]["title"]) or call("POST", "/api/deposit/depositions", body={})
+            meta = dict(p["new"])
         for f in dep.get("files", []):
             call("DELETE", f"/api/deposit/depositions/{dep['id']}/files/{f['id']}")
         bucket = dep["links"]["bucket"]
         for key, path in p["files"].items():
             call("PUT", f"{bucket}/{key}", raw=(ROOT / path).read_bytes())
-        meta = dict(dep["metadata"])
         meta.update(p.get("version", {}))
         meta["publication_date"] = datetime.date.today().isoformat()
         rel = [r for r in meta.get("related_identifiers", []) if r.get("relation") != "isNewVersionOf"]
         known = {r["identifier"] for r in rel}
         rel += [r for r in CONFIG.get("related_identifiers", []) if r["identifier"] not in known]
         meta["related_identifiers"] = rel
-        meta.pop("doi", None)
-        meta.pop("prereserve_doi", None)
+        for k in ("doi", "prereserve_doi"):
+            meta.pop(k, None)
         call("PUT", f"/api/deposit/depositions/{dep['id']}", body={"metadata": meta})
-        print(f"{name}: draft {dep['id']} created, not published. Review it at "
-              f"{BASE}/deposit/{dep['id']}, then: python3 scripts/zenodo.py publish {dep['id']}")
+        print(f"{name}: draft {dep['id']} ready, not published: {BASE}/deposit/{dep['id']}")
 
 
 def check():
