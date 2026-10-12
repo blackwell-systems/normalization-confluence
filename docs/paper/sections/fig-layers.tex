@@ -1,0 +1,22 @@
+% Figure 2: the three layers around the repair map N, with each interface labeled by its theorem and
+% its stopping counterexample. Input right after the interfaces section.
+
+\begin{figure}[t]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  layer/.style={draw, rounded corners, fill=black!4, minimum width=4.2cm, minimum height=1.25cm, align=center},
+  lab/.style={font=\footnotesize, align=center}]
+  \node[layer] (a) at (0,0) {\textsc{layer a}\\ executions: which runs\\ count as the same};
+  \node[layer] (c) at (9.6,0) {\textsc{layer c}\\ long-run behavior: whether\\ runs settle, and where};
+  \node[layer] (b) at (4.8,-3.8) {\textsc{layer b}\\ consistent states: the\\ solutions of the network};
+  \node[draw, circle, inner sep=3pt, font=\large] (n) at (4.8,-1.6) {$N$};
+  \draw[-{Latex}] (a.east) -- node[lab, above=4pt] {Newman under termination\\ (\coq{newman_bridge});\\ fairness alone falls short\\ (\coq{four_point_fair_not_confluent})} (c.west);
+  \draw[-{Latex}] (a.south) -- node[lab, left, xshift=-4pt] {descent after repair\\ (\coq{xu_iff_respects});\\ strict commutation\\ not needed\\ (\coq{strict_not_necessary})} (b.west);
+  \draw[-{Latex}] (b.east) -- node[lab, right, xshift=4pt] {fixed points are solutions\\ (\coq{settled_canon_exact});\\ a unique solution\\ need not be reached\\ (\coq{flip2_unique_solution_livelock})} (c.south);
+  \draw[dotted] (n) -- (a); \draw[dotted] (n) -- (b); \draw[dotted] (n) -- (c);
+\end{tikzpicture}}
+\caption{The three layers, each reading the repair map $N$, and the three interfaces of
+\cref{sec:interfaces}, each labeled by its theorem and the counterexample that marks where it stops.}
+\label{fig:layers}
+\end{figure}
