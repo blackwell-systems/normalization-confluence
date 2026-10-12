@@ -126,6 +126,7 @@ def draft(names):
         bucket = dep["links"]["bucket"]
         for key, path in p["files"].items():
             call("PUT", f"{bucket}/{key}", raw=(ROOT / path).read_bytes())
+        meta.pop("notes", None)
         meta.update(p.get("version", {}))
         meta["publication_date"] = datetime.date.today().isoformat()
         rel = [r for r in meta.get("related_identifiers", []) if r.get("relation") != "isNewVersionOf"]

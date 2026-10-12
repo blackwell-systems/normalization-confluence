@@ -43,7 +43,7 @@
 Replicas that apply the same events in different orders, and repair their business invariants after
 each event, need not end in the same state. We give an exact theory of when they do: raw states may
 differ, but the result after repair must agree. We state a condition at each of three
-scales: state descent, necessary at a single event; history descent over finite histories, which with
+scales: state descent, which makes the result independent of when repair runs; history descent over finite histories, which with
 state descent and terminating repair is necessary and sufficient for a single registry; and canonical
 recurrence, necessary and sufficient for infinite runs on finite state spaces. We prove the hierarchy
 between them and show that CRDTs are the case where

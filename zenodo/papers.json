@@ -111,7 +111,7 @@
         "license": "cc-by-4.0",
         "access_right": "open",
         "title": "Normalization confluence: an exact, mechanized theory of when repair can replace commutativity",
-        "description": "<p>Replicas that apply the same events in different orders, and repair their business invariants after each event, need not end in the same state. We give an exact theory of when they do: raw states may differ, but the result after repair must agree. We state a condition at each of three scales: state descent, necessary at a single event; history descent over finite histories, which with state descent and terminating repair is necessary and sufficient for a single registry; and canonical recurrence, necessary and sufficient for infinite runs on finite state spaces. We prove the hierarchy between them and show that CRDTs are the case where repair does nothing: repair enlarges which operations can be used, while every convergent repaired system is a CRDT on its repaired steps. A three-layer framework for executions, consistent states and long-run behavior, with proved interfaces, organizes these conditions across a map of regimes that has, in every regime, an exact condition, a hardness result or a listed open problem. We test the framework where it could fail: with its files frozen it recovers Dijkstra's self-stabilization and invariant confluence, and two predictions committed before their tests were confirmed, one about stable matching markets and one about replication in CouchDB and PouchDB. All 4,797 gated results are mechanized in Coq with no axioms.</p>",
+        "description": "<p>Replicas that apply the same events in different orders, and repair their business invariants after each event, need not end in the same state. We give an exact theory of when they do: raw states may differ, but the result after repair must agree. We state a condition at each of three scales: state descent, which makes the result independent of when repair runs; history descent over finite histories, which with state descent and terminating repair is necessary and sufficient for a single registry; and canonical recurrence, necessary and sufficient for infinite runs on finite state spaces. We prove the hierarchy between them and show that CRDTs are the case where repair does nothing: repair enlarges which operations can be used, while every convergent repaired system is a CRDT on its repaired steps. A three-layer framework for executions, consistent states and long-run behavior, with proved interfaces, organizes these conditions across a map of regimes that has, in every regime, an exact condition, a hardness result or a listed open problem. We test the framework where it could fail: with its files frozen it recovers Dijkstra's self-stabilization and invariant confluence, and two predictions committed before their tests were confirmed, one about stable matching markets and one about replication in CouchDB and PouchDB. All 4,797 gated results are mechanized in Coq with no axioms.</p>",
         "keywords": [
           "normalization confluence",
           "distributed systems",
@@ -129,8 +129,7 @@
         ]
       },
       "version": {
-        "version": "2",
-        "notes": "Version 2: removes a leftover working-draft note under the abstract; no change to the content."
+        "version": "3"
       },
       "concept": "23311489",
       "keywords": [
