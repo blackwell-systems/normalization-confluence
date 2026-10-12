@@ -3,7 +3,7 @@
 The claim this audit certifies (the README's headline):
 
 > **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
-> condition, a proof that no efficient one exists, or an open problem listed in the audit, with a
+> condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit, with a
 > checker for the practical ones.**
 
 The audit checks that sentence against the development, regime by regime and question by question.
@@ -39,7 +39,7 @@ Each row is one question asked of one regime. Columns:
 - **gsm.** Whether gsm `main` implements a check (file or API named).
 - **Gap.** `paper` (proved in a paper, not mechanized), `open` (not proved anywhere, or listed open
   by the development itself), `design` (excluded by the model or the axiom-free constraint),
-  `hardness` (a complexity result says no efficient exact condition exists; each row says whether it
+  `hardness` (a complexity result says no efficient exact condition exists unless P = NP; each row says whether it
   is mechanized or cited), or `-`.
 
 Three kinds of question are kept apart, because the convergence claim is about the first:
@@ -423,7 +423,7 @@ need care, and both hold:
   section 8), which no row relies on. Until #72 the README's precision paragraph kept "cited" for
   minimum coordination; it now says that its reduction is machine-checked too. Updated in the same
   PR as this revision.
-- "A hardness result showing no efficient one exists" is used only where the exact condition is
+- "A hardness result showing no efficient one exists" (read: unless P = NP) is used only where the exact condition is
   also mechanized (root sets; both minimum-coordination problems). No convergence regime rests on
   hardness alone.
 
@@ -504,7 +504,7 @@ is an exact but exponential procedure.
 The headline stays as adopted in the README, re-confirmed at this gate:
 
 > **An exact regime map of governed concurrent state: in every regime, a machine-checked exact
-> condition, a proof that no efficient one exists, or an open problem listed in the audit, with a
+> condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit, with a
 > checker for the practical ones.**
 
 The line does not say the hardness results are machine-checked, so #57 does not change it; it

@@ -17,7 +17,9 @@ built from the same operations converges. The resulting behavior is itself a CRD
 steps; what repair adds is a way to build it (`crdt_boundary`, `witness_governed_constant`,
 [SUBSUMPTION.md](SUBSUMPTION.md#two-readings-of-strictly-generalizes)).
 
-The repository asks the question at three scales and proves an exact condition at each. Let `N` send
+The repository asks the question at three scales and proves a condition at each: necessary at one
+event, exact for a single registry when combined with the condition on sequences, and exact for
+infinite runs on finite state spaces. Let `N` send
 a state to its repaired form.
 
 - **One event:** applying it to a state or to that state's repaired form gives the same result after

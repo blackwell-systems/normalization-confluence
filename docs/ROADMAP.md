@@ -540,7 +540,7 @@ as a new axis ([COVERAGE.md](COVERAGE.md), gap 20 in [REGIME-AUDIT.md](../REGIME
 
 The convergence regimes that still lack an exact condition, consistent with
 [REGIME-AUDIT.md](../REGIME-AUDIT.md) (its gap numbers in parentheses). Every other regime has a
-machine-checked exact condition, or a hardness result where no efficient one exists (for lossy
+machine-checked exact condition, or a hardness result where no efficient one exists unless P = NP (for lossy
 networks without a spanning root, the 3-SAT reduction is mechanized, #57).
 
 **Lead item: make P exact on cycles.** The theory is exact for acyclic composition: in the
@@ -663,7 +663,7 @@ title: *The Convergence Atlas: governed concurrent state* (scoped to this theory
 convergence in general).
 
 - **One entry per regime:** the setting, the exact condition (or the proof that no efficient one
-  exists, or the open problem), the Coq theorem names, the cheap sufficient check gsm runs, and the prior
+  exists unless P = NP, or the open problem), the Coq theorem names, the cheap sufficient check gsm runs, and the prior
   work it relates to.
 - **Plates:** each boundary counterexample drawn as a numbered plate in the style of a scientific
   atlas (for example the flip-flop ghost, the negation loop, `shih_dong_not_fair`'s period-8

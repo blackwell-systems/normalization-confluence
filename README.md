@@ -7,11 +7,13 @@ break invariants and a repair restores them.
 
 The main result: normalization confluence gives an exact theory of when repair can replace raw
 commutativity. Replicas apply the same events in different orders and repair after each one; raw
-states may differ, but the repaired results must agree. The repository proves an exact condition for
-a single event, for a sequence of events, and for an infinite run, linked by a proved hierarchy
+states may differ, but the repaired results must agree. The repository proves a condition at each of three scales, linked by a proved hierarchy: state
+descent, necessary for a single event; history descent over sequences of events, which together with
+state descent and terminating repair is exact for a single registry; and canonical recurrence, exact
+for infinite runs on finite state spaces
 ([THEORY.md, main result](docs/THEORY.md#main-result)).
 
-**An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a proof that no efficient one exists, or an open problem listed in the audit, with a checker for the practical ones.**
+**An exact regime map of governed concurrent state: in every regime, a machine-checked exact condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit, with a checker for the practical ones.**
 
 - **One registry:** replicas converge exactly when repair terminates and commutes with events at
   the states they can reach. CRDTs are the case where repair never runs.
