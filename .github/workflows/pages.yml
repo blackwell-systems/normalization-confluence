@@ -42,7 +42,7 @@ jobs:
           cp docs/site/index.html _site/index.html
           cp docs/site/og.png _site/og.png
           cp docs/site/atlas-preview.jpg _site/atlas-preview.jpg
-          cp docs/paper/main.pdf _site/paper.pdf
+          cp docs/paper/main.pdf _site/normalization_confluence_exact_mechanized_theory.pdf
           cp docs/atlas/poster.html _site/atlas/index.html
           cp docs/atlas/poster.html _site/atlas/poster.html
           cp docs/atlas/regimes.js _site/atlas/regimes.js
