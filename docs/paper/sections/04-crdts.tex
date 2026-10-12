@@ -18,8 +18,8 @@ confluence is a different question, because there the invariant is checked and n
 In the terms of \cref{sec:main}, a CRDT is a system whose repair $N$ is the identity. State descent,
 $N(e(N(x))) = N(e(x))$, then holds for every event, so convergence comes down to history descent
 alone: every reordering the delivery model allows must give the same state. The classical CRDT
-conditions are what this reduces to under the two delivery models CRDTs are built for. Write
-$\mathrm{gstep}(e) = N \circ e$ for the governed step.
+conditions are what this reduces to under the two delivery models CRDTs are built for. As in
+\cref{sec:setting}, $\gov(e) = N \circ e$ is the governed step.
 
 \begin{theorem}[The compensation-free boundary; \coq{crdt_boundary} (a), (b), (b')]\label{thm:boundary}
 Let $N$ be the identity.
@@ -39,10 +39,12 @@ Let $N$ be the identity.
 \end{enumerate}
 \end{theorem}
 
-Part (a) is the op-based (CmRDT) condition and part (b$'$) the state-based (CvRDT) condition of
-Shapiro et al.~\cite{shapiro2011}, each in exact form: Shapiro et al.\ give them as sufficient
-conditions, and the theorem shows they are also necessary, on the states a system can reach. The
-qualifiers are needed: reachability cannot be dropped (\coq{clamp_reach_qualifier}), a semilattice on
+Part (a) is the op-based (CmRDT) condition of Shapiro et al.~\cite{shapiro2011} in exact form, stated
+globally: from every start, commutation at every state. Parts (b) and (b$'$) are exact on the states
+reachable from $s_0$, and (b$'$) is the merge-action form of the state-based (CvRDT) condition, in which
+an event acts by joining a fixed payload. Shapiro et al.\ give their conditions as sufficient; the
+theorem shows these forms are also necessary. Shapiro et al.'s model of replicas that merge whole
+states is treated in \cref{sec:tests-outside}, where that merge step leaked. The qualifiers are needed: reachability cannot be dropped (\coq{clamp_reach_qualifier}), a semilattice on
 all of the state space is too strong (\coq{naive_cvrdt_iff_fails}), and both commutativity and
 idempotence are needed in (b) (\coq{lww_not_conv}, \coq{add_cc_not_alo}). The exact conditions behind
 (a) and (b) are \coq{causal_convergence_exact} and \coq{merge_action_exact}; the theorem instantiates
@@ -75,14 +77,15 @@ inflationary) and \coq{witness_not_cvrdt_exact}.
 
 \paragraph{Behavior: not strict.}
 The exact conditions behind \cref{thm:boundary} hold for any step function, not only for raw
-operations. Read at the governed step $\mathrm{gstep}(e) = N \circ e$, they say:
+operations. Read at the governed step $\gov(e) = N \circ e$, they say:
 
 \begin{corollary}[\coq{causal_convergence_exact}, \coq{merge_action_exact}, at the governed step]\label{cor:behavior}
 For any repair $N$:
 \begin{enumerate}[label=(\alph*)]
   \item for an irreflexive happens-before relation, the governed system converges causally from
     every start if and only if governed steps of concurrent events commute at every state;
-  \item from a start $s_0$, the governed system converges under unordered at-least-once delivery if
+  \item for an event range with decidable equality and a start $s_0$, the governed system converges
+    under unordered at-least-once delivery if
     and only if the governed steps are commutative and idempotent at every state reachable from
     $s_0$.
 \end{enumerate}
@@ -118,8 +121,8 @@ a binary operation on states, and invariant confluence becomes a statement about
 \begin{theorem}[\coq{pol_iconfluent}, \coq{iconf_iff_pol_reach}]\label{thm:iconf}
 \leavevmode
 \begin{enumerate}[label=(\alph*)]
-  \item If the item-wise merge is a polymorphism of the invariant's constraint language, every set of
-    transactions is invariant confluent.
+  \item If $I$ holds at the start and the item-wise merge is a polymorphism of the invariant's
+    constraint language, every set of transactions is invariant confluent.
   \item Exactly: when $I$ holds at the start and reads finitely many items, a set of transactions is
     invariant confluent if and only if the merge is a polymorphism of the relation of states
     reachable under those transactions with $I$ preserved.
@@ -130,11 +133,11 @@ The restriction to reachable states is necessary, as Whittaker and
 Hellerstein~\cite{whittaker2018} observed. A mechanized counterexample makes it concrete
 (\coq{uq_not_pol}): with two versions $a$ and $b$, merge by set union, the invariant ``not both
 present'' and the single transaction ``add $a$'', the transactions are invariant confluent, but
-union does not preserve the invariant on all states. Bailis et al.'s main theorem, that a
+union does not preserve the invariant on all states. Bailis et al.'s main theorem says that a
 coordination-free, available, convergent and invariant-preserving execution exists exactly for
-invariant-confluent transactions, holds in a replica model mechanized in the same file
-(\coq{replica_exact}); necessity for arbitrary protocols would need a model of partitions that the
-development does not have.
+invariant-confluent transactions. What is mechanized is narrower: in a replica model,
+the protocol in which a server commits a transaction only if its local result satisfies $I$ and merges every state it receives keeps every server $I$-valid in every execution if and only if the transactions are invariant confluent (\coq{replica_exact}). The general theorem, over arbitrary protocols, would need a model of
+partitions that the development does not have.
 
 Repair changes the picture. With the same invariant and both transactions ``add $a$'' and ``add
 $b$'', the transactions are not invariant confluent. With the repair

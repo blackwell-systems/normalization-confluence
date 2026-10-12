@@ -13,8 +13,7 @@ repair map $N = \rho^{*}$, and the governed step of an event is $\gov(e) = \rho^
 \paragraph{Executions.} A replica holds a configuration: a state and a buffer of pending events. A step
 either applies a pending event or, if the state is invalid, applies $\rho$. A normal form is a valid state
 with an empty buffer. A state is reachable from a start $s_0$ when some sequence of event and repair steps
-leads to it; the exact conditions of the paper quantify over reachable states, and the counterexamples of
-\cref{sec:main-single} show that this restriction cannot be dropped.
+leads to it; the exact conditions of the paper quantify over reachable states.
 
 \paragraph{Delivery models.} Which orders a replica may see is fixed by a delivery model: free delivery
 (any order), causal delivery (orders consistent with a happens-before relation), at-least-once delivery
@@ -29,8 +28,9 @@ settings of layer~B and of most of the regime map; their definitions are introdu
 \paragraph{Mechanization.} Every result named in the paper is a theorem in a Coq development, cited by its
 name in typewriter font. Every theorem is closed under the global context, with no axioms and no
 admitted proofs, and continuous integration checks this on three versions of Coq on every change. The
-statements in the paper are read from the source; where the paper's notation differs from the source,
-the content does not.
+statements in the paper are read from the source. Decidability assumptions (decidable equality of
+states and events, decidable validity) are stated where the Coq statement needs them for a
+constructive proof; other hypotheses are stated in full.
 
 \begin{center}\small
 \begin{tabular}{@{}ll@{}}

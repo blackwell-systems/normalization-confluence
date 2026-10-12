@@ -22,8 +22,9 @@ pinned, is then an instance of $\mathrm{CSP}(\Gamma_F)$.
 \begin{theorem}[\coq{section_iff_csp}, \coq{edge_fixed_iff_csp}]\label{thm:csp}
 An assignment of values to the vertices of such a network is a section, a consistent assignment that
 every edge's map respects, if and only if it is a solution of the corresponding instance of
-$\mathrm{CSP}(\Gamma_F)$. Moreover, the states fixed by every update of the network's repair dynamics
-are exactly those solutions.
+$\mathrm{CSP}(\Gamma_F)$. Moreover, for a network without pinned vertices on a store with the usual
+read and write laws, the states fixed by every edge repair of the network's dynamics are exactly those
+solutions.
 \end{theorem}
 
 Merges in which a vertex reads several inputs are graphs of $k$-ary maps and fit the same way
@@ -79,8 +80,10 @@ algorithm.
 % ---------------------------------------------------------------------------------------------
 \subsection{What is open}
 
-Whether every finite ordered set that is not a chain has only projections as polymorphisms of its
-monotone maps is open in general as far as the literature checked shows. The diamond is proved here;
+Whether every finite ordered set with at least three elements that is not a chain has only
+projections as polymorphisms of its monotone maps is open in general as far as the literature checked
+shows. The bound on size is needed: on the two-element antichain every self-map is monotone, and the
+majority and minority operations commute with all of them. The diamond is proved here;
 an argument for bounded ordered sets is recorded in the development but not mechanized; three- and
 four-element cases can be read off published classifications of centralizing monoids; and ordered
 sets without a top and a bottom, from five elements up, are not settled by any source found.

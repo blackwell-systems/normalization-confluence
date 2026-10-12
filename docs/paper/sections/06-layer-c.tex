@@ -16,7 +16,7 @@ A system has states $X$ with decidable equality, a list of actions $J$, and an u
 for each action, applied asynchronously: a schedule picks one action per step, and it is fair when
 every action is picked infinitely often. A \emph{fair lasso} from $s_0$ is a word $p$ that reaches a
 state $x$, followed by a nonempty word $q$ that returns $x$ to itself and picks every action; its loop
-states are the states $q$ visits. Let $N : X \to C$ be an observation and $c$ a target.
+states are the states $q$ visits. Let $N : X \to C$ be an observation into a set $C$ with decidable equality, and $c$ a target.
 
 \begin{theorem}[C1; \coq{C1_closed}, \coq{C1_nn}]\label{thm:c1-kernel}
 On a finite $X$, every fair run from $s_0$ is eventually always in $N^{-1}(c)$ if and only if no fair
@@ -40,8 +40,9 @@ settlement results.
 \subsection{The settlement results as short bridges}
 
 Each settlement result of the map was recovered by proving that no bad fair lasso exists and reading
-settlement off C1 or C2. The argument for each is between 5 and 11 lines, over a shared,
-regime-independent toolkit: pigeonhole on finite runs, inflationary loops, and a floor lemma for
+settlement off C1 or C2. The no-bad-lasso argument for each is between 5 and 11 lines; the whole bridges,
+with their bindings and assembly, run from 3 lines (fair flush) to about 75 (signed settlement). They
+share a regime-independent toolkit of about 60 lines: pigeonhole on finite runs, inflationary loops, and a floor lemma for
 loops below a fixed point.
 
 \begin{itemize}[nosep]

@@ -86,13 +86,13 @@ original module's own predicates (\cref{tab:layer-a}).
 \begin{table}[t]
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}p{2.6cm}lp{2.1cm}p{4.7cm}@{}}
+\begin{tabular}{@{}p{2.4cm}p{4.0cm}p{1.9cm}p{6.0cm}@{}}
 \toprule
 Delivery model & Recovered as & Principle & Admissible words; generators \\
 \midrule
-Causal delivery & \coq{causal_exact_recovered} & local & causally consistent words; adjacent swaps of concurrent events at a causal point \\
+Causal delivery & \coq{PresentedExecution.causal_exact_recovered} & local & causally consistent words; adjacent swaps of concurrent events at a causal point \\
 Declared independence & \coq{tconv_exact_recovered} & local & causal histories; swaps of declared pairs (the trace monoid) \\
-At-least-once & \coq{alo_exact_recovered} & local & causal at-least-once deliveries; concurrent swaps and the landing $[a; a] \sim [a]$ after a first delivery \\
+At-least-once & \coq{causal_alo_idem_recovered}, \coq{alo_exact_recovered} & local & at-least-once deliveries, causal (first name) or in any order (second); concurrent swaps and the landing $[a; a] \sim [a]$ after a first delivery \\
 Live switch & \coq{det_live_recovered} & local, $Q$ = past the switch & typed phases; switch squares and post-switch swaps \\
 Barrier, modulo a migration & \coq{amodm_closure_recovered} & closure & every word; adjacent swaps (the migration is not compatible with the steps) \\
 \bottomrule
