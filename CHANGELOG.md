@@ -1175,6 +1175,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Theory paper: dated October 2026 (was "Draft"); section 10 records that a CouchDB maintainer confirmed the validation-function behavior as a bug, and that follow-up tests narrowed it to databases with different revision limits (even 999 against 1000), not equal ones. The atlas figure now lives in `docs/paper/figures/` so the paper source is self-contained (arXiv); `scripts/zenodo.py` packs that folder. Theory paper version 4 on Zenodo. No theorem added, removed or renamed.
 - Site and `research/couchdb-replicator/README.md`: the CouchDB `validate_doc_update` behavior found during the P3 work (apache/couchdb#6162) is now described as confirmed as a bug by a CouchDB maintainer, with a link to the comment. No theorem added, removed or renamed.
 - The website is reworked for readers who are not research scientists. Front page: a plain hero
   ("When do copies of your data still agree?") with the P3 result and the engineer's guide as the

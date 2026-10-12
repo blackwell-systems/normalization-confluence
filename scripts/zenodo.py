@@ -106,7 +106,7 @@ def build(directory):
     subprocess.run(["tectonic", "-X", "compile", str(d / "main.tex")], check=True)
     rel = d.relative_to(ROOT / "docs")
     subprocess.run(["tar", "czf", str(d / "source.tar.gz"), "-C", str(ROOT / "docs"),
-                    f"{rel}/main.tex", f"{rel}/references.tex", f"{rel}/sections", "site/atlas-preview.jpg"],
+                    f"{rel}/main.tex", f"{rel}/references.tex", f"{rel}/sections", f"{rel}/figures"],
                    check=True)
 
 

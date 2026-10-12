@@ -155,7 +155,10 @@ behavior: with partial histories, the same revisions in the same order can leave
 deleted depending only on whether the database has a validation function, even one that accepts
 everything. CouchDB's own replicator reaches it, through an optimization that skips the
 missing-revisions check after a run of batches in which everything was missing. It was reported to the
-CouchDB project~\cite{couchdb6162}.
+CouchDB project, and a maintainer confirmed it as a bug~\cite{couchdb6162}. Follow-up tests narrowed the
+trigger: it needs databases with different revision limits and a document history deeper than the
+lower limit, and it occurs even at 999 against 1000. With the same limit on every database it does
+not occur.
 
 \paragraph{What may be claimed.}
 The framework compresses the results it was built from (\cref{sec:base-case}); some of its structure transports
