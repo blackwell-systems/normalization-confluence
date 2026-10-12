@@ -31,8 +31,8 @@ repairs them.
 ## The main result
 
 Write `N` for the repair: it takes any state to its repaired form. Raw states may differ along the
-way; what has to agree is the result after repair. The theory proves an exact condition at three
-scales. They are not one equation: they form a proved hierarchy, each level with counterexamples
+way; what has to agree is the result after repair. The theory proves a condition at each of three scales:
+necessary at one event, exact for a single registry when combined with the condition on sequences, and exact for infinite runs on finite state spaces. They are not one equation: they form a proved hierarchy, each level with counterexamples
 showing where it stops.
 
 **One event.** Applying an event to a state, or to that state's repaired form, gives the same result
@@ -68,7 +68,7 @@ converging when one feeds the other.
 
 The exact conditions range over every reachable state; cheaper sufficient conditions (per state,
 per pair of events, per edge) are proved to imply them. Where no efficient exact condition can
-exist, there is a hardness proof instead: consistency of a lossy network with no root is
+exist unless P = NP, there is a hardness proof instead: consistency of a lossy network with no root is
 NP-complete, by reduction from 3-SAT.
 
 All of it is machine-checked in Coq (Rocq) with no axioms. The gate in `coq/verify.sh` checks 4748
