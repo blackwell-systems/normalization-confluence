@@ -1,0 +1,161 @@
+% Section 10. Drafted from docs/PAPER-OUTLINE.md section 10, docs/THEORY.md "Testing the framework",
+% research/predictions/ and research/couchdb-replicator/. Every named result is a gated, axiom-free
+% theorem in coq/*.v.
+
+\section{Testing the framework}\label{sec:tests}
+
+The framework of Sections~5 to~8 was built after the results it organizes were known. Recovering
+those results, including the single-registry theorem (Section~9), shows that the framework
+\emph{compresses} them; it does not show that the framework reaches anything it was not built from,
+and it predicts nothing. This section reports two stricter tests: recovering classical theorems from
+outside the development with the framework frozen (\cref{sec:tests-outside}), and predictions
+committed before they were tested (\cref{sec:tests-predictions}). It also reports what failed.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Outside theorems, framework frozen}\label{sec:tests-outside}
+
+\paragraph{Protocol.}
+For each target theorem, every existing proof file was frozen, the pass criterion was written down
+before the proof was attempted, and anything the frozen framework could not express was recorded as
+a \emph{leak} rather than repaired. The work for each target is one new file. A target passes when its
+statement follows by a short bridge from the frozen kernels, with the target-specific work confined
+to the target.
+
+\paragraph{Dijkstra's self-stabilization (layer C; passed).}
+For a finite system and a legitimate set $L$ closed under every step, every fair run from $s_0$
+eventually stays in $L$ if and only if no fair lasso from $s_0$ has a loop state outside $L$
+(\coq{stab_fair_from}). The proof is one line: \cref{thm:c1} with the observation ``is the state in
+$L$''. Dijkstra's $K$-state token ring~\cite{dijkstra1974} then stabilizes for every ring of
+$n \ge 2$ machines with $K \ge n$, under fair schedules (\coq{ring_fair_selfstab}) and under a central
+daemon that picks any enabled move (\coq{ring_unfair_selfstab}), Dijkstra's own setting; the
+ring-specific work is his fresh-value argument. With $n = 4$ and $K = 2$ a bad fair lasso exists
+(\coq{ring_bound_matters}). Dijkstra's paper also notes that $K \ge n - 1$ suffices under a central
+daemon, later proved sharp~\cite{fokkink2005}; that bound is not mechanized here. The ring has been
+mechanized before, in PVS~\cite{qadeer1998} and in Coq~\cite{altisen2017}; the point of this test is
+the transport, not the mechanization. Under an arbitrary daemon, the exact condition is fair
+stabilization together with the absence of a reachable loop outside $L$ that starves a machine
+(\coq{unfair_exact}), a consequence of the A to C interface whose relation to the fair-termination
+literature~\cite{lehmann1981,francez1986} is stated as open.
+
+\paragraph{Invariant confluence (layer B; passed).}
+The results of \cref{sec:crdt-iconf} were obtained in this protocol: the polymorphism bridge
+(\coq{pol_iconfluent}) is short, the exact form with reachable states (\coq{iconf_iff_pol_reach}) and
+the counterexample (\coq{uq_not_pol}) stay inside the new file, and Bailis et al.'s main theorem holds
+in a replica model (\coq{replica_exact}).
+
+\paragraph{CRDT strong eventual consistency (layer A; partial).}
+For op-based CRDTs, with the identity repair, strong eventual consistency from $s_0$ holds exactly when
+concurrent operations commute wherever they can be delivered causally (\coq{opsec_exact}). Shapiro et
+al.'s condition is a corollary, and the convergence theorem of Gomes et al.~\cite{gomes2017} follows
+in their own definitions (\coq{gomes_convergence}). For state-based CRDTs, replicas with the same
+history set have equal states in every execution of Shapiro et al.'s replica model (\coq{cvrdt_sec}),
+but the step that merges one replica's state into another is not expressible in the frozen kernels and
+was reduced outside them. This is the weakest of the three tests: CRDT regimes were in the development
+before the framework was written.
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Target & Layer & Outcome & Leaks \\
+\midrule
+Self-stabilization & C & passed & listed finite state type; an adapter for systems that never quiesce; \\
+ & & & no simultaneous moves \\
+Invariant confluence & B & passed & partition model for necessity; item-wise merges only \\
+CRDT SEC & A & partial & merge of two replica states \\
+\bottomrule
+\end{tabular}
+\caption{Outside theorems recovered with every existing file frozen. Bridge sizes, target-specific work
+and leaks are recorded in the development (THEORY.md, ``Testing the framework'').}
+\label{tab:outside}
+\end{table}
+
+\paragraph{What the leaks share.}
+The kernels follow one state through time. They cannot combine two concurrent states (the merge of
+two replica states) or two concurrent steps (simultaneous moves), and the A to C interface speaks of
+settled states, so a system that never quiesces needs an adapter. These are recorded as boundaries of
+the framework and were not repaired: a later version that addresses them should be judged on outside
+theorems that were not used to design it.
+
+% ---------------------------------------------------------------------------------------------
+\subsection{Predictions committed before their tests}\label{sec:tests-predictions}
+
+\paragraph{The freeze and the protocol.}
+On 2026-10-11 the eight kernel files were frozen; their hashes are checked in continuous integration,
+so the build fails if one changes. Candidates were drafted from the frozen kernels only, each with a
+literature check and pass and fail criteria. A chosen candidate is committed unchanged, the commit
+being its timestamp, before any test; a separate run then tries to establish or refute it, and the
+outcome is recorded whatever it is. Three candidates were drafted, and P2 is one of them.
+Another, about routing, was refuted while being prepared for commitment and was never committed (a three-node network with a
+unique solution in every failure scenario in which stale routes circulate forever on a cycle the
+destination cannot reach). It is recorded with the others.
+
+\paragraph{P2: a bet on a proved distinction (passed).}
+The interface between layers B and C contains two results that point opposite ways: a unique
+consistent state guarantees settling when the repair is monotone (\coq{q1_unique_iff}), and does not
+in general (\coq{flip2_unique_solution_livelock}). P2 bet that the classical stable marriage market,
+whose blocking-pair update is not monotone, falls on the second side: some market with at most four
+men and four women has exactly one stable matching and a cycle that never settles under a schedule
+that gives every pair a turn. The claim was committed with an estimated probability of 0.6. The
+nearest published cycling instances~\cite{ackermann2011,tamura1993} do not decide it, since both have
+several stable matchings, and random resolution converges~\cite{roth1990}. An exhaustive search found
+the property already at three by three, and one instance is mechanized against the frozen kernels
+(\coq{p2_pass}, through \coq{bad_lasso_refutes}): the unique stable matching, and a loop that names each
+of the nine pairs once and passes only through unstable matchings.
+
+\begin{center}\small
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$n$ & profiles & with a unique stable matching & of those, with a fair cycle \\
+\midrule
+2 & 16 & 14 & 0 \\
+3 & 46{,}656 & 34{,}080 & 3{,}240 \\
+4 & 110{,}075{,}314{,}176 & 65{,}867{,}261{,}184 & 17{,}655{,}840{,}000 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+At every size tested, every profile with two or more stable matchings has a fair cycle. Outside the
+scored claim, the instance also has cycles that are fair in the stronger sense that every pair that
+blocks infinitely often is resolved infinitely often. The framework posed the question and supplied the
+reason for the bet and the refutation tool; it did not compute the answer, which came from the search.
+
+\paragraph{P3: a computed prediction about real software (passed).}
+P3 is of a different kind: a model of real code, built through the framework, computes an answer, and
+the running software is the experiment. CouchDB keeps a revision tree per document and, after every
+replicated update, prunes it to a configured depth; pruning is the repair. A document is edited three
+times and then deleted, the four revisions are delivered in each of the 24 orders, each with its full
+history, to a fresh database with depth 3. The at-least-once exact theorem
+(\coq{alo_exact}: convergence under every order and duplication exactly when the updates commute at
+reachable states and are idempotent), run as the checker of Section~12 on the model, locates the
+failure in one pair of revisions after the deletion and shows that duplicates are not its cause; state descent explains why
+pruning after every update, but not pruning once at the end, changes the outcome. A model transcribed
+from the source computed the outcome of every order, and three claims were committed before either
+system was run: CouchDB~3.5.3 brings the deleted document back on exactly the 6 orders in which the
+first revision arrives last; with per-update pruning switched off and one compaction at the end, on
+none; and PouchDB~9.0.0, an independent implementation of the same algorithm, on exactly the 12 orders
+in which the first revision arrives after the deletion. All 216 scored observations (three claims, 24
+orders, three repetitions) matched, with no nondeterminism, and the full revision trees matched as well.
+
+The resurrection itself is a known, accepted consequence of pruning~\cite{couchdb988}; the order rule,
+the healing step that rescues some orders, the effect of the pruning setting, which is documented as a
+performance switch, and the disagreement between the two implementations were not found in any source.
+
+\paragraph{What failed in P3.}
+A larger scenario with partial histories was run but not scored. There the CouchDB model was wrong on
+3{,}009 of 5{,}040 orders. The cause was a filter that the model applied to every replicated update and
+that CouchDB applies only when the database has a validation function. A corrected model, kept
+separate and not scored, matches every order in both configurations. The correction exposed a CouchDB
+behavior: with partial histories, the same revisions in the same order can leave a document live or
+deleted depending only on whether the database has a validation function, even one that accepts
+everything. CouchDB's own replicator reaches it, through an optimization that skips the
+missing-revisions check after a run of batches in which everything was missing. It was reported to the
+CouchDB project~\cite{couchdb6162}.
+
+\paragraph{What may be claimed.}
+The framework compresses the results it was built from (Section~9); some of its structure transports
+to theorems outside the development (\cref{tab:outside}); and it has made two correct preregistered
+predictions, one a bet on which side of a proved distinction a new system falls (P2), one a model
+computation checked against running software (P3). It does not derive answers by theorem alone, and
+two predictions are a small sample.
