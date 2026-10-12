@@ -83,7 +83,8 @@ no framework file edited. CRDT convergence came through for operation-based CRDT
 need a merge of two replica states, which the framework cannot express. The framework stays frozen
 while predictions, written down before anyone tries to prove them, are tested. The first passed: a
 matching market with exactly one stable matching can still cycle forever when every pair gets its
-turn ([research/predictions](../research/predictions/README.md)).
+turn. The second also passed: a model of CouchDB's revision handling predicted exactly on which
+delivery orders a deleted document comes back, and the real database matched ([research/predictions](../research/predictions/README.md)).
 
 ## What is still open
 

@@ -162,7 +162,12 @@ state guarantees settling (`q1_unique_iff`, monotone repair) from systems where 
 (`flip2_unique_solution_livelock`), and P2 bet that stable matching, whose update is not monotone,
 falls on the second side. A market with exactly one stable matching cycles under a pair-fair
 schedule at 3 by 3. The framework posed the question and made the bet; the answer came from an
-exhaustive search and a proof of one instance.
+exhaustive search and a proof of one instance. The second, P3, is a computed prediction about real
+software: the at-least-once exact theorem and state descent, applied to a model of CouchDB's and
+PouchDB's revision-tree merge and pruning, computed on which delivery orders a deleted document comes
+back; all 216 scored observations on the running systems matched
+([P3.md](../research/predictions/P3.md)). An unscored larger scenario found an error in the CouchDB
+model, corrected after the fact and not scored.
 
 ## Layer A: execution algebra
 

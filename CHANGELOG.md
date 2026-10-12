@@ -7,6 +7,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- The first full draft of the paper, `docs/paper/` (LaTeX; abstract and fifteen sections, 45
+  references), written from `docs/PAPER-OUTLINE.md` and the section 3 skeleton (#171 to #179). The
+  layer A principles are called the local and the closure principle in the paper, so that P2 and P3
+  name only the predictions. README.md, docs/OVERVIEW.md, docs/THEORY.md, docs/ROADMAP.md and
+  research/paper-argument.md now record P3's pass. No theorem added, removed or renamed.
 - Prediction P3 tested: PASS on all three claims. CouchDB 3.5.3 (Homebrew bottle) and PouchDB
   9.0.0 matched the computed table on every S1 order in 3 repetitions: CouchDB live with winner
   `1-a` on the 6 orders with `1-a` last, deleted on all 24 with `stem_interactive_updates = false`

@@ -43,7 +43,7 @@ $(p \cdot u,\, p \cdot v)$ with both sides admissible and is closed under append
 both sides while both stay admissible. Under prefix closure it is exactly the set of admissible
 whiskered pairs (\coq{ppc_iff_whisk}).
 
-\begin{theorem}[P2; \coq{closure_exact}]\label{thm:p2}
+\begin{theorem}[The closure principle; \coq{closure_exact}]\label{thm:p2}
 If $\mathrm{Adm}$ is closed under prefixes, then invariance holds if and only if $\mathrm{sem}$ agrees,
 up to $\approx$, on every pair in the continuation closure.
 \end{theorem}
@@ -54,7 +54,7 @@ write a register the observation does not show, and a later event reveals it. Ev
 observationally equal at its point, yet invariance fails; the separating pair is a seed continued by
 the reveal (\coq{hw_closure_witness}). The next principle says when the seeds do suffice.
 
-\begin{theorem}[P1; \coq{local_exact}]\label{thm:p1}
+\begin{theorem}[The local principle; \coq{local_exact}]\label{thm:p1}
 Let $Q$ be a predicate on words that holds on both sides of every seed and is kept by admissible
 extension, and suppose the semantics respects the future on $Q$: whenever $t$ and $t'$ satisfy $Q$,
 $t \cdot e$ and $t' \cdot e$ are admissible, and $\mathrm{sem}(t) \approx \mathrm{sem}(t')$, then
@@ -80,21 +80,21 @@ Paths quotient histories; states quotient by repair.
 % ---------------------------------------------------------------------------------------------
 \subsection{The history results as instances}
 
-Each exact history result of the map is recovered from P1 or P2 with its original statement, over the
+Each exact history result of the map is recovered from the local or the closure principle with its original statement, over the
 original module's own predicates (\cref{tab:layer-a}).
 
 \begin{table}[t]
 \centering\footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}p{2.6cm}lp{1.9cm}p{4.9cm}@{}}
+\begin{tabular}{@{}p{2.6cm}lp{2.1cm}p{4.7cm}@{}}
 \toprule
 Delivery model & Recovered as & Principle & Admissible words; generators \\
 \midrule
-Causal delivery & \coq{causal_exact_recovered} & P1 & causally consistent words; adjacent swaps of concurrent events at a causal point \\
-Declared independence & \coq{tconv_exact_recovered} & P1 & causal histories; swaps of declared pairs (the trace monoid) \\
-At-least-once & \coq{alo_exact_recovered} & P1 & causal at-least-once deliveries; concurrent swaps and the landing $[a; a] \sim [a]$ after a first delivery \\
-Live switch & \coq{det_live_recovered} & P1, $Q$ = past the switch & typed phases; switch squares and post-switch swaps \\
-Barrier, modulo a migration & \coq{amodm_closure_recovered} & P2 & every word; adjacent swaps (the migration is not compatible with the steps) \\
+Causal delivery & \coq{causal_exact_recovered} & local & causally consistent words; adjacent swaps of concurrent events at a causal point \\
+Declared independence & \coq{tconv_exact_recovered} & local & causal histories; swaps of declared pairs (the trace monoid) \\
+At-least-once & \coq{alo_exact_recovered} & local & causal at-least-once deliveries; concurrent swaps and the landing $[a; a] \sim [a]$ after a first delivery \\
+Live switch & \coq{det_live_recovered} & local, $Q$ = past the switch & typed phases; switch squares and post-switch swaps \\
+Barrier, modulo a migration & \coq{amodm_closure_recovered} & closure & every word; adjacent swaps (the migration is not compatible with the steps) \\
 \bottomrule
 \end{tabular}
 \caption{Exact history results recovered from the two principles. Each recovered theorem states the
@@ -103,7 +103,7 @@ original's conclusion over the original's predicates; the proofs go through \cre
 \end{table}
 
 Three of these are not trace monoids. At-least-once delivery identifies a word with a shorter one,
-the live switch has typed phases with labels that change at the switch, and the barrier case needs P2
+the live switch has typed phases with labels that change at the switch, and the barrier case needs the closure principle
 because the migration does not respect the future of the old configuration's steps. The live switch
 is the instance where $Q$ matters: the migration does not respect the old configuration's future, but
 every seed ends past the switch, where the new configuration's steps respect its observation.
@@ -118,4 +118,4 @@ results into one theorem pair plus a per-model adequacy cost, and the cost is pa
 \paragraph{Not an instance.}
 The single-registry theorem's commutation condition CC1 is not a row of this table. Its ambiguity is a
 peak of a rewrite system in which repair steps interleave with events, not a pair of event words.
-\cref{sec:base-case} combines P1 on free delivery with a classification of those peaks to derive it.
+\cref{sec:base-case} combines the local principle on free delivery with a classification of those peaks to derive it.
