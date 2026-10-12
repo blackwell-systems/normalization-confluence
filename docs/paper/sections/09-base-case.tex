@@ -33,13 +33,39 @@ $N = \rho^{*}$.
     (\coq{nd_tiny_cc1}, \coq{nd_tiny_cc2}).
 \end{itemize}
 
+\paragraph{Proof idea for the dictionary.}
+For \coq{nd_descends_cc2}, one repair does not change the canonical form of an invalid state,
+$N(\rho(\sigma)) = N(\sigma)$ (\coq{nd_N_rho}, because runs from an empty buffer are deterministic);
+descent at the reachable states $\sigma$ and $\rho(\sigma)$ then gives CC2 at $\sigma$. Conversely, CC2
+keeps $\gov(e)$ unchanged along the repair chain from a reachable $x$ to $N(x)$, by induction on the
+chain (\coq{nd_cc2_chain}), which is descent at $x$. For \coq{nd_history_seeds}, the future-respecting
+hypothesis of \cref{thm:p1} holds trivially, since the governed semantics of $t \cdot e$ is $\gov(e)$
+applied to that of $t$, so \coq{local_exact_all} reduces invariance to the adjacent swaps. For
+\coq{nd_history_cc1}, state descent makes $N(\sigma)$ a governed run from $N(s_0)$ for every reachable
+$\sigma$ (\coq{nd_reach_canon}) and gives $\gov(e)(\sigma) = \gov(e)(N(\sigma))$, so the swap after
+that run is CC1 at $\sigma$; the converse applies CC1 at the governed runs, which are reachable
+(\coq{nd_reach_grun}). The peaks join directly: an event against a repair step meets at
+$(\gov(e)(s), B - e)$ by CC2, and two events meet at $(\gov(e_2)(\gov(e_1)(s)), B - e_1 - e_2)$ by CC1.
+
 \begin{theorem}[\coq{nd_derived_from}, \coq{nd_cc_exact}]\label{thm:derived}
 For every start $s_0$, every buffer delivered from $s_0$ has a unique normal form if and only if
 free-history descent holds from $N(s_0)$ and every event descends on the states reachable from $s_0$.
 The three original statements of the single-registry theorem follow word for word.
 \end{theorem}
 
-\paragraph{Non-circularity.}
+\paragraph{Proof idea.}
+For sufficiency, \coq{nd_history_cc1} turns the two descent conditions into CC1 on the states
+reachable from $s_0$, and \coq{nd_confluent_from} gives confluence from $(s_0, B)$:
+\coq{classified_peak_exact} is Newman's lemma on the reachable configurations, with termination from
+$\Phi$ and a classifier under which every nontrivial peak is a state peak or a history peak
+(\coq{nd_cls_complete}). Confluence gives unique normal forms. For necessity, \coq{nd_tiny_cc1} and
+\coq{nd_tiny_cc2} run a word that reaches $\sigma$ and then the two small buffers; both ends are normal
+forms because $\rho^{*}$ reaches a valid state and the buffer is empty, so unique normal forms make
+them equal and give CC1 and CC2 at $\sigma$. The dictionary turns these back into the two descent
+conditions. The original statements follow by rewriting with the dictionary
+(\coq{nd_dictionary_from}); \coq{nd_cc_exact}, for configurations over any reachable state, applies
+the start-relative form at that state and uses transitivity of reachability.
+
 Only one proof in the file cites the original theorems: \coq{nd_derived_matches_original}, which shows
 that the derived statements are the originals' by the dictionary alone. Every other theorem of the file
 remains closed under the global context when the original theorems are turned into admitted axioms in

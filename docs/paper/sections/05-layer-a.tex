@@ -48,6 +48,16 @@ If $\mathrm{Adm}$ is closed under prefixes, then invariance holds if and only if
 up to $\approx$, on every pair in the continuation closure.
 \end{theorem}
 
+\paragraph{Proof idea.}
+Every pair in the continuation closure is an admissible whiskered pair (\coq{ppc_whisk}), hence a
+single generating step of $\mathrm{PEq}$, so invariance gives agreement on the closure. Conversely, the
+proof is an induction on the generated equivalence, using that $\approx$ is an equivalence; the only
+real case is one whiskered step $p \cdot u \cdot w \sim p \cdot v \cdot w$ with both ends admissible,
+which lies in the closure by \coq{ppc_iff_whisk}. That lemma is where prefix closure is used: it builds
+the pair from the seed by induction on the continuation $w$, appending one event at a time, and each
+intermediate word $p \cdot u \cdot w'$ or $p \cdot v \cdot w'$ is admissible because it is a prefix of
+an admissible word.
+
 Invariance always implies agreement on the seeds themselves (\coq{seeds_necessary}), but the seeds
 alone are not enough. A hidden register makes the gap concrete (\coq{hw_seeds_insufficient}): events
 write a register the observation does not show, and a later event reveals it. Every swap seed is then
@@ -64,6 +74,14 @@ point: $\mathrm{sem}(p \cdot u) \approx \mathrm{sem}(p \cdot v)$ whenever $\math
 sides are admissible.
 \end{theorem}
 
+\paragraph{Proof idea.}
+By \cref{thm:p2} it suffices to compare agreement on the closure with agreement on the seeds
+(\coq{local_closure}). Seeds belong to the closure, which gives one direction. For the other, an
+induction on the closure carries the statement that both sides satisfy $Q$ and have
+$\approx$-equal semantics: a seed has it by the hypothesis that $Q$ holds on seeds and by the seed
+condition, and a continuation step keeps it because $Q$ is kept by admissible extension and the
+semantics respects the future on $Q$. Prefix closure is used only through \cref{thm:p2}.
+
 With $Q$ true everywhere this is \coq{local_exact_all}, and the future-respecting hypothesis follows
 when the observation is compatible with the steps (\coq{resp_of_compat}). In the hidden register it is
 exactly that hypothesis that fails (\coq{hw_not_resp}). Both principles are elementary facts about
@@ -75,6 +93,8 @@ relation on states, not a pair of parallel paths from one point. It enters throu
 under state descent the repaired raw semantics and the governed semantics from $N(s_0)$ are the same
 function on words, so they pose the same invariance question for every presentation
 (\coq{state_side_transfer}; \cref{lem:transfer} is the special case of equality on histories).
+The proof is the same rewrite as for \cref{lem:transfer}: $N(\mathrm{run}(t, s_0)) =
+\mathrm{grun}(t, N(s_0))$ for every word $t$ (\coq{normalization_descent}).
 Paths quotient histories; states quotient by repair.
 
 % ---------------------------------------------------------------------------------------------
