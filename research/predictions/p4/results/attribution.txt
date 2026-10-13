@@ -1,0 +1,147 @@
+### variant: as-coded
+[T1 A push_and_pull (default resolver), B passive | no skew | P1 a1 | b1 | inflight<=2]
+   states=48 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=3 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=2334 terminals=61 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=130 b_fail=48 nonterminating=0 lww_lower_ts_won_tombstone=236 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P5 a1,del | b1 | inflight<=2]
+   states=323 terminals=18 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=14 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P6 a2 | del,del | inflight<=2]
+   states=288 terminals=18 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=4 group_fail=1 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=26 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P7 del,del | b2 | inflight<=2]
+   states=408 terminals=29 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=8 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=20 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=1467 terminals=50 outcomes=3 conv_fail_canon=2 conv_fail_cv_only=14 group_fail=1 a_fail=38 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=106 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P1 a1 | b1 | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P2 a1 | del | inflight<=2]
+   states=67 terminals=8 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=8 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=7831 terminals=245 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=204 b_fail=61 nonterminating=0 lww_lower_ts_won_tombstone=1489 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=533 terminals=30 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=54 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P6 a2 | del,del | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=66 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P7 del,del | b2 | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=66 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=3076 terminals=119 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=35 group_fail=0 a_fail=38 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=293 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P7 del,del | b2 | inflight<=2]
+   states=56 terminals=8 outcomes=1 conv_fail_canon=8 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+### variant: --counterfactual
+[T1 A push_and_pull (default resolver), B passive | no skew | P1 a1 | b1 | inflight<=2]
+   states=48 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=3 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=2334 terminals=61 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=130 b_fail=48 nonterminating=0 lww_lower_ts_won_tombstone=236 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P5 a1,del | b1 | inflight<=2]
+   states=308 terminals=13 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=14 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P6 a2 | del,del | inflight<=2]
+   states=254 terminals=13 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=26 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P7 del,del | b2 | inflight<=2]
+   states=330 terminals=14 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=17 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=1336 terminals=34 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=33 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=106 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P1 a1 | b1 | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P2 a1 | del | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=8 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=7142 terminals=182 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=204 b_fail=61 nonterminating=0 lww_lower_ts_won_tombstone=1440 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=503 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=54 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P6 a2 | del,del | inflight<=2]
+   states=456 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=60 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P7 del,del | b2 | inflight<=2]
+   states=456 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=60 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=2610 terminals=73 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=33 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=271 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P7 del,del | b2 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+### variant: --inflight=1
+[T1 A push_and_pull (default resolver), B passive | no skew | P1 a1 | b1 | inflight<=1]
+   states=44 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P2 a1 | del | inflight<=1]
+   states=41 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=3 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P3 del | del | inflight<=1]
+   states=49 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P4 a1,a2 | b1,del | inflight<=1]
+   states=1396 terminals=61 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=104 b_fail=44 nonterminating=0 lww_lower_ts_won_tombstone=137 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P5 a1,del | b1 | inflight<=1]
+   states=223 terminals=13 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=7 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=12 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P6 a2 | del,del | inflight<=1]
+   states=198 terminals=13 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=9 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=17 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P7 del,del | b2 | inflight<=1]
+   states=233 terminals=14 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=9 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=15 lww_lower_ts_won_other=0 lww_tie_local=0
+[T1 A push_and_pull (default resolver), B passive | no skew | P8 a4 | del,b2,del | inflight<=1]
+   states=764 terminals=33 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=23 b_fail=17 nonterminating=0 lww_lower_ts_won_tombstone=53 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P1 a1 | b1 | inflight<=1]
+   states=49 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P2 a1 | del | inflight<=1]
+   states=49 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=6 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P3 del | del | inflight<=1]
+   states=49 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P4 a1,a2 | b1,del | inflight<=1]
+   states=2642 terminals=182 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=134 b_fail=49 nonterminating=0 lww_lower_ts_won_tombstone=470 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P5 a1,del | b1 | inflight<=1]
+   states=288 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=7 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=29 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P6 a2 | del,del | inflight<=1]
+   states=287 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=9 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=34 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P7 del,del | b2 | inflight<=1]
+   states=287 terminals=25 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=9 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=34 lww_lower_ts_won_other=0 lww_tie_local=0
+[T2 A pull + B pull (both resolve) | no skew | P8 a4 | del,b2,del | inflight<=1]
+   states=1211 terminals=71 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=23 b_fail=17 nonterminating=0 lww_lower_ts_won_tombstone=106 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P1 a1 | b1 | inflight<=1]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P2 a1 | del | inflight<=1]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P3 del | del | inflight<=1]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P4 a1,a2 | b1,del | inflight<=1]
+   states=103 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P5 a1,del | b1 | inflight<=1]
+   states=45 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P6 a2 | del,del | inflight<=1]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P7 del,del | b2 | inflight<=1]
+   states=45 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T4 A push only (no resolution anywhere) | no skew | P8 a4 | del,b2,del | inflight<=1]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0

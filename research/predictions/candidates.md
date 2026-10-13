@@ -309,6 +309,10 @@ block along every cycle.
   hours of computation.
 - Proof side: one instance, about 200 lines to mechanize.
 
+## Candidate D. Sync Gateway: a stale tombstone splits a pushAndPull replication (2026-10-13)
+
+Drafted after P2 and P3 were scored, by screening production systems where repair or conflict resolution can be separated from the write. A model transcribed from Sync Gateway's source ([p4/REPORT.md](p4/REPORT.md)) finds that the tombstone-on-tombstone write path skips the dominance check, so two tombstones of one document applied out of order make the active gateway's current version move backwards; its next write is then rejected by the passive peer and never retried. An adversarial review of every link against the Go source ([p4/REVIEW.md](p4/REVIEW.md)) did not break it. Kernel argument: `nd_derived_from` (`NormalizationDerived.v`): the two deliveries do not commute at a reachable state, so the outcome depends on order. Literature and tracker check, pass and fail criteria, and the probability: [P4.md](P4.md). Chosen and committed as P4, unchanged.
+
 ## Considered and dropped
 
 Recorded so the choice can see what was ruled out and why.

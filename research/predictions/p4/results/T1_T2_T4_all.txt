@@ -1,0 +1,530 @@
+[T1 A push_and_pull (default resolver), B passive | no skew | P1 a1 | b1 | inflight<=2]
+   states=48 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=3 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; push A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known) ; push A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:20]
+[T1 A push_and_pull (default resolver), B passive | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=2334 terminals=61 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=130 b_fail=48 nonterminating=0 lww_lower_ts_won_tombstone=236 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:20 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P5 a1,del | b1 | inflight<=2]
+   states=323 terminals=18 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=14 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at DEL cv=srcA:20 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P6 a2 | del,del | inflight<=2]
+   states=288 terminals=18 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=4 group_fail=1 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=26 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a2 ; push A->B:send ; push A->B:apply#4=409
+      A = a2 cv=srcA:30 pv=[srcB:10]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   group_fail writes=((('a2', ('srcA', 30, frozenset({('srcB', 10)}), frozenset())),), (('del', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 20, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a2'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P7 del,del | b2 | inflight<=2]
+   states=408 terminals=29 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=8 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=20 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull B->A:send ; pull B->A:apply#2=resolved_local ; push A->B:send ; A:del ; push A->B:send ; push A->B:apply#4=no_conflict ; push A->B:apply#3=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[srcB:20]
+      B = DEL cv=srcA:10 pv=[srcB:20]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T1 A push_and_pull (default resolver), B passive | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=1467 terminals=50 outcomes=3 conv_fail_canon=2 conv_fail_cv_only=14 group_fail=1 a_fail=38 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=106 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a4 ; push A->B:send ; push A->B:apply#4=409
+      A = a4 cv=srcA:40 pv=[srcB:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+   group_fail writes=((('a4', ('srcA', 40, frozenset({('srcB', 10)}), frozenset())),), (('del', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())), ('b2', ('srcB', 20, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 30, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a4'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; push A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known) ; push A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcA:6 pv=[srcB:20]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=1946 terminals=54 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=128 b_fail=43 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=301 terminals=17 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=36 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=288 terminals=18 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=4 group_fail=1 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a2 ; push A->B:send ; push A->B:apply#4=409
+      A = a2 cv=srcA:6 pv=[srcB:10]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   group_fail writes=((('a2', ('srcA', 6, frozenset({('srcB', 10)}), frozenset())),), (('del', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 20, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a2'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=408 terminals=29 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=8 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=45 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull B->A:send ; pull B->A:apply#2=resolved_local ; push A->B:send ; A:del ; push A->B:send ; push A->B:apply#4=no_conflict ; push A->B:apply#3=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:7 pv=[srcB:20]
+      B = DEL cv=srcA:6 pv=[srcB:20]
+   a_fail at DEL cv=srcA:6 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T1 A push_and_pull (default resolver), B passive | A clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=1326 terminals=47 outcomes=3 conv_fail_canon=2 conv_fail_cv_only=13 group_fail=1 a_fail=44 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=9 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a4 ; push A->B:send ; push A->B:apply#4=409
+      A = a4 cv=srcA:15 pv=[srcB:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+   group_fail writes=((('a4', ('srcA', 15, frozenset({('srcB', 10)}), frozenset())),), (('del', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())), ('b2', ('srcB', 20, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 30, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a4'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=53 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=6 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; push A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known) ; push A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:1]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=2602 terminals=67 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=154 b_fail=53 nonterminating=0 lww_lower_ts_won_tombstone=512 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=345 terminals=19 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=288 terminals=18 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=4 group_fail=1 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=52 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a2 ; push A->B:send ; push A->B:apply#4=409
+      A = a2 cv=srcA:30 pv=[srcB:1]
+      B = DEL cv=srcB:2 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcB:5 pv=[srcA:5]
+   group_fail writes=((('a2', ('srcA', 30, frozenset({('srcB', 1)}), frozenset())),), (('del', ('srcB', 1, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 2, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a2'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=408 terminals=29 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=8 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull B->A:send ; pull B->A:apply#2=resolved_local ; push A->B:send ; A:del ; push A->B:send ; push A->B:apply#4=no_conflict ; push A->B:apply#3=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[srcB:1]
+      B = DEL cv=srcA:10 pv=[srcB:1]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T1 A push_and_pull (default resolver), B passive | B clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=1632 terminals=55 outcomes=3 conv_fail_canon=2 conv_fail_cv_only=16 group_fail=1 a_fail=54 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=235 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a4 ; push A->B:send ; push A->B:apply#4=409
+      A = a4 cv=srcA:40 pv=[srcB:1]
+      B = DEL cv=srcB:5 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcB:15 pv=[srcA:5]
+   group_fail writes=((('a4', ('srcA', 40, frozenset({('srcB', 1)}), frozenset())),), (('del', ('srcB', 1, frozenset({('srcA', 5)}), frozenset())), ('b2', ('srcB', 2, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 5, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a4'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P1 a1 | b1 | inflight<=2]
+   states=53 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=3
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P2 a1 | del | inflight<=2]
+   states=43 terminals=4 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=3 lww_lower_ts_won_other=0 lww_tie_local=3
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; push A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known) ; push A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:10]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P4 a1,a2 | b1,del | inflight<=2]
+   states=2602 terminals=67 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=154 b_fail=53 nonterminating=0 lww_lower_ts_won_tombstone=254 lww_lower_ts_won_other=0 lww_tie_local=241
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P5 a1,del | b1 | inflight<=2]
+   states=345 terminals=19 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=17
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P6 a2 | del,del | inflight<=2]
+   states=288 terminals=18 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=4 group_fail=1 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=26 lww_lower_ts_won_other=0 lww_tie_local=20
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a2 ; push A->B:send ; push A->B:apply#4=409
+      A = a2 cv=srcA:30 pv=[srcB:1]
+      B = DEL cv=srcB:10 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+   group_fail writes=((('a2', ('srcA', 30, frozenset({('srcB', 1)}), frozenset())),), (('del', ('srcB', 1, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a2'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P7 del,del | b2 | inflight<=2]
+   states=408 terminals=29 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=8 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=20
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull B->A:send ; pull B->A:apply#2=resolved_local ; push A->B:send ; A:del ; push A->B:send ; push A->B:apply#4=no_conflict ; push A->B:apply#3=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[srcB:10]
+      B = DEL cv=srcA:10 pv=[srcB:10]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T1 A push_and_pull (default resolver), B passive | equal values possible | P8 a4 | del,b2,del | inflight<=2]
+   states=1567 terminals=53 outcomes=3 conv_fail_canon=2 conv_fail_cv_only=15 group_fail=1 a_fail=48 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=106 lww_lower_ts_won_other=0 lww_tie_local=112
+   conv_fail_canon trace: B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=no_conflict ; pull B->A:apply#2=tombstone_over_tombstone ; A:a4 ; push A->B:send ; push A->B:apply#4=409
+      A = a4 cv=srcA:40 pv=[srcB:1]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; push A->B:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   group_fail writes=((('a4', ('srcA', 40, frozenset({('srcB', 1)}), frozenset())),), (('del', ('srcB', 1, frozenset({('srcA', 5)}), frozenset())), ('b2', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())), ('del', ('srcB', 20, frozenset({('srcA', 5)}), frozenset())))) outcomes=[(('deleted',), ('deleted',)), (('live', 'a4'), ('deleted',))]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T2 A pull + B pull (both resolve) | no skew | P1 a1 | b1 | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | no skew | P2 a1 | del | inflight<=2]
+   states=67 terminals=8 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=8 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | no skew | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; pull A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known) ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:20]
+[T2 A pull + B pull (both resolve) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=7831 terminals=245 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=204 b_fail=61 nonterminating=0 lww_lower_ts_won_tombstone=1489 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:20 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=533 terminals=30 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=8 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=54 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at DEL cv=srcA:20 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | no skew | P6 a2 | del,del | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=66 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T2 A pull + B pull (both resolve) | no skew | P7 del,del | b2 | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=66 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull A->B:send ; A:del ; pull A->B:send ; pull A->B:apply#3=resolved_remote ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[]
+      B = DEL cv=srcA:10 pv=[srcB:20]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T2 A pull + B pull (both resolve) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=3076 terminals=119 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=35 group_fail=0 a_fail=38 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=293 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:10]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P2 a1 | del | inflight<=2]
+   states=67 terminals=8 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; pull A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known) ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcA:6 pv=[srcB:20]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=6880 terminals=245 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=209 b_fail=61 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=561 terminals=30 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=149 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / b1 cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=147 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull A->B:send ; A:del ; pull A->B:send ; pull A->B:apply#3=resolved_remote ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:7 pv=[]
+      B = DEL cv=srcA:6 pv=[srcB:20]
+   a_fail at DEL cv=srcA:6 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T2 A pull + B pull (both resolve) | A clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=2852 terminals=119 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=35 group_fail=0 a_fail=44 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=10 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:20 pv=[srcA:6]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:10 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=61 terminals=6 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P2 a1 | del | inflight<=2]
+   states=67 terminals=8 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=16 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; pull A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known) ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:1]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=8016 terminals=245 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=223 b_fail=61 nonterminating=0 lww_lower_ts_won_tombstone=3103 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=474 terminals=30 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=147 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcB:5 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull A->B:send ; A:del ; pull A->B:send ; pull A->B:apply#3=resolved_remote ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[]
+      B = DEL cv=srcA:10 pv=[srcB:1]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T2 A pull + B pull (both resolve) | B clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=3262 terminals=119 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=35 group_fail=0 a_fail=54 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=720 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:1 pv=[srcA:10]
+      B = DEL cv=srcB:15 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P1 a1 | b1 | inflight<=2]
+   states=75 terminals=9 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=0 group_fail=1 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=8
+   conv_fail_canon trace: A:a1 ; B:b1 ; pull B->A:send ; pull A->B:send ; pull B->A:apply#2=resolved_local ; pull A->B:apply#2=resolved_local ; pull B->A:skip(known) ; pull A->B:skip(known)
+      A = a1 cv=srcA:10 pv=[srcB:10]
+      B = b1 cv=srcB:10 pv=[srcA:10]
+   group_fail writes=((('a1', ('srcA', 10, frozenset(), frozenset())),), (('b1', ('srcB', 10, frozenset({('srcA', 5)}), frozenset())),)) outcomes=[(('live', 'a1'), ('live', 'a1')), (('live', 'a1'), ('live', 'b1')), (('live', 'b1'), ('live', 'b1'))]
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1')), (('live', 'a1'), ('live', 'b1')), (('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P2 a1 | del | inflight<=2]
+   states=67 terminals=8 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=2 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=8 lww_lower_ts_won_other=0 lww_tie_local=8
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a1'), ('live', 'a1'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P3 del | del | inflight<=2]
+   states=53 terminals=8 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=2 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; B:del ; pull B->A:send ; pull A->B:send ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known) ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcA:10 pv=[srcB:10]
+[T2 A pull + B pull (both resolve) | equal values possible | P4 a1,a2 | b1,del | inflight<=2]
+   states=9023 terminals=264 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=246 b_fail=75 nonterminating=0 lww_lower_ts_won_tombstone=1597 lww_lower_ts_won_other=0 lww_tie_local=1394
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1')), (('live', 'a1'), ('live', 'b1')), (('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P5 a1,del | b1 | inflight<=2]
+   states=584 terminals=32 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=10 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=72
+   a_fail at a1 cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b1'), ('live', 'b1'))] N(e(s))=[(('live', 'a1'), ('live', 'a1')), (('live', 'a1'), ('live', 'b1')), (('live', 'b1'), ('live', 'b1'))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b1'), ('live', 'b1'))] B-then-A=[(('live', 'a1'), ('live', 'a1'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P6 a2 | del,del | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=66 lww_lower_ts_won_other=0 lww_tie_local=56
+   conv_fail_cv_only trace: A:a2 ; B:del ; pull B->A:send ; B:del ; pull B->A:send ; pull B->A:apply#3=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a2'), ('live', 'a2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a2'), ('live', 'a2'))]
+[T2 A pull + B pull (both resolve) | equal values possible | P7 del,del | b2 | inflight<=2]
+   states=573 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=11 group_fail=0 a_fail=12 b_fail=5 nonterminating=0 lww_lower_ts_won_tombstone=7 lww_lower_ts_won_other=0 lww_tie_local=59
+   conv_fail_cv_only trace: A:del ; B:b2 ; pull A->B:send ; A:del ; pull A->B:send ; pull A->B:apply#3=resolved_remote ; pull A->B:apply#2=tombstone_over_tombstone ; pull B->A:skip(known)
+      A = DEL cv=srcA:30 pv=[]
+      B = DEL cv=srcA:10 pv=[srcB:10]
+   a_fail at DEL cv=srcA:10 pv=[] / x0 cv=srcA:5 pv=[] event@B: N(e(N(s)))=[(('live', 'b2'), ('live', 'b2'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('live', 'b2'), ('live', 'b2'))] B-then-A=[(('deleted',), ('deleted',))]
+[T2 A pull + B pull (both resolve) | equal values possible | P8 a4 | del,b2,del | inflight<=2]
+   states=3318 terminals=123 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=36 group_fail=0 a_fail=46 b_fail=20 nonterminating=0 lww_lower_ts_won_tombstone=293 lww_lower_ts_won_other=0 lww_tie_local=318
+   conv_fail_cv_only trace: A:a4 ; B:del ; pull B->A:send ; B:b2 ; B:del ; pull B->A:send ; pull B->A:apply#4=resolved_remote ; pull B->A:apply#2=tombstone_over_tombstone ; pull A->B:skip(known)
+      A = DEL cv=srcB:10 pv=[srcA:10]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+   a_fail at x0 cv=srcA:5 pv=[] / DEL cv=srcB:1 pv=[srcA:5] event@A: N(e(N(s)))=[(('live', 'a4'), ('live', 'a4'))] N(e(s))=[(('deleted',), ('deleted',))]
+   b_fail at x0 cv=srcA:5 pv=[] / x0 cv=srcA:5 pv=[]: A-then-B=[(('deleted',), ('deleted',))] B-then-A=[(('live', 'a4'), ('live', 'a4'))]
+[T4 A push only (no resolution anywhere) | no skew | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:b1 ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = b1 cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; push A->B:send ; push A->B:apply#2=no_conflict ; B:del
+      A = DEL cv=srcA:10 pv=[]
+      B = DEL cv=srcB:20 pv=[srcA:10]
+[T4 A push only (no resolution anywhere) | no skew | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:a2 ; B:b1 ; B:del ; push A->B:send ; push A->B:apply#3=409
+      A = a2 cv=srcA:20 pv=[]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:del ; B:b1 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b1 cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a2 ; B:del ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a2 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P7 del,del | b2 | inflight<=2]
+   states=56 terminals=8 outcomes=1 conv_fail_canon=8 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:del ; A:del ; B:b2 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b2 cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | no skew | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a4 ; B:del ; B:b2 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a4 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:b1 ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:6 pv=[]
+      B = b1 cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:6 pv=[]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; push A->B:send ; push A->B:apply#2=no_conflict ; B:del
+      A = DEL cv=srcA:6 pv=[]
+      B = DEL cv=srcB:20 pv=[srcA:6]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:a2 ; B:b1 ; B:del ; push A->B:send ; push A->B:apply#3=409
+      A = a2 cv=srcA:7 pv=[]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:del ; B:b1 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:7 pv=[]
+      B = b1 cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a2 ; B:del ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a2 cv=srcA:6 pv=[]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=56 terminals=8 outcomes=1 conv_fail_canon=8 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:del ; A:del ; B:b2 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:7 pv=[]
+      B = b2 cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | A clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a4 ; B:del ; B:b2 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a4 cv=srcA:6 pv=[]
+      B = DEL cv=srcB:40 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:b1 ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = b1 cv=srcB:1 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:1 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; push A->B:send ; push A->B:apply#2=no_conflict ; B:del
+      A = DEL cv=srcA:10 pv=[]
+      B = DEL cv=srcB:1 pv=[srcA:10]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:a2 ; B:b1 ; B:del ; push A->B:send ; push A->B:apply#3=409
+      A = a2 cv=srcA:20 pv=[]
+      B = DEL cv=srcB:15 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:del ; B:b1 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b1 cv=srcB:5 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a2 ; B:del ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a2 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:5 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P7 del,del | b2 | inflight<=2]
+   states=56 terminals=8 outcomes=1 conv_fail_canon=8 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:del ; A:del ; B:b2 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b2 cv=srcB:5 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | B clock 25 behind | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a4 ; B:del ; B:b2 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a4 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:15 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P1 a1 | b1 | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:b1 ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = b1 cv=srcB:10 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P2 a1 | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=3 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a1 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:10 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P3 del | del | inflight<=2]
+   states=12 terminals=3 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=1 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_cv_only trace: A:del ; push A->B:send ; push A->B:apply#2=no_conflict ; B:del
+      A = DEL cv=srcA:10 pv=[]
+      B = DEL cv=srcB:10 pv=[srcA:10]
+[T4 A push only (no resolution anywhere) | equal values possible | P4 a1,a2 | b1,del | inflight<=2]
+   states=125 terminals=11 outcomes=1 conv_fail_canon=11 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:a2 ; B:b1 ; B:del ; push A->B:send ; push A->B:apply#3=409
+      A = a2 cv=srcA:20 pv=[]
+      B = DEL cv=srcB:30 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P5 a1,del | b1 | inflight<=2]
+   states=54 terminals=7 outcomes=1 conv_fail_canon=7 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a1 ; A:del ; B:b1 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b1 cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P6 a2 | del,del | inflight<=2]
+   states=23 terminals=4 outcomes=1 conv_fail_canon=4 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a2 ; B:del ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a2 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P7 del,del | b2 | inflight<=2]
+   states=56 terminals=8 outcomes=1 conv_fail_canon=8 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:del ; A:del ; B:b2 ; push A->B:send ; push A->B:apply#3=409
+      A = DEL cv=srcA:20 pv=[]
+      B = b2 cv=srcB:20 pv=[srcA:5]
+[T4 A push only (no resolution anywhere) | equal values possible | P8 a4 | del,b2,del | inflight<=2]
+   states=37 terminals=5 outcomes=1 conv_fail_canon=5 conv_fail_cv_only=0 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+   conv_fail_canon trace: A:a4 ; B:del ; B:b2 ; B:del ; push A->B:send ; push A->B:apply#2=409
+      A = a4 cv=srcA:10 pv=[]
+      B = DEL cv=srcB:30 pv=[srcA:5]
