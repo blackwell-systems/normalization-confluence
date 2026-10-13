@@ -1,0 +1,9 @@
+Couchbase Server: 8.0.0-3777-community (GET /pools implementationVersion), couchbase-server-community_8.0.0-macos_arm64.dmg
+  sha256 e961cf261538ec605dc73511e272f662b684373c9dc01c17607f3aa62494fb93 (matches packages.couchbase.com .sha256)
+  services data,index,query; buckets bucketA, bucketB (couchstore, 256 MB, 0 replicas); RBAC users sgA, sgB = bucket_full_access[bucketA|B]
+  bucket uuids: bucketA 65131464b15e4297b23fcb201aec3427, bucketB 52e08d0f288d1ddd031cfe0397cc91d2; cluster uuid 3585d215431c3039c89b8de0748a2d85
+Sync Gateway: "Couchbase Sync Gateway/4.1.2(24;release) CE" (GET / on both admin ports), couchbase-sync-gateway-community_4.1.2_arm64.zip
+  sha256 4f69f5ac8c4a76dce0b52a7a652d0cee78e419513d0f30c8ecf4b9777fecc6ee (matches packages.couchbase.com .sha256)
+  A: 127.0.0.1:4984/4985/4986, db dba on bucketA, source id dLJjAgK4+eBIHc8eFxrYtA
+  B: 127.0.0.1:4994/4995/4996, db dbb on bucketB, source id nOtMDykUc+qweuFJ2Z+N5g
+macOS 26.5.2 (25F84), arm64 (Apple M1 Pro, T6000), 32 GB

@@ -1,0 +1,41 @@
+2026-10-13T11:48:27.139-07:00 [INF] HTTP: c:#076 db:dbb GET /dbb/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:27.150-07:00 [INF] HTTP: c:#076 db:dbb #076:     --> 404 missing  (30.9 ms)
+2026-10-13T11:48:27.173-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #8: Type:changes #Changes:1
+2026-10-13T11:48:27.211-07:00 [INF] Cache: c:[22ebfc43] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 36) --> 1 changes valid from #37
+2026-10-13T11:48:27.217-07:00 [INF] Sync: c:[22ebfc43] db:dbb col:_default Sent 1 changes to client, from seq 37
+2026-10-13T11:48:27.262-07:00 [INF] HTTP: c:#077 db:dbb GET /dbb/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:27.262-07:00 [INF] HTTP+: c:#077 db:dbb #077:     --> 200   (3.4 ms)
+2026-10-13T11:48:27.267-07:00 [INF] HTTP: c:#078 db:dbb DELETE /dbb/<ud>x-control-1-1791917306</ud>?rev=1-7872796cf808575a89b75936e3d04bc5 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:27.271-07:00 [INF] HTTP+: c:#078 db:dbb #078:     --> 200   (7.4 ms)
+2026-10-13T11:48:27.306-07:00 [INF] Cache: c:[22ebfc43] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 37) --> 1 changes valid from #37
+2026-10-13T11:48:27.308-07:00 [INF] Sync: c:[22ebfc43] db:dbb col:_default Sent 1 changes to client, from seq 38
+2026-10-13T11:48:27.358-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #10: Type:changes #Changes:1
+2026-10-13T11:48:28.281-07:00 [INF] HTTP: c:#079 db:dbb PUT /dbb/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:28.285-07:00 [INF] HTTP+: c:#079 db:dbb #079:     --> 201   (9.0 ms)
+2026-10-13T11:48:28.292-07:00 [INF] HTTP: c:#080 db:dbb DELETE /dbb/<ud>x-control-1-1791917306</ud>?rev=3-11ca86a8b2a17186d9645139db3b7d32 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:28.296-07:00 [INF] HTTP+: c:#080 db:dbb #080:     --> 200   (10.1 ms)
+2026-10-13T11:48:28.306-07:00 [INF] Cache: c:[22ebfc43] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 38) --> 1 changes valid from #37
+2026-10-13T11:48:28.308-07:00 [INF] Sync: c:[22ebfc43] db:dbb col:_default Sent 1 changes to client, from seq 40
+2026-10-13T11:48:28.357-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #11: Type:changes #Changes:1
+2026-10-13T11:48:29.798-07:00 [INF] Cache: db:dbb Received #41-#41 (unused sequence range)
+2026-10-13T11:48:31.824-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #12: Type:setCheckpoint Client:sgr2cp:push:p4 Rev:0-14 
+2026-10-13T11:48:31.852-07:00 [INF] SyncMsg: c:[22ebfc43] db:dbb col:_default #5: Type:setCheckpoint Client:sgr2cp:pull:p4 Rev:0-13 
+2026-10-13T11:48:38.330-07:00 [INF] HTTP: c:#081 db:dbb GET /dbb/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:38.330-07:00 [INF] HTTP: c:#081 db:dbb #081:     --> 404 deleted  (7.0 ms)
+2026-10-13T11:48:38.336-07:00 [INF] HTTP: c:#082 db:dbb GET /dbb/_raw/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:48:38.336-07:00 [INF] HTTP+: c:#082 db:dbb #082:     --> 200   (3.9 ms)
+2026-10-13T11:48:38.358-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #13: Type:changes #Changes:1
+2026-10-13T11:48:38.407-07:00 [INF] Cache: c:[22ebfc43] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 40) --> 1 changes valid from #37
+2026-10-13T11:48:38.408-07:00 [INF] Sync: c:[22ebfc43] db:dbb col:_default Sent 1 changes to client, from seq 42
+2026-10-13T11:48:41.798-07:00 [INF] SyncMsg: c:[458005b2] db:dbb col:_default #15: Type:setCheckpoint Client:sgr2cp:push:p4 Rev:0-15 
+2026-10-13T11:48:41.828-07:00 [INF] SyncMsg: c:[22ebfc43] db:dbb col:_default #6: Type:setCheckpoint Client:sgr2cp:pull:p4 Rev:0-14 
+2026-10-13T11:49:49.729-07:00 [INF] HTTP: c:#083 db:dbb GET /dbb/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:49.732-07:00 [INF] HTTP+: c:#083 db:dbb #083:     --> 200   (6.7 ms)
+2026-10-13T11:49:49.753-07:00 [INF] HTTP: c:#084 db:dbb GET /dbb/_raw/<ud>x-control-1-1791917306</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:49.754-07:00 [INF] HTTP+: c:#084 db:dbb #084:     --> 200   (20.3 ms)
+2026-10-13T11:49:49.805-07:00 [INF] HTTP: c:#085 db:dbb GET /dbb/_changes?since=42 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:49.805-07:00 [INF] Changes: c:#085 db:dbb MultiChangesFeed(channels: {<ud>*</ud>}, options: {Since: 42, Limit: 0, Conflicts: false, IncludeDocs: false, Wait: false, Continuous: false, HeartbeatMs: 0, TimeoutMs: 300000, ActiveOnly: false, Revocations: false, RequestPlusSeq: 0, VersionType: "rev"}) ... <ud>  (to ADMIN)</ud>
+2026-10-13T11:49:49.805-07:00 [INF] Changes: c:#085 db:dbb MultiChangesFeed done <ud>  (to ADMIN)</ud>
+2026-10-13T11:49:49.805-07:00 [INF] HTTP+: c:#085 db:dbb #085:     --> 200 OK  (29.4 ms)
+2026-10-13T11:49:49.833-07:00 [INF] HTTP: c:#086 db:dbb GET /dbb/ (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:49.833-07:00 [INF] HTTP+: c:#086 db:dbb #086:     --> 200   (5.7 ms)

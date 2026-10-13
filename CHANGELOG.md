@@ -1181,6 +1181,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- P4 scored: FAIL on claims 1 and 2 (0 of 5 each), control PASS (5 of 5). The outcome, the live-run data and four unscored post-hoc reproductions are in `research/predictions/P4.md` and `research/predictions/p4/live/`. The front page's prediction count is now 2 of 3. No theorem added, removed or renamed.
 - Site, second reader pass (front page, engineer's guide, Convergence Atlas). Front page: the hero
   names the failures (oversold stock, a wrong balance, a deleted record that comes back) and says
   what CouchDB is; the shelf example states why the orders differ and lists the three questions

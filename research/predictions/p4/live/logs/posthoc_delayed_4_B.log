@@ -1,0 +1,202 @@
+2026-10-13T12:19:44.484-07:00 [DBG] Auth+: c:#169 db:dbb #169: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:19:44.485-07:00 [INF] HTTP: c:#169 db:dbb GET /dbb/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:19:44.485-07:00 [INF] HTTP: c:#169 db:dbb #169:     --> 404 missing  (4.1 ms)
+2026-10-13T12:19:44.493-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #37: Type:changes #Changes:1
+2026-10-13T12:19:44.493-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #37: Type:changes   --> OK Time:465.375µs
+2026-10-13T12:19:44.494-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb col:_default #38: Type:rev Id:<ud>x-posthoc_delayed-4-1791919184</ud> Rev:18de2d0119050000@dLJjAgK4+eBIHc8eFxrYtA Sequence:78 NoConflicts:true 
+2026-10-13T12:19:44.494-07:00 [DBG] VV+: c:[30f1503c] db:dbb col:_default updateDoc("<ud>x-posthoc_delayed-4-1791919184</ud>"): has no _mou
+2026-10-13T12:19:44.495-07:00 [DBG] CRUD+: c:[30f1503c] db:dbb col:_default Invoking sync on doc "<ud>x-posthoc_delayed-4-1791919184</ud>" rev 1-7872796cf808575a89b75936e3d04bc5
+2026-10-13T12:19:44.495-07:00 [DBG] VV+: c:[30f1503c] db:dbb col:_default Existing HLV for doc <ud>x-posthoc_delayed-4-1791919184</ud> before modification HybridLogicalVector{CurrentVersionCAS:0, SourceID:dLJjAgK4+eBIHc8eFxrYtA, Version:1791919184478011392, PreviousVersions:HLVVersions{}, MergeVersions:HLVVersions{}}
+2026-10-13T12:19:44.495-07:00 [DBG] CRUD+: c:[30f1503c] db:dbb col:_default Saving doc (seq: #84, id: <ud>x-posthoc_delayed-4-1791919184</ud> rev: 1-7872796cf808575a89b75936e3d04bc5)
+2026-10-13T12:19:44.496-07:00 [DBG] CRUD+: c:[30f1503c] db:dbb col:_default Stored doc "<ud>x-posthoc_delayed-4-1791919184</ud>" / "1-7872796cf808575a89b75936e3d04bc5" as #84
+2026-10-13T12:19:44.496-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #38: Type:rev   --> OK Time:1.684583ms
+2026-10-13T12:19:44.496-07:00 [DBG] Changes+: db:dbb col:_default Received #84 after   0ms ("<ud>x-posthoc_delayed-4-1791919184</ud>" / "1-7872796cf808575a89b75936e3d04bc5")
+2026-10-13T12:19:44.496-07:00 [DBG] Changes+: db:dbb col:_default  #84 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:19:44.496-07:00 [DBG] Changes+: db:dbb col:_default Listener keys "{<ud>*</ud>}" for bucketB have changed, count=86
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: db:dbb Notifying changes for bucketB count=86
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed: channels expand to "<ud>!</ud>:1,<ud>*</ud>:1" ... <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.529-07:00 [DBG] Cache+: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>!</ud>", 82) --> nothing cached
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 0 changes for channel "<ud>!</ud>"
+2026-10-13T12:19:44.529-07:00 [INF] Cache: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 82) --> 1 changes valid from #83
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default Channel feed processing seq:84 in channel <ud>*</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed sending <ud>{Seq:84, ID:x-posthoc_delayed-4-1791919184, Changes:[map[cv:18de2d0119050000@dLJjAgK4+eBIHc8eFxrYtA]]}</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed waiting... <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.529-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default No new changes to send to change listener.  Waiting for "bucketB"'s count to pass 86
+2026-10-13T12:19:44.529-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 1 changes
+2026-10-13T12:19:44.532-07:00 [INF] Sync: c:[42ed9601] db:dbb col:_default Sent 1 changes to client, from seq 84
+2026-10-13T12:19:44.532-07:00 [DBG] Sync+: c:[42ed9601] db:dbb Peer didn't want revision <ud>x-posthoc_delayed-4-1791919184</ud> / 18de2d0119050000@dLJjAgK4+eBIHc8eFxrYtA (seq:84)
+2026-10-13T12:19:44.532-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 0 changes
+2026-10-13T12:19:44.593-07:00 [DBG] Auth+: c:#170 db:dbb #170: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:19:44.594-07:00 [INF] HTTP: c:#170 db:dbb GET /dbb/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:19:44.595-07:00 [INF] HTTP+: c:#170 db:dbb #170:     --> 200   (6.3 ms)
+2026-10-13T12:19:44.604-07:00 [DBG] Auth+: c:#171 db:dbb #171: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:19:44.604-07:00 [INF] HTTP: c:#171 db:dbb DELETE /dbb/<ud>x-posthoc_delayed-4-1791919184</ud>?rev=1-7872796cf808575a89b75936e3d04bc5 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:19:44.606-07:00 [DBG] VV+: c:#171 db:dbb updateDoc("<ud>x-posthoc_delayed-4-1791919184</ud>"): has no _mou
+2026-10-13T12:19:44.606-07:00 [DBG] CRUD+: c:#171 db:dbb Invoking sync on doc "<ud>x-posthoc_delayed-4-1791919184</ud>" rev 2-c4a7d9ff459de86fe6c7ccaed4d007a4
+2026-10-13T12:19:44.607-07:00 [DBG] CRUD+: c:#171 db:dbb Backed up revision body (with meta) "<ud>x-posthoc_delayed-4-1791919184</ud>"/"1-7872796cf808575a89b75936e3d04bc5" (7 bytes, ttl:300)
+2026-10-13T12:19:44.607-07:00 [DBG] CRUD+: c:#171 db:dbb Increased sequence batch to 2
+2026-10-13T12:19:44.608-07:00 [DBG] VV+: c:#171 db:dbb Existing HLV for doc <ud>x-posthoc_delayed-4-1791919184</ud> before modification HybridLogicalVector{CurrentVersionCAS:1791919184496164864, SourceID:dLJjAgK4+eBIHc8eFxrYtA, Version:1791919184478011392, PreviousVersions:HLVVersions{}, MergeVersions:HLVVersions{}}
+2026-10-13T12:19:44.608-07:00 [DBG] CRUD+: c:#171 db:dbb Saving doc (seq: #85, id: <ud>x-posthoc_delayed-4-1791919184</ud> rev: 2-c4a7d9ff459de86fe6c7ccaed4d007a4)
+2026-10-13T12:19:44.611-07:00 [DBG] CRUD+: c:#171 db:dbb Stored doc "<ud>x-posthoc_delayed-4-1791919184</ud>" / "2-c4a7d9ff459de86fe6c7ccaed4d007a4" as #85
+2026-10-13T12:19:44.611-07:00 [INF] HTTP+: c:#171 db:dbb #171:     --> 200   (14.5 ms)
+2026-10-13T12:19:44.611-07:00 [DBG] Changes+: db:dbb col:_default Received #85 after   3ms ("<ud>x-posthoc_delayed-4-1791919184</ud>" / "2-c4a7d9ff459de86fe6c7ccaed4d007a4")
+2026-10-13T12:19:44.612-07:00 [DBG] Changes+: db:dbb col:_default  #85 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:19:44.612-07:00 [DBG] Changes+: db:dbb col:_default Listener keys "{<ud>*</ud>}" for bucketB have changed, count=87
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: db:dbb Notifying changes for bucketB count=87
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed: channels expand to "<ud>!</ud>:1,<ud>*</ud>:1" ... <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.628-07:00 [INF] Cache: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 84) --> 1 changes valid from #83
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:19:44.628-07:00 [DBG] Cache+: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>!</ud>", 84) --> nothing cached
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 0 changes for channel "<ud>!</ud>"
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default Channel feed processing seq:85 in channel <ud>*</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed sending <ud>{Seq:85, ID:x-posthoc_delayed-4-1791919184, Changes:[map[cv:18de2d0120a90000@nOtMDykUc+qweuFJ2Z+N5g]], Deleted:true}</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed waiting... <ud>  (to isgr)</ud>
+2026-10-13T12:19:44.628-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default No new changes to send to change listener.  Waiting for "bucketB"'s count to pass 87
+2026-10-13T12:19:44.629-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 1 changes
+2026-10-13T12:19:44.630-07:00 [INF] Sync: c:[42ed9601] db:dbb col:_default Sent 1 changes to client, from seq 85
+2026-10-13T12:19:44.630-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 0 changes
+2026-10-13T12:19:44.632-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default Sending rev "<ud>x-posthoc_delayed-4-1791919184</ud>" 18de2d0120a90000@nOtMDykUc+qweuFJ2Z+N5g based on 2 known, digests: []
+2026-10-13T12:19:45.640-07:00 [DBG] Auth+: c:#172 db:dbb #172: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:19:45.640-07:00 [INF] HTTP: c:#172 db:dbb PUT /dbb/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:19:45.643-07:00 [DBG] VV+: c:#172 db:dbb updateDoc("<ud>x-posthoc_delayed-4-1791919184</ud>"): has no _mou
+2026-10-13T12:19:45.644-07:00 [DBG] CRUD+: c:#172 db:dbb Invoking sync on doc "<ud>x-posthoc_delayed-4-1791919184</ud>" rev 3-11ca86a8b2a17186d9645139db3b7d32
+2026-10-13T12:19:45.678-07:00 [DBG] CRUD+: c:#172 db:dbb Backed up revision body (with meta) "<ud>x-posthoc_delayed-4-1791919184</ud>"/"2-c4a7d9ff459de86fe6c7ccaed4d007a4" (17 bytes, ttl:300)
+2026-10-13T12:19:45.678-07:00 [DBG] VV+: c:#172 db:dbb Existing HLV for doc <ud>x-posthoc_delayed-4-1791919184</ud> before modification HybridLogicalVector{CurrentVersionCAS:1791919184611508224, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791919184606199808, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791919184478011392}, MergeVersions:HLVVersions{}}
+2026-10-13T12:19:45.678-07:00 [DBG] CRUD+: c:#172 db:dbb Saving doc (seq: #86, id: <ud>x-posthoc_delayed-4-1791919184</ud> rev: 3-11ca86a8b2a17186d9645139db3b7d32)
+2026-10-13T12:19:45.682-07:00 [DBG] CRUD+: c:#172 db:dbb Stored doc "<ud>x-posthoc_delayed-4-1791919184</ud>" / "3-11ca86a8b2a17186d9645139db3b7d32" as #86
+2026-10-13T12:19:45.711-07:00 [INF] HTTP+: c:#172 db:dbb #172:     --> 201   (94.3 ms)
+2026-10-13T12:19:45.716-07:00 [DBG] Changes+: db:dbb col:_default Received #86 after  38ms ("<ud>x-posthoc_delayed-4-1791919184</ud>" / "3-11ca86a8b2a17186d9645139db3b7d32")
+2026-10-13T12:19:45.716-07:00 [DBG] Changes+: db:dbb col:_default  #86 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:19:45.716-07:00 [DBG] Changes+: db:dbb col:_default Listener keys "{<ud>*</ud>}" for bucketB have changed, count=88
+2026-10-13T12:19:45.728-07:00 [DBG] Changes+: db:dbb Notifying changes for bucketB count=88
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed: channels expand to "<ud>!</ud>:1,<ud>*</ud>:1" ... <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.729-07:00 [DBG] Cache+: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>!</ud>", 85) --> nothing cached
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 0 changes for channel "<ud>!</ud>"
+2026-10-13T12:19:45.729-07:00 [INF] Cache: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 85) --> 1 changes valid from #83
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default Channel feed processing seq:86 in channel <ud>*</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed sending <ud>{Seq:86, ID:x-posthoc_delayed-4-1791919184, Changes:[map[cv:18de2d015e850000@nOtMDykUc+qweuFJ2Z+N5g]]}</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed waiting... <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.729-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default No new changes to send to change listener.  Waiting for "bucketB"'s count to pass 88
+2026-10-13T12:19:45.729-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 1 changes
+2026-10-13T12:19:45.735-07:00 [INF] Sync: c:[42ed9601] db:dbb col:_default Sent 1 changes to client, from seq 86
+2026-10-13T12:19:45.735-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 0 changes
+2026-10-13T12:19:45.738-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default Sending rev "<ud>x-posthoc_delayed-4-1791919184</ud>" 18de2d015e850000@nOtMDykUc+qweuFJ2Z+N5g based on 3 known, digests: []
+2026-10-13T12:19:45.739-07:00 [DBG] Auth+: c:#173 db:dbb #173: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:19:45.739-07:00 [INF] HTTP: c:#173 db:dbb DELETE /dbb/<ud>x-posthoc_delayed-4-1791919184</ud>?rev=3-11ca86a8b2a17186d9645139db3b7d32 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:19:45.740-07:00 [DBG] VV+: c:#173 db:dbb updateDoc("<ud>x-posthoc_delayed-4-1791919184</ud>"): has no _mou
+2026-10-13T12:19:45.740-07:00 [DBG] CRUD+: c:#173 db:dbb Invoking sync on doc "<ud>x-posthoc_delayed-4-1791919184</ud>" rev 4-8ce68d3395b0463a8adbe1f582c6daed
+2026-10-13T12:19:45.742-07:00 [DBG] CRUD+: c:#173 db:dbb Backed up revision body (with meta) "<ud>x-posthoc_delayed-4-1791919184</ud>"/"3-11ca86a8b2a17186d9645139db3b7d32" (7 bytes, ttl:300)
+2026-10-13T12:19:45.743-07:00 [DBG] VV+: c:#173 db:dbb Existing HLV for doc <ud>x-posthoc_delayed-4-1791919184</ud> before modification HybridLogicalVector{CurrentVersionCAS:1791919185680793600, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791919185644027904, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791919184478011392}, MergeVersions:HLVVersions{}}
+2026-10-13T12:19:45.744-07:00 [DBG] CRUD+: c:#173 db:dbb Saving doc (seq: #87, id: <ud>x-posthoc_delayed-4-1791919184</ud> rev: 4-8ce68d3395b0463a8adbe1f582c6daed)
+2026-10-13T12:19:45.744-07:00 [DBG] CRUD+: c:#173 db:dbb Stored doc "<ud>x-posthoc_delayed-4-1791919184</ud>" / "4-8ce68d3395b0463a8adbe1f582c6daed" as #87
+2026-10-13T12:19:45.744-07:00 [INF] HTTP+: c:#173 db:dbb #173:     --> 200   (19.0 ms)
+2026-10-13T12:19:45.746-07:00 [DBG] Changes+: db:dbb col:_default Received #87 after   2ms ("<ud>x-posthoc_delayed-4-1791919184</ud>" / "4-8ce68d3395b0463a8adbe1f582c6daed")
+2026-10-13T12:19:45.746-07:00 [DBG] Changes+: db:dbb col:_default  #87 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:19:45.746-07:00 [DBG] Changes+: db:dbb col:_default Listener keys "{<ud>*</ud>}" for bucketB have changed, count=89
+2026-10-13T12:19:45.778-07:00 [DBG] Changes+: db:dbb Notifying changes for bucketB count=89
+2026-10-13T12:19:45.778-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed: channels expand to "<ud>!</ud>:1,<ud>*</ud>:1" ... <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.779-07:00 [INF] Cache: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>*</ud>", 86) --> 1 changes valid from #83
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default Channel feed processing seq:87 in channel <ud>*</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.779-07:00 [DBG] Cache+: c:[42ed9601] db:dbb col:_default GetCachedChanges("<ud>!</ud>", 86) --> nothing cached
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default [changesFeed] Found 0 changes for channel "<ud>!</ud>"
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed sending <ud>{Seq:87, ID:x-posthoc_delayed-4-1791919184, Changes:[map[cv:18de2d0164430000@nOtMDykUc+qweuFJ2Z+N5g]], Deleted:true}</ud> <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default MultiChangesFeed waiting... <ud>  (to isgr)</ud>
+2026-10-13T12:19:45.779-07:00 [DBG] Changes+: c:[42ed9601] db:dbb col:_default No new changes to send to change listener.  Waiting for "bucketB"'s count to pass 89
+2026-10-13T12:19:45.779-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 1 changes
+2026-10-13T12:19:45.786-07:00 [INF] Sync: c:[42ed9601] db:dbb col:_default Sent 1 changes to client, from seq 87
+2026-10-13T12:19:45.789-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default     Sending 0 changes
+2026-10-13T12:19:45.792-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #39: Type:changes #Changes:1
+2026-10-13T12:19:45.795-07:00 [DBG] Sync+: c:[42ed9601] db:dbb col:_default Sending rev "<ud>x-posthoc_delayed-4-1791919184</ud>" 18de2d0164430000@nOtMDykUc+qweuFJ2Z+N5g based on 2 known, digests: []
+2026-10-13T12:19:45.796-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #39: Type:changes   --> OK Time:4.073083ms
+2026-10-13T12:19:45.859-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #40: Type:changes #Changes:1
+2026-10-13T12:19:45.860-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #40: Type:changes   --> OK Time:2.40725ms
+2026-10-13T12:19:46.420-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #41: Type:setCheckpoint Client:sgr2cp:push:p4 Rev:0-36 
+2026-10-13T12:19:46.421-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #41: Type:setCheckpoint   --> OK Time:1.6155ms
+2026-10-13T12:19:46.432-07:00 [INF] SyncMsg: c:[42ed9601] db:dbb col:_default #10: Type:setCheckpoint Client:sgr2cp:pull:p4 Rev:0-31 
+2026-10-13T12:19:46.437-07:00 [DBG] SyncMsg+: c:[42ed9601] db:dbb #10: Type:setCheckpoint   --> OK Time:4.867583ms
+2026-10-13T12:19:47.268-07:00 [DBG] CRUD+: db:dbb Released unused sequences #88-#88
+2026-10-13T12:19:47.276-07:00 [INF] Cache: db:dbb Received #88-#88 (unused sequence range)
+2026-10-13T12:19:47.276-07:00 [DBG] Changes+: db:dbb Listener keys "{<ud>_unusedSeqKey</ud>}" for bucketB have changed, count=90
+2026-10-13T12:19:47.279-07:00 [DBG] Changes+: db:dbb Notifying changes for bucketB count=90
+2026-10-13T12:19:52.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:19:52.844-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:19:52.850-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:19:52.850-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:19:52.856-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:00.729-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #42: Type:changes #Changes:1
+2026-10-13T12:20:00.745-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #42: Type:changes   --> OK Time:19.775084ms
+2026-10-13T12:20:01.417-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #43: Type:setCheckpoint Client:sgr2cp:push:p4 Rev:0-37 
+2026-10-13T12:20:01.418-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #43: Type:setCheckpoint   --> OK Time:1.667ms
+2026-10-13T12:20:01.427-07:00 [INF] SyncMsg: c:[42ed9601] db:dbb col:_default #11: Type:setCheckpoint Client:sgr2cp:pull:p4 Rev:0-32 
+2026-10-13T12:20:01.428-07:00 [DBG] SyncMsg+: c:[42ed9601] db:dbb #11: Type:setCheckpoint   --> OK Time:740.959µs
+2026-10-13T12:20:02.812-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:02.816-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:02.817-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:02.817-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:02.817-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:05.775-07:00 [DBG] Auth+: c:#174 db:dbb #174: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:20:05.775-07:00 [INF] HTTP: c:#174 db:dbb GET /dbb/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:20:05.776-07:00 [INF] HTTP: c:#174 db:dbb #174:     --> 404 deleted  (5.0 ms)
+2026-10-13T12:20:05.781-07:00 [DBG] Auth+: c:#175 db:dbb #175: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:20:05.781-07:00 [INF] HTTP: c:#175 db:dbb GET /dbb/_raw/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:20:05.782-07:00 [INF] HTTP+: c:#175 db:dbb #175:     --> 200   (4.6 ms)
+2026-10-13T12:20:05.843-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #44: Type:changes #Changes:1
+2026-10-13T12:20:05.844-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #44: Type:changes   --> OK Time:373.5µs
+2026-10-13T12:20:05.847-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb col:_default #45: Type:rev Id:<ud>x-posthoc_delayed-4-1791919184</ud> Rev:18de2d060f220000@dLJjAgK4+eBIHc8eFxrYtA Sequence:83 NoConflicts:true 
+2026-10-13T12:20:05.848-07:00 [DBG] VV+: c:[30f1503c] db:dbb col:_default updateDoc("<ud>x-posthoc_delayed-4-1791919184</ud>"): has no _mou
+2026-10-13T12:20:05.848-07:00 [DBG] CRUD+: c:[30f1503c] db:dbb col:_default conflict detected between the two HLV's for doc <ud>x-posthoc_delayed-4-1791919184</ud>
+2026-10-13T12:20:05.848-07:00 [DBG] CRUD+: c:[30f1503c] db:dbb col:_default Did not update document "<ud>x-posthoc_delayed-4-1791919184</ud>" w/ xattr: 409 Document revision conflict
+2026-10-13T12:20:05.848-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb #45: Type:rev   --> 409 Document revision conflict Time:1.737291ms
+2026-10-13T12:20:06.418-07:00 [INF] SyncMsg: c:[30f1503c] db:dbb col:_default #46: Type:setCheckpoint Client:sgr2cp:push:p4 Rev:0-38 
+2026-10-13T12:20:06.419-07:00 [DBG] SyncMsg+: c:[30f1503c] db:dbb #46: Type:setCheckpoint   --> OK Time:1.361ms
+2026-10-13T12:20:12.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:12.823-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:12.828-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:12.828-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:12.829-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:22.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:22.819-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:22.821-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:22.821-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:22.822-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:32.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:32.824-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:32.840-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:32.842-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:32.859-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:42.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:42.820-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:42.824-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:42.824-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:42.824-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:20:52.812-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:20:52.824-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:20:52.826-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:20:52.826-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:20:52.835-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:21:02.813-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:21:02.828-07:00 [DBG] Config+: b:bucketB Checking for database config (attempt 1/5)
+2026-10-13T12:21:02.836-07:00 [DBG] Config+: b:bucketB Got config for group "default" with cas 1791916589363298304
+2026-10-13T12:21:02.836-07:00 [DBG] Config+: Database "dbb" bucket "bucketB" config has not changed since last update
+2026-10-13T12:21:02.856-07:00 [DBG] Config+: Bucket "bucketB" bootstrap-target refresh: Not Found
+2026-10-13T12:21:08.956-07:00 [DBG] Auth+: c:#176 db:dbb #176: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:21:08.956-07:00 [INF] HTTP: c:#176 db:dbb GET /dbb/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:21:08.958-07:00 [INF] HTTP: c:#176 db:dbb #176:     --> 404 deleted  (5.7 ms)
+2026-10-13T12:21:08.966-07:00 [DBG] Auth+: c:#177 db:dbb #177: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:21:08.966-07:00 [INF] HTTP: c:#177 db:dbb GET /dbb/_raw/<ud>x-posthoc_delayed-4-1791919184</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:21:08.967-07:00 [INF] HTTP+: c:#177 db:dbb #177:     --> 200   (6.7 ms)
+2026-10-13T12:21:08.979-07:00 [DBG] Auth+: c:#178 db:dbb #178: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:21:08.979-07:00 [INF] HTTP: c:#178 db:dbb GET /dbb/_changes?since=87 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:21:08.979-07:00 [DBG] Changes+: c:#178 db:dbb Int sequence multi changes feed...
+2026-10-13T12:21:08.979-07:00 [INF] Changes: c:#178 db:dbb MultiChangesFeed(channels: {<ud>*</ud>}, options: {Since: 87, Limit: 0, Conflicts: false, IncludeDocs: false, Wait: false, Continuous: false, HeartbeatMs: 0, TimeoutMs: 300000, ActiveOnly: false, Revocations: false, RequestPlusSeq: 0, VersionType: "rev"}) ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:21:08.979-07:00 [DBG] Changes+: c:#178 db:dbb MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:21:08.980-07:00 [DBG] Cache+: c:#178 db:dbb GetCachedChanges("<ud>*</ud>", 87) --> nothing cached
+2026-10-13T12:21:08.980-07:00 [DBG] Changes+: c:#178 db:dbb [changesFeed] Found 0 changes for channel "<ud>*</ud>"
+2026-10-13T12:21:08.980-07:00 [INF] Changes: c:#178 db:dbb MultiChangesFeed done <ud>  (to ADMIN)</ud>
+2026-10-13T12:21:08.980-07:00 [INF] HTTP+: c:#178 db:dbb #178:     --> 200 OK  (2.7 ms)
+2026-10-13T12:21:09.007-07:00 [DBG] Auth+: c:#179 db:dbb #179: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:21:09.007-07:00 [INF] HTTP: c:#179 db:dbb GET /dbb/ (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:21:09.007-07:00 [INF] HTTP+: c:#179 db:dbb #179:     --> 200   (9.4 ms)

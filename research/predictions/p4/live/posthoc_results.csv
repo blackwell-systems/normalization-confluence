@@ -1,0 +1,5 @@
+file,mode,run,doc_id,t_create,after5_A_deleted,after5_A_winner,after5_A_cv_is_tb1,after5_A_cv_is_tb2,after5_A_srcB_ge_tb2,final_A,final_B,idle_nothing_pending,doc_write_conflict_total,push_conflicts_in_run,assertion_failed_lines,claim1,claim2,claim3
+posthoc_delayed_1.json,delayed,1,x-posthoc_delayed-1-1791918914,2026-10-13T19:15:14.300+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,True,False,False,"live {""v"": 4}",404 deleted,True,1,1,1,True,True,
+posthoc_delayed_2.json,delayed,2,x-posthoc_delayed-2-1791919003,2026-10-13T19:16:43.876+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,True,False,False,"live {""v"": 4}",404 deleted,True,2,1,1,True,True,
+posthoc_delayed_3.json,delayed,3,x-posthoc_delayed-3-1791919094,2026-10-13T19:18:14.404+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,True,False,False,"live {""v"": 4}",404 deleted,True,3,1,1,True,True,
+posthoc_delayed_4.json,delayed,4,x-posthoc_delayed-4-1791919184,2026-10-13T19:19:44.470+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,True,False,False,"live {""v"": 4}",404 deleted,True,4,1,1,True,True,

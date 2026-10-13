@@ -1,0 +1,377 @@
+2026-10-13T12:15:14.249-07:00 [DBG] Auth+: c:#889 db:dba #889: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:14.252-07:00 [INF] HTTP: c:#889 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:14.252-07:00 [INF] HTTP+: c:#889 db:dba #889:     --> 200   (32.3 ms)
+2026-10-13T12:15:14.282-07:00 [DBG] Auth+: c:#890 #890: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:14.282-07:00 [DBG] HTTP+: c:#890 Recording snapshot of current debug variables.
+2026-10-13T12:15:14.316-07:00 [DBG] Auth+: c:#891 db:dba #891: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:14.316-07:00 [INF] HTTP: c:#891 db:dba PUT /dba/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:14.321-07:00 [DBG] VV+: c:#891 db:dba updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:14.321-07:00 [DBG] CRUD+: c:#891 db:dba Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 1-7872796cf808575a89b75936e3d04bc5
+2026-10-13T12:15:14.324-07:00 [DBG] VV+: c:#891 db:dba No existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud>
+2026-10-13T12:15:14.324-07:00 [INF] CRUD: c:#891 db:dba 	Doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "1-7872796cf808575a89b75936e3d04bc5" in channels "{<ud>*</ud>}"
+2026-10-13T12:15:14.324-07:00 [DBG] CRUD+: c:#891 db:dba Saving doc (seq: #62, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 1-7872796cf808575a89b75936e3d04bc5)
+2026-10-13T12:15:14.333-07:00 [DBG] CRUD+: c:#891 db:dba Stored doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "1-7872796cf808575a89b75936e3d04bc5" as #62
+2026-10-13T12:15:14.334-07:00 [INF] HTTP+: c:#891 db:dba #891:     --> 201   (28.7 ms)
+2026-10-13T12:15:14.337-07:00 [DBG] Changes+: db:dba col:_default Received #62 after  12ms ("<ud>x-posthoc_delayed-1-1791918914</ud>" / "1-7872796cf808575a89b75936e3d04bc5")
+2026-10-13T12:15:14.337-07:00 [DBG] Changes+: db:dba col:_default  #62 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:15:14.338-07:00 [DBG] Changes+: db:dba col:_default Listener keys "{<ud>*</ud>}" for bucketA have changed, count=4
+2026-10-13T12:15:14.345-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=4
+2026-10-13T12:15:14.347-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:14.348-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 61) --> 1 changes valid from #62
+2026-10-13T12:15:14.348-07:00 [DBG] Changes+: c:p4-push db:dba col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:15:14.348-07:00 [DBG] Changes+: c:p4-push db:dba col:_default Channel feed processing seq:62 in channel <ud>*</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:14.349-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed sending <ud>{Seq:62, ID:x-posthoc_delayed-1-1791918914, Changes:[map[cv:18de2cc2326e0000@dLJjAgK4+eBIHc8eFxrYtA]]}</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:14.350-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed waiting... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:14.350-07:00 [DBG] Changes+: c:p4-push db:dba col:_default No new changes to send to change listener.  Waiting for "bucketA"'s count to pass 4
+2026-10-13T12:15:14.351-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 1 changes
+2026-10-13T12:15:14.369-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 62
+2026-10-13T12:15:14.369-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 0 changes
+2026-10-13T12:15:14.376-07:00 [DBG] Sync+: c:p4-push db:dba col:_default Sending rev "<ud>x-posthoc_delayed-1-1791918914</ud>" 18de2cc2326e0000@dLJjAgK4+eBIHc8eFxrYtA based on 0 known, digests: []
+2026-10-13T12:15:14.439-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #5: Type:changes #Changes:1
+2026-10-13T12:15:14.441-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #5: Type:changes   --> OK Time:1.848ms
+2026-10-13T12:15:14.590-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #6: Type:changes #Changes:1
+2026-10-13T12:15:14.592-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #6: Type:changes   --> OK Time:2.497125ms
+2026-10-13T12:15:14.600-07:00 [DBG] SyncMsg+: c:p4-pull db:dba col:_default #7: Type:rev Id:<ud>x-posthoc_delayed-1-1791918914</ud> Rev:18de2cc23eb80000@nOtMDykUc+qweuFJ2Z+N5g Deleted:true Sequence:70 
+2026-10-13T12:15:14.608-07:00 [DBG] VV+: c:p4-pull db:dba col:_default updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:14.608-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 2-c4a7d9ff459de86fe6c7ccaed4d007a4
+2026-10-13T12:15:15.585-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #8: Type:changes #Changes:1
+2026-10-13T12:15:15.587-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #8: Type:changes   --> OK Time:1.530625ms
+2026-10-13T12:15:15.590-07:00 [DBG] SyncMsg+: c:p4-pull db:dba col:_default #9: Type:rev Id:<ud>x-posthoc_delayed-1-1791918914</ud> Rev:18de2cc27cc20000@nOtMDykUc+qweuFJ2Z+N5g Sequence:71 
+2026-10-13T12:15:15.596-07:00 [DBG] VV+: c:p4-pull db:dba col:_default updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:15.596-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 3-11ca86a8b2a17186d9645139db3b7d32
+2026-10-13T12:15:15.605-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Backed up revision body (with meta) "<ud>x-posthoc_delayed-1-1791918914</ud>"/"1-7872796cf808575a89b75936e3d04bc5" (7 bytes, ttl:300)
+2026-10-13T12:15:15.606-07:00 [DBG] VV+: c:p4-pull db:dba col:_default Existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud> before modification HybridLogicalVector{CurrentVersionCAS:0, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791918915568402432, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791918914321383424}, MergeVersions:HLVVersions{}}
+2026-10-13T12:15:15.606-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Saving doc (seq: #63, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 3-11ca86a8b2a17186d9645139db3b7d32)
+2026-10-13T12:15:15.607-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Stored doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "3-11ca86a8b2a17186d9645139db3b7d32" as #63
+2026-10-13T12:15:15.607-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #9: Type:rev   --> OK Time:17.614125ms
+2026-10-13T12:15:15.607-07:00 [DBG] Changes+: db:dba col:_default Received #63 after   1ms ("<ud>x-posthoc_delayed-1-1791918914</ud>" / "3-11ca86a8b2a17186d9645139db3b7d32")
+2026-10-13T12:15:15.607-07:00 [DBG] Changes+: db:dba col:_default  #63 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:15:15.607-07:00 [DBG] Changes+: db:dba col:_default Listener keys "{<ud>*</ud>}" for bucketA have changed, count=5
+2026-10-13T12:15:15.629-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #10: Type:changes #Changes:1
+2026-10-13T12:15:15.630-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #10: Type:changes   --> OK Time:559.25µs
+2026-10-13T12:15:15.635-07:00 [DBG] SyncMsg+: c:p4-pull db:dba col:_default #11: Type:rev Id:<ud>x-posthoc_delayed-1-1791918914</ud> Rev:18de2cc27e120000@nOtMDykUc+qweuFJ2Z+N5g Deleted:true Sequence:72 
+2026-10-13T12:15:15.636-07:00 [DBG] VV+: c:p4-pull db:dba col:_default updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:15.636-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 4-8ce68d3395b0463a8adbe1f582c6daed
+2026-10-13T12:15:15.639-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Backed up revision body (with meta) "<ud>x-posthoc_delayed-1-1791918914</ud>"/"3-11ca86a8b2a17186d9645139db3b7d32" (7 bytes, ttl:300)
+2026-10-13T12:15:15.639-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Increased sequence batch to 2
+2026-10-13T12:15:15.642-07:00 [DBG] VV+: c:p4-pull db:dba col:_default Existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud> before modification HybridLogicalVector{CurrentVersionCAS:0, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791918915590422528, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791918914321383424}, MergeVersions:HLVVersions{}}
+2026-10-13T12:15:15.642-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Saving doc (seq: #64, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 4-8ce68d3395b0463a8adbe1f582c6daed)
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=5
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.642-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 62) --> 1 changes valid from #62
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default Channel feed processing seq:63 in channel <ud>*</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed sending <ud>{Seq:63, ID:x-posthoc_delayed-1-1791918914, Changes:[map[cv:18de2cc27cc20000@nOtMDykUc+qweuFJ2Z+N5g]]}</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed waiting... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.642-07:00 [DBG] Changes+: c:p4-push db:dba col:_default No new changes to send to change listener.  Waiting for "bucketA"'s count to pass 5
+2026-10-13T12:15:15.642-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 1 changes
+2026-10-13T12:15:15.645-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Stored doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "4-8ce68d3395b0463a8adbe1f582c6daed" as #64
+2026-10-13T12:15:15.645-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #11: Type:rev   --> OK Time:9.750709ms
+2026-10-13T12:15:15.649-07:00 [DBG] Changes+: db:dba col:_default Received #64 after   7ms ("<ud>x-posthoc_delayed-1-1791918914</ud>" / "4-8ce68d3395b0463a8adbe1f582c6daed")
+2026-10-13T12:15:15.649-07:00 [DBG] Changes+: db:dba col:_default  #64 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:15:15.649-07:00 [DBG] Changes+: db:dba col:_default Listener keys "{<ud>*</ud>}" for bucketA have changed, count=6
+2026-10-13T12:15:15.649-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 63
+2026-10-13T12:15:15.649-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 0 changes
+2026-10-13T12:15:15.649-07:00 [DBG] Sync+: c:p4-push db:dba Peer didn't want revision <ud>x-posthoc_delayed-1-1791918914</ud> / 18de2cc27cc20000@nOtMDykUc+qweuFJ2Z+N5g (seq:63)
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=6
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.697-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 63) --> 1 changes valid from #62
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default Channel feed processing seq:64 in channel <ud>*</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed sending <ud>{Seq:64, ID:x-posthoc_delayed-1-1791918914, Changes:[map[cv:18de2cc27e120000@nOtMDykUc+qweuFJ2Z+N5g]], Deleted:true}</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed waiting... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:15.697-07:00 [DBG] Changes+: c:p4-push db:dba col:_default No new changes to send to change listener.  Waiting for "bucketA"'s count to pass 6
+2026-10-13T12:15:15.697-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 1 changes
+2026-10-13T12:15:15.702-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 64
+2026-10-13T12:15:15.702-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 0 changes
+2026-10-13T12:15:15.702-07:00 [DBG] Sync+: c:p4-push db:dba Peer didn't want revision <ud>x-posthoc_delayed-1-1791918914</ud> / 18de2cc27e120000@nOtMDykUc+qweuFJ2Z+N5g (seq:64)
+2026-10-13T12:15:16.419-07:00 [INF] Replicate: c:p4-push db:dba checkpointer: calculated seq: 64
+2026-10-13T12:15:16.429-07:00 [INF] Replicate: c:p4-pull db:dba checkpointer: calculated seq: 69
+2026-10-13T12:15:17.147-07:00 [DBG] CRUD+: db:dba Released unused sequences #65-#65
+2026-10-13T12:15:17.152-07:00 [INF] Cache: db:dba Received #65-#65 (unused sequence range)
+2026-10-13T12:15:17.152-07:00 [DBG] Changes+: db:dba Listener keys "{<ud>_unusedSeqKey</ud>}" for bucketA have changed, count=7
+2026-10-13T12:15:17.193-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=7
+2026-10-13T12:15:22.017-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:15:22.065-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:15:22.076-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:15:22.076-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:15:22.089-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:15:22.645-07:00 [DBG] VV+: c:p4-pull db:dba col:_default Existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud> before modification HybridLogicalVector{CurrentVersionCAS:0, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791918914527559680, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791918914321383424}, MergeVersions:HLVVersions{}}
+2026-10-13T12:15:22.647-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Saving doc (seq: #66, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 2-c4a7d9ff459de86fe6c7ccaed4d007a4)
+2026-10-13T12:15:22.672-07:00 [DBG] VV+: c:p4-pull db:dba col:_default updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:22.672-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 2-c4a7d9ff459de86fe6c7ccaed4d007a4
+2026-10-13T12:15:30.673-07:00 [DBG] VV+: c:p4-pull db:dba col:_default Existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud> before modification HybridLogicalVector{CurrentVersionCAS:0, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791918914527559680, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791918914321383424}, MergeVersions:HLVVersions{}}
+2026-10-13T12:15:30.673-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): Rev "2-c4a7d9ff459de86fe6c7ccaed4d007a4" leaves "4-8ce68d3395b0463a8adbe1f582c6daed" still current
+2026-10-13T12:15:30.678-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Saving doc (seq: #66, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 4-8ce68d3395b0463a8adbe1f582c6daed)
+2026-10-13T12:15:30.715-07:00 [ERR] c:p4-pull db:dba col:_default Assertion failed: couldn't find channels for newRevID "2-c4a7d9ff459de86fe6c7ccaed4d007a4" in doc "<ud>x-posthoc_delayed-1-1791918914</ud>" RevTree: <ud>map[1-7872796cf808575a89b75936e3d04bc5:0xbcabeaf43c0 2-c4a7d9ff459de86fe6c7ccaed4d007a4:0xbcabeaf4420 3-11ca86a8b2a17186d9645139db3b7d32:0xbcabeaf4360 4-8ce68d3395b0463a8adbe1f582c6daed:0xbcabeaf4300]</ud> -- base.AssertfCtx() at devmode.go:30
+2026-10-13T12:15:30.716-07:00 [DBG] CRUD+: c:p4-pull db:dba col:_default Stored doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "2-c4a7d9ff459de86fe6c7ccaed4d007a4" as #66
+2026-10-13T12:15:30.716-07:00 [DBG] SyncMsg+: c:p4-pull db:dba #7: Type:rev   --> OK Time:16.115928625s
+2026-10-13T12:15:30.717-07:00 [DBG] Changes+: db:dba col:_default Received #66 after  44ms ("<ud>x-posthoc_delayed-1-1791918914</ud>" / "4-8ce68d3395b0463a8adbe1f582c6daed")
+2026-10-13T12:15:30.717-07:00 [DBG] Changes+: db:dba col:_default  #66 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:15:30.717-07:00 [DBG] Changes+: db:dba col:_default Listener keys "{<ud>*</ud>}" for bucketA have changed, count=8
+2026-10-13T12:15:30.743-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=8
+2026-10-13T12:15:30.743-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:30.744-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 64) --> 1 changes valid from #62
+2026-10-13T12:15:30.744-07:00 [DBG] Changes+: c:p4-push db:dba col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:15:30.744-07:00 [DBG] Changes+: c:p4-push db:dba col:_default Channel feed processing seq:66 in channel <ud>*</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:30.744-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed sending <ud>{Seq:66, ID:x-posthoc_delayed-1-1791918914, Changes:[map[cv:18de2cc23eb80000@nOtMDykUc+qweuFJ2Z+N5g]], Deleted:true}</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:30.744-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed waiting... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:30.744-07:00 [DBG] Changes+: c:p4-push db:dba col:_default No new changes to send to change listener.  Waiting for "bucketA"'s count to pass 8
+2026-10-13T12:15:30.744-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 1 changes
+2026-10-13T12:15:30.761-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 66
+2026-10-13T12:15:30.762-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 0 changes
+2026-10-13T12:15:30.762-07:00 [DBG] Sync+: c:p4-push db:dba Peer didn't want revision <ud>x-posthoc_delayed-1-1791918914</ud> / 18de2cc23eb80000@nOtMDykUc+qweuFJ2Z+N5g (seq:66)
+2026-10-13T12:15:31.417-07:00 [INF] Replicate: c:p4-push db:dba checkpointer: calculated seq: 66
+2026-10-13T12:15:31.425-07:00 [INF] Replicate: c:p4-pull db:dba checkpointer: calculated seq: 72
+2026-10-13T12:15:32.012-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:15:32.022-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:15:32.026-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:15:32.026-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:15:32.026-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:15:35.616-07:00 [DBG] Auth+: c:#892 db:dba #892: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:35.616-07:00 [INF] HTTP: c:#892 db:dba GET /dba/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:35.621-07:00 [INF] HTTP: c:#892 db:dba #892:     --> 404 deleted  (11.8 ms)
+2026-10-13T12:15:35.628-07:00 [DBG] Auth+: c:#893 db:dba #893: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:35.628-07:00 [INF] HTTP: c:#893 db:dba GET /dba/_raw/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:35.631-07:00 [INF] HTTP+: c:#893 db:dba #893:     --> 200   (7.0 ms)
+2026-10-13T12:15:35.658-07:00 [DBG] Auth+: c:#894 db:dba #894: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:35.658-07:00 [INF] HTTP: c:#894 db:dba PUT /dba/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:35.659-07:00 [DBG] VV+: c:#894 db:dba updateDoc("<ud>x-posthoc_delayed-1-1791918914</ud>"): has no _mou
+2026-10-13T12:15:35.659-07:00 [DBG] CRUD+: c:#894 db:dba Invoking sync on doc "<ud>x-posthoc_delayed-1-1791918914</ud>" rev 5-05bdd068aa5c771ab24712f01b8214d8
+2026-10-13T12:15:35.661-07:00 [DBG] CRUD+: c:#894 db:dba Backed up revision body (with meta) "<ud>x-posthoc_delayed-1-1791918914</ud>"/"4-8ce68d3395b0463a8adbe1f582c6daed" (17 bytes, ttl:300)
+2026-10-13T12:15:35.662-07:00 [DBG] VV+: c:#894 db:dba Existing HLV for doc <ud>x-posthoc_delayed-1-1791918914</ud> before modification HybridLogicalVector{CurrentVersionCAS:1791918930688475136, SourceID:nOtMDykUc+qweuFJ2Z+N5g, Version:1791918914527559680, PreviousVersions:HLVVersions{"dLJjAgK4+eBIHc8eFxrYtA": 1791918914321383424}, MergeVersions:HLVVersions{}}
+2026-10-13T12:15:35.663-07:00 [DBG] CRUD+: c:#894 db:dba Saving doc (seq: #67, id: <ud>x-posthoc_delayed-1-1791918914</ud> rev: 5-05bdd068aa5c771ab24712f01b8214d8)
+2026-10-13T12:15:35.664-07:00 [DBG] CRUD+: c:#894 db:dba Stored doc "<ud>x-posthoc_delayed-1-1791918914</ud>" / "5-05bdd068aa5c771ab24712f01b8214d8" as #67
+2026-10-13T12:15:35.664-07:00 [INF] HTTP+: c:#894 db:dba #894:     --> 201   (10.8 ms)
+2026-10-13T12:15:35.665-07:00 [DBG] Changes+: db:dba col:_default Received #67 after   2ms ("<ud>x-posthoc_delayed-1-1791918914</ud>" / "5-05bdd068aa5c771ab24712f01b8214d8")
+2026-10-13T12:15:35.665-07:00 [DBG] Changes+: db:dba col:_default  #67 ==> channels [ <ud>*</ud> ]
+2026-10-13T12:15:35.665-07:00 [DBG] Changes+: db:dba col:_default Listener keys "{<ud>*</ud>}" for bucketA have changed, count=9
+2026-10-13T12:15:35.677-07:00 [DBG] Auth+: c:#895 db:dba #895: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:35.677-07:00 [INF] HTTP: c:#895 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:35.677-07:00 [INF] HTTP+: c:#895 db:dba #895:     --> 200   (9.7 ms)
+2026-10-13T12:15:35.681-07:00 [DBG] Auth+: c:#896 #896: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:35.681-07:00 [DBG] HTTP+: c:#896 Recording snapshot of current debug variables.
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: db:dba Notifying changes for bucketA count=9
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:35.692-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 66) --> 1 changes valid from #62
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default [changesFeed] Found 1 changes for channel "<ud>*</ud>"
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default Channel feed processing seq:67 in channel <ud>*</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed sending <ud>{Seq:67, ID:x-posthoc_delayed-1-1791918914, Changes:[map[cv:18de2cc72a4c0000@dLJjAgK4+eBIHc8eFxrYtA]]}</ud> <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default MultiChangesFeed waiting... <ud>  (to ADMIN)</ud>
+2026-10-13T12:15:35.692-07:00 [DBG] Changes+: c:p4-push db:dba col:_default No new changes to send to change listener.  Waiting for "bucketA"'s count to pass 9
+2026-10-13T12:15:35.692-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 1 changes
+2026-10-13T12:15:35.696-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 67
+2026-10-13T12:15:35.696-07:00 [DBG] Sync+: c:p4-push db:dba col:_default     Sending 0 changes
+2026-10-13T12:15:35.696-07:00 [DBG] Sync+: c:p4-push db:dba col:_default Sending rev "<ud>x-posthoc_delayed-1-1791918914</ud>" 18de2cc72a4c0000@dLJjAgK4+eBIHc8eFxrYtA based on 2 known, digests: []
+2026-10-13T12:15:35.699-07:00 [INF] Sync: c:p4-push db:dba col:_default error 409 in response to rev: Document revision conflict
+2026-10-13T12:15:36.417-07:00 [INF] Replicate: c:p4-push db:dba checkpointer: calculated seq: 67
+2026-10-13T12:15:37.692-07:00 [DBG] Auth+: c:#897 db:dba #897: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:37.692-07:00 [INF] HTTP: c:#897 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:37.692-07:00 [INF] HTTP+: c:#897 db:dba #897:     --> 200   (4.6 ms)
+2026-10-13T12:15:37.695-07:00 [DBG] Auth+: c:#898 #898: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:37.695-07:00 [DBG] HTTP+: c:#898 Recording snapshot of current debug variables.
+2026-10-13T12:15:39.706-07:00 [DBG] Auth+: c:#899 db:dba #899: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:39.706-07:00 [INF] HTTP: c:#899 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:39.707-07:00 [INF] HTTP+: c:#899 db:dba #899:     --> 200   (6.5 ms)
+2026-10-13T12:15:39.715-07:00 [DBG] Auth+: c:#900 #900: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:39.715-07:00 [DBG] HTTP+: c:#900 Recording snapshot of current debug variables.
+2026-10-13T12:15:41.733-07:00 [DBG] Auth+: c:#901 db:dba #901: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:41.733-07:00 [INF] HTTP: c:#901 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:41.733-07:00 [INF] HTTP+: c:#901 db:dba #901:     --> 200   (7.2 ms)
+2026-10-13T12:15:41.738-07:00 [DBG] Auth+: c:#902 #902: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:41.738-07:00 [DBG] HTTP+: c:#902 Recording snapshot of current debug variables.
+2026-10-13T12:15:42.012-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:15:42.017-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:15:42.020-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:15:42.020-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:15:42.022-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:15:43.756-07:00 [DBG] Auth+: c:#903 db:dba #903: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:43.756-07:00 [INF] HTTP: c:#903 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:43.756-07:00 [INF] HTTP+: c:#903 db:dba #903:     --> 200   (6.7 ms)
+2026-10-13T12:15:43.763-07:00 [DBG] Auth+: c:#904 #904: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:43.763-07:00 [DBG] HTTP+: c:#904 Recording snapshot of current debug variables.
+2026-10-13T12:15:45.776-07:00 [DBG] Auth+: c:#905 db:dba #905: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:45.776-07:00 [INF] HTTP: c:#905 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:45.776-07:00 [INF] HTTP+: c:#905 db:dba #905:     --> 200   (5.8 ms)
+2026-10-13T12:15:45.780-07:00 [DBG] Auth+: c:#906 #906: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:45.780-07:00 [DBG] HTTP+: c:#906 Recording snapshot of current debug variables.
+2026-10-13T12:15:47.790-07:00 [DBG] Auth+: c:#907 db:dba #907: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:47.790-07:00 [INF] HTTP: c:#907 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:47.790-07:00 [INF] HTTP+: c:#907 db:dba #907:     --> 200   (4.2 ms)
+2026-10-13T12:15:47.795-07:00 [DBG] Auth+: c:#908 #908: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:47.795-07:00 [DBG] HTTP+: c:#908 Recording snapshot of current debug variables.
+2026-10-13T12:15:49.808-07:00 [DBG] Auth+: c:#909 db:dba #909: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:49.808-07:00 [INF] HTTP: c:#909 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:49.808-07:00 [INF] HTTP+: c:#909 db:dba #909:     --> 200   (5.9 ms)
+2026-10-13T12:15:49.816-07:00 [DBG] Auth+: c:#910 #910: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:49.816-07:00 [DBG] HTTP+: c:#910 Recording snapshot of current debug variables.
+2026-10-13T12:15:51.830-07:00 [DBG] Auth+: c:#911 db:dba #911: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:51.830-07:00 [INF] HTTP: c:#911 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:51.830-07:00 [INF] HTTP+: c:#911 db:dba #911:     --> 200   (6.4 ms)
+2026-10-13T12:15:51.839-07:00 [DBG] Auth+: c:#912 #912: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:51.839-07:00 [DBG] HTTP+: c:#912 Recording snapshot of current debug variables.
+2026-10-13T12:15:52.012-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:15:52.030-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:15:52.037-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:15:52.037-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:15:52.041-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:15:53.855-07:00 [DBG] Auth+: c:#913 db:dba #913: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:53.856-07:00 [INF] HTTP: c:#913 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:53.857-07:00 [INF] HTTP+: c:#913 db:dba #913:     --> 200   (7.6 ms)
+2026-10-13T12:15:53.865-07:00 [DBG] Auth+: c:#914 #914: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:53.865-07:00 [DBG] HTTP+: c:#914 Recording snapshot of current debug variables.
+2026-10-13T12:15:55.879-07:00 [DBG] Auth+: c:#915 db:dba #915: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:55.879-07:00 [INF] HTTP: c:#915 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:55.879-07:00 [INF] HTTP+: c:#915 db:dba #915:     --> 200   (6.8 ms)
+2026-10-13T12:15:55.885-07:00 [DBG] Auth+: c:#916 #916: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:55.885-07:00 [DBG] HTTP+: c:#916 Recording snapshot of current debug variables.
+2026-10-13T12:15:57.919-07:00 [DBG] Auth+: c:#917 db:dba #917: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:57.920-07:00 [INF] HTTP: c:#917 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:57.920-07:00 [INF] HTTP+: c:#917 db:dba #917:     --> 200   (21.2 ms)
+2026-10-13T12:15:57.945-07:00 [DBG] Auth+: c:#918 #918: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:57.945-07:00 [DBG] HTTP+: c:#918 Recording snapshot of current debug variables.
+2026-10-13T12:15:59.966-07:00 [DBG] Auth+: c:#919 db:dba #919: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:59.966-07:00 [INF] HTTP: c:#919 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:15:59.967-07:00 [INF] HTTP+: c:#919 db:dba #919:     --> 200   (8.8 ms)
+2026-10-13T12:15:59.973-07:00 [DBG] Auth+: c:#920 #920: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:15:59.973-07:00 [DBG] HTTP+: c:#920 Recording snapshot of current debug variables.
+2026-10-13T12:16:01.836-07:00 [DBG] gocb+: Aggregate metrics: {"management":{"manager_bucket_get_all_buckets":{"percentiles_us":{"100.0":"<= 57665.04","50.0":"<= 7593.75","90.0":"<= 17085.94","99.0":"<= 57665.04","99.9":"<= 57665.04"},"total_count":61}},"meta":{"emit_interval_s":600}}
+2026-10-13T12:16:01.924-07:00 [DBG] gocb+: Aggregate metrics: {"kv":{"get":{"percentiles_us":{"100.0":"<= 38443.36","50.0":"<= 1000.00","90.0":"<= 1500.00","99.0":"<= 17085.94","99.9":"<= 38443.36"},"total_count":463},"replace":{"percentiles_us":{"100.0":"<= 17085.94","50.0":"<= 1000.00","90.0":"<= 5062.50","99.0":"<= 17085.94","99.9":"<= 17085.94"},"total_count":42}},"meta":{"emit_interval_s":600}}
+2026-10-13T12:16:01.985-07:00 [DBG] Auth+: c:#921 db:dba #921: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:01.985-07:00 [INF] HTTP: c:#921 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:01.985-07:00 [INF] HTTP+: c:#921 db:dba #921:     --> 200   (6.2 ms)
+2026-10-13T12:16:01.990-07:00 [DBG] Auth+: c:#922 #922: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:01.990-07:00 [DBG] HTTP+: c:#922 Recording snapshot of current debug variables.
+2026-10-13T12:16:02.011-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:16:02.037-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:16:02.041-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:16:02.041-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:16:02.041-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:16:04.000-07:00 [DBG] Auth+: c:#923 db:dba #923: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:04.000-07:00 [INF] HTTP: c:#923 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:04.000-07:00 [INF] HTTP+: c:#923 db:dba #923:     --> 200   (4.7 ms)
+2026-10-13T12:16:04.005-07:00 [DBG] Auth+: c:#924 #924: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:04.005-07:00 [DBG] HTTP+: c:#924 Recording snapshot of current debug variables.
+2026-10-13T12:16:06.020-07:00 [DBG] Auth+: c:#925 db:dba #925: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:06.020-07:00 [INF] HTTP: c:#925 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:06.020-07:00 [INF] HTTP+: c:#925 db:dba #925:     --> 200   (6.5 ms)
+2026-10-13T12:16:06.028-07:00 [DBG] Auth+: c:#926 #926: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:06.028-07:00 [DBG] HTTP+: c:#926 Recording snapshot of current debug variables.
+2026-10-13T12:16:08.078-07:00 [DBG] Auth+: c:#927 db:dba #927: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:08.078-07:00 [INF] HTTP: c:#927 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:08.078-07:00 [INF] HTTP+: c:#927 db:dba #927:     --> 200   (23.5 ms)
+2026-10-13T12:16:08.109-07:00 [DBG] Auth+: c:#928 #928: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:08.109-07:00 [DBG] HTTP+: c:#928 Recording snapshot of current debug variables.
+2026-10-13T12:16:10.136-07:00 [DBG] Auth+: c:#929 db:dba #929: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:10.137-07:00 [INF] HTTP: c:#929 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:10.138-07:00 [INF] HTTP+: c:#929 db:dba #929:     --> 200   (8.5 ms)
+2026-10-13T12:16:10.144-07:00 [DBG] Auth+: c:#930 #930: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:10.144-07:00 [DBG] HTTP+: c:#930 Recording snapshot of current debug variables.
+2026-10-13T12:16:12.012-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:16:12.017-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:16:12.019-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:16:12.019-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:16:12.021-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:16:12.154-07:00 [DBG] Auth+: c:#931 db:dba #931: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:12.154-07:00 [INF] HTTP: c:#931 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:12.154-07:00 [INF] HTTP+: c:#931 db:dba #931:     --> 200   (3.6 ms)
+2026-10-13T12:16:12.159-07:00 [DBG] Auth+: c:#932 #932: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:12.159-07:00 [DBG] HTTP+: c:#932 Recording snapshot of current debug variables.
+2026-10-13T12:16:14.173-07:00 [DBG] Auth+: c:#933 db:dba #933: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:14.173-07:00 [INF] HTTP: c:#933 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:14.174-07:00 [INF] HTTP+: c:#933 db:dba #933:     --> 200   (6.2 ms)
+2026-10-13T12:16:14.179-07:00 [DBG] Auth+: c:#934 #934: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:14.179-07:00 [DBG] HTTP+: c:#934 Recording snapshot of current debug variables.
+2026-10-13T12:16:16.196-07:00 [DBG] Auth+: c:#935 db:dba #935: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:16.196-07:00 [INF] HTTP: c:#935 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:16.197-07:00 [INF] HTTP+: c:#935 db:dba #935:     --> 200   (7.1 ms)
+2026-10-13T12:16:16.203-07:00 [DBG] Auth+: c:#936 #936: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:16.204-07:00 [DBG] HTTP+: c:#936 Recording snapshot of current debug variables.
+2026-10-13T12:16:18.211-07:00 [DBG] Auth+: c:#937 db:dba #937: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:18.211-07:00 [INF] HTTP: c:#937 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:18.211-07:00 [INF] HTTP+: c:#937 db:dba #937:     --> 200   (4.8 ms)
+2026-10-13T12:16:18.215-07:00 [DBG] Auth+: c:#938 #938: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:18.215-07:00 [DBG] HTTP+: c:#938 Recording snapshot of current debug variables.
+2026-10-13T12:16:20.245-07:00 [DBG] Auth+: c:#939 db:dba #939: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:20.246-07:00 [INF] HTTP: c:#939 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:20.247-07:00 [INF] HTTP+: c:#939 db:dba #939:     --> 200   (14.2 ms)
+2026-10-13T12:16:20.258-07:00 [DBG] Auth+: c:#940 #940: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:20.258-07:00 [DBG] HTTP+: c:#940 Recording snapshot of current debug variables.
+2026-10-13T12:16:22.013-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:16:22.020-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:16:22.022-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:16:22.022-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:16:22.023-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:16:22.274-07:00 [DBG] Auth+: c:#941 db:dba #941: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:22.274-07:00 [INF] HTTP: c:#941 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:22.274-07:00 [INF] HTTP+: c:#941 db:dba #941:     --> 200   (3.4 ms)
+2026-10-13T12:16:22.282-07:00 [DBG] Auth+: c:#942 #942: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:22.282-07:00 [DBG] HTTP+: c:#942 Recording snapshot of current debug variables.
+2026-10-13T12:16:24.294-07:00 [DBG] Auth+: c:#943 db:dba #943: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:24.294-07:00 [INF] HTTP: c:#943 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:24.295-07:00 [INF] HTTP+: c:#943 db:dba #943:     --> 200   (6.3 ms)
+2026-10-13T12:16:24.302-07:00 [DBG] Auth+: c:#944 #944: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:24.302-07:00 [DBG] HTTP+: c:#944 Recording snapshot of current debug variables.
+2026-10-13T12:16:26.318-07:00 [DBG] Auth+: c:#945 db:dba #945: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:26.318-07:00 [INF] HTTP: c:#945 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:26.318-07:00 [INF] HTTP+: c:#945 db:dba #945:     --> 200   (6.6 ms)
+2026-10-13T12:16:26.323-07:00 [DBG] Auth+: c:#946 #946: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:26.323-07:00 [DBG] HTTP+: c:#946 Recording snapshot of current debug variables.
+2026-10-13T12:16:28.333-07:00 [DBG] Auth+: c:#947 db:dba #947: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:28.333-07:00 [INF] HTTP: c:#947 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:28.333-07:00 [INF] HTTP+: c:#947 db:dba #947:     --> 200   (3.6 ms)
+2026-10-13T12:16:28.338-07:00 [DBG] Auth+: c:#948 #948: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:28.338-07:00 [DBG] HTTP+: c:#948 Recording snapshot of current debug variables.
+2026-10-13T12:16:30.350-07:00 [DBG] Auth+: c:#949 db:dba #949: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:30.351-07:00 [INF] HTTP: c:#949 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:30.352-07:00 [INF] HTTP+: c:#949 db:dba #949:     --> 200   (7.5 ms)
+2026-10-13T12:16:30.361-07:00 [DBG] Auth+: c:#950 #950: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:30.361-07:00 [DBG] HTTP+: c:#950 Recording snapshot of current debug variables.
+2026-10-13T12:16:32.012-07:00 [DBG] Config+: Fetching configs from buckets in cluster for group "default"
+2026-10-13T12:16:32.020-07:00 [DBG] Config+: b:bucketA Checking for database config (attempt 1/5)
+2026-10-13T12:16:32.023-07:00 [DBG] Config+: b:bucketA Got config for group "default" with cas 1791918891555356672
+2026-10-13T12:16:32.023-07:00 [DBG] Config+: Database "dba" bucket "bucketA" config has not changed since last update
+2026-10-13T12:16:32.025-07:00 [DBG] Config+: Bucket "bucketA" bootstrap-target refresh: Not Found
+2026-10-13T12:16:32.372-07:00 [DBG] Auth+: c:#951 db:dba #951: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:32.372-07:00 [INF] HTTP: c:#951 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:32.372-07:00 [INF] HTTP+: c:#951 db:dba #951:     --> 200   (3.4 ms)
+2026-10-13T12:16:32.377-07:00 [DBG] Auth+: c:#952 #952: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:32.377-07:00 [DBG] HTTP+: c:#952 Recording snapshot of current debug variables.
+2026-10-13T12:16:34.391-07:00 [DBG] Auth+: c:#953 db:dba #953: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:34.391-07:00 [INF] HTTP: c:#953 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:34.391-07:00 [INF] HTTP+: c:#953 db:dba #953:     --> 200   (9.0 ms)
+2026-10-13T12:16:34.400-07:00 [DBG] Auth+: c:#954 #954: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:34.400-07:00 [DBG] HTTP+: c:#954 Recording snapshot of current debug variables.
+2026-10-13T12:16:36.411-07:00 [DBG] Auth+: c:#955 db:dba #955: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:36.411-07:00 [INF] HTTP: c:#955 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:36.412-07:00 [INF] HTTP+: c:#955 db:dba #955:     --> 200   (6.4 ms)
+2026-10-13T12:16:36.416-07:00 [DBG] Auth+: c:#956 #956: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:36.416-07:00 [DBG] HTTP+: c:#956 Recording snapshot of current debug variables.
+2026-10-13T12:16:38.427-07:00 [DBG] Auth+: c:#957 db:dba #957: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.427-07:00 [INF] HTTP: c:#957 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.427-07:00 [INF] HTTP+: c:#957 db:dba #957:     --> 200   (5.5 ms)
+2026-10-13T12:16:38.431-07:00 [DBG] Auth+: c:#958 #958: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.431-07:00 [DBG] HTTP+: c:#958 Recording snapshot of current debug variables.
+2026-10-13T12:16:38.436-07:00 [DBG] Auth+: c:#959 db:dba #959: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.436-07:00 [INF] HTTP: c:#959 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.436-07:00 [INF] HTTP+: c:#959 db:dba #959:     --> 200   (3.5 ms)
+2026-10-13T12:16:38.445-07:00 [DBG] Auth+: c:#960 #960: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.445-07:00 [DBG] HTTP+: c:#960 Recording snapshot of current debug variables.
+2026-10-13T12:16:38.451-07:00 [DBG] Auth+: c:#961 db:dba #961: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.451-07:00 [INF] HTTP: c:#961 db:dba GET /dba/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.454-07:00 [INF] HTTP+: c:#961 db:dba #961:     --> 200   (6.1 ms)
+2026-10-13T12:16:38.457-07:00 [DBG] Auth+: c:#962 db:dba #962: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.457-07:00 [INF] HTTP: c:#962 db:dba GET /dba/_raw/<ud>x-posthoc_delayed-1-1791918914</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.457-07:00 [INF] HTTP+: c:#962 db:dba #962:     --> 200   (2.6 ms)
+2026-10-13T12:16:38.485-07:00 [DBG] Auth+: c:#963 db:dba #963: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.485-07:00 [INF] HTTP: c:#963 db:dba GET /dba/_changes?since=67 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.485-07:00 [DBG] Changes+: c:#963 db:dba Int sequence multi changes feed...
+2026-10-13T12:16:38.485-07:00 [INF] Changes: c:#963 db:dba MultiChangesFeed(channels: {<ud>*</ud>}, options: {Since: 67, Limit: 0, Conflicts: false, IncludeDocs: false, Wait: false, Continuous: false, HeartbeatMs: 0, TimeoutMs: 300000, ActiveOnly: false, Revocations: false, RequestPlusSeq: 0, VersionType: "rev"}) ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:16:38.485-07:00 [DBG] Changes+: c:#963 db:dba MultiChangesFeed: channels expand to "<ud>*</ud>:0" ... <ud>  (to ADMIN)</ud>
+2026-10-13T12:16:38.485-07:00 [DBG] Cache+: c:#963 db:dba GetCachedChanges("<ud>*</ud>", 67) --> nothing cached
+2026-10-13T12:16:38.485-07:00 [DBG] Changes+: c:#963 db:dba [changesFeed] Found 0 changes for channel "<ud>*</ud>"
+2026-10-13T12:16:38.485-07:00 [INF] Changes: c:#963 db:dba MultiChangesFeed done <ud>  (to ADMIN)</ud>
+2026-10-13T12:16:38.485-07:00 [INF] HTTP+: c:#963 db:dba #963:     --> 200 OK  (8.9 ms)
+2026-10-13T12:16:38.510-07:00 [DBG] Auth+: c:#964 db:dba #964: User <ud>Administrator</ud> was successfully authorized as an admin
+2026-10-13T12:16:38.510-07:00 [INF] HTTP: c:#964 db:dba GET /dba/ (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T12:16:38.510-07:00 [INF] HTTP+: c:#964 db:dba #964:     --> 200   (13.7 ms)
