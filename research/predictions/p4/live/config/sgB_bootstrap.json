@@ -1,0 +1,17 @@
+{
+  "bootstrap": {
+    "server": "couchbase://127.0.0.1",
+    "username": "sgB",
+    "password": "<redacted>",
+    "use_tls_server": false
+  },
+  "api": {
+    "public_interface": "127.0.0.1:4994",
+    "admin_interface": "127.0.0.1:4995",
+    "metrics_interface": "127.0.0.1:4996"
+  },
+  "logging": {
+    "log_file_path": "/tmp/nc-agents/p4work/sgB/logs",
+    "console": {"log_level": "info", "log_keys": ["*"]}
+  }
+}

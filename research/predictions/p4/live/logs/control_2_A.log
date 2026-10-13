@@ -1,0 +1,110 @@
+2026-10-13T11:49:55.306-07:00 [INF] HTTP: c:#551 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:55.307-07:00 [INF] HTTP+: c:#551 db:dba #551:     --> 200   (12.1 ms)
+2026-10-13T11:49:55.344-07:00 [INF] HTTP: c:#553 db:dba PUT /dba/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:49:55.348-07:00 [INF] CRUD: c:#553 db:dba 	Doc "<ud>x-control-2-1791917395</ud>" / "1-7872796cf808575a89b75936e3d04bc5" in channels "{<ud>*</ud>}"
+2026-10-13T11:49:55.350-07:00 [INF] HTTP+: c:#553 db:dba #553:     --> 201   (23.0 ms)
+2026-10-13T11:49:55.357-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 37) --> 1 changes valid from #38
+2026-10-13T11:49:55.361-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 39
+2026-10-13T11:49:55.410-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #11: Type:changes #Changes:1
+2026-10-13T11:49:55.458-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 39) --> 1 changes valid from #38
+2026-10-13T11:49:55.460-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 40
+2026-10-13T11:49:56.407-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #13: Type:changes #Changes:1
+2026-10-13T11:49:56.457-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 40) --> 1 changes valid from #38
+2026-10-13T11:49:56.460-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #15: Type:changes #Changes:1
+2026-10-13T11:49:56.461-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 41
+2026-10-13T11:49:56.508-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 41) --> 1 changes valid from #38
+2026-10-13T11:49:56.509-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 42
+2026-10-13T11:49:56.796-07:00 [INF] Replicate: c:p4-push db:dba checkpointer: calculated seq: 42
+2026-10-13T11:49:56.827-07:00 [INF] Replicate: c:p4-pull db:dba checkpointer: calculated seq: 46
+2026-10-13T11:49:57.967-07:00 [INF] Cache: db:dba Received #43-#43 (unused sequence range)
+2026-10-13T11:50:06.427-07:00 [INF] HTTP: c:#554 db:dba GET /dba/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:06.433-07:00 [INF] HTTP: c:#554 db:dba #554:     --> 404 deleted  (13.0 ms)
+2026-10-13T11:50:06.445-07:00 [INF] HTTP: c:#555 db:dba GET /dba/_raw/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:06.446-07:00 [INF] HTTP+: c:#555 db:dba #555:     --> 200   (10.4 ms)
+2026-10-13T11:50:06.474-07:00 [INF] HTTP: c:#556 db:dba PUT /dba/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:06.477-07:00 [INF] HTTP+: c:#556 db:dba #556:     --> 201   (8.2 ms)
+2026-10-13T11:50:06.484-07:00 [INF] HTTP: c:#557 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:06.485-07:00 [INF] HTTP+: c:#557 db:dba #557:     --> 200   (5.3 ms)
+2026-10-13T11:50:06.508-07:00 [INF] Cache: c:p4-push db:dba col:_default GetCachedChanges("<ud>*</ud>", 42) --> 1 changes valid from #38
+2026-10-13T11:50:06.512-07:00 [INF] Sync: c:p4-push db:dba col:_default Sent 1 changes to client, from seq 44
+2026-10-13T11:50:06.558-07:00 [INF] SyncMsg: c:p4-pull db:dba col:_default #17: Type:changes #Changes:1
+2026-10-13T11:50:06.796-07:00 [INF] Replicate: c:p4-push db:dba checkpointer: calculated seq: 44
+2026-10-13T11:50:06.827-07:00 [INF] Replicate: c:p4-pull db:dba checkpointer: calculated seq: 48
+2026-10-13T11:50:08.503-07:00 [INF] HTTP: c:#559 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:08.503-07:00 [INF] HTTP+: c:#559 db:dba #559:     --> 200   (4.8 ms)
+2026-10-13T11:50:10.524-07:00 [INF] HTTP: c:#561 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:10.524-07:00 [INF] HTTP+: c:#561 db:dba #561:     --> 200   (9.3 ms)
+2026-10-13T11:50:12.572-07:00 [INF] HTTP: c:#563 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:12.572-07:00 [INF] HTTP+: c:#563 db:dba #563:     --> 200   (20.6 ms)
+2026-10-13T11:50:14.610-07:00 [INF] HTTP: c:#565 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:14.611-07:00 [INF] HTTP+: c:#565 db:dba #565:     --> 200   (11.4 ms)
+2026-10-13T11:50:16.639-07:00 [INF] HTTP: c:#567 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:16.639-07:00 [INF] HTTP+: c:#567 db:dba #567:     --> 200   (6.9 ms)
+2026-10-13T11:50:18.663-07:00 [INF] HTTP: c:#569 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:18.664-07:00 [INF] HTTP+: c:#569 db:dba #569:     --> 200   (9.3 ms)
+2026-10-13T11:50:20.683-07:00 [INF] HTTP: c:#571 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:20.683-07:00 [INF] HTTP+: c:#571 db:dba #571:     --> 200   (7.3 ms)
+2026-10-13T11:50:22.709-07:00 [INF] HTTP: c:#573 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:22.709-07:00 [INF] HTTP+: c:#573 db:dba #573:     --> 200   (4.7 ms)
+2026-10-13T11:50:24.745-07:00 [INF] HTTP: c:#575 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:24.745-07:00 [INF] HTTP+: c:#575 db:dba #575:     --> 200   (5.6 ms)
+2026-10-13T11:50:26.767-07:00 [INF] HTTP: c:#577 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:26.767-07:00 [INF] HTTP+: c:#577 db:dba #577:     --> 200   (8.0 ms)
+2026-10-13T11:50:28.800-07:00 [INF] HTTP: c:#579 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:28.800-07:00 [INF] HTTP+: c:#579 db:dba #579:     --> 200   (6.9 ms)
+2026-10-13T11:50:30.818-07:00 [INF] HTTP: c:#581 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:30.818-07:00 [INF] HTTP+: c:#581 db:dba #581:     --> 200   (8.3 ms)
+2026-10-13T11:50:32.845-07:00 [INF] HTTP: c:#583 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:32.845-07:00 [INF] HTTP+: c:#583 db:dba #583:     --> 200   (5.7 ms)
+2026-10-13T11:50:34.862-07:00 [INF] HTTP: c:#585 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:34.862-07:00 [INF] HTTP+: c:#585 db:dba #585:     --> 200   (5.8 ms)
+2026-10-13T11:50:36.883-07:00 [INF] HTTP: c:#587 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:36.883-07:00 [INF] HTTP+: c:#587 db:dba #587:     --> 200   (7.5 ms)
+2026-10-13T11:50:38.909-07:00 [INF] HTTP: c:#589 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:38.910-07:00 [INF] HTTP+: c:#589 db:dba #589:     --> 200   (6.9 ms)
+2026-10-13T11:50:40.946-07:00 [INF] HTTP: c:#591 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:40.947-07:00 [INF] HTTP+: c:#591 db:dba #591:     --> 200   (14.9 ms)
+2026-10-13T11:50:42.983-07:00 [INF] HTTP: c:#593 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:42.983-07:00 [INF] HTTP+: c:#593 db:dba #593:     --> 200   (5.0 ms)
+2026-10-13T11:50:44.998-07:00 [INF] HTTP: c:#595 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:44.998-07:00 [INF] HTTP+: c:#595 db:dba #595:     --> 200   (4.6 ms)
+2026-10-13T11:50:47.033-07:00 [INF] HTTP: c:#597 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:47.033-07:00 [INF] HTTP+: c:#597 db:dba #597:     --> 200   (15.5 ms)
+2026-10-13T11:50:49.054-07:00 [INF] HTTP: c:#599 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:49.054-07:00 [INF] HTTP+: c:#599 db:dba #599:     --> 200   (6.0 ms)
+2026-10-13T11:50:51.095-07:00 [INF] HTTP: c:#601 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:51.095-07:00 [INF] HTTP+: c:#601 db:dba #601:     --> 200   (12.4 ms)
+2026-10-13T11:50:53.125-07:00 [INF] HTTP: c:#603 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:53.127-07:00 [INF] HTTP+: c:#603 db:dba #603:     --> 200   (12.4 ms)
+2026-10-13T11:50:55.151-07:00 [INF] HTTP: c:#605 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:55.151-07:00 [INF] HTTP+: c:#605 db:dba #605:     --> 200   (5.4 ms)
+2026-10-13T11:50:57.169-07:00 [INF] HTTP: c:#607 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:57.169-07:00 [INF] HTTP+: c:#607 db:dba #607:     --> 200   (4.5 ms)
+2026-10-13T11:50:59.193-07:00 [INF] HTTP: c:#609 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:50:59.196-07:00 [INF] HTTP+: c:#609 db:dba #609:     --> 200   (11.9 ms)
+2026-10-13T11:51:01.226-07:00 [INF] HTTP: c:#611 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:01.226-07:00 [INF] HTTP+: c:#611 db:dba #611:     --> 200   (13.8 ms)
+2026-10-13T11:51:03.270-07:00 [INF] HTTP: c:#613 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:03.270-07:00 [INF] HTTP+: c:#613 db:dba #613:     --> 200   (14.5 ms)
+2026-10-13T11:51:05.375-07:00 [INF] HTTP: c:#615 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:05.375-07:00 [INF] HTTP+: c:#615 db:dba #615:     --> 200   (35.8 ms)
+2026-10-13T11:51:07.426-07:00 [INF] HTTP: c:#617 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:07.427-07:00 [INF] HTTP+: c:#617 db:dba #617:     --> 200   (5.8 ms)
+2026-10-13T11:51:09.457-07:00 [INF] HTTP: c:#619 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:09.457-07:00 [INF] HTTP+: c:#619 db:dba #619:     --> 200   (12.5 ms)
+2026-10-13T11:51:11.493-07:00 [INF] HTTP: c:#621 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:11.493-07:00 [INF] HTTP+: c:#621 db:dba #621:     --> 200   (17.1 ms)
+2026-10-13T11:51:13.537-07:00 [INF] HTTP: c:#623 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.538-07:00 [INF] HTTP+: c:#623 db:dba #623:     --> 200   (17.8 ms)
+2026-10-13T11:51:13.591-07:00 [INF] HTTP: c:#625 db:dba GET /dba/_replicationStatus/p4 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.591-07:00 [INF] HTTP+: c:#625 db:dba #625:     --> 200   (18.4 ms)
+2026-10-13T11:51:13.627-07:00 [INF] HTTP: c:#627 db:dba GET /dba/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.629-07:00 [INF] HTTP+: c:#627 db:dba #627:     --> 200   (21.4 ms)
+2026-10-13T11:51:13.650-07:00 [INF] HTTP: c:#628 db:dba GET /dba/_raw/<ud>x-control-2-1791917395</ud> (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.650-07:00 [INF] HTTP+: c:#628 db:dba #628:     --> 200   (18.8 ms)
+2026-10-13T11:51:13.699-07:00 [INF] HTTP: c:#629 db:dba GET /dba/_changes?since=44 (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.699-07:00 [INF] Changes: c:#629 db:dba MultiChangesFeed(channels: {<ud>*</ud>}, options: {Since: 44, Limit: 0, Conflicts: false, IncludeDocs: false, Wait: false, Continuous: false, HeartbeatMs: 0, TimeoutMs: 300000, ActiveOnly: false, Revocations: false, RequestPlusSeq: 0, VersionType: "rev"}) ... <ud>  (to ADMIN)</ud>
+2026-10-13T11:51:13.699-07:00 [INF] Changes: c:#629 db:dba MultiChangesFeed done <ud>  (to ADMIN)</ud>
+2026-10-13T11:51:13.699-07:00 [INF] HTTP+: c:#629 db:dba #629:     --> 200 OK  (13.7 ms)
+2026-10-13T11:51:13.721-07:00 [INF] HTTP: c:#630 db:dba GET /dba/ (as <ud>Administrator</ud> as ADMIN)
+2026-10-13T11:51:13.721-07:00 [INF] HTTP+: c:#630 db:dba #630:     --> 200   (4.4 ms)

@@ -1,0 +1,11 @@
+file,mode,run,doc_id,t_create,after5_A_deleted,after5_A_winner,after5_A_cv_is_tb1,after5_A_cv_is_tb2,after5_A_srcB_ge_tb2,final_A,final_B,idle_nothing_pending,doc_write_conflict_total,push_conflicts_in_run,assertion_failed_lines,claim1,claim2,claim3
+delayed_1.json,delayed,1,x-delayed-1-1791916722,2026-10-13T18:38:42.913+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,False,False,
+delayed_2.json,delayed,2,x-delayed-2-1791916880,2026-10-13T18:41:20.788+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,False,False,
+delayed_3.json,delayed,3,x-delayed-3-1791916970,2026-10-13T18:42:51.036+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,False,False,
+delayed_4.json,delayed,4,x-delayed-4-1791917060,2026-10-13T18:44:20.930+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,False,False,
+delayed_5.json,delayed,5,x-delayed-5-1791917150,2026-10-13T18:45:50.769+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,False,False,
+control_1.json,control,1,x-control-1-1791917306,2026-10-13T18:48:27.079+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,,,True
+control_2.json,control,2,x-control-2-1791917395,2026-10-13T18:49:55.325+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,,,True
+control_3.json,control,3,x-control-3-1791917479,2026-10-13T18:51:19.104+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,,,True
+control_4.json,control,4,x-control-4-1791917565,2026-10-13T18:52:45.566+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,,,True
+control_5.json,control,5,x-control-5-1791917653,2026-10-13T18:54:13.431+00:00,True,4-8ce68d3395b0463a8adbe1f582c6daed,False,True,True,"live {""v"": 4}","live {""v"": 4}",True,0,0,0,,,True

@@ -1,0 +1,5 @@
+{
+ "bucket": "bucketA",
+ "num_index_replicas": 0,
+ "sync": "function(doc, oldDoc) { if (doc._deleted && doc._rev.indexOf(\"2-\") == 0) { var t = Date.now(); while (Date.now() - t < 8000) {} } channel(\"*\"); }"
+}

@@ -1,0 +1,1 @@
+{"replication_id":"p4","remote":"http://127.0.0.1:4994/dbb","remote_username":"isgr","remote_password":"<redacted>","direction":"pushAndPull","continuous":true,"conflict_resolution_type":"default"}
