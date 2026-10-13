@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 ## [Unreleased]
 
 ### Added
+- Prediction P4 (`research/predictions/P4.md`, committed before any run): a stale tombstone splits a Sync Gateway 4.1.2 pushAndPull replication. The model transcribed from Sync Gateway's source, its search results, the screening report and an adversarial review are in `research/predictions/p4/`; candidate D in `candidates.md`. `docs/atlas/check.py` counts only scored predictions toward the front page's prediction totals, so a pending prediction does not change them. No theorem added, removed or renamed.
 - `research/couchdb-replicator/followup/`: the follow-up runs on CouchDB 3.5.3 (2026-10-12) behind
   the paper's narrowed trigger for the `validate_doc_update` behavior, archived with their scripts,
   logs and per-scenario results; `research/couchdb-replicator/README.md` gains a section "Follow-up:

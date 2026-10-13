@@ -1,0 +1,2 @@
+[T3 A push_and_pull + B push_and_pull | no skew | P6 a2 | del,del | inflight<=1]
+   states=24775 terminals=60 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=213 b_fail=34 nonterminating=0 lww_lower_ts_won_tombstone=1872 lww_lower_ts_won_other=0 lww_tie_local=0

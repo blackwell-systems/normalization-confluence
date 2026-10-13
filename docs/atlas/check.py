@@ -361,7 +361,9 @@ def main():
             pstart = ptxt.find("## Committed predictions")
             prow = [l for l in ptxt[pstart:].splitlines() if l.startswith("| [")] if pstart >= 0 else []
             pout = [l.rstrip(" |").rsplit("|", 1)[-1].strip() for l in prow]
-            want_p = {"pred-total": len(prow), "pred-confirmed": sum(1 for o in pout if o.startswith("PASS"))}
+            # A prediction counts once it is scored; a committed prediction still being tested is not counted.
+            scored = [o for o in pout if not o.lower().startswith("pending")]
+            want_p = {"pred-total": len(scored), "pred-confirmed": sum(1 for o in scored if o.startswith("PASS"))}
             for key, n in want_p.items():
                 mk = re.search(r'id="' + key + r'">(\d+)<', page)
                 if mk and int(mk.group(1)) != n:

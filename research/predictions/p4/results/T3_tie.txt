@@ -1,0 +1,8 @@
+[T3 A push_and_pull + B push_and_pull | equal values possible | P1 a1 | b1 | inflight<=1]
+   states=1136 terminals=9 outcomes=3 conv_fail_canon=1 conv_fail_cv_only=0 group_fail=1 a_fail=4 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=66
+[T3 A push_and_pull + B push_and_pull | equal values possible | P2 a1 | del | inflight<=1]
+   states=1177 terminals=12 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=4 b_fail=1 nonterminating=0 lww_lower_ts_won_tombstone=68 lww_lower_ts_won_other=0 lww_tie_local=68
+[T3 A push_and_pull + B push_and_pull | equal values possible | P3 del | del | inflight<=1]
+   states=2019 terminals=30 outcomes=1 conv_fail_canon=0 conv_fail_cv_only=12 group_fail=0 a_fail=0 b_fail=0 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=0
+[T3 A push_and_pull + B push_and_pull | equal values possible | P5 a1,del | b1 | inflight<=1]
+   states=14848 terminals=43 outcomes=2 conv_fail_canon=0 conv_fail_cv_only=0 group_fail=0 a_fail=77 b_fail=25 nonterminating=0 lww_lower_ts_won_tombstone=0 lww_lower_ts_won_other=0 lww_tie_local=1297
