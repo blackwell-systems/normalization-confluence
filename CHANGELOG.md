@@ -1180,6 +1180,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 - `coq/README.md` and `coq/docs/`: index rows and sections for `LossyMinimum.v` (`coq/docs/non-invertible.md`), `CohomologyNerve.v` and `CoordinationMinimum.v` (`coq/docs/non-monotone-invertible.md`), and `SheafGluing.v` (`coq/docs/federation-repair.md`) (#70 to #73).
 
 ### Changed
+- Site, second reader pass (front page, engineer's guide, Convergence Atlas). Front page: the hero
+  names the failures (oversold stock, a wrong balance, a deleted record that comes back) and says
+  what CouchDB is; the shelf example states why the orders differ and lists the three questions
+  (a), (b), (c) that later sections link back to; "When the repair runs matters" carries the
+  guide's account example; the gsm section says what a registry is, explains CC and WFC beside the
+  output (Saturation lines removed from the abridged output), states that gsm checks (b) and (c)
+  only, and adds what adopting it costs; the prediction section says why the CouchDB bug matters;
+  a "Where to go next" list for engineers, then a researcher signpost with the headline numbers
+  (ids moved, not duplicated), Coq defined once, researcher resources moved below the divider; the
+  open-problem count reads "7 open problems (9 open tiles on the atlas)" with the gap numbering
+  explained once; atlas-preview.jpg regenerated. Guide: each question first, its research term
+  after it with the CC1/CC2 mapping inline; a filled-in shelf above the property tests (run with
+  Hypothesis 6.169: (a) and (b) fail with 4 against 5, (c) passes); section 6 says settling needs
+  no check of its own on networks without loops, adds an analogy for the loop example and when the
+  NP-complete question comes up. Atlas: headline "Which check applies to your system?", a regime
+  defined in the subtitle, a row pointer and a larger "Start here"; each tile's face shows a plain
+  situation label (a `label` field) and its answer, with the regime's name, main theorem and
+  "iff" moved to the detail card; row 01 reworded in plain words; a caption line per plate; tour
+  stops 4 to 6 open with a scenario. `docs/atlas/check.py` checks every tile's label (present, at
+  most 60 characters, no research abbreviation, no "iff"). No theorem added, removed or renamed.
 - Theory paper, consistency pass before arXiv: gsm is described as checking WFC and CC1 (the atomic
   case), not CC2; "state descent is necessary" carries its qualifier (when events can arrive before
   repair finishes) in the introduction, section 3 and the conclusion; "every regime" reads "every

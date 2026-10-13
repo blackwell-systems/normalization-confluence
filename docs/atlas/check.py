@@ -22,11 +22,12 @@ Fails (exit 1) if:
   - a frozen kernel file listed in research/predictions/frozen.sha256 changed;
   - an open tile names a gap REGIME-AUDIT.md lists as closed or as a design exclusion, or an open
     convergence gap in REGIME-AUDIT.md's "Current state" sentence has no open tile;
-  - a tile lacks a unique id, its plain answer, a layer (A, B, C, AB, BC or AC), an axis row and
-    column from the axes block, or a paper destination from the paper block; a plain answer is too
-    long or does not match its kind (open tiles start "Open:", excluded tiles "Excluded:", hard tiles
-    name NP), or a plain answer or a tour stop uses a bare research abbreviation (CC1, CC2, XU, XUcR,
-    PJC, PCC, ACC, GC, C1, C2), which belong in the detail card;
+  - a tile lacks a unique id, its face label (at most 60 characters, no "iff"), its plain answer,
+    a layer (A, B, C, AB, BC or AC), an axis row and column from the axes block, or a paper
+    destination from the paper block; a plain answer is too long or does not match its kind (open
+    tiles start "Open:", excluded tiles "Excluded:", hard tiles name NP), or a face label, a plain
+    answer or a tour stop uses a bare research abbreviation (CC1, CC2, XU, XUcR, PJC, PCC, ACC, GC,
+    C1, C2), which belong in the detail card;
   - a paper section title in regimes.js differs from the section with that number in docs/paper
     (main.tex input order, appendices lettered), or the layers, framework or tour blocks are
     malformed (a tour stop names a tile id that does not exist); their theorem names are checked
@@ -116,6 +117,7 @@ def audit_gaps():
 LAYERS = ("A", "B", "C", "AB", "BC", "AC")
 ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PLAIN_MAX = 150
+LABEL_MAX = 60
 JARGON = re.compile(r"\b(CC1|CC2|XU|XUcR|PJC|PCC|ACC|GC|C1|C2)\b")
 
 
@@ -178,6 +180,15 @@ def check_theory(atlas, use, errors):
             elif tid in ids:
                 errors.append(f"{where}: id {tid} also used by {ids[tid]}")
             ids[tid] = where
+            label = t.get("label", "")
+            if not label.strip():
+                errors.append(f"{where}: no face label")
+            elif len(label) > LABEL_MAX:
+                errors.append(f"{where}: face label is {len(label)} characters (at most {LABEL_MAX})")
+            if JARGON.search(label):
+                errors.append(f"{where}: face label uses {JARGON.search(label).group(1)}; say it in words")
+            if re.search(r"\biff\b", label):
+                errors.append(f"{where}: face label uses iff; the detail card carries it")
             plain = t.get("plain", "")
             if not plain.strip():
                 errors.append(f"{where}: no plain answer")

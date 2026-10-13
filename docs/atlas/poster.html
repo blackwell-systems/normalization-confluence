@@ -31,7 +31,9 @@ h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,1
 .views button:last-child{border-right:0}
 .views button:hover{background:#1A2029;color:var(--text)}
 .views button[aria-pressed="true"]{background:#163A66;color:var(--text)}
-.start{font:700 clamp(17px,1.2vw,21px)/1.1 var(--sans);color:#0C0F14;background:var(--gold);border:0;border-radius:10px;padding:16px 24px;cursor:pointer;box-shadow:0 0 0 4px rgba(242,193,78,0.25)}
+.startrow{display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px;padding:20px 22px;border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:10px;background:var(--panel)}
+.start{font:700 clamp(19px,1.5vw,24px)/1.1 var(--sans);color:#0C0F14;background:var(--gold);border:0;border-radius:10px;padding:18px 28px;cursor:pointer;box-shadow:0 0 0 4px rgba(242,193,78,0.25)}
+.where{margin:0;flex:1 1 380px;font-size:clamp(16px,1.15vw,20px);line-height:1.45;color:var(--muted)}
 .start:hover{background:#F7D27A}
 .views button:focus-visible,.start:focus-visible,.tour button:focus-visible,.fw a:focus-visible{outline:3px solid #8CC4FF;outline-offset:2px}
 .viewnote{font-size:clamp(15px,1vw,18px);color:var(--dim);flex:1 1 320px;margin:0;line-height:1.4}
@@ -44,20 +46,20 @@ h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,1
 
 /* Tiles */
 .tgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
-.tile{box-sizing:border-box;min-height:168px;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;align-items:stretch;position:relative;margin:0;border:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
+.tile{box-sizing:border-box;min-height:150px;border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;align-items:stretch;position:relative;margin:0;border:0;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none;width:100%}
 .tile .mark{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:0.04em}
-.tile .name{font-family:var(--sans);font-size:17px;line-height:1.2;font-weight:500;padding-right:34px}
+.tile .name{font-family:var(--sans);font-size:17px;line-height:1.2;font-weight:600}
+.tile.has-mark .name{padding-right:34px}
 .tile .plain{font-size:14px;line-height:1.36}
-.tile .thm{margin-top:auto;font-family:var(--mono);font-size:12.5px;line-height:1.25;word-break:break-all}
 .exact{background:#163A66;color:#F2F6FB}
-.exact .mark{color:#9CCBFF}.exact .plain{color:#D6E6F7}.exact .thm{color:#B9D6F5}
+.exact .mark{color:#9CCBFF}.exact .plain{color:#D6E6F7}
 .hard{background:#B4561A;color:#FFF7F0}
-.hard .mark{color:#FFE2C9}.hard .plain{color:#FFF1E6}.hard .thm{color:#FFE7D4}
+.hard .mark{color:#FFE2C9}.hard .plain{color:#FFF1E6}
 .open{background:#0C0F14;color:#F2F6FB;border:2px dashed #C9D2DD}
 .open .mark{color:#0C0F14;background:#F2F6FB;border-radius:4px;padding:1px 6px}
-.open .plain{color:#DCE3EB}.open .thm{color:#AEB8C5}
+.open .plain{color:#DCE3EB}
 .excl{background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 9px,#1F242D 9px,#1F242D 18px);color:#C9D2DD;border:1px solid #2A303A}
-.excl .mark{color:#AEB8C5}.excl .plain{color:#C9D2DD}.excl .thm{color:#8E99A8}
+.excl .mark{color:#AEB8C5}.excl .plain{color:#C9D2DD}
 .fresh{box-shadow:0 0 0 3px #F2C14E}
 .tile:hover{filter:brightness(1.12)}
 .tile:focus{outline:none}
@@ -113,7 +115,6 @@ h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,1
 .ax .tile{min-height:0;padding:10px 12px 11px}
 .ax .tile .name{font-size:15.5px}
 .ax .tile .plain{font-size:13px}
-.ax .tile .thm{font-size:11.5px}
 .ax-row.other{border-top-style:dashed}
 
 /* Plates */
@@ -127,6 +128,7 @@ h1{margin:0;font-family:var(--cond);font-weight:700;font-size:clamp(38px,5.8vw,1
 .plate-title{font-family:var(--cond);font-size:26px;font-weight:600}
 .plate-fig{display:flex;align-items:center;gap:10px;height:92px}
 .plate p{margin:0;font-size:17px;line-height:1.45;color:var(--muted)}
+.plate p.plate-cap{margin-top:-8px;font-size:18px;color:var(--text)}
 .plate-thm{margin-top:auto;font-family:var(--mono);font-size:13px;color:var(--dimmer)}
 .box{flex:1 1 0;border:2px solid #9CCBFF;border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:14px;line-height:1.4}
 .dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:18px;flex:0 0 auto}
@@ -224,13 +226,17 @@ body.touring{padding-bottom:300px}
 
 <header class="head">
 <div class="eyebrow"><span>THE CONVERGENCE ATLAS</span><span>PLATE INDEX I to IV</span></div>
-<h1>When does concurrent state with invariant repair converge?</h1>
-<p class="purpose">Find your situation: each tile is one kind of system, and says what to check for its copies to agree.</p>
-<p class="lede">An exact regime map. In every regime: a necessary and sufficient condition, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Every answer machine-checked: 4,797 axiom-free theorems in Coq.</p>
+<h1>Which check applies to your system?</h1>
+<p class="purpose">Each tile is one regime: one kind of system, given by its shape and its delivery guarantee. Find yours, and the tile says what to check for its copies to agree.</p>
+<p class="lede">When do copies that repair their own state still converge? This map answers it for every regime it covers: a condition that is both necessary and sufficient, a proof that no efficient one exists unless P = NP, or an open problem listed in the audit. Every answer machine-checked: 4,797 axiom-free theorems in Coq, a program that checks mathematical proofs. Questions (a), (b) and (c) are the three questions of the <a href="../guide/#three-questions">engineer's guide</a>.</p>
 </header>
 
-<div class="bar">
+<div class="startrow">
 <button type="button" class="start" id="start" aria-haspopup="dialog">Start here: a six-stop tour &#8594;</button>
+<p class="where">New here? The tour takes a few minutes. Or go straight to your row: if you run one service, start with row 01 (and row 02 for your delivery guarantee); if several services copy data one way, row 04; if they copy in a loop, rows 05 and 07.</p>
+</div>
+
+<div class="bar">
 <div class="views" role="group" aria-label="View">
 <button type="button" data-view="catalog" aria-pressed="true">Catalog</button>
 <button type="button" data-view="framework" aria-pressed="false">Framework</button>
@@ -240,12 +246,12 @@ body.touring{padding-bottom:300px}
 </div>
 
 <div class="legend">
-<div><div class="sw" style="background:#163A66"></div><span>Exact: <i>iff</i>, if and only if (the condition is necessary and sufficient)</span></div>
+<div><div class="sw" style="background:#163A66"></div><span>Exact: the condition is necessary and sufficient</span></div>
 <div><div class="sw" style="background:#B4561A"></div><span>Hardness (mechanized reduction)</span></div>
 <div><div class="sw" style="width:26px;height:18px;border:2px dashed #C9D2DD"></div><span>Open, numbered gap</span></div>
 <div><div class="sw" style="background:repeating-linear-gradient(135deg,#171B22 0px,#171B22 5px,#2A303A 5px,#2A303A 10px)"></div><span>Excluded by design</span></div>
 <div><div class="sw" style="width:26px;height:18px;box-shadow:0 0 0 3px #F2C14E"></div><span>Recently solved</span></div>
-<span class="hint">Each line is relative to its tile's model. Hover, focus or tap a tile for its detail card.</span>
+<span class="hint">Each line is relative to its tile's situation. Hover, focus or tap a tile for the theorem, the regime's name and the details.</span>
 </div>
 
 <main id="view"></main>
@@ -260,6 +266,7 @@ body.touring{padding-bottom:300px}
 <div class="plate">
 <div class="plate-no">PLATE I</div>
 <div class="plate-title">The sticky block</div>
+<p class="plate-cap">Two parts that each settle on their own can disagree once one feeds the other.</p>
 <div class="plate-fig">
 <div class="box"><div style="color:#9CCBFF">A rises once</div><div>false to true</div></div>
 <div class="arrow">&#8594;</div>
@@ -272,6 +279,7 @@ body.touring{padding-bottom:300px}
 <div class="plate">
 <div class="plate-no">PLATE II</div>
 <div class="plate-title">The leaked repair</div>
+<p class="plate-cap">A change can reach the next service before it has been repaired.</p>
 <div class="plate-fig" style="gap:8px">
 <div class="dot" style="width:50px;height:50px;border:2px solid #C9D2DD">0</div>
 <div class="arrow" style="font-size:22px">&#8594;</div>
@@ -288,6 +296,7 @@ body.touring{padding-bottom:300px}
 <div class="plate">
 <div class="plate-no">PLATE III</div>
 <div class="plate-title">The ghost</div>
+<p class="plate-cap">A brief alarm can leave two flags holding each other on for good.</p>
 <div class="plate-fig">
 <div class="box" style="flex:0 0 auto"><div style="color:#9CCBFF">rootless</div><div>alarm, briefly</div></div>
 <div class="arrow">&#8594;</div>
@@ -304,6 +313,7 @@ body.touring{padding-bottom:300px}
 <div class="plate">
 <div class="plate-no">PLATE IV</div>
 <div class="plate-title">The raised cap</div>
+<p class="plate-cap">Changing the rules while updates are in flight can break agreement.</p>
 <div class="plate-fig">
 <div class="box"><div style="color:#9CCBFF">config A</div><div>cap 5</div></div>
 <div style="display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:12px;color:#F2C14E"><span>add, add</span><span style="font-size:26px;color:#C9D2DD">&#8594;</span><span>in flight</span></div>
@@ -319,7 +329,7 @@ body.touring{padding-bottom:300px}
 <footer class="foot">
 <div>
 <div class="k">THE OPEN FRONTIER</div>
-<div>Gaps 3, 16, 17, 18, 19, 20, 21. Most are one question: what extra structure makes composition exact on cycles.</div>
+<div>7 open problems (9 open tiles on the atlas): gaps 3, 16, 17, 18, 19, 20 and 21, numbered as in the regime audit. Gap 16 spans two tiles, and the ninth open tile, gap 13, is a narrower question about gluing local states. Most are one question: what extra structure makes composition exact on cycles.</div>
 </div>
 <div>
 <div class="k">OUTSIDE THE MAP, BY DESIGN</div>
@@ -366,7 +376,7 @@ body.touring{padding-bottom:300px}
   A.families.forEach(function (f) { f.tiles.forEach(function (t) { var e = { t: t, f: f }; all.push(e); byId[t.id] = e; }); });
 
   var NOTE = {
-    catalog: 'Eleven families, one tile per regime; each tile gives its answer in one line.',
+    catalog: 'Eleven rows, one tile per regime; each tile names a situation and gives its answer in one line.',
     framework: 'The same tiles, grouped by the part of the theory that decides them: three layers and the interfaces between them.',
     axes: 'The same tiles on the model’s two main axes (docs/COVERAGE.md): network shape down, execution and delivery model across. The open gaps sit on cycles.'
   };
@@ -375,12 +385,12 @@ body.touring{padding-bottom:300px}
   var list = [];
   function tile(e) {
     var t = e.t, i = list.push(e) - 1;
-    var label = t.thm ? t.thm + (t.thmNote ? ' ' + t.thmNote : '') : t.note;
     var kind = KIND[t.kind] + (t.gap ? ' ' + t.gap : '');
-    return '<button type="button" class="tile ' + t.kind + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" data-id="' + esc(t.id) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
-      esc(t.name + '. ' + kind + '. ' + t.plain + ' ' + label + (t.fresh ? '. Recently solved' : '')) + '">' +
-      '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span><span class="name">' + esc(t.name) + '</span>' +
-      '<span class="plain">' + esc(t.plain) + '</span><span class="thm">' + esc(label) + '</span></button>';
+    var mark = t.kind === 'open' ? '<span class="mark" aria-hidden="true">' + esc(t.mark) + '</span>' : '';
+    return '<button type="button" class="tile ' + t.kind + (mark ? ' has-mark' : '') + (t.fresh ? ' fresh' : '') + '" data-i="' + i + '" data-id="' + esc(t.id) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="card" aria-label="' +
+      esc(t.label + '. ' + kind + '. ' + t.plain + (t.fresh ? ' Recently solved.' : '')) + '">' +
+      mark + '<span class="name">' + esc(t.label) + '</span>' +
+      '<span class="plain">' + esc(t.plain) + '</span></button>';
   }
 
   function catalog() {
@@ -455,9 +465,10 @@ body.touring{padding-bottom:300px}
   function render(e) {
     var t = e.t, f = e.f, h = '', l = LAYER[t.layer];
     h += '<button type="button" class="c-close" aria-label="Close">&#215;</button>';
-    h += '<div class="c-top"><span class="c-kind k-' + t.kind + '">' + esc(KIND[t.kind]) + (t.gap ? ' &middot; gap ' + esc(t.gap) : '') + '</span>' +
+    h += '<div class="c-top"><span class="c-kind k-' + t.kind + '">' + esc(KIND[t.kind]) + (t.kind === 'exact' ? ' (iff)' : '') + (t.gap ? ' &middot; gap ' + esc(t.gap) : '') + '</span>' +
       (t.fresh ? '<span class="k-fresh">recently solved</span>' : '') + '<span>' + esc(f.code + ' ' + f.name) + '</span></div>';
-    h += '<h3 id="card-title">' + esc(t.name) + '</h3><p class="c-plain">' + esc(t.plain) + '</p><dl>';
+    h += '<h3 id="card-title">' + esc(t.label) + '</h3><p class="c-plain">' + esc(t.plain) + '</p><dl>';
+    h += '<dt>Regime</dt><dd>' + esc(t.name) + '</dd>';
     h += '<dt>Setting</dt><dd>' + esc(t.setting) + '</dd>';
     h += '<dt>' + COND[t.kind] + '</dt><dd>' + esc(t.condition) + '</dd>';
     if (t.needed && t.needed.length) {
@@ -466,7 +477,8 @@ body.touring{padding-bottom:300px}
       }).join('') + '</ul></dd>';
     }
     if (t.gsm) h += '<dt>gsm</dt><dd>' + esc(t.gsm) + '</dd>';
-    h += '<dt>Theorems</dt><dd>' + t.theorems.map(code).join(', ') + '<br>in ' + t.modules.map(function (m) { return code('coq/' + m); }).join(', ') + '</dd>';
+    h += '<dt>Theorems</dt><dd>' + (t.thm ? 'Main: ' + code(t.thm) + (t.thmNote ? ' ' + esc(t.thmNote) : '') + '<br>' : (t.note ? esc(t.note) + '<br>' : '')) +
+      t.theorems.map(code).join(', ') + '<br>in ' + t.modules.map(function (m) { return code('coq/' + m); }).join(', ') + '</dd>';
     h += '<dt>In the theory</dt><dd>' + esc((l.id.length > 1 ? 'Interface ' : '') + l.name + ': ' + l.title) + '; on the axes, ' + esc(SHAPE[t.shape].name + ' × ' + MODEL[t.model].name) + '</dd>';
     h += '</dl><div class="c-links"><a href="' + esc(A.repo + 'REGIME-AUDIT.md#' + t.section) + '" target="_blank" rel="noopener">REGIME-AUDIT.md, ' +
       (t.section === 'the-open-gaps' ? 'the open gaps' : 'section ' + esc(t.section.split('-')[0])) + '</a>';
@@ -568,7 +580,7 @@ body.touring{padding-bottom:300px}
     tour.i = Math.max(0, Math.min(A.tour.length - 1, i));
     var s = A.tour[tour.i], e = byId[s.tile];
     close(false);
-    document.getElementById('tour-step').textContent = 'Start here · ' + (tour.i + 1) + ' of ' + A.tour.length + ' · ' + e.t.name;
+    document.getElementById('tour-step').textContent = 'Start here · ' + (tour.i + 1) + ' of ' + A.tour.length + ' · ' + e.t.label;
     document.getElementById('tour-title').textContent = s.title;
     document.getElementById('tour-text').textContent = s.text;
     document.getElementById('tour-thm').innerHTML = s.thm ? 'Theorem: ' + esc(s.thm) : '';
