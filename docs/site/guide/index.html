@@ -43,7 +43,7 @@ ul.list li{font-size:17px;line-height:1.55;color:var(--muted);margin-bottom:6px}
 .example{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 20px;margin:12px 0 14px}
 .example p{margin:0 0 10px}.example p:last-child{margin:0}
 .example ul.list{margin-bottom:10px}
-.term{font-family:var(--mono);font-size:12px;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase;margin:0 0 6px}
+.term{font-family:var(--mono);font-size:12.5px;line-height:1.5;color:var(--dim);margin:-2px 0 10px}
 .q{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:16px 20px;margin:14px 0}
 .q h3{margin:0 0 8px}
 .q p:last-child{margin-bottom:0}
@@ -181,23 +181,23 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <p>These are the plain versions of the conditions the theory proves. Write <code>apply(e, s)</code> for event <code>e</code> applied to state <code>s</code>, and <code>repair(s)</code> for the repair run until it is done.</p>
 
 <div class="q">
-<div class="term">Research term: state descent (CC2)</div>
 <h3>(a) Does repairing early or late change what the next event produces?</h3>
+<p class="term">Research term: state descent (CC2 in the paper; note that CC2 is question (a))</p>
 <p>Take a state a replica can be in, including one where the repair has not run yet. Apply the next event to the state as it is, and to its repaired form. Repair both results. They should be equal: <code>repair(apply(e, repair(s))) == repair(apply(e, s))</code>.</p>
 <p>The shelf fails at a raw stock of 7. Repair, then remove 1: 4. Remove 1, then repair: 5. The cap threw away items that the removal needed to see.</p>
 <p class="note">This only matters if an event can arrive before the repair has finished; <a href="#when">section 4</a> shows when that happens.</p>
 </div>
 
 <div class="q">
-<div class="term">Research term: history descent (CC1, on repaired steps)</div>
 <h3>(b) Does reordering events change the repaired result?</h3>
+<p class="term">Research term: history descent, on repaired steps (CC1 in the paper; note that CC1 is question (b))</p>
 <p>Apply events with the repair after each one. Every order your delivery allows should give the same result. When any order is possible, it is enough to check every pair of events, in both orders, at every state a replica can reach.</p>
 <p>The shelf fails: 4 in one order, 5 in the other.</p>
 </div>
 
 <div class="q">
-<div class="term">Research term: terminating repair (WFC)</div>
 <h3>(c) Does the repair always finish?</h3>
+<p class="term">Research term: terminating repair (WFC in the paper and in gsm's report)</p>
 <p>A repair that triggers another repair, which triggers the first one again, never settles. The usual way to show that it finishes is to find a measure, such as the number of broken rules or the number of items over capacity, that every repair step makes smaller. That is not only a convenient method: a repair finishes from every state exactly when some such measure exists.</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceWFConverse.v#L109">terminating_iff_comp_wf</a></p>
 </div>
@@ -205,8 +205,18 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <p><b>What is proved.</b> Take one service whose repair always finishes, where events can arrive in any order and an event can arrive before the repair has finished. Its replicas agree in every order exactly when (a) and (b) both hold at the states replicas can reach. "Exactly" means both directions: if (a) and (b) hold, every order agrees; if either fails, some run of events and repair steps ends in two different states. Neither question implies the other. Some systems pass (a) and fail (b), and some pass (b) and fail (a).</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/GovernanceConverse.v#L372">cc_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/NormalizationDerived.v#L454">nd_derived_from</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L342">descent_not_history</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L354">history_not_descent</a></p>
 
-<h3>Tests you can add today</h3>
-<p>Here are the three questions as property-based tests, written for Python's <a href="https://hypothesis.readthedocs.io/">Hypothesis</a>. Supply your own <code>START</code>, <code>EVENTS</code>, <code>apply</code>, <code>is_valid</code>, <code>repair_step</code> (one step of the repair), <code>repair</code> (the repair run to the end) and <code>measure</code>.</p>
+<h3 id="tests">Tests you can add today</h3>
+<p>Here are the three questions as property-based tests, written for Python's <a href="https://hypothesis.readthedocs.io/">Hypothesis</a>. Supply your own <code>START</code>, <code>EVENTS</code>, <code>apply</code>, <code>is_valid</code>, <code>repair_step</code> (one step of the repair), <code>repair</code> (the repair run to the end) and <code>measure</code>. For the shelf they are:</p>
+<div class="codewrap"><pre>START, CAP = 4, 5
+EVENTS = ["add 3", "remove 1"]
+def apply(e, s):     return s + 3 if e == "add 3" else max(s - 1, 0)
+def is_valid(s):     return s &lt;= CAP
+def repair_step(s):  return min(s, CAP)          <span class="c"># one step: cap the stock</span>
+def repair(s):
+    while not is_valid(s): s = repair_step(s)
+    return s
+def measure(s):      return max(s - CAP, 0)      <span class="c"># items over the cap</span></pre></div>
+<p>The tests:</p>
 <div class="codewrap"><pre>from hypothesis import given, strategies as st
 
 events = st.sampled_from(EVENTS)
@@ -246,7 +256,7 @@ def test_order(s, e1, e2):
 def test_repair_finishes(s):
     if not is_valid(s):
         assert measure(repair_step(s)) &lt; measure(s)</pre></div>
-<p>Run against the shelf, the first two tests fail with 4 against 5. The states are built by replaying events from <code>START</code> on purpose: the conditions need to hold only at states a replica can reach, and testing arbitrary states can report failures that never happen. If your queue can deliver a message twice, a duplicate is one more order to check; the <a href="../atlas/">atlas</a> gives the exact condition for each delivery guarantee.</p>
+<p>Run against the shelf, the first two tests fail with 4 against 5 and the third passes. For (a), Hypothesis reports a raw stock of 7 and "remove 1"; for (b), a stock of 4 with "add 3" and "remove 1". The states are built by replaying events from <code>START</code> on purpose: the conditions need to hold only at states a replica can reach, and testing arbitrary states can report failures that never happen. If your queue can deliver a message twice, a duplicate is one more order to check; the <a href="../atlas/">atlas</a> gives the exact condition for each delivery guarantee.</p>
 <p class="note">A property-based test samples states and events. It can find a counterexample. It cannot show that none exists, because it does not try every state. That is what <a href="https://github.com/blackwell-systems/gsm">gsm</a> and the proofs are for: gsm tries every state of a finite model at build time, and the proofs show that these are the right conditions to check.</p>
 </section>
 
@@ -291,15 +301,15 @@ def test_repair_finishes(s):
 <h2><span class="n">6</span>More than one service</h2>
 <p>Services often copy data to each other: a catalog feeds search, orders feed billing, billing feeds a ledger. Each service enforces its own rules with its own repair. The questions change with the shape of the network.</p>
 <h3>No loops</h3>
-<p>When data flows one way, along a chain or a tree of services, the check splits into two local checks per link. An event gives the same result whether or not the link's repair has run (question (a), at the link). Two independent events on one service (events that nothing orders, so they can arrive in either order) give the same result in either order after that repair (question (b)). And when every service keeps getting its turn, the network settles at one state.</p>
+<p>When data flows one way, along a chain or a tree of services, the check splits into two local checks per link. An event gives the same result whether or not the link's repair has run (question (a), at the link). Two independent events on one service (events that nothing orders, so they can arrive in either order) give the same result in either order after that repair (question (b)). Settling needs no check of its own: when every service keeps getting its turn, a network without loops always settles at one state.</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/FederationEventsConverse.v#L565">fed_exact</a> · <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/RobertFair.v#L343">rb_robert_fair</a></p>
 <h3>Loops</h3>
-<p>When rules feed each other in a loop, repairs can push against each other forever. A schedule that gives every rule its turn can cycle without end, even when exactly one consistent state exists. The proved example is as small as a loop gets: one record and two rules that act on it. One rule swaps two bad values, A and B. The other repairs A to the good value. If the repair rule only ever gets its turn while the record holds B, the good value is never reached. Knowing the one consistent state is not enough; whether runs reach it is a separate question.</p>
+<p>When rules feed each other in a loop, repairs can push against each other forever. A schedule that gives every rule its turn can cycle without end, even when exactly one consistent state exists. The proved example is as small as a loop gets: one record and two rules that act on it. One rule swaps two bad values, A and B. The other repairs A to the good value. If the repair rule only ever gets its turn while the record holds B, the good value is never reached. As an analogy only, this is much like two controllers that each undo the other's change; the proof itself is about one record with two rules. Knowing the one consistent state is not enough; whether runs reach it is a separate question.</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LayerInterfaces.v#L1158">flip2_unique_solution_livelock</a></p>
 <h3>Questions with no efficient general check</h3>
-<p>Suppose the copies between services can lose information (a copy keeps a summary, not the whole record) and no single source feeds every service. Then deciding whether any state satisfies every link at once is NP-complete. Unless P = NP, no efficient check answers it in general.</p>
+<p>Suppose the copies between services can lose information (a copy keeps a summary, not the whole record) and no single source feeds every service. Then deciding whether any state satisfies every link at once is NP-complete. Unless P = NP, no efficient check answers it in general. An engineer asks this question when linking services whose rules might contradict each other: is there any consistent state at all across these linked services?</p>
 <p class="proof">Proof: <a class="thm" href="https://github.com/blackwell-systems/normalization-confluence/blob/main/coq/LossyHardness.v#L327">net_section_iff_sat</a></p>
-<p>Several questions, most of them about loops, are still open; each is listed with its progress in the <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/REGIME-AUDIT.md#the-open-gaps">regime audit</a>. The <a href="../atlas/">Convergence Atlas</a> maps every case on one page. Press "Start here" for a six-stop tour.</p>
+<p>7 open problems (9 open tiles on the atlas), most of them about loops, are still open; each is listed with its progress in the <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/REGIME-AUDIT.md#the-open-gaps">regime audit</a>. The <a href="../atlas/">Convergence Atlas</a> maps every case on one page. Press "Start here" for a six-stop tour.</p>
 </section>
 
 <section id="relates">
@@ -334,7 +344,7 @@ def test_repair_finishes(s):
 <tr><td>State descent</td><td>Question (a): repairing early or late does not change what the next event produces.</td></tr>
 <tr><td>History descent</td><td>Question (b): every order the delivery model allows gives the same repaired result.</td></tr>
 <tr><td>Terminating repair</td><td>Question (c): the repair always finishes. The earlier papers call it WFC.</td></tr>
-<tr><td>CC</td><td>Compensation commutativity. In the papers, CC1 and CC2 together: CC2 is question (a) and CC1 is question (b). The CC line in a gsm report checks CC1 only, question (b), because a gsm machine runs each event and its repair as one step (<a href="#when">section 4</a>).</td></tr>
+<tr><td>CC</td><td>Compensation commutativity. In the papers, CC1 and CC2 together: CC2 is question (a) and CC1 is question (b). The CC line in a gsm report checks CC1 only, question (b), because gsm runs each event and its repair as one step (<a href="#when">section 4</a>).</td></tr>
 <tr><td>CC1</td><td>Question (b): two repaired events give the same result in either order. History descent, on repaired steps. Note that the numbering runs the other way: CC1 is (b) and CC2 is (a).</td></tr>
 <tr><td>CC2</td><td>Question (a): repairing early or late does not change what the next event produces. State descent.</td></tr>
 <tr><td>WFC</td><td>Well-founded compensation. Question (c): the repair always finishes.</td></tr>

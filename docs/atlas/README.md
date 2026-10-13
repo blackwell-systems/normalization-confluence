@@ -4,7 +4,9 @@ A one-page poster of the regime map: eleven families of regimes, one tile per re
 what the development proves there (blue: an exact condition; orange: a mechanized hardness
 reduction; dashed: an open, numbered gap; hatched: excluded by design), and four plates of the
 counterexamples that show a condition is needed. A gold ring marks the results closed in #117.
-Every tile carries its answer in one plain line on its face, relative to the tile's stated model.
+Every tile's face names its situation in plain words (its label) and gives its answer in one plain
+line, relative to the tile's stated model; the regime's name in the theory, its main theorem and the
+"iff" mark are in the detail card.
 
 It is a draft of the Convergence Atlas planned in [docs/ROADMAP.md](../ROADMAP.md#planned-artifact-the-convergence-atlas).
 It adds no proofs and claims no more than [REGIME-AUDIT.md](../../REGIME-AUDIT.md) does.
@@ -16,7 +18,7 @@ Open `docs/atlas/poster.html` in a browser (from disk is fine: the tile data is 
 printed, it is 1800 px wide, and the catalog view fits an 1800 x 4000 px page. The IBM Plex fonts
 load from Google Fonts, with system fallbacks offline.
 
-Hover, focus (Tab) or tap a tile for its detail card: the plain answer, the setting, the exact
+Hover, focus (Tab) or tap a tile for its detail card: the plain answer, the regime's name, the setting, the exact
 condition (or the hardness result, the open part, or why the regime is outside the map), the
 counterexamples showing each conjunct is needed, what gsm checks, the theorem names with their Coq
 modules, where the tile sits in the theory (its layer and its axis cell), a link to the audit section
@@ -56,8 +58,8 @@ through it; Escape or the close button ends it. It works in every view and on a 
 - `poster.html`: the poster and the card behavior.
 - `regimes.js`: the tiles and card text (`window.ATLAS`), one entry per tile, each paraphrasing a
   row of [REGIME-AUDIT.md](../../REGIME-AUDIT.md) (and [docs/COVERAGE.md](../COVERAGE.md) for the
-  gaps). The theory views add, per tile: `id` (stable, used by the tour), `plain` (the one-line
-  answer), `layer` (`A`, `B`, `C`, or the interface `AB`, `BC`, `AC` when the tile's theorems use
+  gaps). The theory views add, per tile: `id` (stable, used by the tour), `label` (the face title,
+  in plain words), `plain` (the one-line answer), `layer` (`A`, `B`, `C`, or the interface `AB`, `BC`, `AC` when the tile's theorems use
   two layers), `shape` and `model` (its row and column in the Axes view) and `paper` (a named
   destination of the paper PDF). Top-level blocks hold the paper link and section titles, the
   framework header, the layers and interfaces, the axes and the tour. The file's header comment
@@ -68,7 +70,8 @@ through it; Escape or the close button ends it. It works in every view and on a 
   anchor must be a heading of REGIME-AUDIT.md; the theorem count on the poster must equal the
   gate's threshold; and the open tiles must match the open gaps in REGIME-AUDIT.md (no tile shows a
   closed gap as open, and every open convergence gap in its Current state sentence has a tile). It
-  also checks the theory views' data: every tile has a unique id, a plain answer that fits its kind
+  also checks the theory views' data: every tile has a unique id, a face label of at most 60
+  characters with no research abbreviation or "iff", a plain answer that fits its kind
   (open tiles start "Open:", excluded tiles "Excluded:", hard tiles name NP), a layer in the allowed
   set, an axis row and column that exist, and a paper destination whose section title matches the
   section with that number in `docs/paper`; the tour's tile ids exist; and every theorem name in the
