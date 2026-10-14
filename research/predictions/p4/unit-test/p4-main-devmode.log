@@ -1,0 +1,60 @@
+=== RUN   TestP4ISGRStaleTombstoneOverTombstone
+2026-10-13T11:29:23.367-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._default._default Design docs for current view version (2.1) do not exist - creating...
+2026-10-13T11:29:23.367-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._default._default Design docs successfully created for view version 2.1.
+2026-10-13T11:29:23.367-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._default._default Verifying view availability for bucket
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._default._default Views ready for bucket
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_0 Design docs for current view version (2.1) do not exist - creating...
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_0 Design docs successfully created for view version 2.1.
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_0 Verifying view availability for bucket
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_0 Views ready for bucket
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_1 Design docs for current view version (2.1) do not exist - creating...
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_1 Design docs successfully created for view version 2.1.
+2026-10-13T11:29:23.368-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_1 Verifying view availability for bucket
+2026-10-13T11:29:23.369-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1.sg_test_0.sg_test_1 Views ready for bucket
+2026-10-13T11:29:23.369-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._system._mobile Design docs for current view version (2.1) do not exist - creating...
+2026-10-13T11:29:23.369-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._system._mobile Design docs successfully created for view version 2.1.
+2026-10-13T11:29:23.369-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._system._mobile Verifying view availability for bucket
+2026-10-13T11:29:23.369-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone b:rosmar1._system._mobile Views ready for bucket
+2026-10-13T11:29:23.371-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone c:CleanAgedItems db:db Created background task: "CleanAgedItems" with interval 1m0s
+2026-10-13T11:29:23.371-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone c:CleanAgedLateLogs db:db Created background task: "CleanAgedLateLogs" with interval 5m0s
+2026-10-13T11:29:23.371-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone db:db col:sg_test_0 Using default sync function "function(doc){channel(\"sg_test_0\");}" for database db.sg_test_0.sg_test_0
+2026-10-13T11:29:23.372-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone c:InsertPendingEntries db:db Created background task: "InsertPendingEntries" with interval 2.5s
+2026-10-13T11:29:23.373-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone c:CleanSkippedSequenceQueue db:db Created background task: "CleanSkippedSequenceQueue" with interval 30m0s
+2026-10-13T11:29:23.373-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone db:db Using metadata purge interval of 30.00 days for tombstone compaction.
+2026-10-13T11:29:23.373-07:00 [INF] t:TestP4ISGRStaleTombstoneOverTombstone c:TotalSyncTimeStat db:db Created background task: "TotalSyncTimeStat" with interval 1s
+    p4_tombstone_regression_test.go:43: after x0 (local write)       cas=1791916163374514176 seq=1 deleted=false winner=1-82785850a0d4511198d855b0d3a86331 leaves=[1-82785850a0d4511198d855b0d3a86331] cv=rosmar1++++++++++++++A@1791916163373924352 pv=map[] mv=map[]
+    p4_tombstone_regression_test.go:80: srcA=rosmar1++++++++++++++A aVal=1791916163373924352 srcB=c3JjQg b10=1791916163373924362 b30=1791916163373924382
+    p4_tombstone_regression_test.go:85: tb3 write err=<nil>
+    p4_tombstone_regression_test.go:43: after tb3                    cas=1791916163375235072 seq=2 deleted=true winner=4-c3 leaves=[4-c3] cv=c3JjQg@1791916163373924382 pv=map[rosmar1++++++++++++++A:1791916163373924352] mv=map[]
+2026/10/13 11:29:23 Assertion failed: couldn't find channels for newRevID "2-a1" in doc "p4doc" RevTree: map[1-82785850a0d4511198d855b0d3a86331:0x1fda8b7c7440 2-a1:0x1fda8b7c74a0 3-b2:0x1fda8b7c7500 4-c3:0x1fda8b7c7560]
+--- FAIL: TestP4ISGRStaleTombstoneOverTombstone (0.01s)
+panic: Assertion failed: couldn't find channels for newRevID "2-a1" in doc "p4doc" RevTree: map[1-82785850a0d4511198d855b0d3a86331:0x1fda8b7c7440 2-a1:0x1fda8b7c74a0 3-b2:0x1fda8b7c7500 4-c3:0x1fda8b7c7560] [recovered, repanicked]
+
+goroutine 32 [running]:
+testing.tRunner.func1.2({0x1068a99e8, 0x1fda8b134600})
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/testing/testing.go:2125 +0x1a0
+testing.tRunner.func1()
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/testing/testing.go:2128 +0x2c8
+panic({0x1068a99e8?, 0x1fda8b134600?})
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/runtime/panic.go:859 +0x120
+log.Panicf({0x1fda8b7e61e0?, 0x1fda8b138fb8?}, {0x1fda8b5a5c20?, 0x25?, 0x10589693b?})
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/log/log.go:460 +0x74
+github.com/couchbase/sync_gateway/base.PanicfCtx({0x106a9e628, 0x1fda8b712420}, {0x1fda8b7e61e0, 0x4e}, {0x1fda8b5a5c20, 0x3, 0x3})
+	sync_gateway/base/logging.go:136 +0xb4
+github.com/couchbase/sync_gateway/base.AssertfCtx({0x106a9e628, 0x1fda8b712420}, {0x1058f4126, 0x3c}, {0x1fda8b5a5c20, 0x3, 0x3})
+	sync_gateway/base/devmode.go:84 +0x110
+github.com/couchbase/sync_gateway/db.(*DatabaseCollectionWithUser).updateAndReturnDoc(0x1fda8b70c228, {0x106a9e628, 0x1fda8b712420}, {0x10587bc4a, 0x5}, 0x1, 0x1fda8b734fd4, 0x0, 0x2, 0x0, ...)
+	sync_gateway/db/crud.go:3161 +0xfb4
+github.com/couchbase/sync_gateway/db.(*DatabaseCollectionWithUser).PutExistingCurrentVersion(0x1fda8b70c228, {0x106a9e628, 0x1fda8b712420}, {0x1fda8b734e00, {0x1fda8b7d6bc0, 0x2, 0x2}, 0x0, 0x0, 0x1, ...})
+	sync_gateway/db/crud.go:1535 +0x198
+github.com/couchbase/sync_gateway/db.p4ApplyISGRRev({0x106a9e628, 0x1fda8b712420}, 0x1fda8b70c228, {0x10587bc4a, 0x5}, 0x1fda8b5a5320, 0x1, 0x1fda8b5a52f0, {0x1fda8b7d6bc0, 0x2, ...}, ...)
+	sync_gateway/db/p4_tombstone_regression_test.go:58 +0x15c
+github.com/couchbase/sync_gateway/db.TestP4ISGRStaleTombstoneOverTombstone(0x1fda8b2fbb08)
+	sync_gateway/db/p4_tombstone_regression_test.go:95 +0x690
+testing.tRunner(0x1fda8b2fbb08, 0x106aab628)
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/testing/testing.go:2195 +0xc4
+created by testing.(*T).Run in goroutine 1
+	~/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.27.2.darwin-arm64/src/testing/testing.go:2260 +0x3b8
+FAIL	github.com/couchbase/sync_gateway/db	0.625s
+FAIL
+EXIT 1
