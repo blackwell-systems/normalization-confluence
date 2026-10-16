@@ -124,7 +124,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 <div class="kicker">Normalization Confluence</div>
 <h1>When do copies of your data still agree?</h1>
 <p class="thesis">Systems that keep copies across regions, devices or services often accept a write and then repair it: cap the stock, clamp a balance, run a compensating step. Every copy can run that repair correctly and the copies can still disagree: oversold stock, a wrong balance, a deleted record that comes back. This work gives the exact conditions for when they agree, every one machine-checked, and gsm, a Go library, checks them at build time for systems that repair in the same transaction as the write.</p>
-<p class="proofline">Before either system was run, the theory predicted which delivery orders bring a deleted document back in CouchDB (a widely used open-source database) and PouchDB. All 216 observations matched, and a behavior found along the way is a CouchDB bug, <a href="https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781">confirmed by a maintainer</a>.</p>
+<p class="proofline">Before either system was run, the theory predicted which delivery orders bring a deleted document back in CouchDB (a widely used open-source database) and PouchDB. All 216 observations matched, and a behavior found along the way was a CouchDB bug, now <a href="https://github.com/apache/couchdb/pull/6168">fixed upstream</a>.</p>
 <div class="cta">
 <a class="btn primary" href="guide/">Start here: the engineer's guide</a>
 <a class="btn" href="https://github.com/blackwell-systems/gsm">Try gsm</a>
@@ -167,7 +167,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;color:v
 
 <section id="prediction">
 <h2>A prediction about real software</h2>
-<p>CouchDB and PouchDB replicate documents between databases. Using the theory, a model of each computed which delivery orders bring a deleted document back. The prediction was committed before either system was run. Then both systems were run: all 216 observations matched. A larger scenario that was not part of the scored prediction found an error in the CouchDB model, since corrected. That error led to a CouchDB behavior, now <a href="https://github.com/apache/couchdb/issues/6162">reported upstream</a> and <a href="https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781">confirmed as a bug by a CouchDB maintainer</a>. It matters because a validation function that accepts every document should not change what replicates, but in CouchDB it can decide whether a deleted document comes back.</p>
+<p>CouchDB and PouchDB replicate documents between databases. Using the theory, a model of each computed which delivery orders bring a deleted document back. The prediction was committed before either system was run. Then both systems were run: all 216 observations matched. A larger scenario that was not part of the scored prediction found an error in the CouchDB model, since corrected. That error led to a CouchDB behavior, <a href="https://github.com/apache/couchdb/issues/6162">reported upstream</a>, <a href="https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781">confirmed as a bug by a CouchDB maintainer</a>, and <a href="https://github.com/apache/couchdb/pull/6168">fixed</a>. It matters because a validation function that accepts every document should not change what replicates, but in CouchDB it can decide whether a deleted document comes back.</p>
 <p class="detail">The computed orders: 6 of 24 in CouchDB, none when CouchDB trims old revision history once at the end instead of after every update, and 12 of 24 in PouchDB. Each order ran three times. The real CouchDB replicator reaches the same behavior. Details: <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/P3.md">P3</a> · <a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/couchdb-replicator/README.md">replicator</a> · <a href="https://github.com/apache/couchdb/issues/6162">apache/couchdb#6162</a></p>
 </section>
 
@@ -243,7 +243,7 @@ _, report, err := r.Build()</pre></div>
 <div class="stats">
 <div class="stat"><div class="n" id="gate-count">4,797</div><div class="t">machine-checked proofs in Coq, a program that checks mathematical proofs, with no added axioms</div></div>
 <div class="stat"><div class="n"><span id="pred-confirmed">2</span> of <span id="pred-total">3</span></div><div class="t"><a href="https://github.com/blackwell-systems/normalization-confluence/blob/main/research/predictions/README.md">predictions</a> confirmed, each committed before its test</div></div>
-<div class="stat"><div class="n">1</div><div class="t">CouchDB bug <a href="https://github.com/apache/couchdb/issues/6162#issuecomment-6121020781">confirmed by a maintainer</a></div></div>
+<div class="stat"><div class="n">1</div><div class="t">CouchDB bug <a href="https://github.com/apache/couchdb/pull/6168">fixed upstream</a></div></div>
 <div class="stat"><div class="n">3</div><div class="t">classical results reproduced from outside the repository, one in part (<a href="#tested">below</a>)</div></div>
 <div class="stat"><div class="n" id="open-count">7</div><div class="t"><a href="#open-problems">open problems</a> (9 open tiles on the atlas)</div></div>
 </div>
