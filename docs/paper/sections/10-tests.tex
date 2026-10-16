@@ -158,7 +158,8 @@ behavior: with partial histories, the same revisions in the same order can leave
 deleted depending only on whether the database has a validation function, even one that accepts
 everything. CouchDB's own replicator reaches it, through an optimization that skips the
 missing-revisions check after a run of batches in which everything was missing. It was reported to the
-CouchDB project, and a maintainer confirmed it as a bug~\cite{couchdb6162}. Follow-up tests on
+CouchDB project, a maintainer confirmed it as a bug~\cite{couchdb6162}, and a fix was merged
+upstream~\cite{couchdb6168}. Follow-up tests on
 CouchDB~3.5.3, archived with the replicator scenarios, narrowed the trigger: it needs databases with
 different revision limits and a document history deeper than the lower limit, and it occurred at every
 mismatch tested, 3, 10, 100 and 999 against 1000 (through the replicator with default settings at 100
