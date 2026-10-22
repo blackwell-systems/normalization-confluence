@@ -102,7 +102,7 @@ repository's results, so recovering them shows compression, not reach. Two stric
   deleted document comes back (6 of 24 in CouchDB, 12 of 24 in PouchDB), and the running software
   matched on all 216 scored observations ([P3](research/predictions/P3.md)). An unscored scenario
   found an error in the model; its correction exposed a CouchDB behavior, reported upstream as
-  [apache/couchdb#6162](https://github.com/apache/couchdb/issues/6162), since [fixed upstream](https://github.com/apache/couchdb/pull/6168).
+  [apache/couchdb#6162](https://github.com/apache/couchdb/issues/6162), since [fixed upstream](https://github.com/apache/couchdb/pull/6168). A follow-up check of that fix found a regression ([#6170](https://github.com/apache/couchdb/issues/6170)), also [fixed upstream](https://github.com/apache/couchdb/pull/6174).
 
 ## Scope
 
